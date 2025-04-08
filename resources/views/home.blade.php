@@ -1,10 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-5">
+<link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+
+<div class="container mt-5 survey-container">
     <div class="text-center mb-5">
-      <img src="img/logo.JPG" alt="Logo" class="d-block mx-auto logo" style="max-width: 200px;">
-      <h2>CUSTOMER SATISFACTION SURVEY FORM</h2>
+        <img src="img/logo.JPG" alt="Logo" class="d-block mx-auto logo" style="max-width: 180px;">
+        <h2 class="mt-4" style="color: #2c3e50; font-weight: 600;">CUSTOMER SATISFACTION SURVEY</h2>
     </div>
 
     <form id="surveyForm" method="POST" action="{{ route('survey.submit') }}">
@@ -28,43 +30,93 @@
         <!-- Survey Questions Section -->
         <h6 class="text-center mt-4 mb-4">Please select the number which more accurately reflects your satisfaction level</h6>
     
-        <table class="table table-bordered survey-table">
-            <thead class="text-center">
-                <tr>
-                    <th>Questions</th>
-                    <th>1 - Poor</th>
-                    <th>2 - Needs Improvement</th>
-                    <th>3 - Satisfactory</th>
-                    <th>4 - Very Satisfactory</th>
-                    <th>5 - Excellent</th>
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                    $questions = [
-                        'Q1' => 'Our salesperson is courteous and well-groomed',
-                        'Q2' => 'He visits your outlet regularly as scheduled',
-                        'Q3' => 'He conducts stock inventory and store checking during a store visit',
-                        'Q4' => 'Our delivery personnel are well-mannered, polite, and honest',
-                        'Q5' => 'Ordered stocks are delivered on the expected date and in good condition',
-                        'Q6' => 'We are responsive to your calls, queries, and/or concerns and provide resolutions on time',
-                    ];
-                @endphp
-        
-                @foreach ($questions as $name => $text)
-                <tr>
-                    <td>{{ $name }}: {{ $text }}</td>
-                    @for ($i = 1; $i <= 5; $i++)
-                    <td class="text-center">
-                        <label>
-                            <input type="radio" name="{{ $name }}" value="{{ $i }}" required>
-                        </label>
-                    </td>
-                    @endfor
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+        @php
+    $questions = [
+        'Q1' => 'Our salesperson is courteous and well-groomed',
+        'Q2' => 'He visits your outlet regularly as scheduled',
+        'Q3' => 'He conducts stock inventory and store checking during a store visit',
+        'Q4' => 'Our delivery personnel are well-mannered, polite, and honest',
+        'Q5' => 'Ordered stocks are delivered on the expected date and in good condition',
+        'Q6' => 'We are responsive to your calls, queries, and/or concerns and provide resolutions on time',
+    ];
+@endphp
+
+@if(session('rating_type') === 'radio')
+    <table class="table table-bordered survey-table">
+        <thead class="text-center">
+            <tr>
+                <th>Questions</th>
+                <th>1 - Poor</th>
+                <th>2 - Needs Improvement</th>
+                <th>3 - Satisfactory</th>
+                <th>4 - Very Satisfactory</th>
+                <th>5 - Excellent</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($questions as $name => $text)
+            <tr>
+                <td>{{ $name }}: {{ $text }}</td>
+                @for ($i = 1; $i <= 5; $i++)
+                <td class="text-center">
+                    <label>
+                        <input type="radio" name="{{ $name }}" value="{{ $i }}" required>
+                    </label>
+                </td>
+                @endfor
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+@else
+    <style>
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+        }
+        .star-rating input {
+            display: none;
+        }
+        .star-rating label {
+            cursor: pointer;
+            width: 35px;
+            height: 40px;
+            margin: 0 10px;
+            background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="%23ddd"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="%23ffd700"/></svg>');
+        }
+    </style>
+
+    <table class="table table-bordered survey-table">
+        <thead class="text-center">
+            <tr>
+                <th>Questions</th>
+                <th>Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($questions as $name => $text)
+            <tr>
+                <td>{{ $name }}: {{ $text }}</td>
+                <td>
+                    <div class="star-rating">
+                        @for ($i = 5; $i >= 1; $i--)
+                            <input type="radio" id="{{ $name }}-{{ $i }}" name="{{ $name }}" value="{{ $i }}" required>
+                            <label for="{{ $name }}-{{ $i }}"></label>
+                        @endfor
+                    </div>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+@endif
         
     
         <hr style="height:10px;border-width:0;color:gray;background-color:gray">
