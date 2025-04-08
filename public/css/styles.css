@@ -1,0 +1,37 @@
+.survey-table td {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.survey-table thead {
+    background-color: #ebe9e9;
+}
+.survey-table td:first-child {
+    text-align: left; /* Left-align the first column (questions) */
+}
+
+input[type="radio"] {
+    transform: scale(1.5); /* 1.5 times the size */
+    margin: 10px;
+}
+
+hr {
+    height: 2px;
+    border-width: 0;
+    color: gray;
+    background-color: gray;
+}
+
+.dropdown select {
+    background-color: #d3d3d3;
+}
+
+.star {
+    font-size: 30px;
+    cursor: pointer;
+    color: gray;
+}
+
+.star.selected {
+    color: gold;
+}
