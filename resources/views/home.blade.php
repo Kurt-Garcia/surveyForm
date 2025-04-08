@@ -98,7 +98,7 @@
         </div>
 
         <div class="text-center mt-2 mb-4">
-            <h5>WE APPRECIATE YOUR FEEDBACK! THANK YOU SO MUCHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH!</h5>
+            <h5>WE APPRECIATE YOUR FEEDBACK! THANK YOU SO MUCH!</h5>
         </div>
     
         <div class="text-center">
