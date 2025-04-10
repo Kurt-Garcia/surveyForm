@@ -27,7 +27,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/index';
 
     /**
      * Create a new controller instance.
@@ -72,7 +72,7 @@ class LoginController extends Controller
         // For regular users, set rating type and redirect to home
         $ratingType = rand(0, 1) ? 'radio' : 'star';
         session(['rating_type' => $ratingType]);
-        return redirect()->intended('/home');
+        return redirect()->intended('/index');
     }
 
     public function logout(Request $request)

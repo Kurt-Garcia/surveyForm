@@ -12,7 +12,7 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/index', [App\Http\Controllers\HomeController::class, 'index'])->name('index');
 
 Route::post('/submit-survey', [FormController::class, 'store'])->name('survey.submit');
 
@@ -20,5 +20,6 @@ Route::post('/submit-survey', [FormController::class, 'store'])->name('survey.su
 Route::prefix('admin')->group(function () {
     Route::middleware('auth:admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/create-survey', [AdminController::class, 'createSurvey'])->name('admin.createSurvey');
     });
 });

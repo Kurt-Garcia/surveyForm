@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\SurveyForm;
 
 class AdminController extends Controller
 {
@@ -45,5 +46,29 @@ class AdminController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect('/');
+    }
+
+    public function createSurvey(Request $request)
+    {
+        if ($request->isMethod('post')) {
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'questions' => 'required|array',
+                'questions.*.text' => 'required|string|max:255',
+                'questions.*.type' => 'required|in:text,radio,checkbox,select'
+            ]);
+
+            $survey = SurveyForm::create([
+                'accountName' => $validated['title'],
+                'accountType' => $validated['description'] ?? '',
+                'date' => now(),
+                'admin_id' => Auth::guard('admin')->id()
+            ]);
+
+            return redirect()->route('admin.dashboard')->with('success', 'Survey created successfully!');
+        }
+
+        return view('admin.create_survey');
     }
 }
