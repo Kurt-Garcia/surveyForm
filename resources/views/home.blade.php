@@ -177,6 +177,8 @@
     </div>
 </div>
 
+
+{{-- Script to show the modal when the form is submitted successfully --}}
 @if(session('success'))
 <script>
     window.addEventListener('load', function () {

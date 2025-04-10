@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\AdminController;
 
 
 Route::get('/', function () {
@@ -14,3 +15,10 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::post('/submit-survey', [FormController::class, 'store'])->name('survey.submit');
+
+// Admin Routes
+Route::prefix('admin')->group(function () {
+    Route::middleware('auth:admin')->group(function () {
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    });
+});

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -39,10 +40,51 @@ class LoginController extends Controller
         $this->middleware('auth')->only('logout');
     }
 
+    protected function attemptLogin(Request $request)
+    {
+        // Clear any existing sessions to prevent guard conflicts
+        Auth::guard('web')->logout();
+        Auth::guard('admin')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // First try admin authentication
+        if (Auth::guard('admin')->attempt($this->credentials($request))) {
+            session(['is_admin' => true]);
+            return true;
+        }
+
+        // If admin auth fails, try regular user authentication
+        if (Auth::guard('web')->attempt($this->credentials($request), $request->filled('remember'))) {
+            session(['is_admin' => false]);
+            return true;
+        }
+
+        return false;
+    }
+
     protected function authenticated(Request $request, $user)
     {
-        // Randomly select rating type (radio or star)
+        if (session('is_admin') === true) {
+            return redirect()->intended('/admin/dashboard');
+        }
+
+        // For regular users, set rating type and redirect to home
         $ratingType = rand(0, 1) ? 'radio' : 'star';
         session(['rating_type' => $ratingType]);
+        return redirect()->intended('/home');
+    }
+
+    public function logout(Request $request)
+    {
+        // Logout from all guards
+        Auth::guard('web')->logout();
+        Auth::guard('admin')->logout();
+        
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Always redirect to welcome page
+        return redirect('/');
     }
 }
