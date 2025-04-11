@@ -29,16 +29,30 @@
                               rows="3" 
                               required></textarea>
                 @elseif($question->type === 'rating')
-                    <div class="star-rating">
-                        @for($i = 5; $i >= 1; $i--)
-                            <input type="radio" 
-                                   id="star{{ $i }}_{{ $question->id }}" 
-                                   name="responses[{{ $question->id }}]" 
-                                   value="{{ $i }}" 
-                                   required>
-                            <label for="star{{ $i }}_{{ $question->id }}" 
-                                   class="star">★</label>
-                        @endfor
+                    <div class="rating-options">
+                        @php
+                            $ratings = [
+                                5 => 'Excellent',
+                                4 => 'Very Satisfactory',
+                                3 => 'Satisfactory',
+                                2 => 'Need Improvement',
+                                1 => 'Poor'
+                            ];
+                        @endphp
+                        @foreach($ratings as $value => $label)
+                            <div class="form-check">
+                                <input type="radio" 
+                                       class="form-check-input" 
+                                       id="rating{{ $value }}_{{ $question->id }}" 
+                                       name="responses[{{ $question->id }}]" 
+                                       value="{{ $value }}" 
+                                       required>
+                                <label class="form-check-label" 
+                                       for="rating{{ $value }}_{{ $question->id }}">
+                                    {{ $label }}
+                                </label>
+                            </div>
+                        @endforeach
                     </div>
                 @endif
 

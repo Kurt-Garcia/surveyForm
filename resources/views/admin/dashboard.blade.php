@@ -43,6 +43,9 @@
                         <a href="{{ route('admin.surveys.create') }}" class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-sm" style="transition: all 0.3s ease;">
                             <i class="bi bi-plus-circle me-2"></i>Create Survey
                         </a>
+                        <a href="{{ route('admin.surveys.index') }}" class="btn btn-outline-primary btn-lg px-5 py-3 rounded-pill shadow-sm" style="transition: all 0.3s ease;">
+                            <i class="bi bi-plus-circle me-2"></i>View Survey
+                        </a>
                         <a href="#" class="btn btn-outline-primary btn-lg px-5 py-3 rounded-pill shadow-sm" style="transition: all 0.3s ease;">
                             <i class="bi bi-bar-chart me-2"></i>View Responses
                         </a>

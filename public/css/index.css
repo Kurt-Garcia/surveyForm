@@ -3,30 +3,40 @@ body {
     background: linear-gradient(135deg, #f0f4ff, #dceaff);
     color: #333;
     margin: 0;
-    padding: 0;
+    min-height: 100vh;
 }
 
 .welcome-header {
     text-align: center;
     margin-bottom: 2rem;
+    padding: 0 1rem;
 }
 
 .welcome-header h1 {
-    font-size: 2.5rem;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
     margin-bottom: 0.5rem;
     color: #004aad;
 }
 
+.welcome-header p {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    color: #666;
+}
+
 .rating-navigation {
     display: flex;
-    justify-content: space-around;
-    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
     margin-bottom: 2rem;
+    padding: 0 1rem;
 }
 
 .rating-option {
-    flex: 1;
-    padding: 2rem;
+    flex: 1 1 300px;
+    max-width: 400px;
+    min-width: 250px;
+    padding: 1.5rem;
     background: #f9fbff;
     border: 2px solid #d0e2ff;
     border-radius: 1rem;
@@ -44,20 +54,57 @@ body {
 
 .rating-option h2 {
     margin-bottom: 0.5rem;
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+}
+
+.rating-option p {
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    color: #666;
 }
 
 .auth-links {
     text-align: center;
     margin-top: 2rem;
+    padding: 1rem;
 }
 
 .auth-links a {
-    margin: 0 1rem;
+    display: inline-block;
+    margin: 0.5rem 1rem;
     text-decoration: none;
     color: #007bff;
     font-weight: 600;
+    font-size: clamp(0.9rem, 2vw, 1rem);
 }
 
 .auth-links a:hover {
     text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .rating-navigation {
+        gap: 1rem;
+    }
+
+    .rating-option {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 0.5rem;
+    }
+
+    .container {
+        padding: 0.5rem;
+    }
+
+    .welcome-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .rating-option {
+        min-width: 200px;
+    }
 }
