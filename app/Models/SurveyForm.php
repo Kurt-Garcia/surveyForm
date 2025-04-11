@@ -7,16 +7,28 @@ use Illuminate\Database\Eloquent\Model;
 class SurveyForm extends Model
 {
     protected $fillable = [
+        'survey_id',
+        'user_id',
         'accountName',
         'accountType',
-        'date',
-        'Q1',
-        'Q2',
-        'Q3',
-        'Q4',
-        'Q5',
-        'Q6',
-        'surveyRating',
+        'submission_date',
+        'status',
+        'recommendation',
         'comments'
     ];
+
+    public function survey()
+    {
+        return $this->belongsTo(Survey::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function responses()
+    {
+        return $this->hasMany(SurveyResponse::class);
+    }
 }

@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\AdminAuthController;
+use App\Http\Controllers\SurveyResponseController;
+use App\Http\Controllers\UserSurveyController;
 
 
 Route::get('/', function () {
@@ -18,9 +20,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/index', [App\Http\Controllers\UserSurveyController::class, 'index'])->name('index');
     Route::get('/surveys/{survey}', [App\Http\Controllers\UserSurveyController::class, 'show'])->name('surveys.show');
     Route::post('/surveys/{survey}', [App\Http\Controllers\UserSurveyController::class, 'store'])->name('surveys.store');
+    Route::get('/surveys/thankyou', [App\Http\Controllers\UserSurveyController::class, 'thankyou'])->name('surveys.thankyou');
 });
 
 Route::post('/submit-survey', [FormController::class, 'store'])->name('survey.submit');
+Route::post('/survey-responses', [SurveyResponseController::class, 'store'])->name('survey-responses.store');
+Route::get('/thankyou', [UserSurveyController::class, 'thankyou'])->name('survey.thankyou');
 
 // Admin Routes
 Route::prefix('admin')->group(function () {

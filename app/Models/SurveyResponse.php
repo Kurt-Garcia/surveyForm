@@ -3,29 +3,28 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SurveyResponse extends Model
 {
+    protected $table = 'survey_forms';
+    
     protected $fillable = [
-        'user_id',
-        'survey_id',
-        'question_id',
-        'response'
+        'account_name',
+        'account_type',
+        'date',
+        'responses',
+        'recommendation',
+        'comments',
+        'survey_id'
     ];
 
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
+    protected $casts = [
+        'responses' => 'array',
+        'date' => 'date'
+    ];
 
-    public function survey(): BelongsTo
+    public function survey()
     {
         return $this->belongsTo(Survey::class);
-    }
-
-    public function question(): BelongsTo
-    {
-        return $this->belongsTo(SurveyQuestion::class);
     }
 }

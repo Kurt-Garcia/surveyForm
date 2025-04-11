@@ -36,6 +36,11 @@ class UserSurveyController extends Controller
             ]);
         }
 
-        return redirect()->route('index')->with('success', 'Survey completed successfully!');
+        return redirect()->route('survey.thankyou');
+    }
+
+    public function thankyou()
+    {
+        return view('surveys.thankyou');
     }
 }
