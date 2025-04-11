@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\SurveyResponse;
+use App\Models\Survey;
 
 class SurveyResponseController extends Controller
 {
@@ -19,10 +20,39 @@ class SurveyResponseController extends Controller
             'comments' => 'required|string'
         ]);
 
-        // Store the response
-        $response = new SurveyResponse($validated);
-        $response->save();
+        // Get the survey with its questions
+        $survey = Survey::with('questions')->findOrFail($request->survey_id);
+        
+        // Get valid question IDs from the survey
+        $validQuestionIds = $survey->questions->pluck('id')->toArray();
+        
+        // Format and validate responses
+        $formattedResponses = [];
+        foreach ($validQuestionIds as $questionId) {
+            if (!isset($request->responses[$questionId])) {
+                return response()->json([
+                    'error' => 'Missing response for question ID: ' . $questionId
+                ], 422);
+            }
+            
+            $question = $survey->questions->firstWhere('id', $questionId);
+            $formattedResponses[] = [
+                'question' => $question->text,
+                'rating' => (int)$request->responses[$questionId]
+            ];
+        }
 
-        return redirect()->back()->with('success', 'Thank you for your feedback!');
+        // Create the response with formatted data
+        $response = SurveyResponse::create([
+            'survey_id' => $validated['survey_id'],
+            'account_name' => $validated['account_name'],
+            'account_type' => $validated['account_type'],
+            'date' => $validated['date'],
+            'responses' => $formattedResponses,
+            'recommendation' => $validated['recommendation'],
+            'comments' => $validated['comments']
+        ]);
+
+        return response()->json(['message' => 'Survey response submitted successfully']);
     }
 }

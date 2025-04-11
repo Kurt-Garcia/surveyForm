@@ -158,6 +158,11 @@ $(document).ready(function() {
                 $('#errorMessage').addClass('d-none');
                 modal.show();
                 $('#surveyForm')[0].reset();
+                
+                // Auto close modal after 2 seconds on success
+                setTimeout(function() {
+                    modal.hide();
+                }, 2000);
             },
             error: function(xhr) {
                 $('#successMessage').addClass('d-none');
