@@ -13,14 +13,17 @@
         </header>
 
         <nav class="rating-navigation">
-            <a href="{{ route('index') }}" class="rating-option">
-                <h2>Delivery Rating</h2>
-                <p>Rate your delivery experience</p>
-            </a>
-            <a href="{{ route('index') }}" class="rating-option">
-                <h2>Service Rating</h2>
-                <p>Rate our customer service</p>
-            </a>
+            @forelse($surveys as $survey)
+                <a href="{{ route('surveys.show', $survey) }}" class="rating-option">
+                    <h2>{{ $survey->title }}</h2>
+                    <p>{{ $survey->questions->count() }} questions</p>
+                </a>
+            @empty
+                <div class="rating-option">
+                    <h2>No surveys available</h2>
+                    <p>Please check back later</p>
+                </div>
+            @endforelse
         </nav>
     </div>
 @endsection

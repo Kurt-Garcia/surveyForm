@@ -8,7 +8,7 @@
                 <div class="card-header">{{ __('Create New Survey') }}</div>
 
                 <div class="card-body">
-                    <form method="POST" action="{{ route('admin.createSurvey') }}">
+                    <form method="POST" action="{{ route('admin.surveys.store') }}">
                         @csrf
 
                         <div class="form-group row">
