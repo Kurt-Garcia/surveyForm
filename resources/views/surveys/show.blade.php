@@ -7,7 +7,7 @@
 
 <div class="container mt-5 survey-container">
     <div class="text-center mb-5">
-        <img src="img/logo.JPG" alt="Logo" class="d-block mx-auto logo" style="max-width: 180px;">
+        <img src="{{ asset('img/logo.JPG') }}" alt="Logo" class="d-block mx-auto logo" style="max-width: 180px;">
         <h2 class="mt-4" style="color: #2c3e50; font-weight: 600;">{{ $survey->title }}</h2>
     </div>
 
@@ -112,4 +112,65 @@
         </div>
     </div>
 </div>
+
+<!-- Response Modal -->
+<div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="responseModalLabel">Survey Response</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="successMessage" class="d-none">
+                    <i class="fas fa-check-circle text-success" style="font-size: 48px;"></i>
+                    <h4 class="mt-3">Thank you for your feedback!</h4>
+                    <p>Your response has been successfully submitted.</p>
+                </div>
+                <div id="errorMessage" class="d-none">
+                    <i class="fas fa-exclamation-circle text-danger" style="font-size: 48px;"></i>
+                    <h4 class="mt-3">Oops!</h4>
+                    <p>An error occurred. Please try again.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+<script>
+$(document).ready(function() {
+    const modal = new bootstrap.Modal(document.getElementById('responseModal'));
+    
+    $('#surveyForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        $.ajax({
+            url: $(this).attr('action'),
+            method: 'POST',
+            data: $(this).serialize(),
+            success: function(response) {
+                $('#successMessage').removeClass('d-none');
+                $('#errorMessage').addClass('d-none');
+                modal.show();
+                $('#surveyForm')[0].reset();
+            },
+            error: function(xhr) {
+                $('#successMessage').addClass('d-none');
+                $('#errorMessage').removeClass('d-none');
+                modal.show();
+            }
+        });
+    });
+    
+    $('#responseModal').on('hidden.bs.modal', function () {
+        $('#successMessage').addClass('d-none');
+        $('#errorMessage').addClass('d-none');
+    });
+});
+</script>
 @endsection

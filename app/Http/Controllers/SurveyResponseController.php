@@ -2,26 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SurveyResponse;
 use Illuminate\Http\Request;
+use App\Models\SurveyResponse;
 
 class SurveyResponseController extends Controller
 {
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'survey_id' => 'required|exists:surveys,id',
             'account_name' => 'required|string',
             'account_type' => 'required|string',
             'date' => 'required|date',
             'responses' => 'required|array',
-            'recommendation' => 'required|integer|min:1|max:10',
-            'comments' => 'required|string',
-            'survey_id' => 'required|exists:surveys,id'
+            'recommendation' => 'required|integer|between:1,10',
+            'comments' => 'required|string'
         ]);
 
-        SurveyResponse::create($validated);
+        // Store the response
+        $response = new SurveyResponse($validated);
+        $response->save();
 
-        return redirect()->route('surveys.thankyou')
-            ->with('success', 'Thank you for your feedback!');
+        return redirect()->back()->with('success', 'Thank you for your feedback!');
     }
 }
