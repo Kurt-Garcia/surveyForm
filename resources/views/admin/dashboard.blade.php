@@ -50,6 +50,9 @@
                         <a href="#" class="btn btn-outline-primary btn-lg px-5 py-3 rounded-pill shadow-sm" style="transition: all 0.3s ease;">
                             <i class="bi bi-bar-chart me-2"></i>View Responses
                         </a>
+                        <a href="{{ route('admin.admins.create') }}" class="btn btn-outline-primary btn-lg px-5 py-3 rounded-pill shadow-sm" style="transition: all 0.3s ease;">
+                            <i class="bi bi-person-plus me-2"></i>Add Admin
+                        </a>
                     </div>
                 </div>
             </div>

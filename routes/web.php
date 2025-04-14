@@ -7,13 +7,19 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\SurveyResponseController;
 use App\Http\Controllers\UserSurveyController;
-
+use App\Http\Controllers\Auth\ChangePasswordController;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
 Auth::routes();
+
+// Password change routes - accessible by both users and admins
+Route::middleware(['auth:web,admin'])->group(function () {
+    Route::get('/password/change', [ChangePasswordController::class, 'showChangePasswordForm'])->name('password.change');
+    Route::post('/password/change', [ChangePasswordController::class, 'changePassword']);
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', [App\Http\Controllers\UserSurveyController::class, 'index'])->name('home');
@@ -35,6 +41,11 @@ Route::prefix('admin')->group(function () {
 
     Route::middleware(['auth:admin'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        
+        // Admin management routes
+        Route::get('/admins/create', [App\Http\Controllers\Admin\AdminManagementController::class, 'create'])->name('admin.admins.create');
+        Route::post('/admins', [App\Http\Controllers\Admin\AdminManagementController::class, 'store'])->name('admin.admins.store');
+        
         Route::resource('surveys', \App\Http\Controllers\Admin\SurveyController::class)->names([
             'index' => 'admin.surveys.index',
             'create' => 'admin.surveys.create',

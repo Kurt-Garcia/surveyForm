@@ -2,28 +2,32 @@
 
 @section('content')
 <div class="container">
-    <div class="row justify-content-center align-items-center min-vh-100">
+    <div class="row justify-content-center align-items-center">
         <div class="col-md-6">
             <div class="card shadow-lg border-0 rounded-lg">
                 <div class="card-header bg-primary text-white text-center py-3">
-                    <h3 class="mb-0">{{ __('Reset Password') }}</h3>
+                    <h3 class="mb-0">{{ __('Change Password') }}</h3>
                 </div>
 
                 <div class="card-body p-5">
-                    <form method="POST" action="{{ route('password.update') }}">
+                    @if (session('success'))
+                        <div class="alert alert-success">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('password.change') }}">
                         @csrf
 
-                        <input type="hidden" name="token" value="{{ $token }}">
-
                         <div class="mb-4">
-                            <label for="email" class="form-label">{{ __('Email Address') }}</label>
+                            <label for="current_password" class="form-label">{{ __('Current Password') }}</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" 
-                                    name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" autofocus 
-                                    placeholder="Enter your email">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input id="current_password" type="password" 
+                                    class="form-control @error('current_password') is-invalid @enderror" 
+                                    name="current_password" required autocomplete="current-password">
                             </div>
-                            @error('email')
+                            @error('current_password')
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
@@ -32,9 +36,9 @@
                             <label for="password" class="form-label">{{ __('New Password') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" 
-                                    name="password" required autocomplete="new-password" 
-                                    placeholder="Enter new password">
+                                <input id="password" type="password" 
+                                    class="form-control @error('password') is-invalid @enderror" 
+                                    name="password" required autocomplete="new-password">
                             </div>
                             @error('password')
                                 <span class="text-danger small">{{ $message }}</span>
@@ -42,18 +46,17 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="password-confirm" class="form-label">{{ __('Confirm Password') }}</label>
+                            <label for="password-confirm" class="form-label">{{ __('Confirm New Password') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input id="password-confirm" type="password" class="form-control" 
-                                    name="password_confirmation" required autocomplete="new-password"
-                                    placeholder="Confirm new password">
+                                <input id="password-confirm" type="password" class="form-control"
+                                    name="password_confirmation" required autocomplete="new-password">
                             </div>
                         </div>
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg">
-                                {{ __('Reset Password') }}
+                                {{ __('Change Password') }}
                             </button>
                         </div>
                     </form>
@@ -78,13 +81,6 @@
     .input-group input:focus {
         box-shadow: none;
         border-color: #ced4da;
-    }
-    .btn-primary {
-        transition: all 0.3s ease;
-    }
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
 </style>
 @endsection
