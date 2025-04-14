@@ -26,8 +26,7 @@ class SurveyResponseController extends Controller
         // Get valid question IDs from the survey
         $validQuestionIds = $survey->questions->pluck('id')->toArray();
         
-        // Format and validate responses
-        $formattedResponses = [];
+        // Store individual responses for each question
         foreach ($validQuestionIds as $questionId) {
             if (!isset($request->responses[$questionId])) {
                 return response()->json([
@@ -35,23 +34,17 @@ class SurveyResponseController extends Controller
                 ], 422);
             }
             
-            $question = $survey->questions->firstWhere('id', $questionId);
-            $formattedResponses[] = [
-                'question' => $question->text,
-                'rating' => (int)$request->responses[$questionId]
-            ];
+            SurveyResponse::create([
+                'survey_id' => $validated['survey_id'],
+                'question_id' => $questionId,
+                'account_name' => $validated['account_name'],
+                'account_type' => $validated['account_type'],
+                'date' => $validated['date'],
+                'response' => $request->responses[$questionId],
+                'recommendation' => $validated['recommendation'],
+                'comments' => $validated['comments']
+            ]);
         }
-
-        // Create the response with formatted data
-        $response = SurveyResponse::create([
-            'survey_id' => $validated['survey_id'],
-            'account_name' => $validated['account_name'],
-            'account_type' => $validated['account_type'],
-            'date' => $validated['date'],
-            'responses' => $formattedResponses,
-            'recommendation' => $validated['recommendation'],
-            'comments' => $validated['comments']
-        ]);
 
         return response()->json(['message' => 'Survey response submitted successfully']);
     }

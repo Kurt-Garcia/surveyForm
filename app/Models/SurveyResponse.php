@@ -6,16 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class SurveyResponse extends Model
 {
-    protected $table = 'survey_forms';
+    protected $table = 'survey_responses';
     
     protected $fillable = [
         'account_name',
         'account_type',
         'date',
-        'responses',
+        'survey_id',
+        'question_id',
+        'response',
         'recommendation',
-        'comments',
-        'survey_id'
+        'comments'
     ];
 
     protected $casts = [
