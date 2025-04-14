@@ -13,6 +13,7 @@ class SurveyResponse extends Model
         'account_type',
         'date',
         'survey_id',
+        'admin_id',
         'question_id',
         'response',
         'recommendation',
@@ -27,5 +28,10 @@ class SurveyResponse extends Model
     public function survey()
     {
         return $this->belongsTo(Survey::class);
+    }
+
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class);
     }
 }

@@ -36,6 +36,7 @@ class SurveyResponseController extends Controller
             
             SurveyResponse::create([
                 'survey_id' => $validated['survey_id'],
+                'admin_id' => $survey->admin_id, // Set the admin_id from the survey
                 'question_id' => $questionId,
                 'account_name' => $validated['account_name'],
                 'account_type' => $validated['account_type'],

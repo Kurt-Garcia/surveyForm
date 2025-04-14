@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\SurveyForm;
+use App\Models\Survey;
+use App\Models\SurveyResponse;
 
 class AdminController extends Controller
 {
@@ -15,7 +16,11 @@ class AdminController extends Controller
 
     public function dashboard()
     {
-        return view('admin.dashboard');
+        $totalSurveys = Survey::count();
+        $totalResponses = SurveyResponse::distinct('survey_id')->count('survey_id');
+        $activeSurveys = Survey::where('created_at', '>=', now()->subDays(30))->count();
+
+        return view('admin.dashboard', compact('totalSurveys', 'totalResponses', 'activeSurveys'));
     }
 
     public function login()
@@ -59,7 +64,7 @@ class AdminController extends Controller
                 'questions.*.type' => 'required|in:text,radio,checkbox,select'
             ]);
 
-            $survey = SurveyForm::create([
+            $survey = Survey::create([
                 'accountName' => $validated['title'],
                 'accountType' => $validated['description'] ?? '',
                 'date' => now(),

@@ -20,7 +20,9 @@ class LoginController extends Controller
     |
     */
 
-    use AuthenticatesUsers;
+    use AuthenticatesUsers {
+        username as getUsernameField;
+    }
 
     /**
      * Where to redirect users after login.
@@ -40,6 +42,16 @@ class LoginController extends Controller
         $this->middleware('auth')->only('logout');
     }
 
+    /**
+     * Get the login username to be used by the controller.
+     *
+     * @return string
+     */
+    public function username()
+    {
+        return 'name';
+    }
+
     protected function attemptLogin(Request $request)
     {
         // Clear any existing sessions to prevent guard conflicts
@@ -49,13 +61,13 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         // First try admin authentication
-        if (Auth::guard('admin')->attempt($this->credentials($request))) {
+        if (Auth::guard('admin')->attempt(['name' => $request->name, 'password' => $request->password])) {
             session(['is_admin' => true]);
             return true;
         }
 
         // If admin auth fails, try regular user authentication
-        if (Auth::guard('web')->attempt($this->credentials($request), $request->filled('remember'))) {
+        if (Auth::guard('web')->attempt(['name' => $request->name, 'password' => $request->password], $request->filled('remember'))) {
             session(['is_admin' => false]);
             return true;
         }

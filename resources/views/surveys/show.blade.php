@@ -49,20 +49,34 @@
                     @foreach($questions as $question)
                     <tr>
                         <td>{{ $question->text }}</td>
-                        @for($i = 1; $i <= 5; $i++)
-                        <td class="text-center">
-                            <div class="custom-radio">
-                                <input type="radio" 
-                                       id="q{{ $question->id }}_rating{{ $i }}" 
-                                       name="responses[{{ $question->id }}]" 
-                                       value="{{ $i }}" 
-                                       required>
-                                <label for="q{{ $question->id }}_rating{{ $i }}" class="radio-label">
-                                    <span class="radio-circle"></span>
-                                </label>
-                            </div>
+                        <td colspan="5" class="text-center">
+                            @switch($question->type)
+                                @case('radio')
+                                    <div class="d-flex justify-content-around">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <div class="custom-radio">
+                                                <input type="radio" 
+                                                    id="q{{ $question->id }}_rating{{ $i }}" 
+                                                    name="responses[{{ $question->id }}]" 
+                                                    value="{{ $i }}" 
+                                                    required>
+                                                <label for="q{{ $question->id }}_rating{{ $i }}" class="radio-label">
+                                                    <span class="radio-circle"></span>
+                                                </label>
+                                            </div>
+                                        @endfor
+                                    </div>
+                                    @break
+                                @case('star')
+                                    <div class="star-rating">
+                                        @for($i = 5; $i >= 1; $i--)
+                                            <input type="radio" id="star{{ $question->id }}_{{ $i }}" name="responses[{{ $question->id }}]" value="{{ $i }}" required>
+                                            <label for="star{{ $question->id }}_{{ $i }}" title="{{ $i }} stars"></label>
+                                        @endfor
+                                    </div>
+                                    @break
+                            @endswitch
                         </td>
-                        @endfor
                     </tr>
                     @endforeach
                 </tbody>
@@ -139,6 +153,30 @@
         </div>
     </div>
 </div>
+
+<style>
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+    }
+    .star-rating input {
+        display: none;
+    }
+    .star-rating label {
+        cursor: pointer;
+        width: 35px;
+        height: 40px;
+        margin: 0 10px;
+        background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="%23ddd"/></svg>') no-repeat center;
+        background-size: contain;
+    }
+    .star-rating input:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="%23ffd700"/></svg>');
+    }
+</style>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>

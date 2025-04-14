@@ -71,10 +71,8 @@
                         <select class="form-select form-select-lg" 
                             name="questions[${questionIndex}][type]" required>
                             <option value="" disabled selected>Select answer type</option>
-                            <option value="text"><i class="fas fa-paragraph"></i> Text Answer</option>
                             <option value="radio"><i class="fas fa-dot-circle"></i> Radio Button</option>
                             <option value="star"><i class="fas fa-star"></i> Star Rating</option>
-                            <option value="select"><i class="fas fa-chevron-down"></i> Dropdown</option>
                         </select>
                     </div>
                     <div class="col-md-4 text-end">

@@ -14,12 +14,14 @@
                         @csrf
 
                         <div class="mb-4">
-                            <label for="email" class="form-label">{{ __('Email Address') }}</label>
+                            <label for="name" class="form-label">{{ __('Username') }}</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus placeholder="Enter your email">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" 
+                                    name="name" value="{{ old('name') }}" required autocomplete="name" autofocus 
+                                    placeholder="Enter your username">
                             </div>
-                            @error('email')
+                            @error('name')
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
@@ -28,7 +30,9 @@
                             <label for="password" class="form-label">{{ __('Password') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password" placeholder="Enter your password">
+                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" 
+                                    name="password" required autocomplete="current-password" 
+                                    placeholder="Enter your password">
                             </div>
                             @error('password')
                                 <span class="text-danger small">{{ $message }}</span>
@@ -37,7 +41,8 @@
 
                         <div class="mb-4">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+                                <input class="form-check-input" type="checkbox" name="remember" 
+                                    id="remember" {{ old('remember') ? 'checked' : '' }}>
                                 <label class="form-check-label" for="remember">
                                     {{ __('Remember Me') }}
                                 </label>

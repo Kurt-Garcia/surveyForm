@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<link href="{{ asset('css/admin.css') }}" rel="stylesheet">
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-12">
@@ -15,7 +16,7 @@
                                 <div class="card-body">
                                     <i class="bi bi-bar-chart-fill text-primary display-4 mb-3"></i>
                                     <h3 class="fw-bold">Total Surveys</h3>
-                                    <p class="display-6 text-primary mb-0">0</p>
+                                    <p class="display-6 text-primary mb-0">{{ $totalSurveys }}</p>
                                 </div>
                             </div>
                         </div>
@@ -24,7 +25,7 @@
                                 <div class="card-body">
                                     <i class="bi bi-people-fill text-success display-4 mb-3"></i>
                                     <h3 class="fw-bold">Total Responses</h3>
-                                    <p class="display-6 text-success mb-0">0</p>
+                                    <p class="display-6 text-success mb-0">{{ $totalResponses }}</p>
                                 </div>
                             </div>
                         </div>
@@ -33,7 +34,7 @@
                                 <div class="card-body">
                                     <i class="bi bi-clock-fill text-info display-4 mb-3"></i>
                                     <h3 class="fw-bold">Active Surveys</h3>
-                                    <p class="display-6 text-info mb-0">0</p>
+                                    <p class="display-6 text-info mb-0">{{ $activeSurveys }}</p>
                                 </div>
                             </div>
                         </div>
