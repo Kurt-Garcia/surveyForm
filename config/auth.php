@@ -43,6 +43,7 @@ return [
         'admin' => [
             'driver' => 'session',
             'provider' => 'admins',
+            'session_name' => config('session.admin_cookie'),
         ],
     ],
 

@@ -27,9 +27,9 @@
                                 <tr>
                                     <th>{{ __('Title') }}</th>
                                     <th>{{ __('Questions') }}</th>
-                                    <th>{{ __('Status') }}</th>
                                     <th>{{ __('Created By') }}</th>
                                     <th>{{ __('Created At') }}</th>
+                                    <th>{{ __('Status') }}</th>
                                     <th>{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
@@ -38,14 +38,14 @@
                                     <tr>
                                         <td>{{ $survey->title }}</td>
                                         <td>{{ $survey->questions->count() }}</td>
+                                        <td>{{ $survey->admin->name }}</td>
+                                        <td>{{ $survey->created_at->format('Y-m-d H:i') }}</td>
                                         <td>
                                             <span class="badge {{ $survey->is_active ? 'bg-success' : 'bg-danger' }}">
                                                 <i class="fas fa-circle me-1"></i>
                                                 {{ $survey->is_active ? 'Active' : 'Inactive' }}
                                             </span>
                                         </td>
-                                        <td>{{ $survey->admin->name }}</td>
-                                        <td>{{ $survey->created_at->format('Y-m-d H:i') }}</td>
                                         <td>
                                             <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-info btn-sm">
                                                 <i class="fas fa-eye me-1"></i>{{ __('View') }}
