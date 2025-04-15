@@ -5,8 +5,11 @@
     <div class="row justify-content-center">
         <div class="col-md-10">
             <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-header bg-primary text-white py-3">
+                <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
                     <h4 class="mb-0"><i class="fas fa-poll-h me-2"></i>{{ __('Create New Survey') }}</h4>
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-light">
+                        <i class="fas fa-arrow-left me-2"></i>{{ __('Back') }}
+                    </a>
                 </div>
 
                 <div class="card-body p-4">

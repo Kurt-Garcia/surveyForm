@@ -1,11 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">{{ __('Add New Admin') }}</div>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>{{ __('Add New Admin') }}</span>
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary btn-sm">
+                        <i class="bi bi-arrow-left"></i> {{ __('Back') }}
+                    </a>
+                </div>
 
                 <div class="card-body">
                     <form method="POST" action="{{ route('admin.admins.store') }}">

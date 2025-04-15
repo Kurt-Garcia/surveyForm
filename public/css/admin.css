@@ -4,12 +4,12 @@
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 
 .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .display-4 {
@@ -52,4 +52,46 @@
 
 .card:nth-child(3) {
     animation-delay: 0.4s;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Button hover effects */
+.btn {
+    transition: all 0.3s ease;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Font size adjustments for mobile */
+@media (max-width: 576px) {
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .display-6 {
+        font-size: 1.5rem;
+    }
+    
+    .lead {
+        font-size: 1rem;
+    }
 }

@@ -7,9 +7,11 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span>{{ __('My Surveys') }}</span>
-                    <a href="{{ route('admin.surveys.create') }}" class="btn btn-primary btn-sm">
-                        {{ __('Create New Survey') }}
-                    </a>
+                    <div>
+                        <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary btn-sm me-2">
+                            {{ __('Back') }}
+                        </a>
+                    </div>
                 </div>
 
                 <div class="card-body">
@@ -25,6 +27,7 @@
                                 <tr>
                                     <th>{{ __('Title') }}</th>
                                     <th>{{ __('Questions') }}</th>
+                                    <th>{{ __('Created By') }}</th>
                                     <th>{{ __('Created At') }}</th>
                                     <th>{{ __('Actions') }}</th>
                                 </tr>
@@ -34,6 +37,7 @@
                                     <tr>
                                         <td>{{ $survey->title }}</td>
                                         <td>{{ $survey->questions->count() }}</td>
+                                        <td>{{ $survey->admin->name }}</td>
                                         <td>{{ $survey->created_at->format('Y-m-d H:i') }}</td>
                                         <td>
                                             <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-info btn-sm">

@@ -5,9 +5,17 @@
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
 
+<div class="container mt-5">
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{{ route('index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Surveys
+        </a>
+    </div>
+</div>
+
 <div class="container mt-5 survey-container">
     <div class="text-center mb-5">
-        <img src="{{ asset('img/logo.JPG') }}" alt="Logo" class="d-block mx-auto logo" style="max-width: 180px;">
+        <img src="{{ asset('img/logo.JPG') }}" alt="Logo" class="d-block mx-auto logo mt-5" style="max-width: 180px;">
         <h2 class="mt-4" style="color: #2c3e50; font-weight: 600;">{{ $survey->title }}</h2>
     </div>
 
@@ -16,71 +24,75 @@
             <input type="hidden" name="survey_id" value="{{ $survey->id }}">
             
             <!-- Account Info Section -->
-            <div class="row mb-4">
-                <div class="col-md-4 col-12">
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-md-4">
                     <label for="account_name" class="form-label">Account Name</label>
                     <input type="text" class="form-control" id="account_name" name="account_name" required>
                 </div>
-                <div class="col-md-4 col-12">
+                <div class="col-12 col-md-4">
                     <label for="account_type" class="form-label">Account Type</label>
                     <input type="text" class="form-control" id="account_type" name="account_type" required>
                 </div>
-                <div class="col-md-4 col-12">
+                <div class="col-12 col-md-4">
                     <label for="date" class="form-label">Date</label>
-                    <input type="date" class="form-control" id="date" name="date" required>
+                    <input type="date" class="form-control" id="date" name="date" value="{{ date('Y-m-d') }}" required>
                 </div>
             </div>
             
             <!-- Survey Questions Section -->
             <h6 class="text-center mt-4 mb-4">Please select the number which more accurately reflects your satisfaction level</h6>
             
-            <table class="table table-bordered survey-table">
-                <thead class="text-center">
-                    <tr>
-                        <th>Questions</th>
-                        <th>1 - Poor</th>
-                        <th>2 - Needs Improvement</th>
-                        <th>3 - Satisfactory</th>
-                        <th>4 - Very Satisfactory</th>
-                        <th>5 - Excellent</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($questions as $question)
-                    <tr>
-                        <td>{{ $question->text }}</td>
-                        <td colspan="5" class="text-center">
-                            @switch($question->type)
-                                @case('radio')
-                                    <div class="d-flex justify-content-around">
-                                        @for($i = 1; $i <= 5; $i++)
-                                            <div class="custom-radio">
-                                                <input type="radio" 
-                                                    id="q{{ $question->id }}_rating{{ $i }}" 
-                                                    name="responses[{{ $question->id }}]" 
-                                                    value="{{ $i }}" 
-                                                    required>
-                                                <label for="q{{ $question->id }}_rating{{ $i }}" class="radio-label">
-                                                    <span class="radio-circle"></span>
-                                                </label>
+            <div class="container mt-5">
+                <div class="table-responsive">
+                    <table class="table table-bordered survey-table">
+                        <thead class="text-center">
+                            <tr>
+                                <th style="min-width: 200px;">Questions</th>
+                                <th style="min-width: 100px;">1 - Poor</th>
+                                <th style="min-width: 100px;">2 - Needs Improvement</th>
+                                <th style="min-width: 100px;">3 - Satisfactory</th>
+                                <th style="min-width: 100px;">4 - Very Satisfactory</th>
+                                <th style="min-width: 100px;">5 - Excellent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($questions as $question)
+                            <tr>
+                                <td>{{ $question->text }}</td>
+                                <td colspan="5" class="text-center px-2">
+                                    @switch($question->type)
+                                        @case('radio')
+                                            <div class="d-flex justify-content-around flex-wrap gap-3">
+                                                @for($i = 1; $i <= 5; $i++)
+                                                    <div class="custom-radio">
+                                                        <input type="radio" 
+                                                            id="q{{ $question->id }}_rating{{ $i }}" 
+                                                            name="responses[{{ $question->id }}]" 
+                                                            value="{{ $i }}" 
+                                                            required>
+                                                        <label for="q{{ $question->id }}_rating{{ $i }}" class="radio-label">
+                                                            <span class="radio-circle"></span>
+                                                        </label>
+                                                    </div>
+                                                @endfor
                                             </div>
-                                        @endfor
-                                    </div>
-                                    @break
-                                @case('star')
-                                    <div class="star-rating">
-                                        @for($i = 5; $i >= 1; $i--)
-                                            <input type="radio" id="star{{ $question->id }}_{{ $i }}" name="responses[{{ $question->id }}]" value="{{ $i }}" required>
-                                            <label for="star{{ $question->id }}_{{ $i }}" title="{{ $i }} stars"></label>
-                                        @endfor
-                                    </div>
-                                    @break
-                            @endswitch
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                                            @break
+                                        @case('star')
+                                            <div class="star-rating">
+                                                @for($i = 5; $i >= 1; $i--)
+                                                    <input type="radio" id="star{{ $question->id }}_{{ $i }}" name="responses[{{ $question->id }}]" value="{{ $i }}" required>
+                                                    <label for="star{{ $question->id }}_{{ $i }}" title="{{ $i }} stars"></label>
+                                                @endfor
+                                            </div>
+                                            @break
+                                    @endswitch
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
             <hr style="height:10px;border-width:0;color:gray;background-color:gray">
             
@@ -121,7 +133,7 @@
             </div>
         </form>
         
-        <div class="text-center mt-2 mb-4">
+        <div class="text-center mt-4 mb-4">
             <h5>WE APPRECIATE YOUR FEEDBACK! THANK YOU SO MUCH!</h5>
         </div>
     </div>

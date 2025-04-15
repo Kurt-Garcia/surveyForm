@@ -26,7 +26,7 @@
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
+                <a class="navbar-brand">
                     <img src="{{ asset('img/logo.png') }}" alt="Logo" class="d-block mx-auto logo" style="max-width: 100px;">
                 </a>
                 
