@@ -34,4 +34,11 @@ class SurveyResponse extends Model
     {
         return $this->belongsTo(Admin::class);
     }
+
+    public function scopeHasResponded($query, $surveyId, $accountName)
+    {
+        return $query->where('survey_id', $surveyId)
+                    ->where('account_name', $accountName)
+                    ->exists();
+    }
 }

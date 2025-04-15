@@ -8,7 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Survey extends Model
 {
-    protected $fillable = ['title', 'admin_id'];
+    protected $fillable = ['title', 'admin_id', 'is_active'];
+
+    protected $casts = [
+        'is_active' => 'boolean'
+    ];
 
     public function admin(): BelongsTo
     {

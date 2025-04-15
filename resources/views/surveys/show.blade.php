@@ -13,6 +13,15 @@
     </div>
 </div>
 
+@if($hasResponded)
+    <div class="container">
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle me-2"></i>You have already submitted this survey. You can view the questions, but submitting again with the same account name will not be allowed.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+@endif
+
 <div class="container mt-5 survey-container">
     <div class="text-center mb-5">
         <img src="{{ asset('img/logo.JPG') }}" alt="Logo" class="d-block mx-auto logo mt-5" style="max-width: 180px;">
@@ -139,24 +148,74 @@
     </div>
 </div>
 
-<!-- Response Modal -->
+<!-- Thank You Modal -->
 <div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="responseModalLabel">Survey Response</h5>
+                <h5 class="modal-title" id="responseModalLabel">Survey Submitted</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-                <div id="successMessage" class="d-none">
+                <div id="successMessage" class="mb-4 d-none">
                     <i class="fas fa-check-circle text-success" style="font-size: 48px;"></i>
                     <h4 class="mt-3">Thank you for your feedback!</h4>
                     <p>Your response has been successfully submitted.</p>
+                    <button type="button" class="btn btn-primary mt-3" onclick="showResponseSummaryModal()">View Response</button>
                 </div>
                 <div id="errorMessage" class="d-none">
                     <i class="fas fa-exclamation-circle text-danger" style="font-size: 48px;"></i>
                     <h4 class="mt-3">Oops!</h4>
                     <p>An error occurred. Please try again.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Response Summary Modal -->
+<div class="modal fade" id="responseSummaryModal" tabindex="-1" aria-labelledby="responseSummaryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="responseSummaryModalLabel">Survey Response Summary</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="responseSummary">
+                    <h5 class="border-bottom pb-2">Account Information</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <strong>Account Name:</strong>
+                            <p id="summary-account-name"></p>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Account Type:</strong>
+                            <p id="summary-account-type"></p>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Date:</strong>
+                            <p id="summary-date"></p>
+                        </div>
+                    </div>
+                    
+                    <h5 class="border-bottom pb-2">Survey Responses</h5>
+                    <div id="summary-responses" class="mb-4">
+                        <!-- Responses will be dynamically inserted here -->
+                    </div>
+                    
+                    <h5 class="border-bottom pb-2">Recommendation Score</h5>
+                    <div class="mb-4">
+                        <p>How likely to recommend: <span id="summary-recommendation"></span>/10</p>
+                    </div>
+                    
+                    <h5 class="border-bottom pb-2">Additional Comments</h5>
+                    <div class="mb-4">
+                        <p id="summary-comments"></p>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -194,30 +253,73 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
 <script>
 $(document).ready(function() {
-    const modal = new bootstrap.Modal(document.getElementById('responseModal'));
+    const thankYouModal = new bootstrap.Modal(document.getElementById('responseModal'));
+    const summaryModal = new bootstrap.Modal(document.getElementById('responseSummaryModal'));
     
     $('#surveyForm').on('submit', function(e) {
         e.preventDefault();
+        
+        // Collect form data
+        const formData = new FormData(this);
+        const surveyResponses = [];
+        
+        // Process survey responses
+        $('table.survey-table tbody tr').each(function() {
+            const questionText = $(this).find('td:first').text().trim();
+            const questionId = $(this).find('input[type="radio"], input[type="hidden"]').first().attr('name').match(/\d+/)[0];
+            const rating = formData.get(`responses[${questionId}]`);
+            
+            if (rating) {
+                surveyResponses.push({ questionText, rating });
+            }
+        });
         
         $.ajax({
             url: $(this).attr('action'),
             method: 'POST',
             data: $(this).serialize(),
             success: function(response) {
-                $('#successMessage').removeClass('d-none');
-                $('#errorMessage').addClass('d-none');
-                modal.show();
-                $('#surveyForm')[0].reset();
-                
-                // Auto close modal after 2 seconds on success
-                setTimeout(function() {
-                    modal.hide();
-                }, 2000);
+                if (response.success) {
+                    $('#successMessage').removeClass('d-none');
+                    $('#errorMessage').addClass('d-none');
+                    
+                    // Populate account information
+                    $('#summary-account-name').text(formData.get('account_name'));
+                    $('#summary-account-type').text(formData.get('account_type'));
+                    $('#summary-date').text(formData.get('date'));
+                    
+                    // Populate survey responses
+                    const responsesHtml = surveyResponses.map(response => `
+                        <div class="mb-3">
+                            <strong>${response.questionText}</strong>
+                            <p>Rating: ${response.rating}</p>
+                        </div>
+                    `).join('');
+                    
+                    $('#summary-responses').html(responsesHtml);
+                    
+                    // Populate recommendation score and comments
+                    $('#summary-recommendation').text(formData.get('recommendation'));
+                    $('#summary-comments').text(formData.get('comments'));
+                    
+                    thankYouModal.show();
+                    $('#surveyForm')[0].reset();
+                }
             },
             error: function(xhr) {
                 $('#successMessage').addClass('d-none');
                 $('#errorMessage').removeClass('d-none');
-                modal.show();
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    $('#errorMessage').html(`
+                        <i class="fas fa-exclamation-circle text-danger" style="font-size: 48px;"></i>
+                        <h4 class="mt-3">Unable to Submit</h4>
+                        <p>${xhr.responseJSON.error}</p>
+                        <div class="mt-3">
+                            <a href="{{ route('index') }}" class="btn btn-primary">Return to Surveys</a>
+                        </div>
+                    `);
+                }
+                thankYouModal.show();
             }
         });
     });
@@ -227,5 +329,10 @@ $(document).ready(function() {
         $('#errorMessage').addClass('d-none');
     });
 });
+
+function showResponseSummaryModal() {
+    $('#responseModal').modal('hide');
+    $('#responseSummaryModal').modal('show');
+}
 </script>
 @endsection

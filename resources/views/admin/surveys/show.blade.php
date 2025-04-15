@@ -8,9 +8,23 @@
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <div>
                         <h2 class="mb-0 display-6 fw-bold text-primary">{{ $survey->title }}</h2>
-                        <p class="text-muted mb-0"><i class="fas fa-calendar-alt me-2"></i>Created {{ $survey->created_at->format('M d, Y') }}</p>
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i>Created {{ $survey->created_at->format('M d, Y') }}
+                            <span class="ms-3">
+                                <i class="fas fa-circle {{ $survey->is_active ? 'text-success' : 'text-danger' }}"></i>
+                                {{ $survey->is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                        </p>
                     </div>
                     <div class="d-flex gap-2">
+                        <form action="{{ route('admin.surveys.toggle-status', $survey) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="btn {{ $survey->is_active ? 'btn-danger' : 'btn-success' }}">
+                                <i class="fas {{ $survey->is_active ? 'fa-ban' : 'fa-check-circle' }} me-2"></i>
+                                {{ $survey->is_active ? 'Deactivate' : 'Activate' }} Survey
+                            </button>
+                        </form>
                         <a href="{{ route('admin.surveys.edit', $survey) }}" class="btn btn-outline-primary">
                             <i class="fas fa-edit me-2"></i>Edit Survey
                         </a>

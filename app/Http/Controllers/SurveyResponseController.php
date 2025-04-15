@@ -20,6 +20,13 @@ class SurveyResponseController extends Controller
             'comments' => 'required|string'
         ]);
 
+        // Check if user has already responded
+        if (SurveyResponse::hasResponded($validated['survey_id'], $validated['account_name'])) {
+            return response()->json([
+                'error' => 'You have already submitted this survey.'
+            ], 422);
+        }
+
         // Get the survey with its questions
         $survey = Survey::with('questions')->findOrFail($request->survey_id);
         
@@ -36,7 +43,7 @@ class SurveyResponseController extends Controller
             
             SurveyResponse::create([
                 'survey_id' => $validated['survey_id'],
-                'admin_id' => $survey->admin_id, // Set the admin_id from the survey
+                'admin_id' => $survey->admin_id,
                 'question_id' => $questionId,
                 'account_name' => $validated['account_name'],
                 'account_type' => $validated['account_type'],
@@ -47,6 +54,13 @@ class SurveyResponseController extends Controller
             ]);
         }
 
-        return response()->json(['message' => 'Survey response submitted successfully']);
+        // Store account name in session for future checks
+        $request->session()->put('account_name', $validated['account_name']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Survey response submitted successfully',
+            'redirect' => route('index')
+        ]);
     }
 }

@@ -131,4 +131,20 @@ class SurveyController extends Controller
         return redirect()->route('admin.surveys.index')
             ->with('success', 'Survey deleted successfully!');
     }
+
+    public function toggleStatus(Survey $survey)
+    {
+        // Ensure the authenticated admin owns this survey
+        if ($survey->admin_id !== Auth::guard('admin')->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $survey->update([
+            'is_active' => !$survey->is_active
+        ]);
+
+        $status = $survey->is_active ? 'activated' : 'deactivated';
+        return redirect()->route('admin.surveys.show', $survey)
+            ->with('success', "Survey has been {$status} successfully!");
+    }
 }

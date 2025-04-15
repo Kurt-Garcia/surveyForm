@@ -1,8 +1,6 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\FormController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\SurveyResponseController;
@@ -29,7 +27,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/surveys/thankyou', [App\Http\Controllers\UserSurveyController::class, 'thankyou'])->name('surveys.thankyou');
 });
 
-Route::post('/submit-survey', [FormController::class, 'store'])->name('survey.submit');
+
 Route::post('/survey-responses', [SurveyResponseController::class, 'store'])->name('survey-responses.store');
 Route::get('/thankyou', [UserSurveyController::class, 'thankyou'])->name('survey.thankyou');
 
@@ -55,5 +53,7 @@ Route::prefix('admin')->group(function () {
             'update' => 'admin.surveys.update',
             'destroy' => 'admin.surveys.destroy'
         ]);
+        Route::patch('surveys/{survey}/toggle-status', [\App\Http\Controllers\Admin\SurveyController::class, 'toggleStatus'])
+            ->name('admin.surveys.toggle-status');
     });
 });

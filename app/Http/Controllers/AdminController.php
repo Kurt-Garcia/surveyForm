@@ -18,7 +18,7 @@ class AdminController extends Controller
     {
         $totalSurveys = Survey::count();
         $totalResponses = SurveyResponse::distinct('survey_id')->count('survey_id');
-        $activeSurveys = Survey::where('created_at', '>=', now()->subDays(30))->count();
+        $activeSurveys = Survey::where('is_active', true)->count();
 
         return view('admin.dashboard', compact('totalSurveys', 'totalResponses', 'activeSurveys'));
     }
