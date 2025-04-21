@@ -66,6 +66,16 @@ class UserSurveyController extends Controller
             'end_time' => 'required|date|after:start_time'
         ]);
 
+        // Get required questions and validate them
+        $requiredQuestions = $survey->questions()->where('required', true)->get();
+        foreach ($requiredQuestions as $question) {
+            if (!isset($request->responses[$question->id]) || empty($request->responses[$question->id])) {
+                return response()->json([
+                    'error' => "Question '{$question->text}' is required."
+                ], 422);
+            }
+        }
+
         DB::beginTransaction();
         try {
             // If resubmission is allowed, delete previous response

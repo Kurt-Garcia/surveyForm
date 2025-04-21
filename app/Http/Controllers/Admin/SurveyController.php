@@ -21,23 +21,35 @@ class SurveyController extends Controller
             'title' => 'required|string|max:255',
             'questions' => 'required|array|min:1',
             'questions.*.text' => 'required|string|max:255',
-            'questions.*.type' => 'required|string|in:text,radio,star,select'
+            'questions.*.type' => 'required|string|in:text,radio,star,select',
+            'questions.*.required' => 'boolean'
         ]);
 
-        $survey = Survey::create([
-            'title' => $request->title,
-            'admin_id' => Auth::guard('admin')->id()
-        ]);
-
-        foreach ($request->questions as $questionData) {
-            $survey->questions()->create([
-                'text' => $questionData['text'],
-                'type' => $questionData['type']
+        DB::beginTransaction();
+        try {
+            $survey = Survey::create([
+                'title' => $request->title,
+                'admin_id' => Auth::guard('admin')->id(),
+                'is_active' => true
             ]);
-        }
 
-        return redirect()->route('admin.surveys.index')
-            ->with('success', 'Survey created successfully!');
+            foreach ($request->questions as $index => $questionData) {
+                $survey->questions()->create([
+                    'text' => $questionData['text'],
+                    'type' => $questionData['type'],
+                    'required' => isset($questionData['required']) ? (bool)$questionData['required'] : false,
+                    'order' => $index + 1
+                ]);
+            }
+
+            DB::commit();
+            return redirect()->route('admin.surveys.show', $survey)
+                ->with('success', 'Survey created successfully!');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->withInput()
+                ->with('error', 'Failed to create survey. Please try again.');
+        }
     }
 
     public function index()
@@ -81,7 +93,8 @@ class SurveyController extends Controller
             'title' => 'required|string|max:255',
             'questions' => 'required|array|min:1',
             'questions.*.text' => 'required|string|max:255',
-            'questions.*.type' => 'required|string|in:text,radio,star,select'
+            'questions.*.type' => 'required|string|in:text,radio,star,select',
+            'questions.*.required' => 'boolean'
         ]);
 
         // Use database transaction to ensure data consistency
@@ -100,6 +113,7 @@ class SurveyController extends Controller
                 $survey->questions()->create([
                     'text' => $questionData['text'],
                     'type' => $questionData['type'],
+                    'required' => $questionData['required'] ?? false,
                     'order' => $index + 1
                 ]);
             }

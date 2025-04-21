@@ -74,6 +74,15 @@
                                                     <span class="badge bg-info-subtle text-info rounded-pill">
                                                         <i class="bi bi-tag-fill me-1"></i>{{ ucfirst($question->type) }}
                                                     </span>
+                                                    @if($question->required)
+                                                        <span class="badge bg-danger-subtle text-danger">
+                                                            <i class="bi bi-asterisk me-1"></i>Required
+                                                        </span>
+                                                    @else
+                                                        <span class="badge bg-secondary-subtle text-secondary">
+                                                            <i class="bi bi-circle me-1"></i>Optional
+                                                        </span>
+                                                    @endif
                                                 </div>
                                                 <h5 class="mb-2">{{ $question->text }}</h5>
                                                 @if($question->description)

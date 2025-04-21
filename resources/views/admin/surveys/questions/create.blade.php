@@ -38,16 +38,30 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="type" class="form-label">Question Type</label>
-                            <select class="form-select form-select-lg @error('type') is-invalid @enderror" 
-                                id="type" name="type" required>
-                                <option value="" disabled {{ !old('type') ? 'selected' : '' }}>Select question type</option>
-                                <option value="radio" {{ old('type') === 'radio' ? 'selected' : '' }}>Radio Buttons</option>
-                                <option value="star" {{ old('type') === 'star' ? 'selected' : '' }}>Star Rating</option>
-                            </select>
-                            @error('type')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    <label for="type" class="form-label">Question Type</label>
+                                    <select class="form-select form-select-lg @error('type') is-invalid @enderror" 
+                                        id="type" name="type" required>
+                                        <option value="" disabled {{ !old('type') ? 'selected' : '' }}>Select question type</option>
+                                        <option value="radio" {{ old('type') === 'radio' ? 'selected' : '' }}>Radio Buttons</option>
+                                        <option value="star" {{ old('type') === 'star' ? 'selected' : '' }}>Star Rating</option>
+                                    </select>
+                                    @error('type')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="ms-4 d-flex align-items-center" style="padding-top: 2rem;">
+                                    <div class="form-check form-switch mb-0">
+                                        <input type="hidden" name="required" value="0">
+                                        <input type="checkbox" class="form-check-input" id="required" name="required" value="1" 
+                                            {{ old('required') ? 'checked' : '' }}>
+                                        <label class="form-check-label ms-2" for="required">
+                                            Required
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="d-flex justify-content-between">
@@ -135,6 +149,34 @@ function removeOption(button) {
 .input-group > .btn {
     border-top-right-radius: 6px !important;
     border-bottom-right-radius: 6px !important;
+}
+
+.form-switch .form-check-input {
+    width: 3em;
+    height: 1.5em;
+    margin-left: 0;
+    background-color: rgba(78, 115, 223, 0.1);
+    border-color: rgba(78, 115, 223, 0.2);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba(78, 115, 223, 0.5)'/%3e%3c/svg%3e");
+    transition: background-position 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    cursor: pointer;
+}
+
+.form-switch .form-check-input:checked {
+    background-color: #4e73df;
+    border-color: #4e73df;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+}
+
+.form-switch .form-check-input:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.form-check-label {
+    color: #4e73df;
+    font-weight: 500;
+    cursor: pointer;
 }
 </style>
 @endsection

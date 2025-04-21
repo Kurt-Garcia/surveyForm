@@ -12,7 +12,12 @@ class SurveyQuestion extends Model
         'text',
         'type',
         'survey_id',
-        'description'
+        'description',
+        'required'
+    ];
+
+    protected $casts = [
+        'required' => 'boolean'
     ];
 
     public function survey(): BelongsTo

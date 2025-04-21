@@ -13,7 +13,7 @@
                 </div>
 
                 <div class="card-body p-4">
-                    <form method="POST" action="{{ route('admin.surveys.store') }}">
+                    <form method="POST" action="{{ route('admin.surveys.store') }}" id="createSurveyForm">
                         @csrf
 
                         <div class="form-group row mb-4">
@@ -71,12 +71,28 @@
                         <input type="text" class="form-control form-control-lg mb-3" 
                             name="questions[${questionIndex}][text]" 
                             placeholder="Enter your question here" required>
-                        <select class="form-select form-select-lg" 
-                            name="questions[${questionIndex}][type]" required>
-                            <option value="" disabled selected>Select answer type</option>
-                            <option value="radio"><i class="fas fa-dot-circle"></i> Radio Button</option>
-                            <option value="star"><i class="fas fa-star"></i> Star Rating</option>
-                        </select>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <select class="form-select form-select-lg mb-3" 
+                                    name="questions[${questionIndex}][type]" required>
+                                    <option value="" disabled selected>Select answer type</option>
+                                    <option value="radio">Radio Button</option>
+                                    <option value="star">Star Rating</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input type="hidden" name="questions[${questionIndex}][required]" value="0">
+                                    <input class="form-check-input" type="checkbox" 
+                                        id="required${questionIndex}"
+                                        name="questions[${questionIndex}][required]"
+                                        value="1" checked>
+                                    <label class="form-check-label" for="required${questionIndex}">
+                                        Required Question
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-4 text-end">
                         <button type="button" class="btn btn-outline-danger btn-lg" 
@@ -110,6 +126,14 @@
             question.textContent = `Question ${index + 1}`;
         });
     }
+
+    document.getElementById('createSurveyForm').addEventListener('submit', function(e) {
+        if (document.getElementById('questions-container').children.length === 0) {
+            e.preventDefault();
+            alert('Please add at least one question to the survey.');
+            return false;
+        }
+    });
     
     // Add first question by default
     window.onload = addQuestion;

@@ -51,6 +51,14 @@
                                         <option value="star" {{ $question->type === 'star' ? 'selected' : '' }}>Star Rating</option>
                                         <option value="select" {{ $question->type === 'select' ? 'selected' : '' }}>Dropdown</option>
                                     </select>
+                                    <div class="form-check mt-3">
+                                        <input type="checkbox" class="form-check-input" 
+                                            name="questions[{{ $index }}][required]" value="1" 
+                                            {{ $question->required ? 'checked' : '' }}>
+                                        <label class="form-check-label">
+                                            This question is required
+                                        </label>
+                                    </div>
                                     <button type="button" class="btn btn-outline-danger btn-sm mt-3" 
                                         onclick="removeQuestion(this)">
                                         <i class="fas fa-trash me-2"></i>Remove Question
@@ -103,6 +111,13 @@
                                         <option value="star">Star Rating</option>
                                         <option value="select">Dropdown</option>
                                     </select>
+                                    <div class="form-check mt-3">
+                                        <input type="checkbox" class="form-check-input" 
+                                            name="questions[${questionIndex}][required]" value="1">
+                                        <label class="form-check-label">
+                                            This question is required
+                                        </label>
+                                    </div>
                                     <button type="button" class="btn btn-outline-danger btn-sm mt-3" 
                                         onclick="removeQuestion(this)">
                                         <i class="fas fa-trash me-2"></i>Remove Question
