@@ -5,8 +5,11 @@
     <div class="row justify-content-center">
         <div class="col-md-10">
             <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-header bg-primary text-white py-3">
+                <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
                     <h4 class="mb-0"><i class="fas fa-edit me-2"></i>{{ __('Edit Survey') }}</h4>
+                    <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-light btn-sm">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
                 </div>
 
                 <div class="card-body p-4">
@@ -63,12 +66,12 @@
                                     <i class="fas fa-plus-circle me-2"></i>{{ __('Add Question') }}
                                 </button>
                             </div>
-                            <div class="col-md-12">
+                            <div class="col-md-12 text-end">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-save me-2"></i>{{ __('Update Survey') }}
                                 </button>
                                 <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-outline-secondary ms-2">
-                                    <i class="fas fa-times me-2"></i>{{ __('Cancel') }}
+                                    <i class="fas fa-times me-2"></i>{{ __('Close') }}
                                 </a>
                             </div>
                         </div>

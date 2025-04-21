@@ -14,3 +14,13 @@ php artisan php artisan migrate --path=database/migrations/2025_04_15_055750_add
 
 php artisan db:seed
 
+
+
+
+
+
+---------------------------------
+
+survey table add total number of questions and type(star,radio)
+
+question table add required or not.

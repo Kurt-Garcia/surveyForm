@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Survey;
-use App\Models\SurveyResponse;
+use App\Models\SurveyResponseHeader;
+use App\Models\SurveyResponseDetail;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UserSurveyController extends Controller
 {
@@ -24,22 +25,31 @@ class UserSurveyController extends Controller
         }
 
         $hasResponded = false;
+        $allowResubmit = false;
+        
         if ($accountName = session('account_name')) {
-            $hasResponded = SurveyResponse::where('survey_id', $survey->id)
+            $response = SurveyResponseHeader::where('survey_id', $survey->id)
                 ->where('account_name', $accountName)
-                ->exists();
+                ->first();
+            
+            if ($response) {
+                $hasResponded = true;
+                $allowResubmit = $response->allow_resubmit;
+            }
         }
 
         $questions = $survey->questions;
-        return view('surveys.show', compact('survey', 'questions', 'hasResponded'));
+        return view('surveys.show', compact('survey', 'questions', 'hasResponded', 'allowResubmit'));
     }
 
     public function store(Request $request, Survey $survey)
     {
         // Check if user has already responded
-        if (SurveyResponse::where('survey_id', $survey->id)
+        $existingResponse = SurveyResponseHeader::where('survey_id', $survey->id)
             ->where('account_name', $request->account_name)
-            ->exists()) {
+            ->first();
+
+        if ($existingResponse && !$existingResponse->allow_resubmit) {
             return response()->json([
                 'error' => 'You have already submitted this survey.'
             ], 422);
@@ -51,30 +61,58 @@ class UserSurveyController extends Controller
             'date' => 'required|date',
             'responses' => 'required|array',
             'recommendation' => 'required|integer|between:1,10',
-            'comments' => 'required|string'
+            'comments' => 'required|string',
+            'start_time' => 'required|date',
+            'end_time' => 'required|date|after:start_time'
         ]);
 
-        foreach ($request->responses as $questionId => $response) {
-            SurveyResponse::create([
+        DB::beginTransaction();
+        try {
+            // If resubmission is allowed, delete previous response
+            if ($existingResponse) {
+                $existingResponse->details()->delete();
+                $existingResponse->delete();
+            }
+
+            // Create header record
+            $header = SurveyResponseHeader::create([
                 'survey_id' => $survey->id,
                 'admin_id' => $survey->admin_id,
-                'question_id' => $questionId,
                 'account_name' => $validated['account_name'],
                 'account_type' => $validated['account_type'],
                 'date' => $validated['date'],
-                'response' => $response,
+                'start_time' => $validated['start_time'],
+                'end_time' => $validated['end_time'],
                 'recommendation' => $validated['recommendation'],
-                'comments' => $validated['comments']
+                'comments' => $validated['comments'],
+                'allow_resubmit' => false
             ]);
+
+            // Create detail records
+            foreach ($request->responses as $questionId => $response) {
+                SurveyResponseDetail::create([
+                    'header_id' => $header->id,
+                    'question_id' => $questionId,
+                    'response' => $response
+                ]);
+            }
+
+            DB::commit();
+
+            // Store account name in session for future checks
+            $request->session()->put('account_name', $validated['account_name']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Survey response submitted successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'error' => 'Failed to submit survey response. Please try again.'
+            ], 500);
         }
-
-        // Store account name in session for future checks
-        $request->session()->put('account_name', $validated['account_name']);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Survey response submitted successfully'
-        ]);
     }
 
     public function thankyou()

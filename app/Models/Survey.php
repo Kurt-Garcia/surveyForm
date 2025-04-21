@@ -23,4 +23,9 @@ class Survey extends Model
     {
         return $this->hasMany(SurveyQuestion::class);
     }
+
+    public function responseHeaders(): HasMany
+    {
+        return $this->hasMany(SurveyResponseHeader::class);
+    }
 }

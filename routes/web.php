@@ -3,7 +3,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\AdminAuthController;
-use App\Http\Controllers\SurveyResponseController;
 use App\Http\Controllers\UserSurveyController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 
@@ -20,16 +19,12 @@ Route::middleware(['auth:web,admin'])->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/home', [App\Http\Controllers\UserSurveyController::class, 'index'])->name('home');
-    Route::get('/index', [App\Http\Controllers\UserSurveyController::class, 'index'])->name('index');
-    Route::get('/surveys/{survey}', [App\Http\Controllers\UserSurveyController::class, 'show'])->name('surveys.show');
-    Route::post('/surveys/{survey}', [App\Http\Controllers\UserSurveyController::class, 'store'])->name('surveys.store');
-    Route::get('/surveys/thankyou', [App\Http\Controllers\UserSurveyController::class, 'thankyou'])->name('surveys.thankyou');
+    Route::get('/home', [UserSurveyController::class, 'index'])->name('home');
+    Route::get('/index', [UserSurveyController::class, 'index'])->name('index');
+    Route::get('/surveys/{survey}', [UserSurveyController::class, 'show'])->name('surveys.show');
+    Route::post('/surveys/{survey}', [UserSurveyController::class, 'store'])->name('surveys.store');
+    Route::get('/surveys/thankyou', [UserSurveyController::class, 'thankyou'])->name('surveys.thankyou');
 });
-
-
-Route::post('/survey-responses', [SurveyResponseController::class, 'store'])->name('survey-responses.store');
-Route::get('/thankyou', [UserSurveyController::class, 'thankyou'])->name('survey.thankyou');
 
 // Admin Routes
 Route::prefix('admin')->group(function () {
@@ -43,7 +38,8 @@ Route::prefix('admin')->group(function () {
         // Admin management routes
         Route::get('/admins/create', [App\Http\Controllers\Admin\AdminManagementController::class, 'create'])->name('admin.admins.create');
         Route::post('/admins', [App\Http\Controllers\Admin\AdminManagementController::class, 'store'])->name('admin.admins.store');
-        
+
+        // Survey routes
         Route::resource('surveys', \App\Http\Controllers\Admin\SurveyController::class)->names([
             'index' => 'admin.surveys.index',
             'create' => 'admin.surveys.create',
@@ -53,6 +49,30 @@ Route::prefix('admin')->group(function () {
             'update' => 'admin.surveys.update',
             'destroy' => 'admin.surveys.destroy'
         ]);
+
+        // Survey questions routes
+        Route::get('surveys/{survey}/questions/create', [\App\Http\Controllers\Admin\SurveyQuestionController::class, 'create'])
+            ->name('admin.surveys.questions.create');
+        Route::post('surveys/{survey}/questions', [\App\Http\Controllers\Admin\SurveyQuestionController::class, 'store'])
+            ->name('admin.surveys.questions.store');
+        Route::get('surveys/{survey}/questions/{question}/edit', [\App\Http\Controllers\Admin\SurveyQuestionController::class, 'edit'])
+            ->name('admin.surveys.questions.edit');
+        Route::put('surveys/{survey}/questions/{question}', [\App\Http\Controllers\Admin\SurveyQuestionController::class, 'update'])
+            ->name('admin.surveys.questions.update');
+        Route::delete('surveys/{survey}/questions/{question}', [\App\Http\Controllers\Admin\SurveyQuestionController::class, 'destroy'])
+            ->name('admin.surveys.questions.destroy');
+
+        // Survey response routes
+        Route::get('surveys/{survey}/responses', [\App\Http\Controllers\Admin\SurveyResponseController::class, 'index'])
+            ->name('admin.surveys.responses.index');
+        Route::get('surveys/{survey}/responses/{account_name}', [\App\Http\Controllers\Admin\SurveyResponseController::class, 'show'])
+            ->name('admin.surveys.responses.show');
+            
+        // Add toggle resubmission route
+        Route::patch('surveys/{survey}/responses/{account_name}/toggle-resubmission', 
+            [\App\Http\Controllers\Admin\SurveyResponseController::class, 'toggleResubmission'])
+            ->name('admin.surveys.responses.toggle-resubmission');
+
         Route::patch('surveys/{survey}/toggle-status', [\App\Http\Controllers\Admin\SurveyController::class, 'toggleStatus'])
             ->name('admin.surveys.toggle-status');
     });

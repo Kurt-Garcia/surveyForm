@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Survey;
-use App\Models\SurveyResponse;
+use App\Models\SurveyResponseHeader;
 
 class AdminController extends Controller
 {
@@ -17,10 +17,11 @@ class AdminController extends Controller
     public function dashboard()
     {
         $totalSurveys = Survey::count();
-        $totalResponses = SurveyResponse::distinct('survey_id')->count('survey_id');
+        $totalResponses = SurveyResponseHeader::count();
         $activeSurveys = Survey::where('is_active', true)->count();
+        $latestSurvey = Survey::latest()->first();
 
-        return view('admin.dashboard', compact('totalSurveys', 'totalResponses', 'activeSurveys'));
+        return view('admin.dashboard', compact('totalSurveys', 'totalResponses', 'activeSurveys', 'latestSurvey'));
     }
 
     public function login()

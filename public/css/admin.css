@@ -1,5 +1,5 @@
 .card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
@@ -73,7 +73,7 @@
 
 /* Button hover effects */
 .btn {
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 /* Smooth scrolling */
@@ -94,4 +94,56 @@ html {
     .lead {
         font-size: 1rem;
     }
+}
+
+/* Admin Dashboard Styles */
+.display-5 {
+    font-size: 2.5rem;
+}
+
+.bg-opacity-10 {
+    --bs-bg-opacity: 0.1;
+}
+
+.rounded-circle {
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.badge {
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .display-5 {
+        font-size: 2rem;
+    }
+    
+    .display-6 {
+        font-size: 1.75rem;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }

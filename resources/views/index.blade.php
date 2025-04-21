@@ -31,7 +31,7 @@
         <div class="survey-grid">
             @forelse($surveys as $survey)
                 @php
-                    $hasResponded = session('account_name') ? App\Models\SurveyResponse::hasResponded($survey->id, session('account_name')) : false;
+                    $hasResponded = session('account_name') ? App\Models\SurveyResponseHeader::hasResponded($survey->id, session('account_name')) : false;
                 @endphp
                 <a href="{{ route('surveys.show', $survey) }}" class="survey-card">
                     @if($hasResponded)

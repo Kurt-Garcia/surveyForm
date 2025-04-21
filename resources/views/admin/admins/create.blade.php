@@ -7,8 +7,8 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span>{{ __('Add New Admin') }}</span>
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary btn-sm">
-                        <i class="bi bi-arrow-left"></i> {{ __('Back') }}
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-x-lg"></i>
                     </a>
                 </div>
 

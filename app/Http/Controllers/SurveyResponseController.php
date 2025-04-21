@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\SurveyResponse;
 use App\Models\Survey;
+use App\Models\SurveyResponseHeader;
+use App\Models\SurveyResponseDetail;
+use Illuminate\Support\Facades\DB;
 
 class SurveyResponseController extends Controller
 {
@@ -21,7 +23,7 @@ class SurveyResponseController extends Controller
         ]);
 
         // Check if user has already responded
-        if (SurveyResponse::hasResponded($validated['survey_id'], $validated['account_name'])) {
+        if (SurveyResponseHeader::hasResponded($validated['survey_id'], $validated['account_name'])) {
             return response()->json([
                 'error' => 'You have already submitted this survey.'
             ], 422);
@@ -33,34 +35,53 @@ class SurveyResponseController extends Controller
         // Get valid question IDs from the survey
         $validQuestionIds = $survey->questions->pluck('id')->toArray();
         
-        // Store individual responses for each question
+        // Validate all questions are answered
         foreach ($validQuestionIds as $questionId) {
             if (!isset($request->responses[$questionId])) {
                 return response()->json([
                     'error' => 'Missing response for question ID: ' . $questionId
                 ], 422);
             }
-            
-            SurveyResponse::create([
+        }
+
+        DB::beginTransaction();
+        try {
+            // Create header record
+            $header = SurveyResponseHeader::create([
                 'survey_id' => $validated['survey_id'],
                 'admin_id' => $survey->admin_id,
-                'question_id' => $questionId,
                 'account_name' => $validated['account_name'],
                 'account_type' => $validated['account_type'],
                 'date' => $validated['date'],
-                'response' => $request->responses[$questionId],
                 'recommendation' => $validated['recommendation'],
                 'comments' => $validated['comments']
             ]);
+
+            // Create detail records for each response
+            foreach ($validQuestionIds as $questionId) {
+                SurveyResponseDetail::create([
+                    'header_id' => $header->id,
+                    'question_id' => $questionId,
+                    'response' => $request->responses[$questionId]
+                ]);
+            }
+
+            DB::commit();
+
+            // Store account name in session for future checks
+            $request->session()->put('account_name', $validated['account_name']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Survey response submitted successfully',
+                'redirect' => route('index')
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'error' => 'Failed to submit survey response. Please try again.'
+            ], 500);
         }
-
-        // Store account name in session for future checks
-        $request->session()->put('account_name', $validated['account_name']);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Survey response submitted successfully',
-            'redirect' => route('index')
-        ]);
     }
 }
