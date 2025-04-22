@@ -103,7 +103,19 @@
                                 </div>
                                 <div>
                                     <label class="text-muted">Response</label>
-                                    @if($response->question->type === 'radio' || $response->question->type === 'star')
+                                    @if($response->question->type === 'radio')
+                                        <div class="d-flex align-items-center mt-2">
+                                            <div class="radio-display">
+                                                @for($i = 1; $i <= 5; $i++)
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" disabled {{ $i == $response->response ? 'checked' : '' }}>
+                                                        <label class="form-check-label">{{ $i }}</label>
+                                                    </div>
+                                                @endfor
+                                            </div>
+                                            <span class="ms-2 fw-bold">{{ $response->response }} / 5</span>
+                                        </div>
+                                    @elseif($response->question->type === 'star')
                                         <div class="d-flex align-items-center mt-2">
                                             <div class="rating-display">
                                                 @for($i = 1; $i <= 5; $i++)
@@ -112,6 +124,8 @@
                                             </div>
                                             <span class="ms-2 fw-bold">{{ $response->response }} / 5</span>
                                         </div>
+                                    @elseif($response->question->type === 'text' || $response->question->type === 'textarea')
+                                        <p class="fw-bold mb-0">{{ $response->response }}</p>
                                     @else
                                         <p class="fw-bold mb-0">{{ $response->response }}</p>
                                     @endif
@@ -166,61 +180,134 @@
 function generatePDF() {
     const element = document.querySelector('.card');
     const opt = {
-        margin: 1,
+        margin: [0.5, 0.5, 0.5, 0.5], // Margins [top, right, bottom, left] in inches
         filename: 'survey-response.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        html2canvas: { 
+            scale: 2,
+            useCORS: true,
+            logging: false
+        },
+        jsPDF: { 
+            unit: 'in', 
+            format: 'letter', // Default to letter size
+            orientation: 'portrait',
+            compress: true
+        },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
-    html2pdf().set(opt).from(element).save();
+    // Add custom CSS for PDF generation
+    const style = document.createElement('style');
+    style.textContent = `
+        .response-item {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+        body {
+            font-size: 10pt !important;
+            line-height: 1.2 !important;
+        }
+        .card-body {
+            padding: 0.25in !important;
+        }
+    `;
+    document.head.appendChild(style);
+
+    html2pdf().set(opt).from(element).save().then(() => {
+        document.head.removeChild(style);
+    });
 }
 </script>
 
 <!-- Print Styles -->
 <style media="print">
 @page {
-    size: auto;
-    margin: 10mm;
+    size: auto; /* Auto will adapt to the printer's default (Letter or A4) */
+    margin: 0.5in; /* Standard margin for documents */
 }
-.btn, .card-header a {
+body {
+    margin: 0;
+    padding: 0;
+    font-size: 10pt; /* Slightly smaller font for better fit */
+    line-height: 1.2;
+}
+.container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+.btn, .card-header form, .btn-close {
     display: none !important;
 }
 .card {
     border: none !important;
     box-shadow: none !important;
+    margin: 0 !important;
+}
+.card-header {
+    padding: 0.5rem 0 !important;
+    border-bottom: 1px solid #ddd !important;
+    margin-bottom: 0.5rem !important;
 }
 .card-body {
-    padding: 10px !important;
+    padding: 0 !important;
 }
 .response-item {
     break-inside: avoid;
-    border: 1px solid #ddd !important;
-    margin-bottom: 10px !important;
-    padding: 10px !important;
+    page-break-inside: avoid; /* For older browsers */
+    border: 1px solid #eee !important;
+    margin-bottom: 0.5rem !important;
+    padding: 0.5rem !important;
+    background-color: #f9f9f9 !important;
 }
-body {
-    padding: 0;
-    margin: 0;
-    font-size: 12px;
+h4 {
+    font-size: 16pt !important;
+    margin: 0.5rem 0 !important;
 }
-.container {
-    max-width: 100% !important;
-    padding: 0 !important;
+h5 {
+    font-size: 12pt !important;
+    margin: 0.25rem 0 !important;
 }
-h2, h4, h5 {
-    margin: 5px 0 !important;
-    font-size: 1.1em !important;
+.mb-4, .my-4 {
+    margin-bottom: 0.5rem !important;
 }
-.mb-4 {
-    margin-bottom: 10px !important;
+.mb-3, .my-3 {
+    margin-bottom: 0.25rem !important;
 }
-.p-4 {
-    padding: 10px !important;
+.p-4, .py-4, .px-4 {
+    padding: 0.5rem !important;
 }
-.py-4 {
-    padding-top: 10px !important;
-    padding-bottom: 10px !important;
+.p-3, .py-3, .px-3 {
+    padding: 0.25rem !important;
+}
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 !important;
+}
+.col-md-4 {
+    width: 33% !important;
+    padding: 0 0.25rem !important;
+}
+hr {
+    margin: 0.5rem 0 !important;
+    border-color: #ddd !important;
+}
+.alert {
+    display: none !important;
+}
+.bg-light {
+    background-color: #f9f9f9 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+.text-warning {
+    color: #ffc107 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
 }
 </style>
 @endsection

@@ -16,6 +16,17 @@ php artisan db:seed
 
 
 
+-------To Test in the Phone-------
+Open cmd
+
+Type "ipconfig"
+
+Find thd ipv4
+
+php artisan serve --host=192.168.1.130 --port=8000
+
+
+
 
 
 

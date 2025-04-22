@@ -20,6 +20,17 @@ class SurveyQuestion extends Model
         'required' => 'boolean'
     ];
 
+    protected static function booted()
+    {
+        static::created(function ($question) {
+            $question->survey->updateQuestionCount();
+        });
+
+        static::deleted(function ($question) {
+            $question->survey->updateQuestionCount();
+        });
+    }
+
     public function survey(): BelongsTo
     {
         return $this->belongsTo(Survey::class);

@@ -55,7 +55,7 @@
                                     <div class="form-check form-switch mb-0">
                                         <input type="hidden" name="required" value="0">
                                         <input type="checkbox" class="form-check-input" id="required" name="required" value="1" 
-                                            {{ old('required') ? 'checked' : '' }}>
+                                            {{ old('required', '1') ? 'checked' : '' }}>
                                         <label class="form-check-label ms-2" for="required">
                                             Required
                                         </label>

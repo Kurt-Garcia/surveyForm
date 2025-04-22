@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Survey extends Model
 {
-    protected $fillable = ['title', 'admin_id', 'is_active'];
+    protected $fillable = ['title', 'admin_id', 'is_active', 'total_questions'];
 
     protected $casts = [
         'is_active' => 'boolean'
@@ -27,5 +27,11 @@ class Survey extends Model
     public function responseHeaders(): HasMany
     {
         return $this->hasMany(SurveyResponseHeader::class);
+    }
+
+    public function updateQuestionCount(): void
+    {
+        $this->total_questions = $this->questions()->count();
+        $this->save();
     }
 }

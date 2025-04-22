@@ -10,18 +10,18 @@
     @if($hasResponded)
         <div class="container">
             @if($allowResubmit)
-                <div class="notification-card warning">
+                <div class="notification-card warning" id="warningNotification">
                     <i class="fas fa-info-circle me-2"></i>
                     <p>You have previously submitted this survey, but resubmission has been enabled by an administrator. You may submit a new response.</p>
-                    <button type="button" class="notification-close" data-bs-dismiss="alert" aria-label="Close">
+                    <button type="button" class="notification-close" onclick="closeNotification('warningNotification')">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
             @else
-                <div class="notification-card info">
+                <div class="notification-card info" id="infoNotification">
                     <i class="fas fa-info-circle me-2"></i>
                     <p>You have already submitted this survey. You can view the questions, but submitting again with the same account name will not be allowed.</p>
-                    <button type="button" class="notification-close" data-bs-dismiss="alert" aria-label="Close">
+                    <button type="button" class="notification-close" onclick="closeNotification('infoNotification')">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -117,7 +117,7 @@
                 </div>
             </div>
 
-            <div class="recommendation-section">
+            <div class="recommendation-section mt-5">
                 <h2 class="section-title">Recommendation</h2>
                 <div class="recommendation-container">
                     <p>How likely is it that you would recommend our company to a friend or colleague?</p>
@@ -130,7 +130,7 @@
                 </div>
             </div>
 
-            <div class="comments-section">
+            <div class="comments-section mt-5">
                 <h2 class="section-title">Additional Feedback</h2>
                 <textarea class="modern-textarea" name="comments" rows="5" placeholder="We value your thoughts. Please share any additional feedback..." required></textarea>
             </div>
@@ -759,7 +759,7 @@ $(document).ready(function() {
                         <h4 class="mt-3">Unable to Submit</h4>
                         <p>${xhr.responseJSON.error}</p>
                         <div class="mt-3">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <a href="{{ route('index') }}" class="btn btn-primary">Back to Survey</a>
                         </div>
                     `);
                 }
@@ -777,6 +777,10 @@ $(document).ready(function() {
 function showResponseSummaryModal() {
     $('#responseModal').modal('hide');
     $('#responseSummaryModal').modal('show');
+}
+
+function closeNotification(id) {
+    document.getElementById(id).style.display = 'none';
 }
 </script>
 @endsection
