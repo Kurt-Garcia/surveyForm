@@ -61,7 +61,7 @@ class UserSurveyController extends Controller
             'date' => 'required|date',
             'responses' => 'required|array',
             'recommendation' => 'required|integer|between:1,10',
-            'comments' => 'required|string',
+            'comments' => 'nullable|string', // Changed from required to nullable
             'start_time' => 'required|date',
             'end_time' => 'required|date|after:start_time'
         ]);

@@ -48,14 +48,17 @@
                 <div class="form-field">
                     <label for="account_name" class="form-label">Account Name</label>
                     <input type="text" class="modern-input" id="account_name" name="account_name" required>
+                    <div class="validation-message" id="account_name_error"></div>
                 </div>
                 <div class="form-field">
                     <label for="account_type" class="form-label">Account Type</label>
                     <input type="text" class="modern-input" id="account_type" name="account_type" required>
+                    <div class="validation-message" id="account_type_error"></div>
                 </div>
                 <div class="form-field">
                     <label for="date" class="form-label">Date</label>
                     <input type="date" class="modern-input" id="date" name="date" value="{{ date('Y-m-d') }}" required>
+                    <div class="validation-message" id="date_error"></div>
                 </div>
             </div>
 
@@ -71,7 +74,7 @@
 
                 <div class="questions-container">
                     @foreach($questions as $question)
-                    <div class="question-card">
+                    <div class="question-card" data-question-id="{{ $question->id }}">
                         <div class="question-text">
                             {{ $question->text }}
                             @if($question->required)
@@ -112,6 +115,7 @@
                                     @break
                             @endswitch
                         </div>
+                        <div class="validation-message" id="question_{{ $question->id }}_error"></div>
                     </div>
                     @endforeach
                 </div>
@@ -127,12 +131,14 @@
                             <option value="{{ $i }}">{{ $i }}</option>
                         @endfor
                     </select>
+                    <div class="validation-message" id="recommendation_error"></div>
                 </div>
             </div>
 
             <div class="comments-section mt-5">
                 <h2 class="section-title">Additional Feedback</h2>
-                <textarea class="modern-textarea" name="comments" rows="5" placeholder="We value your thoughts. Please share any additional feedback..." required></textarea>
+                <textarea class="modern-textarea" name="comments" rows="5" placeholder="We value your thoughts. Please share any additional feedback..."></textarea>
+                <div class="validation-message" id="comments_error"></div>
             </div>
 
             @foreach($questions as $question)
@@ -624,6 +630,31 @@
         padding: 0.75rem 1.5rem;
         font-size: 0.95rem;
     }
+
+    .validation-message {
+        color: var(--danger-color);
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+
+    .error {
+        border-color: var(--danger-color) !important;
+    }
+
+    .has-error {
+        border: 2px solid var(--danger-color) !important;
+    }
+
+    .shake-animation {
+        animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        50% { transform: translateX(5px); }
+        75% { transform: translateX(-5px); }
+    }
 </style>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -636,8 +667,121 @@ $(document).ready(function() {
     const thankYouModal = new bootstrap.Modal(document.getElementById('responseModal'));
     const summaryModal = new bootstrap.Modal(document.getElementById('responseSummaryModal'));
     
+    // Function to validate all inputs and display errors
+    function validateForm() {
+        let isValid = true;
+        let errorList = [];
+        
+        // Clear previous error messages
+        $('.validation-message').text('');
+        $('#validationErrorsList ul').empty();
+        $('.modern-input, .modern-select, .modern-textarea').removeClass('error');
+        $('.question-card').removeClass('has-error');
+        
+        // Validate account name
+        if (!$('#account_name').val().trim()) {
+            isValid = false;
+            $('#account_name').addClass('error');
+            $('#account_name_error').text('Account name is required');
+            errorList.push('Account name is required');
+        }
+        
+        // Validate account type
+        if (!$('#account_type').val().trim()) {
+            isValid = false;
+            $('#account_type').addClass('error');
+            $('#account_type_error').text('Account type is required');
+            errorList.push('Account type is required');
+        }
+        
+        // Validate date
+        if (!$('#date').val()) {
+            isValid = false;
+            $('#date').addClass('error');
+            $('#date_error').text('Date is required');
+            errorList.push('Date is required');
+        }
+        
+        // Validate required questions
+        $('.question-card').each(function() {
+            const questionId = $(this).data('question-id');
+            const isRequired = $(this).find('.badge.required').length > 0;
+            const questionText = $(this).find('.question-text').contents().first().text().trim();
+            
+            if (isRequired && !$(`input[name="responses[${questionId}]"]:checked`).val()) {
+                isValid = false;
+                $(this).addClass('has-error');
+                $(`#question_${questionId}_error`).text('This question requires an answer');
+                errorList.push(`Question "${questionText}" requires an answer`);
+            }
+        });
+        
+        // Validate recommendation
+        if (!$('#survey-number').val()) {
+            isValid = false;
+            $('#survey-number').addClass('error');
+            $('#recommendation_error').text('Please select a recommendation rating');
+            errorList.push('Recommendation rating is required');
+        }
+        
+        // Comments are now optional, removed validation for comments field
+        
+        // Show validation errors summary if any
+        if (!isValid) {
+            // Build error list HTML
+            errorList.forEach(function(error) {
+                $('#validationErrorsList ul').append(`<li>${error}</li>`);
+            });
+            
+            // Show the validation alert
+            $('#validationAlertContainer').show();
+            
+            // Scroll to the first error
+            const firstError = $('.error, .has-error').first();
+            if (firstError.length) {
+                $('html, body').animate({
+                    scrollTop: firstError.offset().top - 100
+                }, 500);
+                firstError.addClass('shake-animation');
+                setTimeout(() => {
+                    firstError.removeClass('shake-animation');
+                }, 500);
+            }
+        } else {
+            $('#validationAlertContainer').hide();
+        }
+        
+        return isValid;
+    }
+    
+    // Live validation on input change
+    $('.modern-input, .modern-select, .modern-textarea').on('input change', function() {
+        if ($(this).val().trim()) {
+            $(this).removeClass('error');
+            const fieldId = $(this).attr('id');
+            if (fieldId) {
+                $(`#${fieldId}_error`).text('');
+            } else if ($(this).attr('name') === 'comments') {
+                $('#comments_error').text('');
+            }
+        }
+    });
+    
+    // Live validation for radio buttons
+    $('input[type="radio"]').on('change', function() {
+        const questionId = $(this).attr('name').match(/\d+/)[0];
+        $(`#question_${questionId}_error`).text('');
+        $(this).closest('.question-card').removeClass('has-error');
+    });
+    
+    // Form submission with validation
     $('#surveyForm').on('submit', function(e) {
         e.preventDefault();
+        
+        // First validate the form
+        if (!validateForm()) {
+            return false;
+        }
         
         // Record end time
         $('#end_time').val(new Date().toISOString());
@@ -650,7 +794,7 @@ $(document).ready(function() {
         $('.question-card').each(function() {
             const questionText = $(this).find('.question-text').contents().first().text().trim();
             const questionType = $(this).find('.question-input').children('div').first().hasClass('modern-star-rating') ? 'star' : 'radio';
-            const questionId = $(this).find('input[type="radio"]').first().attr('name').match(/\d+/)[0];
+            const questionId = $(this).data('question-id');
             const rating = $(`input[name="responses[${questionId}]"]:checked`).val();
             
             if (rating) {
@@ -716,25 +860,76 @@ $(document).ready(function() {
                     
                     $('#summary-responses').html(responsesHtml);
                     
-                    // Populate recommendation score and comments
+                    // Populate recommendation score and comments (with check for empty comments)
                     $('#summary-recommendation').text(formData.get('recommendation'));
-                    $('#summary-comments').text(formData.get('comments'));
+                    const commentText = formData.get('comments') || 'No additional feedback provided';
+                    $('#summary-comments').text(commentText);
                     
                     thankYouModal.show();
                     $('#surveyForm')[0].reset();
                 }
             },
             error: function(xhr) {
+                console.log('Error response:', xhr.responseJSON);
+                
+                // Clear previous success message and show error message
                 $('#successMessage').addClass('d-none');
                 $('#errorMessage').removeClass('d-none');
-                if (xhr.responseJSON && xhr.responseJSON.error) {
+                
+                // Check for validation errors from server
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    const errors = xhr.responseJSON.errors;
+                    console.log('Validation errors:', errors);
+                    
+                    // Build error list for error summary
+                    let errorList = [];
+                    
+                    // Handle field-specific errors
+                    for (const field in errors) {
+                        if (field.startsWith('responses.')) {
+                            // Extract question ID from the field name
+                            const questionId = field.split('.')[1];
+                            $(`.question-card[data-question-id="${questionId}"]`).addClass('has-error');
+                            $(`#question_${questionId}_error`).text(errors[field][0]);
+                            errorList.push(errors[field][0]);
+                        } else if (field === 'comments') {
+                            // Specifically handle comments field error
+                            $('textarea[name="comments"]').addClass('error');
+                            $('#comments_error').text(errors[field][0]);
+                            errorList.push(errors[field][0]);
+                        } else {
+                            // Handle other form fields
+                            $(`#${field}`).addClass('error');
+                            $(`#${field}_error`).text(errors[field][0]);
+                            errorList.push(errors[field][0]);
+                        }
+                    }
+                    
+                    // Update the modal with specific errors
+                    $('#errorMessage').html(`
+                        <i class="fas fa-exclamation-circle text-danger" style="font-size: 48px;"></i>
+                        <h4 class="mt-3">Please Fix These Errors</h4>
+                        <ul class="text-start">
+                            ${errorList.map(err => `<li>${err}</li>`).join('')}
+                        </ul>
+                        <button type="button" class="btn btn-secondary mt-3" data-bs-dismiss="modal">Close and Fix</button>
+                    `);
+                } else if (xhr.responseJSON && xhr.responseJSON.error) {
+                    // Handle specific error message from the server
                     $('#errorMessage').html(`
                         <i class="fas fa-exclamation-circle text-danger" style="font-size: 48px;"></i>
                         <h4 class="mt-3">Unable to Submit</h4>
                         <p>${xhr.responseJSON.error}</p>
                         <div class="mt-3">
-                            <a href="{{ route('index') }}" class="btn btn-primary">Back to Survey</a>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
+                    `);
+                } else {
+                    // General error case
+                    $('#errorMessage').html(`
+                        <i class="fas fa-exclamation-circle text-danger" style="font-size: 48px;"></i>
+                        <h4 class="mt-3">Oops!</h4>
+                        <p>An unexpected error occurred. Please try again.</p>
                     `);
                 }
                 thankYouModal.show();
