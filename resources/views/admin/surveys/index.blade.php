@@ -11,9 +11,6 @@
                     <p class="text-muted small mb-0">Manage and monitor your survey collection</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-light">
-                        <i class="bi bi-arrow-left me-1"></i>{{ __('Back to Dashboard') }}
-                    </a>
                     <a href="{{ route('admin.surveys.create') }}" class="btn btn-primary">
                         <i class="bi bi-plus-lg me-1"></i>{{ __('Create Survey') }}
                     </a>

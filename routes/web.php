@@ -65,6 +65,8 @@ Route::prefix('admin')->group(function () {
         // Survey response routes
         Route::get('surveys/{survey}/responses', [\App\Http\Controllers\Admin\SurveyResponseController::class, 'index'])
             ->name('admin.surveys.responses.index');
+        Route::get('surveys/{survey}/unique-respondents', [\App\Http\Controllers\Admin\SurveyResponseController::class, 'uniqueRespondents'])
+            ->name('admin.surveys.unique-respondents');
         Route::get('surveys/{survey}/responses/{account_name}', [\App\Http\Controllers\Admin\SurveyResponseController::class, 'show'])
             ->name('admin.surveys.responses.show');
             

@@ -12,7 +12,7 @@
                 <i class="bi bi-file-pdf me-2"></i>Download PDF
             </button>
         </div>
-        <a href="{{ route('admin.surveys.responses.index', $survey) }}" class="btn btn-outline-primary">
+        <a href="{{ route('admin.surveys.unique-respondents', $survey) }}" class="btn btn-outline-primary">
             <i class="bi bi-arrow-left me-2"></i>Back to Responses
         </a>
     </div>

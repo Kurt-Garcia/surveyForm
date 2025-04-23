@@ -14,9 +14,6 @@
                             <div><i class="bi bi-star-fill me-2"></i>Average Rating: {{ number_format($avgRecommendation, 1) }}/10</div>
                         </div>
                     </div>
-                    <a href="{{ route('admin.surveys.index') }}" class="btn btn-outline-primary btn-sm">
-                        <i class="bi bi-arrow-left me-2"></i>Back to Surveys
-                    </a>
                 </div>
             </div>
 
@@ -43,13 +40,15 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <h5 class="fw-bold mb-3"><i class="bi bi-person-fill text-info me-2"></i>Unique Respondents</h5>
-                            <div class="display-6 text-info mb-2">{{ $responses->unique('account_name')->count() }}</div>
-                            <p class="text-muted">Individual participants</p>
+                    <a href="{{ route('admin.surveys.unique-respondents', $survey) }}" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="fw-bold mb-3"><i class="bi bi-person-fill text-info me-2"></i>Unique Respondents</h5>
+                                <div class="display-6 text-info mb-2">{{ $responses->unique('account_name')->count() }}</div>
+                                <p class="text-muted">Click to view individual participants</p>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
 
@@ -95,71 +94,10 @@
                 </div>
             </div>
 
-            <!-- Individual Responses Table -->
-            <div class="card shadow-sm border-0 mt-4" id="individual-responses">
-                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0 fw-bold">Individual Responses</h4>
-                    <div class="search-container w-100 w-md-50 w-lg-25">
-                        <form method="GET" action="{{ route('admin.surveys.responses.index', $survey) }}#individual-responses">
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0">
-                                    <i class="bi bi-search"></i>
-                                </span>
-                                <input type="text" name="search" class="form-control border-start-0" 
-                                    value="{{ request('search') }}" 
-                                    placeholder="Search by name, type or date..." 
-                                    style="border-radius: 0 20px 20px 0;">
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table" id="responsesTable">
-                            <thead>
-                                <tr>
-                                    <th>Account Name</th>
-                                    <th>Account Type</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($responses as $response)
-                                    <tr class="response-row">
-                                        <td>{{ $response->account_name }}</td>
-                                        <td>{{ $response->account_type }}</td>
-                                        <td>{{ $response->date->format('M d, Y') }}</td>
-                                        <td>
-                                            <a href="{{ route('admin.surveys.responses.show', ['survey' => $survey->id, 'account_name' => $response->account_name]) }}" 
-                                               class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-eye-fill me-1"></i>View Details
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
             @push('scripts')
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    const searchForm = document.querySelector('.search-container form');
-                    const searchInput = searchForm.querySelector('input[name="search"]');
-                    
-                    // Auto-submit form after a short delay when typing
-                    let timeout = null;
-                    searchInput.addEventListener('input', function() {
-                        clearTimeout(timeout);
-                        timeout = setTimeout(() => {
-                            searchForm.submit();
-                        }, 500);
-                    });
-                
                 // Add hover effect to stat rows
                 document.querySelectorAll('.stat-row').forEach(row => {
                     row.addEventListener('mouseenter', function() {
@@ -204,24 +142,6 @@
             .bg-primary { background-color: #0d6efd !important; }
             .bg-success { background-color: #28a745 !important; }
 
-            .search-container {
-                max-width: 100%;
-                transition: all 0.3s ease;
-            }
-
-            @media (min-width: 768px) {
-                .search-container {
-                    max-width: 50%;
-                }
-            }
-
-            @media (min-width: 992px) {
-                .search-container {
-                    max-width: 300px;
-                }
-            }
-            .bg-success { background-color: #28a745 !important; }
-
             .stat-row:hover .progress-bar {
                 filter: brightness(1.1);
                 transform: scaleX(1.01);
@@ -247,18 +167,6 @@
 
             .card:hover {
                 transform: translateY(-5px);
-            }
-
-            #searchInput {
-                border-radius: 20px;
-                padding-left: 1rem;
-                border: 1px solid #dee2e6;
-                transition: all 0.3s ease;
-            }
-
-            #searchInput:focus {
-                box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-                border-color: #80bdff;
             }
             </style>
         </div>
