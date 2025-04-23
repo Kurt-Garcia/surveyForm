@@ -44,20 +44,28 @@
             <input type="hidden" name="start_time" id="start_time">
             <input type="hidden" name="end_time" id="end_time">
             
+            <!-- Validation Alert Container -->
+            <div id="validationAlertContainer" class="alert alert-danger mb-4 d-none">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</h5>
+                <div id="validationErrorsList">
+                    <ul></ul>
+                </div>
+            </div>
+            
             <div class="form-grid">
                 <div class="form-field">
                     <label for="account_name" class="form-label">Account Name</label>
-                    <input type="text" class="modern-input" id="account_name" name="account_name" required>
+                    <input type="text" class="modern-input" id="account_name" name="account_name">
                     <div class="validation-message" id="account_name_error"></div>
                 </div>
                 <div class="form-field">
                     <label for="account_type" class="form-label">Account Type</label>
-                    <input type="text" class="modern-input" id="account_type" name="account_type" required>
+                    <input type="text" class="modern-input" id="account_type" name="account_type">
                     <div class="validation-message" id="account_type_error"></div>
                 </div>
                 <div class="form-field">
                     <label for="date" class="form-label">Date</label>
-                    <input type="date" class="modern-input" id="date" name="date" value="{{ date('Y-m-d') }}" required>
+                    <input type="date" class="modern-input" id="date" name="date" value="{{ date('Y-m-d') }}">
                     <div class="validation-message" id="date_error"></div>
                 </div>
             </div>
@@ -92,8 +100,7 @@
                                                 <input type="radio" 
                                                     id="q{{ $question->id }}_rating{{ $i }}" 
                                                     name="responses[{{ $question->id }}]" 
-                                                    value="{{ $i }}" 
-                                                    {{ $question->required ? 'required' : '' }}>
+                                                    value="{{ $i }}">
                                                 <label for="q{{ $question->id }}_rating{{ $i }}">
                                                     <span class="radio-number">{{ $i }}</span>
                                                 </label>
@@ -107,8 +114,7 @@
                                             <input type="radio" 
                                                 id="star{{ $question->id }}_{{ $i }}" 
                                                 name="responses[{{ $question->id }}]" 
-                                                value="{{ $i }}" 
-                                                {{ $question->required ? 'required' : '' }}>
+                                                value="{{ $i }}">
                                             <label for="star{{ $question->id }}_{{ $i }}" class="star-label"></label>
                                         @endfor
                                     </div>
@@ -703,6 +709,7 @@ $(document).ready(function() {
         }
         
         // Validate required questions
+        let requiredQuestionsEmpty = false;
         $('.question-card').each(function() {
             const questionId = $(this).data('question-id');
             const isRequired = $(this).find('.badge.required').length > 0;
@@ -713,8 +720,28 @@ $(document).ready(function() {
                 $(this).addClass('has-error');
                 $(`#question_${questionId}_error`).text('This question requires an answer');
                 errorList.push(`Question "${questionText}" requires an answer`);
+                requiredQuestionsEmpty = true;
             }
         });
+        
+        // Show alert specifically for required questions
+        if (requiredQuestionsEmpty) {
+            // Create or show the alert for required questions
+            if ($('#requiredQuestionsAlert').length === 0) {
+                const alertHTML = `
+                    <div id="requiredQuestionsAlert" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Please answer all required questions!</strong> Questions marked with <span class="badge required">Required</span> must be answered.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                $('#surveyForm').prepend(alertHTML);
+            } else {
+                $('#requiredQuestionsAlert').show();
+            }
+        } else {
+            $('#requiredQuestionsAlert').hide();
+        }
         
         // Validate recommendation
         if (!$('#survey-number').val()) {

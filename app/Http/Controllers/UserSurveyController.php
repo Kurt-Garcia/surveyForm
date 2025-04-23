@@ -56,9 +56,9 @@ class UserSurveyController extends Controller
         }
 
         $validated = $request->validate([
-            'account_name' => 'required|string',
-            'account_type' => 'required|string',
-            'date' => 'required|date',
+            'account_name' => 'nullable|string',
+            'account_type' => 'nullable|string',
+            'date' => 'nullable|date',
             'responses' => 'required|array',
             'recommendation' => 'required|integer|between:1,10',
             'comments' => 'nullable|string', // Changed from required to nullable
