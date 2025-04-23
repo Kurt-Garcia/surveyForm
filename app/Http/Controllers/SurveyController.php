@@ -25,7 +25,7 @@ class SurveyController extends Controller
         ]);
 
         $survey = Survey::create([
-            'title' => $validated['title'],
+            'title' => ucfirst($validated['title']),
             'admin_id' => auth()->guard('admin')->id()
         ]);
 
@@ -50,7 +50,9 @@ class SurveyController extends Controller
             'title' => 'required|string|max:255',
         ]);
 
-        $survey->update($validated);
+        $survey->update([
+            'title' => ucfirst($validated['title'])
+        ]);
 
         return redirect()->route('admin.surveys.show', $survey)
             ->with('success', 'Survey updated successfully.');

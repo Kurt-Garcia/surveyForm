@@ -127,12 +127,24 @@
         });
     }
 
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
     document.getElementById('createSurveyForm').addEventListener('submit', function(e) {
         if (document.getElementById('questions-container').children.length === 0) {
             e.preventDefault();
             alert('Please add at least one question to the survey.');
             return false;
         }
+
+        const titleInput = document.getElementById('title');
+        titleInput.value = capitalizeFirstLetter(titleInput.value);
+
+        const questionInputs = document.querySelectorAll('input[name^="questions"][name$="[text]"]');
+        questionInputs.forEach(input => {
+            input.value = capitalizeFirstLetter(input.value);
+        });
     });
     
     // Add first question by default

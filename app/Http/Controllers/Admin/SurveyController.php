@@ -28,14 +28,14 @@ class SurveyController extends Controller
         DB::beginTransaction();
         try {
             $survey = Survey::create([
-                'title' => $request->title,
+                'title' => ucfirst($request->title),
                 'admin_id' => Auth::guard('admin')->id(),
                 'is_active' => true
             ]);
 
             foreach ($request->questions as $index => $questionData) {
                 $survey->questions()->create([
-                    'text' => $questionData['text'],
+                    'text' => ucfirst($questionData['text']),
                     'type' => $questionData['type'],
                     'required' => isset($questionData['required']) ? (bool)$questionData['required'] : false,
                     'order' => $index + 1
@@ -102,7 +102,7 @@ class SurveyController extends Controller
         try {
             // Update survey title
             $survey->update([
-                'title' => $request->title
+                'title' => ucfirst($request->title)
             ]);
 
             // Delete existing questions
@@ -111,7 +111,7 @@ class SurveyController extends Controller
             // Create new questions
             foreach ($request->questions as $index => $questionData) {
                 $survey->questions()->create([
-                    'text' => $questionData['text'],
+                    'text' => ucfirst($questionData['text']),
                     'type' => $questionData['type'],
                     'required' => $questionData['required'] ?? false,
                     'order' => $index + 1

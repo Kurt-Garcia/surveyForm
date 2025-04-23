@@ -24,7 +24,7 @@ class SurveyQuestionController extends Controller
         ]);
 
         $survey->questions()->create([
-            'text' => $validated['text'],
+            'text' => ucfirst($validated['text']),
             'description' => $validated['description'],
             'type' => $validated['type'],
             'required' => $validated['required'] ?? false,
@@ -49,7 +49,12 @@ class SurveyQuestionController extends Controller
             'required' => 'boolean'
         ]);
 
-        $question->update($validated);
+        $question->update([
+            'text' => ucfirst($validated['text']),
+            'description' => $validated['description'],
+            'type' => $validated['type'],
+            'required' => $validated['required'] ?? false,
+        ]);
 
         return redirect()->route('admin.surveys.show', $survey)
             ->with('success', 'Question updated successfully.');

@@ -35,7 +35,7 @@
                 <i class="fas fa-times"></i>
             </a>
             <img src="{{ asset('img/logo.JPG') }}" alt="Logo" class="survey-logo">
-            <h1 class="survey-title">{{ $survey->title }}</h1>
+            <h1 class="survey-title">{{ strtoupper($survey->title) }}</h1>
         </div>
 
         <form id="surveyForm" method="POST" action="{{ route('surveys.store', $survey) }}" class="modern-form">

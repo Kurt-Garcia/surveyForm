@@ -9,7 +9,7 @@
                 <div class="card-header bg-white py-3">
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                         <div>
-                            <h2 class="mb-0 h3 h1-md fw-bold text-primary">{{ $survey->title }}</h2>
+                            <h2 class="mb-0 h3 h1-md fw-bold text-primary">{{ strtoupper($survey->title) }}</h2>
                             <p class="text-muted mb-0 d-flex align-items-center flex-wrap gap-3">
                                 <span><i class="bi bi-calendar me-2"></i>Created {{ $survey->created_at->format('M d, Y') }}</span>
                                 <span class="badge {{ $survey->is_active ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }} rounded-pill">
