@@ -40,20 +40,18 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <a href="{{ route('admin.surveys.unique-respondents', $survey) }}" class="text-decoration-none">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body">
-                                <h5 class="fw-bold mb-3"><i class="bi bi-person-fill text-info me-2"></i>Unique Respondents</h5>
-                                <div class="display-6 text-info mb-2">{{ $responses->unique('account_name')->count() }}</div>
-                                <p class="text-muted">Click to view individual participants</p>
-                            </div>
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-person-fill text-info me-2"></i>Unique Respondents</h5>
+                            <div class="display-6 text-info mb-2">{{ $responses->unique('account_name')->count() }}</div>
+                            <p class="text-muted">Individual participants</p>
                         </div>
-                    </a>
+                    </div>
                 </div>
             </div>
 
             <!-- Question Statistics -->
-            <div class="row">
+            <div class="row mb-4">
                 <div class="col-12">
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-white py-3">
@@ -94,6 +92,59 @@
                 </div>
             </div>
 
+            <!-- Individual Responses Table -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0" id="individual-responses">
+                        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0 fw-bold">Individual Responses</h4>
+                            <div class="search-container w-100 w-md-50 w-lg-25">
+                                <form method="GET" action="{{ route('admin.surveys.responses.index', $survey) }}">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0">
+                                            <i class="bi bi-search"></i>
+                                        </span>
+                                        <input type="text" name="search" class="form-control border-start-0" 
+                                            value="{{ request('search') }}" 
+                                            placeholder="Search by name, type or date..." 
+                                            style="border-radius: 0 20px 20px 0;">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table" id="responsesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Account Name</th>
+                                            <th>Account Type</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($responses as $response)
+                                            <tr class="response-row">
+                                                <td>{{ $response->account_name }}</td>
+                                                <td>{{ $response->account_type }}</td>
+                                                <td>{{ $response->date->format('M d, Y') }}</td>
+                                                <td>
+                                                    <a href="{{ route('admin.surveys.responses.show', ['survey' => $survey->id, 'account_name' => $response->account_name]) }}" 
+                                                       class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-eye-fill me-1"></i>View Details
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             @push('scripts')
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
@@ -106,6 +157,18 @@
                     row.addEventListener('mouseleave', function() {
                         this.querySelector('.progress-bar').style.opacity = '1';
                     });
+                });
+                
+                // Auto-submit search form after a short delay when typing
+                const searchForm = document.querySelector('.search-container form');
+                const searchInput = searchForm.querySelector('input[name="search"]');
+                
+                let timeout = null;
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        searchForm.submit();
+                    }, 500);
                 });
             });
             </script>
@@ -168,44 +231,33 @@
             .card:hover {
                 transform: translateY(-5px);
             }
+            
+            .search-container {
+                max-width: 100%;
+                transition: all 0.3s ease;
+            }
+
+            @media (min-width: 768px) {
+                .search-container {
+                    max-width: 50%;
+                }
+            }
+
+            @media (min-width: 992px) {
+                .search-container {
+                    max-width: 300px;
+                }
+            }
+            
+            .response-row {
+                transition: all 0.2s ease;
+            }
+            
+            .response-row:hover {
+                background-color: #f8f9fa;
+            }
             </style>
         </div>
     </div>
 </div>
-
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Add any additional JavaScript for interactive charts if needed
-</script>
-@endpush
-
-<style>
-.question-stats {
-    border-bottom: 1px solid #eee;
-    padding-bottom: 2rem;
-}
-
-.question-stats:last-child {
-    border-bottom: none;
-}
-
-.progress {
-    border-radius: 100px;
-    background-color: #e9ecef;
-}
-
-.progress-bar {
-    border-radius: 100px;
-    transition: width 0.6s ease;
-}
-
-.card {
-    transition: transform 0.2s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-</style>
 @endsection
