@@ -29,7 +29,7 @@
             <div class="row g-4">
                 @forelse ($surveys as $survey)
                     <div class="col-12 col-md-6 col-xl-4">
-                        <div class="card h-100 border-0 shadow-sm">
+                        <div class="card h-100 border-0 shadow-sm survey-card">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <h5 class="card-title text-truncate mb-0" title="{{ $survey->title }}">
@@ -90,4 +90,14 @@
         </div>
     </div>
 </div>
+
+<style>
+    .survey-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .survey-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+    }
+</style>
 @endsection

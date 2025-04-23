@@ -25,9 +25,9 @@
 <body>
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
-            <div class="container">
+            <div class="container-fluid px-4">
                 <a class="navbar-brand">
-                    <img src="{{ asset('img/logo.png') }}" alt="Logo" class="d-block mx-auto logo" style="max-width: 100px;">
+                    <img src="{{ asset('img/logo.png') }}" alt="Logo" class="logo" style="max-width: 100px;">
                 </a>
                 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">

@@ -7,7 +7,7 @@
             <div class="card shadow-lg border-0 rounded-lg">
                 <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
                     <h4 class="mb-0"><i class="fas fa-poll-h me-2"></i>{{ __('Create New Survey') }}</h4>
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-light btn-sm">
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-light btn-sm" id="closeFormBtn">
                         <i class="bi bi-x-lg"></i>
                     </a>
                 </div>
@@ -112,6 +112,9 @@
     }
     
     function removeQuestion(button) {
+        if (!confirm('Are you sure you want to remove this question?')) {
+            return;
+        }
         const card = button.closest('.question-card');
         card.style.opacity = '0';
         setTimeout(() => {
@@ -130,10 +133,21 @@
     function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
+    
+    function addPunctuationIfMissing(text) {
+        if (!text) return text;
+        // Check if the text already ends with punctuation (.?!:;)
+        if (!/[.?!:;]$/.test(text.trim())) {
+            return text.trim() + '.';
+        }
+        return text;
+    }
 
     document.getElementById('createSurveyForm').addEventListener('submit', function(e) {
+        // Prevent default to handle form submission manually
+        e.preventDefault();
+        
         if (document.getElementById('questions-container').children.length === 0) {
-            e.preventDefault();
             alert('Please add at least one question to the survey.');
             return false;
         }
@@ -143,8 +157,24 @@
 
         const questionInputs = document.querySelectorAll('input[name^="questions"][name$="[text]"]');
         questionInputs.forEach(input => {
-            input.value = capitalizeFirstLetter(input.value);
+            // Apply both capitalization and punctuation check
+            input.value = addPunctuationIfMissing(capitalizeFirstLetter(input.value));
+            console.log('Question updated: ' + input.value);
         });
+        
+        if (!confirm('Are you sure you want to submit the survey?')) {
+            return;
+        }
+
+        // Continue with form submission
+        this.submit();
+    });
+
+    document.getElementById('closeFormBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        if (confirm('Are you sure you want to close the form? Any unsaved changes will be lost.')) {
+            window.location.href = this.href;
+        }
     });
     
     // Add first question by default

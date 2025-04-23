@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-4">
+<div class="container-fluid px-4 mt-4">
     <!-- Action Buttons Section -->
     <div class="mb-3 d-flex justify-content-between align-items-center">
         <div>
@@ -24,7 +24,7 @@
         </div>
     @endif
 
-    <div class="row justify-content-center">
+    <div class="row justify-content-start">
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">

@@ -154,6 +154,10 @@
         <div class="thank-you-message">
             <h3>WE APPRECIATE YOUR FEEDBACK!</h3>
             <p>Your input helps us serve you better.</p>
+            <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()">
+                <span>View Response</span>
+                <i class="fas fa-eye ms-2"></i>
+            </button>
         </div>
     </div>
 </div>
@@ -571,61 +575,26 @@
         margin-top: 0.5rem;
     }
 
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @media (max-width: 768px) {
-        .survey-container {
-            padding: 1rem;
-        }
-
-        .survey-title {
-            font-size: 2rem;
-        }
-
-        .rating-legend {
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .modern-rating-group {
-            gap: 0.5rem;
-        }
-
-        .modern-radio label {
-            width: 35px;
-            height: 35px;
-        }
-    }
-
-    .rating-display {
-        display: flex;
-        align-items: center;
-    }
-
-    .rating-number {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background-color: var(--primary-color);
+    :view-response-btn {
+        background: rgba(255, 255, 255, 0.15);
         color: white;
-        font-weight: 600;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        transition: var(--transition);
+        cursor: pointer;
+        margin-top: 1.5rem;
     }
 
-    .rating-text {
-        color: var(--secondary-color);
-        font-weight: 500;
+    .view-response-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    .view-response-btn i {
+        opacity: 0.9;
     }
 
     .text-warning {
@@ -649,6 +618,11 @@
 
     .rating-wrapper .fas {
         font-size: 1.2rem;
+    }
+
+    .small-button {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
     }
 </style>
 

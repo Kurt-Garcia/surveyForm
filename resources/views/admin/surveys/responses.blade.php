@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-4">
-    <div class="row justify-content-center">
+<div class="container-fluid px-4 mt-4">
+    <div class="row justify-content-start">
         <div class="col-12">
             <!-- Survey Title Section -->
             <div class="card shadow-lg border-0 mb-4">

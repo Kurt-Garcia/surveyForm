@@ -83,6 +83,29 @@
 document.addEventListener('DOMContentLoaded', function() {
     const typeSelect = document.getElementById('type');
     const optionsContainer = document.getElementById('optionsContainer');
+    const form = document.querySelector('form');
+    const textInput = document.getElementById('text');
+
+    // Add form submission handler to check for punctuation
+    form.addEventListener('submit', function(event) {
+        // Prevent the default submission temporarily
+        event.preventDefault();
+        
+        // Add period if question doesn't end with punctuation
+        if (textInput.value && !/[.?!:;]$/.test(textInput.value.trim())) {
+            textInput.value = textInput.value.trim() + '.';
+        }
+        
+        // Capitalize first letter
+        if (textInput.value) {
+            textInput.value = textInput.value.charAt(0).toUpperCase() + textInput.value.slice(1);
+        }
+        
+        console.log('Form submitted with text: ' + textInput.value);
+        
+        // Continue with form submission
+        form.submit();
+    });
 
     typeSelect.addEventListener('change', function() {
         if (this.value === 'radio' || this.value === 'select') {

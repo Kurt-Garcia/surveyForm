@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-4">
-    <div class="row justify-content-center">
+<div class="container-fluid px-4 mt-4">
+    <div class="row justify-content-start">
         <div class="col-12">
             <div class="card shadow-sm border-0 rounded-3">
                 <!-- Header Section -->
