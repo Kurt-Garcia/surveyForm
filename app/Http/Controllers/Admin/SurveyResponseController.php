@@ -24,7 +24,7 @@ class SurveyResponseController extends Controller
             });
         }
 
-        $responses = $query->orderBy('date', 'desc')->get();
+        $responses = $query->orderBy('date', 'desc')->paginate(10);
         $questions = $survey->questions;
 
         // Get response statistics for each question
@@ -105,7 +105,7 @@ class SurveyResponseController extends Controller
             });
         }
 
-        $responses = $query->orderBy('date', 'desc')->get();
+        $responses = $query->orderBy('date', 'desc')->paginate(10);
 
         return view('admin.surveys.unique-respondents', compact('survey', 'responses'));
     }

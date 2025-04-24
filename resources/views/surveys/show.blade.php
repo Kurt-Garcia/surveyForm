@@ -486,6 +486,9 @@ $(document).ready(function() {
                     const commentText = formData.get('comments') || 'No additional feedback provided';
                     $('#summary-comments').text(commentText);
                     
+                    // Show thank you message with animation
+                    $('.thank-you-message').addClass('show');
+                    // Show modal and reset form
                     thankYouModal.show();
                     $('#surveyForm')[0].reset();
                 }

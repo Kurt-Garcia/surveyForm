@@ -395,12 +395,23 @@ body {
 }
 
 .thank-you-message {
+    display: none;
     text-align: center;
     margin-top: 3rem;
     padding: 2rem;
     background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
     border-radius: var(--border-radius);
     color: white;
+}
+
+.thank-you-message.show {
+    display: block;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .thank-you-message h3 {

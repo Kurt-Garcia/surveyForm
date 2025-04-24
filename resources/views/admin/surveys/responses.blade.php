@@ -139,6 +139,9 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+                                <div class="d-flex justify-content-center mt-4">
+                                    {{ $responses->links() }}
+                                </div>
                             </div>
                         </div>
                     </div>
