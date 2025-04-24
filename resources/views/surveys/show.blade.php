@@ -31,9 +31,17 @@
 
     <div class="survey-container">
         <div class="survey-header">
-            <a href="{{ route('index') }}" class="close-button">
+            <a href="#" class="close-button" onclick="confirmClose(event)">
                 <i class="fas fa-times"></i>
             </a>
+            <script>
+            function confirmClose(event) {
+                event.preventDefault();
+                if (confirm('Are you sure you want to close this form? Any unsaved changes will be lost.')) {
+                    window.location.href = '{{ route("index") }}';
+                }
+            }
+            </script>
             <img src="{{ asset('img/logo.JPG') }}" alt="Logo" class="survey-logo">
             <h1 class="survey-title">{{ strtoupper($survey->title) }}</h1>
         </div>

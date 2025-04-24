@@ -89,5 +89,35 @@
         z-index: 1000;
         min-width: 300px;
     }
+    .card-icon {
+        transition: all 0.3s ease;
+    }
+    .btn-start {
+        transition: all 0.3s ease;
+    }
     </style>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const colors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD',
+            '#D4A5A5', '#9B59B6', '#3498DB', '#E67E22', '#2ECC71',
+            '#FF9F43', '#00B894', '#74B9FF', '#A8E6CF', '#FFD93D',
+            '#FF6B81', '#6C5CE7', '#00CEC9', '#FD79A8', '#81ECEC'
+        ];
+
+        document.querySelectorAll('.survey-card').forEach(card => {
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            const icon = card.querySelector('.card-icon');
+            const btnStart = card.querySelector('.btn-start');
+            
+            if (icon) {
+                icon.style.color = randomColor;
+            }
+            if (btnStart) {
+                btnStart.style.color = randomColor;
+            }
+        });
+    });
+    </script>
 @endsection
