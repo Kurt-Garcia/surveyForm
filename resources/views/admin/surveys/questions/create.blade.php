@@ -38,36 +38,30 @@
                         </div>
 
                         <div class="mb-4">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-grow-1">
-                                    <label for="type" class="form-label">Question Type</label>
-                                    <select class="form-select form-select-lg @error('type') is-invalid @enderror" 
-                                        id="type" name="type" required>
-                                        <option value="" disabled {{ !old('type') ? 'selected' : '' }}>Select question type</option>
-                                        <option value="radio" {{ old('type') === 'radio' ? 'selected' : '' }}>Radio Buttons</option>
-                                        <option value="star" {{ old('type') === 'star' ? 'selected' : '' }}>Star Rating</option>
-                                    </select>
-                                    @error('type')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="ms-4 d-flex align-items-center" style="padding-top: 2rem;">
-                                    <div class="form-check form-switch mb-0">
-                                        <input type="hidden" name="required" value="0">
-                                        <input type="checkbox" class="form-check-input" id="required" name="required" value="1" 
-                                            {{ old('required', '1') ? 'checked' : '' }}>
-                                        <label class="form-check-label ms-2" for="required">
-                                            Required
-                                        </label>
-                                    </div>
-                                </div>
+                            <div class="flex-grow-1">
+                                <label for="type" class="form-label">Question Type</label>
+                                <select class="form-select form-select-lg @error('type') is-invalid @enderror" 
+                                    id="type" name="type" required>
+                                    <option value="" disabled {{ !old('type') ? 'selected' : '' }}>Select question type</option>
+                                    <option value="radio" {{ old('type') === 'radio' ? 'selected' : '' }}>Radio Buttons</option>
+                                    <option value="star" {{ old('type') === 'star' ? 'selected' : '' }}>Star Rating</option>
+                                </select>
+                                @error('type')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-light">
-                                <i class="bi bi-arrow-left me-1"></i>Back to Survey
-                            </a>
+                        <div class="mb-4">
+                            <label for="required" class="form-label">Required</label>
+                            <div class="form-check form-switch">
+                                <input type="hidden" name="required" value="0">
+                                <input type="checkbox" class="form-check-input" id="required" name="required" value="1" 
+                                    {{ old('required', '1') ? 'checked' : '' }}>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-check-lg me-1"></i>Save Question
                             </button>
@@ -183,6 +177,10 @@ function removeOption(button) {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba(78, 115, 223, 0.5)'/%3e%3c/svg%3e");
     transition: background-position 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     cursor: pointer;
+}
+
+.form-check.form-switch {
+    padding-left: 0;
 }
 
 .form-switch .form-check-input:checked {

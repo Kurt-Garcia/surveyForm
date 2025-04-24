@@ -39,47 +39,33 @@
                         </div>
 
                         <div class="mb-4">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-grow-1">
-                                    <label for="type" class="form-label">Question Type</label>
-                                    <select class="form-select form-select-lg @error('type') is-invalid @enderror"
-                                        id="type" name="type" required>
-                                        <option value="" disabled>Select question type</option>
-                                        <option value="radio" {{ old('type', $question->type) === 'radio' ? 'selected' : '' }}>Radio Buttons</option>
-                                        <option value="star" {{ old('type', $question->type) === 'star' ? 'selected' : '' }}>Star Rating</option>
-                                    </select>
-                                    @error('type')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="ms-4 d-flex align-items-center" style="padding-top: 2rem;">
-                                    <div class="form-check form-switch mb-0">
-                                        <input type="hidden" name="required" value="0">
-                                        <input type="checkbox" class="form-check-input" id="required" name="required" value="1"
-                                            {{ old('required', $question->required) ? 'checked' : '' }}>
-                                        <label class="form-check-label ms-2" for="required">
-                                            Required
-                                        </label>
-                                    </div>
-                                </div>
+                            <div class="flex-grow-1">
+                                <label for="type" class="form-label">Question Type</label>
+                                <select class="form-select form-select-lg @error('type') is-invalid @enderror"
+                                    id="type" name="type" required>
+                                    <option value="" disabled>Select question type</option>
+                                    <option value="radio" {{ old('type', $question->type) === 'radio' ? 'selected' : '' }}>Radio Buttons</option>
+                                    <option value="star" {{ old('type', $question->type) === 'star' ? 'selected' : '' }}>Star Rating</option>
+                                </select>
+                                @error('type')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-light">
-                                <i class="bi bi-arrow-left me-1"></i>Back to Survey
-                            </a>
-                            <div>
-                                <button type="button" class="btn btn-danger me-2"
-                                    onclick="if(confirm('Are you sure you want to delete this question?')) {
-                                        document.getElementById('delete-form').submit();
-                                    }">
-                                    <i class="bi bi-trash me-1"></i>Delete Question
-                                </button>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-check-lg me-1"></i>Update Question
-                                </button>
+                        <div class="mb-4">
+                            <label for="required" class="form-label">Required</label>
+                            <div class="form-check form-switch">
+                                <input type="hidden" name="required" value="0">
+                                <input type="checkbox" class="form-check-input" id="required" name="required" value="1"
+                                    {{ old('required', $question->required) ? 'checked' : '' }}>
                             </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="bi bi-check-lg me-1"></i>Update Question
+                            </button>
                         </div>
                     </form>
 
@@ -198,6 +184,10 @@ function removeOption(button) {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba(78, 115, 223, 0.5)'/%3e%3c/svg%3e");
     transition: background-position 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     cursor: pointer;
+}
+
+.form-check.form-switch {
+    padding-left: 0;
 }
 
 .form-switch .form-check-input:checked {
