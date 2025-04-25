@@ -264,8 +264,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
 <script>
 $(document).ready(function() {
-    // Record start time when page loads
-    $('#start_time').val(new Date().toISOString());
+    // Initialize start time when the form is first loaded
+    const startTime = new Date();
+    $('#start_time').val(startTime.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
     
     const thankYouModal = new bootstrap.Modal(document.getElementById('responseModal'));
     const summaryModal = new bootstrap.Modal(document.getElementById('responseSummaryModal'));
@@ -312,7 +313,7 @@ $(document).ready(function() {
             const isRequired = $(this).find('.badge.required').length > 0;
             const questionText = $(this).find('.question-text').contents().first().text().trim();
             
-            if (isRequired && !$(`input[name="responses[${questionId}]"]:checked`).val()) {
+            if (isRequired && !$(`input[name="responses[${questionId}]"]`).val()) {
                 isValid = false;
                 $(this).addClass('has-error');
                 $(`#question_${questionId}_error`).text('This question requires an answer');
@@ -323,7 +324,6 @@ $(document).ready(function() {
         
         // Show alert specifically for required questions
         if (requiredQuestionsEmpty) {
-            // Create or show the alert for required questions
             if ($('#requiredQuestionsAlert').length === 0) {
                 const alertHTML = `
                     <div id="requiredQuestionsAlert" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
@@ -348,19 +348,14 @@ $(document).ready(function() {
             errorList.push('Recommendation rating is required');
         }
         
-        // Comments are now optional, removed validation for comments field
-        
         // Show validation errors summary if any
         if (!isValid) {
-            // Build error list HTML
             errorList.forEach(function(error) {
                 $('#validationErrorsList ul').append(`<li>${error}</li>`);
             });
             
-            // Show the validation alert
             $('#validationAlertContainer').show();
             
-            // Scroll to the first error
             const firstError = $('.error, .has-error').first();
             if (firstError.length) {
                 $('html, body').animate({
@@ -402,13 +397,17 @@ $(document).ready(function() {
     $('#surveyForm').on('submit', function(e) {
         e.preventDefault();
         
+        // Set end time right before validation
+        const endTime = new Date();
+        $('#end_time').val(endTime.toISOString());
+        
         // First validate the form
         if (!validateForm()) {
             return false;
         }
         
         // Record end time
-        $('#end_time').val(new Date().toISOString());
+        $('#end_time').val(new Date().toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
         
         // Collect form data
         const formData = new FormData(this);
