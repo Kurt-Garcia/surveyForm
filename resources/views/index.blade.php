@@ -56,6 +56,10 @@
                 </div>
             @endforelse
         </div>
+        
+        <div class="pagination-container mt-4">
+            {{ $surveys->links() }}
+        </div>
     </div>
 
     <style>
@@ -94,6 +98,24 @@
     }
     .btn-start {
         transition: all 0.3s ease;
+    }
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+    }
+    .pagination-container .pagination {
+        margin: 0;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #4ECDC4;
+        border-color: #4ECDC4;
+    }
+    .pagination .page-link {
+        color: #333;
+        transition: all 0.2s ease;
+    }
+    .pagination .page-link:hover {
+        background-color: #eee;
     }
     </style>
 

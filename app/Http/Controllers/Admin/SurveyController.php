@@ -57,7 +57,7 @@ class SurveyController extends Controller
         $surveys = Survey::with('questions')
             ->where('admin_id', Auth::guard('admin')->id())
             ->latest()
-            ->paginate(10);
+            ->paginate(6);
 
         return view('admin.surveys.index', compact('surveys'));
     }
