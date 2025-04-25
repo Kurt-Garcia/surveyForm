@@ -540,11 +540,10 @@ $(document).ready(function() {
                     // Update the modal with specific errors
                     $('#errorMessage').html(`
                         <i class="fas fa-exclamation-circle text-danger" style="font-size: 48px;"></i>
-                        <h4 class="mt-3">Please Fix These Errors</h4>
+                        <h4 class="mt-3">Error! Qestions are Empty.</h4>
                         <ul class="text-start">
                             ${errorList.map(err => `<li>${err}</li>`).join('')}
                         </ul>
-                        <button type="button" class="btn btn-secondary mt-3" data-bs-dismiss="modal">Close and Fix</button>
                     `);
                 } else if (xhr.responseJSON && xhr.responseJSON.error) {
                     // Handle specific error message from the server
@@ -553,7 +552,7 @@ $(document).ready(function() {
                         <h4 class="mt-3">Unable to Submit</h4>
                         <p>${xhr.responseJSON.error}</p>
                         <div class="mt-3">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="window.location.reload();">Refresh the page</button>
                         </div>
                     `);
                 } else {
