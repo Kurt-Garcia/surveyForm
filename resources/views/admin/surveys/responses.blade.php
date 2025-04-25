@@ -8,7 +8,7 @@
             <div class="card shadow-lg border-0 mb-4">
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
-                        <h2 class="display-6 fw-bold text-primary mb-3">{{ $survey->title }} - Responses</h2>
+                        <h2 class="display-6 fw-bold text-primary mb-3">{{ strtoupper($survey->title) }} - RESPONSES</h2>
                         <div class="d-flex gap-3 text-muted">
                             <div><i class="bi bi-people-fill me-2"></i>{{ $responses->count() }} Respondents</div>
                             <div><i class="bi bi-star-fill me-2"></i>Average Rating: {{ number_format($avgRecommendation, 1) }}/10</div>

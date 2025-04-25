@@ -33,7 +33,7 @@
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <h5 class="card-title text-truncate mb-0" title="{{ $survey->title }}">
-                                        {{ $survey->title }}
+                                        {{ strtoupper($survey->title) }}
                                     </h5>
                                     <span class="badge {{ $survey->is_active ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }} rounded-pill">
                                         <i class="fas fa-circle me-1"></i>

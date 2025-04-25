@@ -28,7 +28,7 @@
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <h4 class="mb-0 fw-bold">{{ $survey->title }} - Response Details</h4>
+                    <h4 class="mb-0 fw-bold">{{ strtoupper($survey->title) }} - RESPONSE DETAILS</h4>
                     <form action="{{ route('admin.surveys.responses.toggle-resubmission', ['survey' => $survey, 'account_name' => $header->account_name]) }}" 
                           method="POST" class="d-inline">
                         @csrf
@@ -180,7 +180,7 @@
 function generatePDF() {
     const element = document.querySelector('.card');
     const opt = {
-        margin: [0.5, 0.5, 0.5, 0.5], // Margins [top, right, bottom, left] in inches
+        margin: [0.5, 0.5, 0.5, 0.5],
         filename: 'survey-response.pdf',
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { 
@@ -190,7 +190,7 @@ function generatePDF() {
         },
         jsPDF: { 
             unit: 'in', 
-            format: 'letter', // Default to letter size
+            format: 'letter',
             orientation: 'portrait',
             compress: true
         },
@@ -210,6 +210,9 @@ function generatePDF() {
         }
         .card-body {
             padding: 0.25in !important;
+        }
+        form[action*="toggle-resubmission"] {
+            display: none !important;
         }
     `;
     document.head.appendChild(style);

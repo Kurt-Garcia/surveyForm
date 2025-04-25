@@ -42,7 +42,7 @@
                     <div class="card-icon">
                         <i class="fas fa-clipboard-list"></i>
                     </div>
-                    <h2>{{ $survey->title }}</h2>
+                    <h2>{{ strtoupper($survey->title) }}</h2>
                     <p><i class="fas fa-question-circle"></i> {{ $survey->questions->count() }} questions</p>
                     <div class="card-footer">
                         <span class="btn-start">View Survey <i class="fas fa-arrow-right"></i></span>
