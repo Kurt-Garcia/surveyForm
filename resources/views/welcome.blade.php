@@ -5,21 +5,26 @@
 <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
 <div class="min-vh-100 d-flex flex-column">
     <!-- Hero Section -->
-    <div class="hero-section position-relative overflow-hidden py-4 py-md-5">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-12 col-lg-6 text-white text-center text-lg-start px-4" data-aos="fade-right">
-                    <h1 class="display-3 display-md-2 fw-bold mb-3 mb-md-4">Your feedback helps us improve.</h1>
-                    <p class="lead mb-3 mb-md-4">It's time for you to write a feedback</p>
-                    <div class="d-flex justify-content-center justify-content-lg-start gap-3">
-                        <a href="{{ route('register') }}" class="btn btn-light btn-lg px-4 rounded-pill shadow-sm">
-                            Get Started
-                            <i class="bi bi-arrow-right ms-2"></i>
-                        </a>
+    <div class="hero-section position-relative overflow-hidden py-5" style="background: url('{{ asset('img/background.jpg') }}') center/cover no-repeat;">
+        <div class="overlay"></div>
+        <div class="container position-relative">
+            <div class="row align-items-center min-vh-75">
+                <div class="col-12 col-lg-6 text-white text-center text-lg-start px-4" data-aos="fade-up">
+                    <div class="content-card p-4 rounded-4 bg-dark bg-opacity-25 backdrop-blur">
+                        <h1 class="display-3 fw-bold mb-4 text-gradient">Your feedback helps us improve.</h1>
+                        <p class="lead mb-4 text-light">Share your thoughts and help shape the future</p>
+                        <div class="d-flex justify-content-center justify-content-lg-start gap-3">
+                            <a href="{{ route('register') }}" class="btn btn-primary btn-lg px-4 rounded-pill shadow-lg pulse-button">
+                                Get Started
+                                <i class="bi bi-arrow-right-circle-fill ms-2"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
-                <div class="col-12 col-lg-6 mt-4 mt-lg-0 d-flex justify-content-center" data-aos="fade-left">
-                    <img src="{{ asset('img/welcome.jpg') }}" alt="Survey Platform" class="img-fluid rounded-4 shadow-lg" style="max-width: 90%;">
+                <div class="col-12 col-lg-6 mt-5 mt-lg-0" data-aos="fade-left">
+                    <div class="image-container position-relative">
+                        <img src="{{ asset('img/welcome1.jpg') }}" alt="Survey Platform" class="img-fluid rounded-4 shadow-lg" style="max-width: 100%;">
+                    </div>
                 </div>
             </div>
         </div>

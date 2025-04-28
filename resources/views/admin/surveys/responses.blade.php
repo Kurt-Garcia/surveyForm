@@ -140,7 +140,7 @@
                                     </tbody>
                                 </table>
                                 <div class="d-flex justify-content-center mt-4">
-                                    {{ $responses->links() }}
+                                    {{ $responses->fragment('individual-responses')->links() }}
                                 </div>
                             </div>
                         </div>
@@ -173,6 +173,14 @@
                         searchForm.submit();
                     }, 500);
                 });
+            
+                // Smooth scroll to table when URL has fragment
+                if (window.location.hash === '#individual-responses') {
+                    const element = document.querySelector('#individual-responses');
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
             });
             </script>
             @endpush
