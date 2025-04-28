@@ -54,10 +54,7 @@
             
             <!-- Validation Alert Container -->
             <div id="validationAlertContainer" class="alert alert-danger mb-4 d-none">
-                <h5><i class="fas fa-exclamation-triangle me-2"></i>Please fix the following errors:</h5>
-                <div id="validationErrorsList">
-                    <ul></ul>
-                </div>
+                <h6><i class="fas fa-exclamation-triangle me-2"></i>Please Fill In All Required Fields!</h6>
             </div>
             
             <div class="form-grid">
@@ -279,14 +276,15 @@ $(document).ready(function() {
         // Clear previous error messages
         $('.validation-message').text('');
         $('#validationErrorsList ul').empty();
-        $('.modern-input, .modern-select, .modern-textarea').removeClass('error');
+        $('.modern-input, .modern-select, .modern-textarea, .modern-rating-group, .modern-star-rating').removeClass('error');
         $('.question-card').removeClass('has-error');
         
         // Validate account name
         if (!$('#account_name').val().trim()) {
             isValid = false;
             $('#account_name').addClass('error');
-            $('#account_name_error').text('Account name is required');
+            $('#account_name').parent().addClass('has-error');
+            $('#account_name_error').text('Account name is required').addClass('text-danger');
             errorList.push('Account name is required');
         }
         
@@ -294,7 +292,8 @@ $(document).ready(function() {
         if (!$('#account_type').val().trim()) {
             isValid = false;
             $('#account_type').addClass('error');
-            $('#account_type_error').text('Account type is required');
+            $('#account_type').parent().addClass('has-error');
+            $('#account_type_error').text('Account type is required').addClass('text-danger');
             errorList.push('Account type is required');
         }
         
@@ -312,39 +311,27 @@ $(document).ready(function() {
             const questionId = $(this).data('question-id');
             const isRequired = $(this).find('.badge.required').length > 0;
             const questionText = $(this).find('.question-text').contents().first().text().trim();
+            const hasResponse = $(`input[name="responses[${questionId}]"]:checked`).length > 0;
             
-            if (isRequired && !$(`input[name="responses[${questionId}]"]`).val()) {
+            if (isRequired && !hasResponse) {
                 isValid = false;
                 $(this).addClass('has-error');
-                $(`#question_${questionId}_error`).text('This question requires an answer');
+                $(`#question_${questionId}_error`).text('This question requires an answer')
+                    .addClass('text-danger');
                 errorList.push(`Question "${questionText}" requires an answer`);
                 requiredQuestionsEmpty = true;
+                
+                // Add red border to the question card
+                $(this).find('.modern-rating-group, .modern-star-rating').addClass('error');
             }
         });
-        
-        // Show alert specifically for required questions
-        if (requiredQuestionsEmpty) {
-            if ($('#requiredQuestionsAlert').length === 0) {
-                const alertHTML = `
-                    <div id="requiredQuestionsAlert" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Please answer all required questions!</strong> Questions marked with <span class="badge required">Required</span> must be answered.
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                `;
-                $('#surveyForm').prepend(alertHTML);
-            } else {
-                $('#requiredQuestionsAlert').show();
-            }
-        } else {
-            $('#requiredQuestionsAlert').hide();
-        }
         
         // Validate recommendation
         if (!$('#survey-number').val()) {
             isValid = false;
             $('#survey-number').addClass('error');
-            $('#recommendation_error').text('Please select a recommendation rating');
+            $('#survey-number').parent().addClass('has-error');
+            $('#recommendation_error').text('Please select a recommendation rating').addClass('text-danger');
             errorList.push('Recommendation rating is required');
         }
         
@@ -354,7 +341,7 @@ $(document).ready(function() {
                 $('#validationErrorsList ul').append(`<li>${error}</li>`);
             });
             
-            $('#validationAlertContainer').show();
+            $('#validationAlertContainer').removeClass('d-none').show();
             
             const firstError = $('.error, .has-error').first();
             if (firstError.length) {
@@ -377,11 +364,17 @@ $(document).ready(function() {
     $('.modern-input, .modern-select, .modern-textarea').on('input change', function() {
         if ($(this).val().trim()) {
             $(this).removeClass('error');
+            $(this).parent().removeClass('has-error');
             const fieldId = $(this).attr('id');
             if (fieldId) {
                 $(`#${fieldId}_error`).text('');
             } else if ($(this).attr('name') === 'comments') {
                 $('#comments_error').text('');
+            }
+            
+            // Check if all required fields are filled to hide the validation alert
+            if ($('.error, .has-error').length === 0) {
+                $('#validationAlertContainer').addClass('d-none');
             }
         }
     });
@@ -391,6 +384,26 @@ $(document).ready(function() {
         const questionId = $(this).attr('name').match(/\d+/)[0];
         $(`#question_${questionId}_error`).text('');
         $(this).closest('.question-card').removeClass('has-error');
+        $(this).closest('.modern-rating-group, .modern-star-rating').removeClass('error');
+        
+        // Check if all required fields are filled to hide the validation alert
+        if ($('.error, .has-error').length === 0) {
+            $('#validationAlertContainer').addClass('d-none');
+        }
+    });
+    
+    // Add live validation for recommendation select
+    $('#survey-number').on('change', function() {
+        if ($(this).val()) {
+            $(this).removeClass('error');
+            $(this).parent().removeClass('has-error');
+            $('#recommendation_error').text('');
+            
+            // Check if all required fields are filled to hide the validation alert
+            if ($('.error, .has-error').length === 0) {
+                $('#validationAlertContainer').addClass('d-none');
+            }
+        }
     });
     
     // Form submission with validation
