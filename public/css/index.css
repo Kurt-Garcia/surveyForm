@@ -7,15 +7,22 @@ body {
 }
 
 .hero-section {
-    background: #ffffff;
-    padding: 4rem 0;
-    color: #333;
+    background: url('../img/background2.png') center/cover no-repeat;
+    padding: 8rem 0;
+    color: #fff;
     margin-bottom: 2rem;
     position: relative;
+    overflow: hidden;
 }
 
 .pattern-overlay {
-    display: none; /* Remove complex pattern */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 100%);
+    z-index: 1;
 }
 
 .welcome-header {
@@ -24,25 +31,41 @@ body {
     text-align: center;
     margin-bottom: 2rem;
     padding: 0 1rem;
+    position: relative;
+    z-index: 2;
 }
 
 .welcome-header h1 {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     font-weight: 800;
-    font-size: 3rem;
+    font-size: 4rem;
     letter-spacing: -1px;
-    color: #333;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
 .welcome-header p {
-    font-size: clamp(1rem, 2vw, 1.2rem);
-    color: #666;
+    font-size: clamp(1.1rem, 2vw, 1.3rem);
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 2rem;
 }
 
 .welcome-header .lead {
-    color: #666;
-    font-size: 1.2rem;
+    color: rgba(255,255,255,0.9);
+    font-size: 1.3rem;
     font-weight: 400;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.welcome-user {
+    color: #fff;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #4ECDC4;
 }
 
 .animate-text {
@@ -73,46 +96,76 @@ body {
 
 .survey-card {
     background: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    border: 1px solid #eee;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-    transition: transform 0.2s ease;
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
 }
 
 .survey-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    border-color: rgba(255,255,255,0.2);
+}
+
+.survey-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(78,205,196,0.1) 0%, rgba(0,180,219,0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.survey-card:hover::before {
+    opacity: 1;
 }
 
 .card-icon {
-    font-size: 2.5rem;
-    color: #00b4db;
-    margin-bottom: 0.75rem;
+    font-size: 3rem;
+    background: linear-gradient(135deg, #4ECDC4 0%, #00b4db 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
 }
 
 .survey-card h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .survey-card p {
-    color: #666;
-    margin-bottom: 1.5rem;
+    color: #64748b;
+    margin-bottom: 1.75rem;
+    font-size: 1.1rem;
 }
 
 .card-footer {
-    border-top: 1px solid #eee;
-    padding-top: 1rem;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    padding-top: 1.25rem;
+    margin-top: auto;
 }
 
 .btn-start {
-    color: #00b4db;
+    background: linear-gradient(135deg, #4ECDC4 0%, #00b4db 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
+    gap: 0.75rem;
+    font-weight: 600;
+    font-size: 1.1rem;
 }
 
 .btn-start i {
@@ -167,33 +220,67 @@ body {
 }
 
 @media (max-width: 768px) {
+    .hero-section {
+        padding: 6rem 0;
+    }
+
     .welcome-header h1 {
-        font-size: 2.5rem;
+        font-size: 2.75rem;
     }
     
     .survey-grid {
-        gap: 1rem;
+        gap: 1.5rem;
+        padding: 0.5rem;
     }
 
     .survey-card {
-        padding: 1.25rem;
+        padding: 1.75rem;
+    }
+
+    .card-icon {
+        font-size: 2.5rem;
+    }
+
+    .survey-card h2 {
+        font-size: 1.5rem;
     }
 }
 
 @media (max-width: 480px) {
-    body {
-        padding: 0.5rem;
+    .hero-section {
+        padding: 4rem 0;
+    }
+
+    .welcome-header h1 {
+        font-size: 2.25rem;
+    }
+
+    .welcome-header p {
+        font-size: 1rem;
     }
 
     .container {
-        padding: 0.5rem;
+        padding: 0.75rem;
     }
 
     .welcome-header {
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
     }
 
     .survey-card {
-        min-width: 200px;
+        min-width: 240px;
+        padding: 1.5rem;
+    }
+
+    .card-icon {
+        font-size: 2.25rem;
+    }
+
+    .survey-card h2 {
+        font-size: 1.35rem;
+    }
+
+    .btn-start {
+        font-size: 1rem;
     }
 }
