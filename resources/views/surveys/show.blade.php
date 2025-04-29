@@ -42,7 +42,11 @@
                 }
             }
             </script>
-            <img src="{{ asset('img/logo.JPG') }}" alt="Logo" class="survey-logo">
+            @if($survey->logo)
+            <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="survey-logo">
+            @else
+            <img src="{{ asset('img/logo.JPG') }}" alt="Default Logo" class="survey-logo">
+            @endif
             <h1 class="survey-title">{{ strtoupper($survey->title) }}</h1>
         </div>
 

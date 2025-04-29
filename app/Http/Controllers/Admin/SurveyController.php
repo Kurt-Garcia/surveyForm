@@ -19,6 +19,7 @@ class SurveyController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'questions' => 'required|array|min:1',
             'questions.*.text' => 'required|string|max:255',
             'questions.*.type' => 'required|string|in:text,radio,star,select',
@@ -27,10 +28,16 @@ class SurveyController extends Controller
 
         DB::beginTransaction();
         try {
+            $logoPath = null;
+            if ($request->hasFile('logo')) {
+                $logoPath = $request->file('logo')->store('survey-logos', 'public');
+            }
+
             $survey = Survey::create([
                 'title' => ucfirst($request->title),
                 'admin_id' => Auth::guard('admin')->id(),
-                'is_active' => true
+                'is_active' => true,
+                'logo' => $logoPath
             ]);
 
             foreach ($request->questions as $index => $questionData) {

@@ -13,7 +13,7 @@
                 </div>
 
                 <div class="card-body p-4">
-                    <form method="POST" action="{{ route('admin.surveys.store') }}" id="createSurveyForm">
+                    <form method="POST" action="{{ route('admin.surveys.store') }}" id="createSurveyForm" enctype="multipart/form-data">
                         @csrf
 
                         <div class="form-group row mb-4">
@@ -31,6 +31,30 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-4">
+                            <label for="logo" class="col-md-3 col-form-label">{{ __('Survey Logo') }}</label>
+                            <div class="col-md-9">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="logo-preview-container" style="display: none;">
+                                        <img id="logoPreview" src="#" alt="Logo Preview" style="max-width: 100px; max-height: 100px; object-fit: contain;">
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <input type="file" 
+                                            class="form-control @error('logo') is-invalid @enderror" 
+                                            id="logo" 
+                                            name="logo" 
+                                            accept="image/*">
+                                        <small class="text-muted">Recommended size: 200x200px. Max file size: 2MB</small>
+                                        @error('logo')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -56,6 +80,28 @@
 </div>
 
 <script>
+    // Logo preview functionality
+    document.getElementById('logo').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                alert('File size must be less than 2MB');
+                this.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('logoPreview');
+                preview.src = e.target.result;
+                document.querySelector('.logo-preview-container').style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        } else {
+            document.querySelector('.logo-preview-container').style.display = 'none';
+        }
+    });
+
     function addQuestion() {
         const container = document.getElementById('questions-container');
         const questionIndex = container.children.length;
