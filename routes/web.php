@@ -77,5 +77,9 @@ Route::prefix('admin')->group(function () {
 
         Route::patch('surveys/{survey}/toggle-status', [\App\Http\Controllers\Admin\SurveyController::class, 'toggleStatus'])
             ->name('admin.surveys.toggle-status');
+            
+        // Survey logo update route
+        Route::patch('surveys/{survey}/update-logo', [\App\Http\Controllers\Admin\SurveyController::class, 'updateLogo'])
+            ->name('admin.surveys.update-logo');
     });
 });

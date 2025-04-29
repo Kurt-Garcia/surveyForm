@@ -50,6 +50,43 @@
                         </div>
                     @endif
 
+                    <!-- Logo Upload Section -->
+                    <div class="mb-4 pb-4 border-bottom">
+                        <h4 class="fw-bold mb-3">Survey Logo</h4>
+                        <form action="{{ route('admin.surveys.update-logo', $survey) }}" method="POST" enctype="multipart/form-data" class="d-flex align-items-start gap-4">
+                            @csrf
+                            @method('PATCH')
+                            
+                            <div class="logo-preview-container bg-light rounded p-3" style="width: 150px; height: 150px;">
+                                @if($survey->logo)
+                                    <img id="logoPreview" src="{{ asset('storage/' . $survey->logo) }}" alt="Survey Logo" class="img-fluid" style="width: 100%; height: 100%; object-fit: contain;">
+                                @else
+                                    <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                                        <i class="bi bi-image display-4"></i>
+                                    </div>
+                                @endif
+                            </div>
+                            
+                            <div class="flex-grow-1">
+                                <div class="mb-3">
+                                    <input type="file" class="form-control @error('logo') is-invalid @enderror" id="logo" name="logo" accept="image/*">
+                                    <small class="text-muted d-block mt-1">Recommended size: 200x200px. Max file size: 2MB</small>
+                                    @error('logo')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-cloud-upload me-2"></i>Update Logo
+                                </button>
+                                @if($survey->logo)
+                                    <button type="submit" name="remove_logo" value="1" class="btn btn-outline-danger ms-2" onclick="return confirm('Are you sure you want to remove the logo?')">
+                                        <i class="bi bi-trash me-2"></i>Remove Logo
+                                    </button>
+                                @endif
+                            </div>
+                        </form>
+                    </div>
+
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div class="d-flex align-items-center gap-2">
                             <h3 class="fw-bold mb-0">Questions</h3>
@@ -228,4 +265,43 @@
     }
 }
 </style>
+
+<script>
+// Logo preview functionality
+document.getElementById('logo').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        if (file.size > 2 * 1024 * 1024) { // 2MB limit
+            alert('File size must be less than 2MB');
+            this.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('logoPreview');
+            const container = document.querySelector('.logo-preview-container');
+            
+            // Remove placeholder if exists
+            const placeholder = container.querySelector('.d-flex');
+            if (placeholder) {
+                placeholder.remove();
+            }
+            
+            // Create or update preview image
+            if (!preview) {
+                const img = document.createElement('img');
+                img.id = 'logoPreview';
+                img.className = 'img-fluid';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'contain';
+                container.appendChild(img);
+            }
+            preview.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+});
+</script>
 @endsection

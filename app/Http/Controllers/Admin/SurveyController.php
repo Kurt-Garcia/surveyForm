@@ -7,6 +7,7 @@ use App\Models\Survey;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class SurveyController extends Controller
 {
@@ -87,6 +88,42 @@ class SurveyController extends Controller
         }
 
         return view('admin.surveys.edit', compact('survey'));
+    }
+
+    public function updateLogo(Request $request, Survey $survey)
+    {
+        // Ensure the authenticated admin owns this survey
+        if ($survey->admin_id !== Auth::guard('admin')->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($request->has('remove_logo')) {
+            // Remove existing logo if it exists
+            if ($survey->logo) {
+                Storage::disk('public')->delete($survey->logo);
+                $survey->update(['logo' => null]);
+            }
+            return redirect()->back()->with('success', 'Logo removed successfully!');
+        }
+
+        $request->validate([
+            'logo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        try {
+            // Remove old logo if exists
+            if ($survey->logo) {
+                Storage::disk('public')->delete($survey->logo);
+            }
+
+            // Store new logo
+            $logoPath = $request->file('logo')->store('survey-logos', 'public');
+            $survey->update(['logo' => $logoPath]);
+
+            return redirect()->back()->with('success', 'Logo updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to update logo. Please try again.');
+        }
     }
 
     public function update(Request $request, Survey $survey)

@@ -46,7 +46,8 @@
                                             class="form-control @error('logo') is-invalid @enderror" 
                                             id="logo" 
                                             name="logo" 
-                                            accept="image/*">
+                                            accept="image/*"
+                                            required>
                                         <small class="text-muted">Recommended size: 200x200px. Max file size: 2MB</small>
                                         @error('logo')
                                             <span class="invalid-feedback" role="alert">
@@ -193,6 +194,13 @@
         // Prevent default to handle form submission manually
         e.preventDefault();
         
+        const logo = document.getElementById('logo');
+        if (!logo.files || logo.files.length === 0) {
+            alert('Please upload a survey logo.');
+            logo.focus();
+            return false;
+        }
+
         if (document.getElementById('questions-container').children.length === 0) {
             alert('Please add at least one question to the survey.');
             return false;
