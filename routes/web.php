@@ -24,6 +24,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/surveys/{survey}', [UserSurveyController::class, 'show'])->name('surveys.show');
     Route::post('/surveys/{survey}', [UserSurveyController::class, 'store'])->name('surveys.store');
     Route::get('/surveys/thankyou', [UserSurveyController::class, 'thankyou'])->name('surveys.thankyou');
+    
+    // Survey response routes for surveyors
+    Route::get('/surveys/{survey}/responses', [\App\Http\Controllers\SurveyResponseController::class, 'index'])->name('surveys.responses.index');
+    Route::get('/surveys/{survey}/responses/{account_name}', [\App\Http\Controllers\SurveyResponseController::class, 'show'])->name('surveys.responses.show');
 });
 
 // Admin Routes

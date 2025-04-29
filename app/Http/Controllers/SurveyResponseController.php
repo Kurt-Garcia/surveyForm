@@ -7,9 +7,45 @@ use App\Models\Survey;
 use App\Models\SurveyResponseHeader;
 use App\Models\SurveyResponseDetail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class SurveyResponseController extends Controller
 {
+    public function index(Survey $survey)
+    {
+        // Ensure the user has access to view responses
+        if (!Auth::check()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $responses = SurveyResponseHeader::where('survey_id', $survey->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('surveys.responses.responses', [
+            'survey' => $survey,
+            'responses' => $responses
+        ]);
+    }
+
+    public function show(Survey $survey, $account_name)
+    {
+        // Ensure the user has access to view the response
+        if (!Auth::check()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $response = SurveyResponseHeader::where('survey_id', $survey->id)
+            ->where('account_name', $account_name)
+            ->with('details.question')
+            ->firstOrFail();
+
+        return view('surveys.responses.responses-detail', [
+            'survey' => $survey,
+            'response' => $response
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
