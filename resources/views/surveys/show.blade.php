@@ -5,6 +5,7 @@
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 
 <div class="survey-wrapper">
     @if($hasResponded)
@@ -270,6 +271,7 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script>
 $(document).ready(function() {
     // Initialize start time when the form is first loaded
@@ -674,6 +676,28 @@ $(document).ready(function() {
     $('#responseModal').on('hidden.bs.modal', function () {
         $('#successMessage').addClass('d-none');
         $('#errorMessage').addClass('d-none');
+    });
+    
+    // Autocomplete for account_name
+    $('#account_name').autocomplete({
+        source: function(request, response) {
+            $.ajax({
+                url: '{{ route('customers.autocomplete') }}',
+                dataType: 'json',
+                data: {
+                    term: request.term
+                },
+                success: function(data) {
+                    response(data);
+                }
+            });
+        },
+        minLength: 2,
+        select: function(event, ui) {
+            $('#account_name').val(ui.item.value);
+            // Optionally, trigger account type update or validation here
+            return false;
+        }
     });
 });
 

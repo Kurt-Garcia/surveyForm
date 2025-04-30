@@ -20,9 +20,6 @@
             <header class="welcome-header text-center">
                 <h1 class="display-4 fw-bold animate-text">Share Your Thoughts</h1>
                 <p class="lead animate-text-delay">Your opinion matters! Select a category below to get started.</p>
-                @if(session('account_name'))
-                    <p class="text-muted">Welcome back, {{ session('account_name') }}!</p>
-                @endif
             </header>
         </div>
     </div>
