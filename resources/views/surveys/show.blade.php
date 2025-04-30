@@ -70,7 +70,7 @@
                 </div>
                 <div class="form-field">
                     <label for="account_type" class="form-label">Account Type</label>
-                    <input type="text" class="modern-input" id="account_type" name="account_type" value="{{ $prefillAccountType ?? '' }}">
+                    <input type="text" class="modern-input" id="account_type" name="account_type" value="{{ $prefillAccountType ?? '' }}" disabled>
                     <div class="validation-message" id="account_type_error"></div>
                 </div>
                 <div class="form-field">
@@ -325,6 +325,9 @@ $(document).ready(function() {
     
     // Update button visibility whenever account fields change
     $('#account_name').on('input', function() {
+        if (!$(this).val().trim()) {
+            $('#account_type').val('');
+        }
         updateCopyLinkVisibility();
     });
     
@@ -695,7 +698,8 @@ $(document).ready(function() {
         minLength: 0, // Show suggestions even when empty
         select: function(event, ui) {
             $('#account_name').val(ui.item.value);
-            // Optionally, trigger account type update or validation here
+            $('#account_type').val(ui.item.custtype); // Set account type automatically
+            updateCopyLinkVisibility(); // Show copy link button immediately
             return false;
         }
     }).focus(function() {

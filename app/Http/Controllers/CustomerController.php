@@ -16,7 +16,7 @@ class CustomerController extends Controller
         $results = DB::table('tblcustomer')
             ->where('custname', 'like', '%' . $term . '%')
             ->limit(20)
-            ->pluck('custname');
+            ->get(['custname as label', 'custname as value', 'custtype']);
         return response()->json($results);
     }
 }
