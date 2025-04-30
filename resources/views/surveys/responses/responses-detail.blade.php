@@ -29,6 +29,137 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
                     <h4 class="mb-0 fw-bold">{{ strtoupper($survey->title) }} - RESPONSE DETAILS</h4>
+                    <div class="d-flex align-items-center gap-2">
+                        <form id="resubmissionForm" action="{{ route('surveys.responses.toggle-resubmission', ['survey' => $survey, 'account_name' => $response->account_name]) }}" 
+                              method="POST" class="d-inline">
+                        @if($response->allow_resubmit)
+                            <div id="copyLinkSection" class="d-inline me-2">
+                                <button type="button" id="copyLinkBtn" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-link me-2"></i>Copy Link for Customer
+                                </button>
+                                <span id="copySuccess" class="text-success ms-2 d-none"><i class="fas fa-check-circle"></i> Link copied!</span>
+                            </div>
+                        @endif
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" id="resubmissionButton" class="btn {{ $response->allow_resubmit ? 'btn-warning' : 'btn-success' }} btn-sm">
+                                <i class="fas {{ $response->allow_resubmit ? 'fa-lock' : 'fa-unlock' }} me-2" id="resubmissionIcon"></i>
+                                <span id="resubmissionText">{{ $response->allow_resubmit ? 'Disable Resubmission' : 'Allow Resubmission' }}</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <script>
+                    // Copy Link button functionality
+                    function setupCopyLinkButton() {
+                        const copyLinkBtn = document.getElementById('copyLinkBtn');
+                        if (copyLinkBtn) {
+                            copyLinkBtn.addEventListener('click', function() {
+                                const accountName = encodeURIComponent('{{ $response->account_name }}');
+                                const accountType = encodeURIComponent('{{ $response->account_type }}');
+                                
+                                // Create sharable URL with account details
+                                const baseUrl = "{{ url('/survey/' . $survey->id) }}";
+                                const shareableUrl = `${baseUrl}?account_name=${accountName}&account_type=${accountType}`;
+                                
+                                // Create a temporary element to copy the URL
+                                const tempInput = document.createElement('input');
+                                tempInput.value = shareableUrl;
+                                document.body.appendChild(tempInput);
+                                tempInput.select();
+                                document.execCommand('copy');
+                                document.body.removeChild(tempInput);
+                                
+                                // Show success message
+                                const copySuccess = document.getElementById('copySuccess');
+                                copySuccess.classList.remove('d-none');
+                                setTimeout(() => {
+                                    copySuccess.classList.add('d-none');
+                                }, 3000);
+                            });
+                        }
+                    }
+
+                    // Initial setup of copy link button
+                    setupCopyLinkButton();
+
+                    document.getElementById('resubmissionForm').addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        fetch(this.action, {
+                            method: 'PATCH',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({})
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const button = document.getElementById('resubmissionButton');
+                                const icon = document.getElementById('resubmissionIcon');
+                                const text = document.getElementById('resubmissionText');
+                                const copyLinkSection = document.getElementById('copyLinkSection');
+                                
+                                if (data.allow_resubmission) {
+                                    button.classList.remove('btn-success');
+                                    button.classList.add('btn-warning');
+                                    icon.classList.remove('fa-unlock');
+                                    icon.classList.add('fa-lock');
+                                    text.textContent = 'Disable Resubmission';
+                                    
+                                    // Create and show copy link section
+                                    if (!copyLinkSection) {
+                                        const newCopyLinkSection = document.createElement('div');
+                                        newCopyLinkSection.id = 'copyLinkSection';
+                                        newCopyLinkSection.className = 'd-inline me-2';
+                                        newCopyLinkSection.innerHTML = `
+                                            <button type="button" id="copyLinkBtn" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-link me-2"></i>Copy Link for Customer
+                                            </button>
+                                            <span id="copySuccess" class="text-success ms-2 d-none"><i class="fas fa-check-circle"></i> Link copied!</span>
+                                        `;
+                                        button.parentElement.insertBefore(newCopyLinkSection, button);
+                                        setupCopyLinkButton();
+                                    }
+                                } else {
+                                    button.classList.remove('btn-warning');
+                                    button.classList.add('btn-success');
+                                    icon.classList.remove('fa-lock');
+                                    icon.classList.add('fa-unlock');
+                                    text.textContent = 'Allow Resubmission';
+                                    
+                                    // Remove copy link section if it exists
+                                    if (copyLinkSection) {
+                                        copyLinkSection.remove();
+                                    }
+                                }
+                                
+                                // Show success message
+                                const alertDiv = document.createElement('div');
+                                alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                                alertDiv.innerHTML = `
+                                    <i class="fas fa-check-circle me-2"></i>${data.message}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                `;
+                                
+                                // Insert alert at the top of the card
+                                const cardHeader = document.querySelector('.card-header');
+                                cardHeader.parentNode.insertBefore(alertDiv, cardHeader);
+                                
+                                // Auto dismiss after 3 seconds
+                                setTimeout(() => {
+                                    alertDiv.remove();
+                                }, 3000);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                    });
+                    </script>
                 </div>
                 <div class="card-body p-4">
                     <div class="card user-info-card mb-4">
@@ -92,7 +223,7 @@
                                             <div class="d-flex align-items-center mt-2">
                                                 <div class="rating-display">
                                                     @for($i = 1; $i <= 5; $i++)
-                                                        <i class="fas fa-star fs-5 {{ $i <= $detail->response ? 'rated' : 'text-muted' }}"></i>
+                                                        <i class="fas fa-star fs-5 {{ $i <= $detail->response ? 'text-warning' : 'text-muted' }}"></i>
                                                     @endfor
                                                 </div>
                                                 <span class="ms-2 fw-bold response-score">{{ $detail->response }} / 5</span>
@@ -182,8 +313,8 @@
     line-height: 1;
 }
 
-.rated {
-    color: #FFD93D;
+.text-warning {
+    color: #ffc107 !important;
 }
 
 .response-score {

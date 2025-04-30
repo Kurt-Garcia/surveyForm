@@ -11,6 +11,27 @@ use Illuminate\Support\Facades\Auth;
 
 class SurveyResponseController extends Controller
 {
+    public function toggleResubmission(Survey $survey, $account_name)
+    {
+        // Ensure the user has access to toggle resubmission
+        if (!Auth::check()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $response = SurveyResponseHeader::where('survey_id', $survey->id)
+            ->where('account_name', $account_name)
+            ->firstOrFail();
+
+        $response->allow_resubmit = !$response->allow_resubmit;
+        $response->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Resubmission status updated successfully',
+            'allow_resubmission' => $response->allow_resubmit
+        ]);
+    }
+
     public function index(Survey $survey)
     {
         // Ensure the user has access to view responses

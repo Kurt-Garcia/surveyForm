@@ -1,11 +1,6 @@
-@extends('layouts.app-user')
-
-@section('title', $survey->title)
+@extends('layouts.customer')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('css/styles.css') }}">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
 <div class="survey-wrapper">
     @if($hasResponded)
         <div class="container">
@@ -31,17 +26,6 @@
 
     <div class="survey-container">
         <div class="survey-header">
-            <a href="#" class="close-button" onclick="confirmClose(event)">
-                <i class="fas fa-times"></i>
-            </a>
-            <script>
-            function confirmClose(event) {
-                event.preventDefault();
-                if (confirm('Are you sure you want to close this form? Any unsaved changes will be lost.')) {
-                    window.location.href = '{{ route("index") }}';
-                }
-            }
-            </script>
             @if($survey->logo)
             <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="survey-logo">
             @else
@@ -50,7 +34,7 @@
             <h1 class="survey-title">{{ strtoupper($survey->title) }}</h1>
         </div>
 
-        <form id="surveyForm" method="POST" action="{{ route('surveys.store', $survey) }}" class="modern-form">
+        <form id="surveyForm" method="POST" action="{{ route('customer.survey.submit', $survey) }}" class="modern-form">
             @csrf
             <input type="hidden" name="survey_id" value="{{ $survey->id }}">
             <input type="hidden" name="start_time" id="start_time">
@@ -59,31 +43,27 @@
             <!-- Validation Alert Container -->
             <div id="validationAlertContainer" class="alert alert-danger mb-4 d-none">
                 <h6><i class="fas fa-exclamation-triangle me-2"></i>Please Fill In All Required Fields!</h6>
+                <div id="validationErrorsList">
+                    <ul></ul>
+                </div>
             </div>
             
             <div class="form-grid">
                 <div class="form-field">
                     <label for="account_name" class="form-label">Account Name</label>
-                    <input type="text" class="modern-input" id="account_name" name="account_name" value="{{ $prefillAccountName ?? '' }}">
+                    <input type="text" class="modern-input" id="account_name" name="account_name" value="{{ $prefillAccountName ?? '' }}" readonly>
                     <div class="validation-message" id="account_name_error"></div>
                 </div>
                 <div class="form-field">
                     <label for="account_type" class="form-label">Account Type</label>
-                    <input type="text" class="modern-input" id="account_type" name="account_type" value="{{ $prefillAccountType ?? '' }}">
+                    <input type="text" class="modern-input" id="account_type" name="account_type" value="{{ $prefillAccountType ?? '' }}" readonly>
                     <div class="validation-message" id="account_type_error"></div>
                 </div>
                 <div class="form-field">
                     <label for="date" class="form-label">Date</label>
-                    <input type="date" class="modern-input" id="date" name="date" value="{{ date('Y-m-d') }}">
+                    <input type="date" class="modern-input" id="date" name="date" value="{{ date('Y-m-d') }}" readonly>
                     <div class="validation-message" id="date_error"></div>
                 </div>
-            </div>
-
-            <div id="copyLinkSection" class="mb-4 d-none">
-                <button type="button" id="copyLinkBtn" class="btn btn-outline-primary">
-                    <i class="fas fa-link me-2"></i>Copy Link for Customer
-                </button>
-                <span id="copySuccess" class="text-success ms-2 d-none"><i class="fas fa-check-circle"></i> Link copied!</span>
             </div>
 
             <div class="survey-section">
@@ -163,14 +143,6 @@
                 <div class="validation-message" id="comments_error"></div>
             </div>
 
-            @foreach($questions as $question)
-                @error('responses.' . $question->id)
-                    <div class="error-message">
-                        {{ $message }}
-                    </div>
-                @enderror
-            @endforeach
-
             <div class="form-footer">
                 <button type="submit" class="submit-button">
                     <span>Submit Survey</span>
@@ -182,91 +154,9 @@
         <div class="thank-you-message">
             <h3>WE APPRECIATE YOUR FEEDBACK!</h3>
             <p>Your input helps us serve you better.</p>
-            <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()">
-                <span>View Response</span>
-                <i class="fas fa-eye ms-2"></i>
-            </button>
         </div>
     </div>
 </div>
-
-<!-- Thank You Modal -->
-<div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="responseModalLabel">Survey Submitted</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <div id="successMessage" class="mb-4 d-none">
-                    <i class="fas fa-check-circle text-success" style="font-size: 48px;"></i>
-                    <h4 class="mt-3">Thank you for your feedback!</h4>
-                    <p>Your response has been successfully submitted.</p>
-                    <button type="button" class="btn btn-primary mt-3" onclick="showResponseSummaryModal()">View Response</button>
-                </div>
-                <div id="errorMessage" class="d-none">
-                    <i class="fas fa-exclamation-circle text-danger" style="font-size: 48px;"></i>
-                    <h4 class="mt-3">Oops!</h4>
-                    <p>An error occurred. Please try again.</p>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Response Summary Modal -->
-<div class="modal fade" id="responseSummaryModal" tabindex="-1" aria-labelledby="responseSummaryModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="responseSummaryModalLabel">Survey Response Summary</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="responseSummary">
-                    <h5 class="border-bottom pb-2">Account Information</h5>
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <strong>Account Name:</strong>
-                            <p id="summary-account-name"></p>
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Account Type:</strong>
-                            <p id="summary-account-type"></p>
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Date:</strong>
-                            <p id="summary-date"></p>
-                        </div>
-                    </div>
-                    
-                    <h5 class="border-bottom pb-2">Survey Responses</h5>
-                    <div id="summary-responses" class="mb-4">
-                        <!-- Responses will be dynamically inserted here -->
-                    </div>
-                    
-                    <h5 class="border-bottom pb-2">Recommendation Score</h5>
-                    <div class="mb-4">
-                        <p>How likely to recommend: <span id="summary-recommendation"></span>/10</p>
-                    </div>
-                    
-                    <h5 class="border-bottom pb-2">Additional Comments</h5>
-                    <div class="mb-4">
-                        <p id="summary-comments"></p>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
@@ -276,86 +166,83 @@ $(document).ready(function() {
     const startTime = new Date();
     $('#start_time').val(startTime.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
     
-    const thankYouModal = new bootstrap.Modal(document.getElementById('responseModal'));
-    const summaryModal = new bootstrap.Modal(document.getElementById('responseSummaryModal'));
+    // Function to close notification
+    window.closeNotification = function(notificationId) {
+        $(`#${notificationId}`).fadeOut();
+    };
     
-    // Show Copy Link button when both account name and account type have values
-    function updateCopyLinkVisibility() {
-        const accountName = $('#account_name').val().trim();
-        const accountType = $('#account_type').val().trim();
+    // Function to update response summary
+    function updateResponseSummary(data) {
+        $('#summary-account-name').text(data.account_name);
+        $('#summary-account-type').text(data.account_type);
+        $('#summary-date').text(data.date);
+        $('#summary-recommendation').text(data.recommendation);
+        $('#summary-comments').text(data.comments || 'No additional comments provided.');
         
-        // Hide copy link section if either field is empty
-        if (!accountName || !accountType) {
-            $('#copyLinkSection').addClass('d-none');
-            $('#copySuccess').addClass('d-none');
-            $('#account_name_error').text('');
-            return;
-        }
+        // Clear and update responses
+        const responsesContainer = $('#summary-responses');
+        responsesContainer.empty();
         
-        // Check if account name exists
-        $.ajax({
-            url: `{{ route('check.account.exists') }}`,
-            method: 'POST',
-            data: {
-                account_name: accountName,
-                survey_id: {{ $survey->id }},
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                if (response.exists) {
-                    // Account exists, show message and hide copy link
-                    $('#copyLinkSection').addClass('d-none');
-                    $('#account_name_error').text('This account has already submitted a response.')
-                        .addClass('text-warning')
-                        .removeClass('text-danger');
-                } else {
-                    // Account doesn't exist, show copy link
-                    $('#copyLinkSection').removeClass('d-none');
-                    $('#account_name_error').text('');
-                }
-                $('#copySuccess').addClass('d-none');
+        $('.question-card').each(function() {
+            const questionId = $(this).data('question-id');
+            const questionText = $(this).find('.question-text').contents().first().text().trim();
+            const response = $(`input[name="responses[${questionId}]"]`).val();
+            
+            if (response) {
+                responsesContainer.append(`
+                    <div class="mb-3">
+                        <strong>${questionText}</strong>
+                        <p>Rating: ${response}/5</p>
+                    </div>
+                `);
             }
         });
     }
     
-    // Check initial state for pre-filled values
-    updateCopyLinkVisibility();
-    
-    // Update button visibility whenever account fields change
-    $('#account_name').on('input', function() {
-        updateCopyLinkVisibility();
-    });
-    
-    $('#account_type').on('input', function() {
-        if ($('#account_name').val().trim()) {
-            updateCopyLinkVisibility();
+    // Form submission handling
+    $('#surveyForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Set end time right before validation
+        const endTime = new Date();
+        $('#end_time').val(endTime.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
+        
+        if (!validateForm()) {
+            return false;
         }
-    });
-    
-    // Copy Link button functionality
-    $('#copyLinkBtn').on('click', function() {
-        const accountName = encodeURIComponent($('#account_name').val().trim());
-        const accountType = encodeURIComponent($('#account_type').val().trim());
         
-        // Create sharable URL with account details using the customer-specific route
-        const baseUrl = "{{ url('/survey/' . $survey->id) }}";
-        const shareableUrl = `${baseUrl}?account_name=${accountName}&account_type=${accountType}`;
+        // Collect form data
+        const formData = new FormData(this);
         
-        // Create a temporary element to copy the URL
-        const tempInput = document.createElement('input');
-        tempInput.value = shareableUrl;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInput);
-        
-        // Show success message
-        $('#copySuccess').removeClass('d-none');
-        
-        // Hide success message after 3 seconds
-        setTimeout(() => {
-            $('#copySuccess').addClass('d-none');
-        }, 3000);
+        // Submit form via AJAX
+        $.ajax({
+            url: $(this).attr('action'),
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                // Hide form and show thank you message
+                $('#surveyForm').fadeOut('fast', function() {
+                    $('.thank-you-message').fadeIn();
+                });
+                
+                // Update response summary
+                const summaryData = {
+                    account_name: $('#account_name').val(),
+                    account_type: $('#account_type').val(),
+                    date: $('#date').val(),
+                    recommendation: $('#survey-number').val(),
+                    comments: $('textarea[name="comments"]').val()
+                };
+                
+                updateResponseSummary(summaryData);
+            },
+            error: function(xhr) {
+                console.error('Error submitting form:', xhr);
+                alert('An error occurred while submitting the survey. Please try again.');
+            }
+        });
     });
     
     // Function to validate all inputs and display errors
@@ -369,23 +256,7 @@ $(document).ready(function() {
         $('.modern-input, .modern-select, .modern-textarea, .modern-rating-group, .modern-star-rating').removeClass('error');
         $('.question-card').removeClass('has-error');
         
-        // Validate account name
-        if (!$('#account_name').val().trim()) {
-            isValid = false;
-            $('#account_name').addClass('error');
-            $('#account_name').parent().addClass('has-error');
-            $('#account_name_error').text('Account name is required').addClass('text-danger');
-            errorList.push('Account name is required');
-        }
-        
-        // Validate account type
-        if (!$('#account_type').val().trim()) {
-            isValid = false;
-            $('#account_type').addClass('error');
-            $('#account_type').parent().addClass('has-error');
-            $('#account_type_error').text('Account type is required').addClass('text-danger');
-            errorList.push('Account type is required');
-        }
+        // Account name and type are pre-filled and readonly, so no validation needed
         
         // Validate date
         if (!$('#date').val()) {
@@ -499,6 +370,7 @@ $(document).ready(function() {
     // Form submission with validation
     $('#surveyForm').on('submit', function(e) {
         e.preventDefault();
+        console.log('Form submitted');
         
         // Set end time right before validation
         const endTime = new Date();
@@ -506,6 +378,7 @@ $(document).ready(function() {
         
         // First validate the form
         if (!validateForm()) {
+            console.log('Form validation failed');
             return false;
         }
         
@@ -531,16 +404,18 @@ $(document).ready(function() {
                 });
             }
         });
-
+        
+        console.log('Submitting to:', $(this).attr('action'));
+        console.log('Form data:', $(this).serialize());
+        
+        // Use a more direct approach with simpler AJAX setup
         $.ajax({
             url: $(this).attr('action'),
-            method: 'POST',
+            type: 'POST',
             data: $(this).serialize(),
-            headers: {
-                'X-CSRF-TOKEN': $('input[name="_token"]').val()
-            },
             dataType: 'json',
             success: function(response) {
+                console.log('Success response:', response);
                 if (response.success) {
                     $('#successMessage').removeClass('d-none');
                     $('#errorMessage').addClass('d-none');
@@ -599,13 +474,26 @@ $(document).ready(function() {
                     
                     // Show thank you message with animation
                     $('.thank-you-message').addClass('show');
+                    
                     // Show modal and reset form
-                    thankYouModal.show();
+                    try {
+                        thankYouModal.show();
+                    } catch (e) {
+                        console.error('Error showing modal:', e);
+                        // Fallback to manual showing
+                        $('#responseModal').addClass('show').css('display', 'block');
+                        $('body').addClass('modal-open').append('<div class="modal-backdrop fade show"></div>');
+                    }
+                    
                     $('#surveyForm')[0].reset();
+                    
+                    // Restore pre-filled values
+                    $('#account_name').val('{{ $prefillAccountName ?? '' }}');
+                    $('#account_type').val('{{ $prefillAccountType ?? '' }}');
                 }
             },
-            error: function(xhr) {
-                console.log('Error response:', xhr.responseJSON);
+            error: function(xhr, status, error) {
+                console.error('Error response:', xhr.responseJSON, status, error);
                 
                 // Clear previous success message and show error message
                 $('#successMessage').addClass('d-none');
@@ -643,7 +531,7 @@ $(document).ready(function() {
                     // Update the modal with specific errors
                     $('#errorMessage').html(`
                         <i class="fas fa-exclamation-circle text-danger" style="font-size: 48px;"></i>
-                        <h4 class="mt-3">Error! Qestions are Empty.</h4>
+                        <h4 class="mt-3">Error! Questions are Empty.</h4>
                         <ul class="text-start">
                             ${errorList.map(err => `<li>${err}</li>`).join('')}
                         </ul>
@@ -654,19 +542,24 @@ $(document).ready(function() {
                         <i class="fas fa-exclamation-circle text-danger" style="font-size: 48px;"></i>
                         <h4 class="mt-3">Unable to Submit</h4>
                         <p>${xhr.responseJSON.error}</p>
-                        <div class="mt-3">
-                            <button type="button" class="btn btn-primary" onclick="window.location.reload();">Refresh the page</button>
-                        </div>
                     `);
                 } else {
                     // General error case
                     $('#errorMessage').html(`
                         <i class="fas fa-exclamation-circle text-danger" style="font-size: 48px;"></i>
                         <h4 class="mt-3">Oops!</h4>
-                        <p>An unexpected error occurred. Please try again.</p>
+                        <p>An unexpected error occurred: ${error || 'Please try again.'}</p>
                     `);
                 }
-                thankYouModal.show();
+                
+                try {
+                    thankYouModal.show();
+                } catch (e) {
+                    console.error('Error showing error modal:', e);
+                    // Fallback to manual showing
+                    $('#responseModal').addClass('show').css('display', 'block');
+                    $('body').addClass('modal-open').append('<div class="modal-backdrop fade show"></div>');
+                }
             }
         });
     });
@@ -678,8 +571,25 @@ $(document).ready(function() {
 });
 
 function showResponseSummaryModal() {
-    $('#responseModal').modal('hide');
-    $('#responseSummaryModal').modal('show');
+    // Use the global summaryModal and thankYouModal variables from the enclosing scope
+    try {
+        // First hide the response modal if it's open
+        if (document.getElementById('responseModal').classList.contains('show')) {
+            thankYouModal.hide();
+        }
+        
+        // Then show the summary modal
+        summaryModal.show();
+    } catch(e) {
+        console.error('Error in showResponseSummaryModal:', e);
+        
+        // Fallback to direct DOM manipulation if the modal methods fail
+        $('#responseModal').removeClass('show').css('display', 'none');
+        $('.modal-backdrop').remove();
+        
+        $('#responseSummaryModal').addClass('show').css('display', 'block');
+        $('body').addClass('modal-open').append('<div class="modal-backdrop fade show"></div>');
+    }
 }
 
 function closeNotification(id) {

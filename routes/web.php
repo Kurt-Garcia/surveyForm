@@ -10,6 +10,10 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
+// Direct access survey route for customers (no login required)
+Route::get('/survey/{survey}', [UserSurveyController::class, 'customerSurvey'])->name('customer.survey');
+Route::post('/survey/{survey}/submit', [UserSurveyController::class, 'customerStore'])->name('customer.survey.submit');
+
 Auth::routes();
 
 // Password change routes - accessible by both users and admins
@@ -23,11 +27,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/index', [UserSurveyController::class, 'index'])->name('index');
     Route::get('/surveys/{survey}', [UserSurveyController::class, 'show'])->name('surveys.show');
     Route::post('/surveys/{survey}', [UserSurveyController::class, 'store'])->name('surveys.store');
+    Route::post('/check-account-exists', [UserSurveyController::class, 'checkAccountExists'])->name('check.account.exists');
     Route::get('/surveys/thankyou', [UserSurveyController::class, 'thankyou'])->name('surveys.thankyou');
     
     // Survey response routes for surveyors
     Route::get('/surveys/{survey}/responses', [\App\Http\Controllers\SurveyResponseController::class, 'index'])->name('surveys.responses.index');
     Route::get('/surveys/{survey}/responses/{account_name}', [\App\Http\Controllers\SurveyResponseController::class, 'show'])->name('surveys.responses.show');
+    Route::patch('/surveys/{survey}/responses/{account_name}/toggle-resubmission', [\App\Http\Controllers\SurveyResponseController::class, 'toggleResubmission'])->name('surveys.responses.toggle-resubmission');
 });
 
 // Admin Routes
