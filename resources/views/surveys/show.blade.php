@@ -692,12 +692,15 @@ $(document).ready(function() {
                 }
             });
         },
-        minLength: 2,
+        minLength: 0, // Show suggestions even when empty
         select: function(event, ui) {
             $('#account_name').val(ui.item.value);
             // Optionally, trigger account type update or validation here
             return false;
         }
+    }).focus(function() {
+        // Trigger search on focus to show all suggestions
+        $(this).autocomplete('search', '');
     });
 });
 
