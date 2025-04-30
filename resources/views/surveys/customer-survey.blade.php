@@ -172,8 +172,11 @@ $(document).ready(function() {
     const submissionKey = `survey_${surveyId}_${accountName}_submitted`;
     const surveyDataKey = `survey_${surveyId}_${accountName}_data`;
     
-    // If we have stored submission data, show the thank you message instead of the form
-    if (localStorage.getItem(submissionKey) === 'true') {
+    // Check if resubmission is allowed from PHP variable
+    const allowResubmit = {{ $allowResubmit ? 'true' : 'false' }};
+    
+    // Only show the thank you message if the survey was submitted AND resubmission is not allowed
+    if (localStorage.getItem(submissionKey) === 'true' && !allowResubmit) {
         // Hide form content keeping only logo, title, and footer
         $('.form-grid, .survey-section, .recommendation-section, .comments-section').hide();
         $('.form-footer').hide();
@@ -194,6 +197,13 @@ $(document).ready(function() {
             updateResponseSummary(savedData);
         }
     } else {
+        // If survey was not submitted OR resubmission is allowed, show the form
+        // For resubmission, we need to clear the previous submission flag
+        if (allowResubmit && localStorage.getItem(submissionKey) === 'true') {
+            // Keep the data but reset the submission flag to allow resubmission
+            localStorage.removeItem(submissionKey);
+        }
+        
         // Initialize start time when the form is first loaded
         const startTime = new Date();
         $('#start_time').val(startTime.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
