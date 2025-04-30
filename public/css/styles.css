@@ -551,3 +551,19 @@ body {
     50% { transform: translateX(5px); }
     75% { transform: translateX(-5px); }
 }
+
+.customer-name-display {
+    margin-top: 5px;
+    font-size: 0.9rem;
+    display: none;
+}
+
+.customer-name-display .text-success {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.customer-name-display .fa-check-circle {
+    color: #28a745;
+}

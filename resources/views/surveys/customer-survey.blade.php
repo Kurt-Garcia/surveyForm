@@ -166,9 +166,38 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
 <script>
 $(document).ready(function() {
-    // Initialize start time when the form is first loaded
-    const startTime = new Date();
-    $('#start_time').val(startTime.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
+    // Check if the survey was already submitted
+    const surveyId = {{ $survey->id }};
+    const accountName = $('#account_name').val();
+    const submissionKey = `survey_${surveyId}_${accountName}_submitted`;
+    const surveyDataKey = `survey_${surveyId}_${accountName}_data`;
+    
+    // If we have stored submission data, show the thank you message instead of the form
+    if (localStorage.getItem(submissionKey) === 'true') {
+        // Hide form content keeping only logo, title, and footer
+        $('.form-grid, .survey-section, .recommendation-section, .comments-section').hide();
+        $('.form-footer').hide();
+        
+        // Show thank you message
+        $('.thank-you-message').addClass('show');
+        
+        // Create and show a simple footer if needed
+        if ($('.survey-footer').length === 0) {
+            $('<div class="survey-footer mt-5 text-center">').html(`
+                <p class="text-muted small">© ${new Date().getFullYear()} ${$('.survey-title').text()}. All rights reserved.</p>
+            `).insertAfter('.thank-you-message');
+        }
+        
+        // Retrieve saved data and update summary
+        const savedData = JSON.parse(localStorage.getItem(surveyDataKey) || '{}');
+        if (Object.keys(savedData).length > 0) {
+            updateResponseSummary(savedData);
+        }
+    } else {
+        // Initialize start time when the form is first loaded
+        const startTime = new Date();
+        $('#start_time').val(startTime.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
+    }
     
     // Function to close notification
     window.closeNotification = function(notificationId) {
@@ -190,13 +219,47 @@ $(document).ready(function() {
         $('.question-card').each(function() {
             const questionId = $(this).data('question-id');
             const questionText = $(this).find('.question-text').contents().first().text().trim();
-            const response = $(`input[name="responses[${questionId}]"]:checked`).val();
+            const response = data.responses ? data.responses[questionId] : null;
+            const questionType = $(this).find('.question-input').children('div').first().hasClass('modern-star-rating') ? 'star' : 'radio';
             
             if (response) {
+                let ratingHtml = '';
+                
+                if (questionType === 'star') {
+                    // Display stars for star rating questions
+                    ratingHtml = Array.from({length: 5}, (_, i) => {
+                        const starClass = i < response ? 'text-warning' : 'text-muted';
+                        return `<i class="fas fa-star ${starClass}"></i>`;
+                    }).join('');
+                    ratingHtml += `<span class="ms-2">${response}/5</span>`;
+                } else {
+                    // Display radio buttons for radio questions
+                    const ratingText = {
+                        1: 'Poor',
+                        2: 'Needs Improvement',
+                        3: 'Satisfactory',
+                        4: 'Very Satisfactory',
+                        5: 'Excellent'
+                    }[response];
+                    ratingHtml = `
+                        <div class="rating-display d-flex align-items-center">
+                            <div class="modern-rating-group me-3">
+                                ${Array.from({length: 5}, (_, i) => {
+                                    const isSelected = i + 1 <= response;
+                                    return `<div class="modern-radio-display ${isSelected ? 'selected' : ''}">${i + 1}</div>`;
+                                }).join('')}
+                            </div>
+                            <span class="rating-text">${ratingText}</span>
+                        </div>
+                    `;
+                }
+                
                 responsesContainer.append(`
-                    <div class="mb-3">
-                        <strong>${questionText}</strong>
-                        <p>Rating: ${response}/5</p>
+                    <div class="response-item mb-3 p-3 bg-light rounded">
+                        <div class="question-text mb-2 fw-bold">${questionText}</div>
+                        <div class="rating-wrapper">
+                            ${ratingHtml}
+                        </div>
                     </div>
                 `);
             }
@@ -230,14 +293,39 @@ $(document).ready(function() {
                         account_type: $('#account_type').val(),
                         date: $('#date').val(),
                         recommendation: $('#survey-number').val(),
-                        comments: $('textarea[name="comments"]').val()
+                        comments: $('textarea[name="comments"]').val(),
+                        responses: {}
                     };
+                    
+                    // Save question responses
+                    $('.question-card').each(function() {
+                        const questionId = $(this).data('question-id');
+                        const response = $(`input[name="responses[${questionId}]"]:checked`).val();
+                        if (response) {
+                            surveyData.responses[questionId] = response;
+                        }
+                    });
+                    
+                    // Save submission data in localStorage
+                    localStorage.setItem(submissionKey, 'true');
+                    localStorage.setItem(surveyDataKey, JSON.stringify(surveyData));
                     
                     // Update response summary with form data
                     updateResponseSummary(surveyData);
                     
+                    // Hide form content keeping only logo, title, and footer
+                    $('.form-grid, .survey-section, .recommendation-section, .comments-section').hide();
+                    $('.form-footer').hide();
+                    
                     // Show thank you message
                     $('.thank-you-message').addClass('show');
+                    
+                    // Create and show a simple footer if needed
+                    if ($('.survey-footer').length === 0) {
+                        $('<div class="survey-footer mt-5 text-center">').html(`
+                            <p class="text-muted small">© ${new Date().getFullYear()} ${$('.survey-title').text()}. All rights reserved.</p>
+                        `).insertAfter('.thank-you-message');
+                    }
                     
                     showThankYouModal();
                 }
@@ -270,8 +358,9 @@ function showResponseSummaryModal() {
             <div class="modal-body">
                 Thank you for submitting the survey. Your feedback is valuable to us.
                 <div class="text-center mt-3">
-                    <button type="button" class="btn btn-primary" onclick="showResponseSummaryModal()">
-                        View Your Response
+                    <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()">
+                        <span>View Your Response</span>
+                        <i class="fas fa-eye ms-2"></i>
                     </button>
                 </div>
             </div>

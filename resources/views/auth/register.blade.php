@@ -10,6 +10,12 @@
                 </div>
 
                 <div class="card-body p-5">
+                    @if($errors->has('security'))
+                        <div class="alert alert-danger">
+                            {{ $errors->first('security') }}
+                        </div>
+                    @endif
+                    
                     <form method="POST" action="{{ route('register') }}">
                         @csrf
 

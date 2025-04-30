@@ -15,8 +15,33 @@ class CustomerController extends Controller
         $term = $request->get('term');
         $results = DB::table('tblcustomer')
             ->where('custname', 'like', '%' . $term . '%')
+            ->orWhere('custcode', 'like', '%' . $term . '%')
             ->limit(20)
-            ->get(['custname as label', 'custname as value', 'custtype']);
+            ->get(['custcode', 'custname as label', 'custname as value', 'custtype']);
         return response()->json($results);
+    }
+    
+    /**
+     * Look up customer information by customer code.
+     */
+    public function lookupByCode(Request $request)
+    {
+        $code = $request->get('code');
+        
+        $customer = DB::table('tblcustomer')
+            ->where('custcode', $code)
+            ->first(['custcode', 'custname', 'custtype']);
+            
+        if ($customer) {
+            return response()->json([
+                'success' => true,
+                'customer' => $customer
+            ]);
+        }
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Customer not found'
+        ]);
     }
 }

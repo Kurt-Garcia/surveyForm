@@ -17,6 +17,8 @@ Route::post('/survey/{survey}/submit', [UserSurveyController::class, 'customerSt
 
 // Autocomplete route for customer names
 Route::get('/customers/autocomplete', [CustomerController::class, 'autocomplete'])->name('customers.autocomplete');
+// Customer lookup by code route
+Route::get('/customers/lookup-by-code', [CustomerController::class, 'lookupByCode'])->name('customers.lookup-by-code');
 
 Auth::routes();
 

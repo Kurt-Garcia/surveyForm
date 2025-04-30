@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Admin;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class RegisterController extends Controller
 {
@@ -63,6 +65,17 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        // Check if the registration details match an admin account
+        $admin = Admin::where('name', $data['name'])
+                     ->where('email', $data['email'])
+                     ->first();
+        
+        if ($admin && Hash::check($data['password'], $admin->password)) {
+            throw ValidationException::withMessages([
+                'security' => ['User already exists! Try Another Username or Email.'],
+            ]);
+        }
+        
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],

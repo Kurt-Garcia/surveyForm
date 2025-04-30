@@ -65,12 +65,13 @@
             <div class="form-grid">
                 <div class="form-field">
                     <label for="account_name" class="form-label">Account Name</label>
-                    <input type="text" class="modern-input" id="account_name" name="account_name" value="{{ $prefillAccountName ?? '' }}">
+                    <input type="text" class="modern-input" id="account_name" name="account_name" value="{{ $prefillAccountName ?? '' }}" placeholder="Enter customer name or code">
+                    <div id="customer_name_display" class="customer-name-display mt-1"></div>
                     <div class="validation-message" id="account_name_error"></div>
                 </div>
                 <div class="form-field">
                     <label for="account_type" class="form-label">Account Type</label>
-                    <input type="text" class="modern-input" id="account_type" name="account_type" value="{{ $prefillAccountType ?? '' }}" disabled>
+                    <input type="text" class="modern-input" id="account_type" name="account_type" value="{{ $prefillAccountType ?? '' }}" readonly>
                     <div class="validation-message" id="account_type_error"></div>
                 </div>
                 <div class="form-field">
@@ -691,7 +692,16 @@ $(document).ready(function() {
                     term: request.term
                 },
                 success: function(data) {
-                    response(data);
+                    // Format the autocomplete items to display both code and name
+                    const formatted = data.map(item => {
+                        return {
+                            label: `${item.custcode} - ${item.label}`,
+                            value: item.label,
+                            custcode: item.custcode,
+                            custtype: item.custtype
+                        };
+                    });
+                    response(formatted);
                 }
             });
         },
@@ -705,6 +715,42 @@ $(document).ready(function() {
     }).focus(function() {
         // Trigger search on focus to show all suggestions
         $(this).autocomplete('search', '');
+    });
+    
+    // Add code to lookup customer by code when entered
+    $('#account_name').on('input', function() {
+        const input = $(this).val().trim();
+        // Clear the customer name display when input is empty
+        if (!input) {
+            $('#customer_name_display').html('').hide();
+            return;
+        }
+        
+        // If input looks like it might be a customer code (alphanumeric without spaces),
+        // try to look up the customer
+        if (input.length >= 3 && !input.includes(' ')) {
+            $.ajax({
+                url: '{{ route('customers.lookup-by-code') }}',
+                dataType: 'json',
+                data: { code: input },
+                success: function(response) {
+                    if (response.success && response.customer) {
+                        // Display the customer name and update account type
+                        $('#customer_name_display').html(`<span class="text-success"><i class="fas fa-check-circle"></i> ${response.customer.custname}</span>`).show();
+                        $('#account_type').val(response.customer.custtype);
+                        updateCopyLinkVisibility();
+                    } else {
+                        // Clear the display if no match found
+                        $('#customer_name_display').html('').hide();
+                    }
+                },
+                error: function() {
+                    $('#customer_name_display').html('').hide();
+                }
+            });
+        } else {
+            $('#customer_name_display').html('').hide();
+        }
     });
 });
 
