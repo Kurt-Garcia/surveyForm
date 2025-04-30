@@ -154,6 +154,10 @@
         <div class="thank-you-message">
             <h3>WE APPRECIATE YOUR FEEDBACK!</h3>
             <p>Your input helps us serve you better.</p>
+            <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()">
+                <span>View Response</span>
+                <i class="fas fa-eye ms-2"></i>
+            </button>
         </div>
     </div>
 </div>
@@ -186,7 +190,7 @@ $(document).ready(function() {
         $('.question-card').each(function() {
             const questionId = $(this).data('question-id');
             const questionText = $(this).find('.question-text').contents().first().text().trim();
-            const response = $(`input[name="responses[${questionId}]"]`).val();
+            const response = $(`input[name="responses[${questionId}]"]:checked`).val();
             
             if (response) {
                 responsesContainer.append(`
@@ -199,401 +203,131 @@ $(document).ready(function() {
         });
     }
     
-    // Form submission handling
-    $('#surveyForm').on('submit', function(e) {
-        e.preventDefault();
+    // Function to show thank you modal
+    function showThankYouModal() {
+        $('#thankYouModal').modal('show');
+    }
+
+    // AJAX form submission
+    $('#surveyForm').on('submit', function(event) {
+        event.preventDefault();
         
-        // Set end time right before validation
+        // Set end time
         const endTime = new Date();
         $('#end_time').val(endTime.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
         
-        if (!validateForm()) {
-            return false;
-        }
-        
-        // Collect form data
-        const formData = new FormData(this);
-        
-        // Submit form via AJAX
-        $.ajax({
-            url: $(this).attr('action'),
-            method: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                // Hide form and show thank you message
-                $('#surveyForm').fadeOut('fast', function() {
-                    $('.thank-you-message').fadeIn();
-                });
-                
-                // Update response summary
-                const summaryData = {
-                    account_name: $('#account_name').val(),
-                    account_type: $('#account_type').val(),
-                    date: $('#date').val(),
-                    recommendation: $('#survey-number').val(),
-                    comments: $('textarea[name="comments"]').val()
-                };
-                
-                updateResponseSummary(summaryData);
-            },
-            error: function(xhr) {
-                console.error('Error submitting form:', xhr);
-                alert('An error occurred while submitting the survey. Please try again.');
-            }
-        });
-    });
-    
-    // Function to validate all inputs and display errors
-    function validateForm() {
-        let isValid = true;
-        let errorList = [];
-        
-        // Clear previous error messages
-        $('.validation-message').text('');
-        $('#validationErrorsList ul').empty();
-        $('.modern-input, .modern-select, .modern-textarea, .modern-rating-group, .modern-star-rating').removeClass('error');
-        $('.question-card').removeClass('has-error');
-        
-        // Account name and type are pre-filled and readonly, so no validation needed
-        
-        // Validate date
-        if (!$('#date').val()) {
-            isValid = false;
-            $('#date').addClass('error');
-            $('#date_error').text('Date is required');
-            errorList.push('Date is required');
-        }
-        
-        // Validate required questions
-        let requiredQuestionsEmpty = false;
-        $('.question-card').each(function() {
-            const questionId = $(this).data('question-id');
-            const isRequired = $(this).find('.badge.required').length > 0;
-            const questionText = $(this).find('.question-text').contents().first().text().trim();
-            const hasResponse = $(`input[name="responses[${questionId}]"]:checked`).length > 0;
-            
-            if (isRequired && !hasResponse) {
-                isValid = false;
-                $(this).addClass('has-error');
-                $(`#question_${questionId}_error`).text('This question requires an answer')
-                    .addClass('text-danger');
-                errorList.push(`Question "${questionText}" requires an answer`);
-                requiredQuestionsEmpty = true;
-                
-                // Add red border to the question card
-                $(this).find('.modern-rating-group, .modern-star-rating').addClass('error');
-            }
-        });
-        
-        // Validate recommendation
-        if (!$('#survey-number').val()) {
-            isValid = false;
-            $('#survey-number').addClass('error');
-            $('#survey-number').parent().addClass('has-error');
-            $('#recommendation_error').text('Please select a recommendation rating').addClass('text-danger');
-            errorList.push('Recommendation rating is required');
-        }
-        
-        // Show validation errors summary if any
-        if (!isValid) {
-            errorList.forEach(function(error) {
-                $('#validationErrorsList ul').append(`<li>${error}</li>`);
-            });
-            
-            $('#validationAlertContainer').removeClass('d-none').show();
-            
-            const firstError = $('.error, .has-error').first();
-            if (firstError.length) {
-                $('html, body').animate({
-                    scrollTop: firstError.offset().top - 100
-                }, 500);
-                firstError.addClass('shake-animation');
-                setTimeout(() => {
-                    firstError.removeClass('shake-animation');
-                }, 500);
-            }
-        } else {
-            $('#validationAlertContainer').hide();
-        }
-        
-        return isValid;
-    }
-    
-    // Live validation on input change
-    $('.modern-input, .modern-select, .modern-textarea').on('input change', function() {
-        if ($(this).val().trim()) {
-            $(this).removeClass('error');
-            $(this).parent().removeClass('has-error');
-            const fieldId = $(this).attr('id');
-            if (fieldId) {
-                $(`#${fieldId}_error`).text('');
-            } else if ($(this).attr('name') === 'comments') {
-                $('#comments_error').text('');
-            }
-            
-            // Check if all required fields are filled to hide the validation alert
-            if ($('.error, .has-error').length === 0) {
-                $('#validationAlertContainer').addClass('d-none');
-            }
-        }
-    });
-    
-    // Live validation for radio buttons
-    $('input[type="radio"]').on('change', function() {
-        const questionId = $(this).attr('name').match(/\d+/)[0];
-        $(`#question_${questionId}_error`).text('');
-        $(this).closest('.question-card').removeClass('has-error');
-        $(this).closest('.modern-rating-group, .modern-star-rating').removeClass('error');
-        
-        // Check if all required fields are filled to hide the validation alert
-        if ($('.error, .has-error').length === 0) {
-            $('#validationAlertContainer').addClass('d-none');
-        }
-    });
-    
-    // Add live validation for recommendation select
-    $('#survey-number').on('change', function() {
-        if ($(this).val()) {
-            $(this).removeClass('error');
-            $(this).parent().removeClass('has-error');
-            $('#recommendation_error').text('');
-            
-            // Check if all required fields are filled to hide the validation alert
-            if ($('.error, .has-error').length === 0) {
-                $('#validationAlertContainer').addClass('d-none');
-            }
-        }
-    });
-    
-    // Form submission with validation
-    $('#surveyForm').on('submit', function(e) {
-        e.preventDefault();
-        console.log('Form submitted');
-        
-        // Set end time right before validation
-        const endTime = new Date();
-        $('#end_time').val(endTime.toISOString());
-        
-        // First validate the form
-        if (!validateForm()) {
-            console.log('Form validation failed');
-            return false;
-        }
-        
-        // Record end time
-        $('#end_time').val(new Date().toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
-        
-        // Collect form data
-        const formData = new FormData(this);
-        const surveyResponses = [];
-        
-        // Process survey responses
-        $('.question-card').each(function() {
-            const questionText = $(this).find('.question-text').contents().first().text().trim();
-            const questionType = $(this).find('.question-input').children('div').first().hasClass('modern-star-rating') ? 'star' : 'radio';
-            const questionId = $(this).data('question-id');
-            const rating = $(`input[name="responses[${questionId}]"]:checked`).val();
-            
-            if (rating) {
-                surveyResponses.push({ 
-                    questionText, 
-                    rating,
-                    type: questionType
-                });
-            }
-        });
-        
-        console.log('Submitting to:', $(this).attr('action'));
-        console.log('Form data:', $(this).serialize());
-        
-        // Use a more direct approach with simpler AJAX setup
+        const formData = $(this).serialize();
         $.ajax({
             url: $(this).attr('action'),
             type: 'POST',
-            data: $(this).serialize(),
+            data: formData,
             dataType: 'json',
             success: function(response) {
-                console.log('Success response:', response);
                 if (response.success) {
-                    $('#successMessage').removeClass('d-none');
-                    $('#errorMessage').addClass('d-none');
+                    // Save form data for response summary
+                    const surveyData = {
+                        account_name: $('#account_name').val(),
+                        account_type: $('#account_type').val(),
+                        date: $('#date').val(),
+                        recommendation: $('#survey-number').val(),
+                        comments: $('textarea[name="comments"]').val()
+                    };
                     
-                    // Populate account information
-                    $('#summary-account-name').text(formData.get('account_name'));
-                    $('#summary-account-type').text(formData.get('account_type'));
-                    $('#summary-date').text(formData.get('date'));
+                    // Update response summary with form data
+                    updateResponseSummary(surveyData);
                     
-                    // Populate survey responses with appropriate styling
-                    const responsesHtml = surveyResponses.map(response => {
-                        let ratingHtml = '';
-                        if (response.type === 'star') {
-                            ratingHtml = Array.from({length: 5}, (_, i) => {
-                                const starClass = i < response.rating ? 'text-warning' : 'text-muted';
-                                return `<i class="fas fa-star ${starClass}"></i>`;
-                            }).join('');
-                            ratingHtml += `<span class="ms-2">${response.rating}/5</span>`;
-                        } else {
-                            const ratingText = {
-                                1: 'Poor',
-                                2: 'Needs Improvement',
-                                3: 'Satisfactory',
-                                4: 'Very Satisfactory',
-                                5: 'Excellent'
-                            }[response.rating];
-                            ratingHtml = `
-                                <div class="rating-display d-flex align-items-center">
-                                    <div class="modern-rating-group me-3">
-                                        ${Array.from({length: 5}, (_, i) => {
-                                            const isSelected = i + 1 <= response.rating;
-                                            return `<div class="modern-radio-display ${isSelected ? 'selected' : ''}">${i + 1}</div>`;
-                                        }).join('')}
-                                    </div>
-                                    <span class="rating-text">${ratingText}</span>
-                                </div>
-                            `;
-                        }
-
-                        return `
-                            <div class="response-item mb-3 p-3 bg-light rounded">
-                                <div class="question-text mb-2 fw-bold">${response.questionText}</div>
-                                <div class="rating-wrapper">
-                                    ${ratingHtml}
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                    
-                    $('#summary-responses').html(responsesHtml);
-                    
-                    // Populate recommendation score and comments (with check for empty comments)
-                    $('#summary-recommendation').text(formData.get('recommendation'));
-                    const commentText = formData.get('comments') || 'No additional feedback provided';
-                    $('#summary-comments').text(commentText);
-                    
-                    // Show thank you message with animation
+                    // Show thank you message
                     $('.thank-you-message').addClass('show');
                     
-                    // Show modal and reset form
-                    try {
-                        thankYouModal.show();
-                    } catch (e) {
-                        console.error('Error showing modal:', e);
-                        // Fallback to manual showing
-                        $('#responseModal').addClass('show').css('display', 'block');
-                        $('body').addClass('modal-open').append('<div class="modal-backdrop fade show"></div>');
-                    }
-                    
-                    $('#surveyForm')[0].reset();
-                    
-                    // Restore pre-filled values
-                    $('#account_name').val('{{ $prefillAccountName ?? '' }}');
-                    $('#account_type').val('{{ $prefillAccountType ?? '' }}');
+                    showThankYouModal();
                 }
             },
-            error: function(xhr, status, error) {
-                console.error('Error response:', xhr.responseJSON, status, error);
-                
-                // Clear previous success message and show error message
-                $('#successMessage').addClass('d-none');
-                $('#errorMessage').removeClass('d-none');
-                
-                // Check for validation errors from server
-                if (xhr.responseJSON && xhr.responseJSON.errors) {
-                    const errors = xhr.responseJSON.errors;
-                    console.log('Validation errors:', errors);
-                    
-                    // Build error list for error summary
-                    let errorList = [];
-                    
-                    // Handle field-specific errors
-                    for (const field in errors) {
-                        if (field.startsWith('responses.')) {
-                            // Extract question ID from the field name
-                            const questionId = field.split('.')[1];
-                            $(`.question-card[data-question-id="${questionId}"]`).addClass('has-error');
-                            $(`#question_${questionId}_error`).text(errors[field][0]);
-                            errorList.push(errors[field][0]);
-                        } else if (field === 'comments') {
-                            // Specifically handle comments field error
-                            $('textarea[name="comments"]').addClass('error');
-                            $('#comments_error').text(errors[field][0]);
-                            errorList.push(errors[field][0]);
-                        } else {
-                            // Handle other form fields
-                            $(`#${field}`).addClass('error');
-                            $(`#${field}_error`).text(errors[field][0]);
-                            errorList.push(errors[field][0]);
-                        }
-                    }
-                    
-                    // Update the modal with specific errors
-                    $('#errorMessage').html(`
-                        <i class="fas fa-exclamation-circle text-danger" style="font-size: 48px;"></i>
-                        <h4 class="mt-3">Error! Questions are Empty.</h4>
-                        <ul class="text-start">
-                            ${errorList.map(err => `<li>${err}</li>`).join('')}
-                        </ul>
-                    `);
-                } else if (xhr.responseJSON && xhr.responseJSON.error) {
-                    // Handle specific error message from the server
-                    $('#errorMessage').html(`
-                        <i class="fas fa-exclamation-circle text-danger" style="font-size: 48px;"></i>
-                        <h4 class="mt-3">Unable to Submit</h4>
-                        <p>${xhr.responseJSON.error}</p>
-                    `);
-                } else {
-                    // General error case
-                    $('#errorMessage').html(`
-                        <i class="fas fa-exclamation-circle text-danger" style="font-size: 48px;"></i>
-                        <h4 class="mt-3">Oops!</h4>
-                        <p>An unexpected error occurred: ${error || 'Please try again.'}</p>
-                    `);
-                }
-                
-                try {
-                    thankYouModal.show();
-                } catch (e) {
-                    console.error('Error showing error modal:', e);
-                    // Fallback to manual showing
-                    $('#responseModal').addClass('show').css('display', 'block');
-                    $('body').addClass('modal-open').append('<div class="modal-backdrop fade show"></div>');
-                }
+            error: function() {
+                alert('There was an error submitting the form. Please try again.');
             }
         });
     });
-    
-    $('#responseModal').on('hidden.bs.modal', function () {
-        $('#successMessage').addClass('d-none');
-        $('#errorMessage').addClass('d-none');
-    });
 });
 
+// Function to show response summary modal
 function showResponseSummaryModal() {
-    // Use the global summaryModal and thankYouModal variables from the enclosing scope
-    try {
-        // First hide the response modal if it's open
-        if (document.getElementById('responseModal').classList.contains('show')) {
-            thankYouModal.hide();
-        }
-        
-        // Then show the summary modal
-        summaryModal.show();
-    } catch(e) {
-        console.error('Error in showResponseSummaryModal:', e);
-        
-        // Fallback to direct DOM manipulation if the modal methods fail
-        $('#responseModal').removeClass('show').css('display', 'none');
-        $('.modal-backdrop').remove();
-        
-        $('#responseSummaryModal').addClass('show').css('display', 'block');
-        $('body').addClass('modal-open').append('<div class="modal-backdrop fade show"></div>');
-    }
-}
-
-function closeNotification(id) {
-    document.getElementById(id).style.display = 'none';
+    // Hide thank you modal if it's open
+    $('#thankYouModal').modal('hide');
+    
+    // Show response summary modal
+    $('#responseSummaryModal').modal('show');
 }
 </script>
+
+<!-- Thank You Modal -->
+<div class="modal fade" id="thankYouModal" tabindex="-1" aria-labelledby="thankYouModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="thankYouModalLabel">Thank You!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Thank you for submitting the survey. Your feedback is valuable to us.
+                <div class="text-center mt-3">
+                    <button type="button" class="btn btn-primary" onclick="showResponseSummaryModal()">
+                        View Your Response
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Response Summary Modal -->
+<div class="modal fade" id="responseSummaryModal" tabindex="-1" aria-labelledby="responseSummaryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="responseSummaryModalLabel">Survey Response Summary</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="responseSummary">
+                    <h5 class="border-bottom pb-2">Account Information</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <strong>Account Name:</strong>
+                            <p id="summary-account-name"></p>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Account Type:</strong>
+                            <p id="summary-account-type"></p>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Date:</strong>
+                            <p id="summary-date"></p>
+                        </div>
+                    </div>
+                    
+                    <h5 class="border-bottom pb-2">Survey Responses</h5>
+                    <div id="summary-responses" class="mb-4">
+                        <!-- Responses will be dynamically inserted here -->
+                    </div>
+                    
+                    <h5 class="border-bottom pb-2">Recommendation Score</h5>
+                    <div class="mb-4">
+                        <p>How likely to recommend: <span id="summary-recommendation"></span>/10</p>
+                    </div>
+                    
+                    <h5 class="border-bottom pb-2">Additional Comments</h5>
+                    <div class="mb-4">
+                        <p id="summary-comments"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
