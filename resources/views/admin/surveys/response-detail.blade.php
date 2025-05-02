@@ -3,16 +3,16 @@
 @section('content')
 <div class="container-fluid px-4 mt-4">
     <!-- Action Buttons Section -->
-    <div class="mb-3 d-flex justify-content-between align-items-center">
-        <div>
-            <button onclick="window.print()" class="btn btn-outline-secondary me-2">
+    <div class="mb-3 d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 gap-sm-0">
+        <div class="d-flex flex-column flex-sm-row gap-2 mb-2 mb-sm-0">
+            <button onclick="window.print()" class="btn btn-outline-secondary">
                 <i class="bi bi-printer me-2"></i>Print
             </button>
             <button onclick="generatePDF()" class="btn btn-outline-secondary">
                 <i class="bi bi-file-pdf me-2"></i>Download PDF
             </button>
         </div>
-        <a href="{{ route('admin.surveys.responses.index', $survey) }}" class="btn btn-outline-primary">
+        <a href="{{ route('admin.surveys.responses.index', $survey) }}" class="btn btn-outline-primary align-self-start align-self-sm-center">
             <i class="bi bi-arrow-left me-2"></i>Back to Responses
         </a>
     </div>
@@ -171,6 +171,30 @@
 
 .text-warning {
     color: #ffc107 !important;
+}
+
+/* Responsive styles for radio display */
+@media (max-width: 576px) {
+    .radio-display {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
+    
+    .form-check-inline {
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+    
+    .d-flex.align-items-center.mt-2 {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+    
+    .d-flex.align-items-center.mt-2 .ms-2 {
+        margin-left: 0 !important;
+        margin-top: 8px;
+    }
 }
 </style>
 

@@ -193,7 +193,8 @@ class UserSurveyController extends Controller
             ->first();
 
         return response()->json([
-            'exists' => $existingResponse ? true : false
+            'exists' => $existingResponse ? true : false,
+            'allow_resubmit' => $existingResponse ? $existingResponse->allow_resubmit : false
         ]);
     }
 

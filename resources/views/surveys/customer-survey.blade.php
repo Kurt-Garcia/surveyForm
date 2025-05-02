@@ -152,6 +152,7 @@
         </form>
         
         <div class="thank-you-message">
+            <h3>THANK YOU!</h3>
             <h3>WE APPRECIATE YOUR FEEDBACK!</h3>
             <p>Your input helps us serve you better.</p>
             <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()">
@@ -252,8 +253,8 @@ $(document).ready(function() {
                         5: 'Excellent'
                     }[response];
                     ratingHtml = `
-                        <div class="rating-display d-flex align-items-center">
-                            <div class="modern-rating-group me-3">
+                        <div class="rating-display d-flex flex-wrap align-items-center">
+                            <div class="modern-rating-group me-3 mb-2">
                                 ${Array.from({length: 5}, (_, i) => {
                                     const isSelected = i + 1 <= response;
                                     return `<div class="modern-radio-display ${isSelected ? 'selected' : ''}">${i + 1}</div>`;
@@ -267,19 +268,47 @@ $(document).ready(function() {
                 responsesContainer.append(`
                     <div class="response-item mb-3 p-3 bg-light rounded">
                         <div class="question-text mb-2 fw-bold">${questionText}</div>
-                        <div class="rating-wrapper">
+                        <div class="rating-wrapper w-100">
                             ${ratingHtml}
                         </div>
                     </div>
                 `);
+                
+                // Add responsive styles for radio buttons if not already added
+                if (!$('#responsive-radio-styles').length) {
+                    $('head').append(`
+                        <style id="responsive-radio-styles">
+                            @media (max-width: 576px) {
+                                .modern-rating-group {
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                    justify-content: flex-start;
+                                    margin-bottom: 0.5rem;
+                                    width: 100%;
+                                }
+                                .modern-radio-display {
+                                    width: 35px;
+                                    height: 35px;
+                                    margin-right: 5px;
+                                    margin-bottom: 5px;
+                                }
+                                .rating-display {
+                                    flex-direction: column;
+                                    align-items: flex-start !important;
+                                }
+                                .rating-text {
+                                    margin-top: 0.5rem;
+                                }
+                            }
+                        </style>
+                    `);
+                }
             }
         });
     }
     
-    // Function to show thank you modal
-    function showThankYouModal() {
-        $('#thankYouModal').modal('show');
-    }
+    // Function to show response summary directly
+    // Note: We've removed the thank you modal functionality
 
     // AJAX form submission
     $('#surveyForm').on('submit', function(event) {
@@ -337,7 +366,7 @@ $(document).ready(function() {
                         `).insertAfter('.thank-you-message');
                     }
                     
-                    showThankYouModal();
+                    // No longer showing the thank you modal - directly displaying the thank you message instead
                 }
             },
             error: function() {
@@ -349,37 +378,12 @@ $(document).ready(function() {
 
 // Function to show response summary modal
 function showResponseSummaryModal() {
-    // Hide thank you modal if it's open
-    $('#thankYouModal').modal('hide');
-    
-    // Show response summary modal
+    // Show response summary modal directly
     $('#responseSummaryModal').modal('show');
 }
 </script>
 
-<!-- Thank You Modal -->
-<div class="modal fade" id="thankYouModal" tabindex="-1" aria-labelledby="thankYouModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="thankYouModalLabel">Thank You!</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Thank you for submitting the survey. Your feedback is valuable to us.
-                <div class="text-center mt-3">
-                    <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()">
-                        <span>View Your Response</span>
-                        <i class="fas fa-eye ms-2"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Thank You Modal has been removed -->
 
 <!-- Response Summary Modal -->
 <div class="modal fade" id="responseSummaryModal" tabindex="-1" aria-labelledby="responseSummaryModalLabel" aria-hidden="true">
@@ -393,15 +397,15 @@ function showResponseSummaryModal() {
                 <div id="responseSummary">
                     <h5 class="border-bottom pb-2">Account Information</h5>
                     <div class="row mb-4">
-                        <div class="col-md-4">
+                        <div class="col-md-4 col-sm-6 mb-3 mb-md-0">
                             <strong>Account Name:</strong>
                             <p id="summary-account-name"></p>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 col-sm-6 mb-3 mb-md-0">
                             <strong>Account Type:</strong>
                             <p id="summary-account-type"></p>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 col-sm-6">
                             <strong>Date:</strong>
                             <p id="summary-date"></p>
                         </div>

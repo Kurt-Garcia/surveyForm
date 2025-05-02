@@ -26,45 +26,43 @@
             @endif
 
             <!-- Surveys Grid -->
-            <div class="row g-4">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 @forelse ($surveys as $survey)
-                    <div class="col-12 col-md-6 col-xl-4">
-                        <div class="card h-100 border-0 shadow-sm survey-card">
+                    <div class="col">
+                        <div class="card h-100 survey-card shadow-sm hover-lift">
                             <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <h5 class="card-title text-truncate mb-0" title="{{ $survey->title }}">
-                                        {{ strtoupper($survey->title) }}
-                                    </h5>
-                                    <span class="badge {{ $survey->is_active ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' }} rounded-pill">
-                                        <i class="fas fa-circle me-1"></i>
-                                        {{ $survey->is_active ? 'Active' : 'Inactive' }}
-                                    </span>
+                                <div class="card-icon mb-3">
+                                    <i class="bi bi-bar-chart-fill" style="font-size:2.5rem;"></i>
                                 </div>
-                                
-                                <div class="d-flex gap-3 mb-3">
-                                    <div class="small text-muted">
-                                        <i class="bi bi-question-circle me-1"></i>
-                                        {{ $survey->questions->count() }} Questions
+                                <h4 class="card-title">{{ strtoupper($survey->title) }}</h4>
+                                <div class="d-flex justify-content-between mt-3 mb-3">
+                                    <div class="survey-info">
+                                        <div class="text-muted mb-2">
+                                            <i class="fas fa-question-circle me-1"></i>
+                                            {{ $survey->questions->count() }} questions
+                                        </div>
+                                        <div class="text-muted">
+                                            <i class="bi bi-person me-1"></i>
+                                            {{ $survey->admin->name }}
+                                        </div>
                                     </div>
-                                    <div class="small text-muted">
-                                        <i class="bi bi-person me-1"></i>
-                                        {{ $survey->admin->name }}
+                                    <div class="responded-badge">
+                                        <span class="badge {{ $survey->is_active ? 'bg-success' : 'bg-danger' }}">
+                                            <i class="fas fa-circle me-1"></i>
+                                            {{ $survey->is_active ? 'Active' : 'Inactive' }}
+                                        </span>
                                     </div>
                                 </div>
-
                                 <div class="small text-muted mb-3">
                                     <i class="bi bi-calendar me-1"></i>
                                     Created {{ $survey->created_at->format('M d, Y') }}
                                 </div>
-
-                                <div class="d-flex gap-2">
-                                    <a href="{{ route('admin.surveys.show', $survey) }}" 
-                                       class="btn btn-outline-primary btn-sm flex-grow-1">
-                                        <i class="bi bi-eye me-1"></i>{{ __('View Details') }}
+                                <div class="d-flex gap-2 mt-auto">
+                                    <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-start btn-primary flex-grow-1">
+                                        <i class="fas fa-eye me-1"></i> View Details
                                     </a>
-                                    <a href="{{ route('admin.surveys.responses.index', $survey) }}" 
-                                       class="btn btn-outline-info btn-sm flex-grow-1">
-                                        <i class="bi bi-bar-chart me-1"></i>{{ __('Responses') }}
+                                    <a href="{{ route('admin.surveys.responses.index', $survey) }}" class="btn btn-outline-secondary btn-view-responses flex-grow-1">
+                                        <i class="fas fa-chart-bar me-1"></i> View Responses
                                     </a>
                                 </div>
                             </div>
@@ -72,19 +70,18 @@
                     </div>
                 @empty
                     <div class="col-12">
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body text-center py-5">
-                                <i class="bi bi-clipboard-x display-4 text-muted mb-3"></i>
-                                <h5>{{ __('No surveys found') }}</h5>
-                                <p class="text-muted mb-0">Start by creating your first survey</p>
+                        <div class="card empty-state py-5 text-center">
+                            <div class="card-body">
+                                <i class="fas fa-clipboard-question fs-1 mb-3 text-muted"></i>
+                                <h4 class="mb-2">No Surveys Found</h4>
+                                <p class="text-muted">Start by creating your first survey</p>
                             </div>
                         </div>
                     </div>
                 @endforelse
             </div>
 
-            <!-- Pagination -->
-            <div class="d-flex justify-content-center mt-4">
+            <div class="pagination-container mt-4">
                 {{ $surveys->links() }}
             </div>
         </div>
@@ -92,12 +89,153 @@
 </div>
 
 <style>
-    .survey-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .survey-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
-    }
+.alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    min-width: 300px;
+}
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+.pagination-container .pagination {
+    margin: 0;
+}
+.pagination .page-item.active .page-link {
+    background-color: #4ECDC4;
+    border-color: #4ECDC4;
+}
+.pagination .page-link {
+    color: #333;
+    transition: all 0.2s ease;
+}
+.pagination .page-link:hover {
+    background-color: #eee;
+}
+.survey-card {
+    border-radius: 12px;
+    border: none;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+.survey-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+.card-icon {
+    display: inline-block;
+    background-color: rgba(78, 205, 196, 0.1);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+.survey-info {
+    font-size: 0.9rem;
+}
+.responded-badge {
+    align-self: flex-start;
+}
+.badge {
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 30px;
+}
+.btn-start {
+    border-radius: 8px;
+    font-weight: 500;
+    position: relative;
+    z-index: 10;
+}
+.btn-outline-secondary {
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    position: relative;
+    z-index: 10;
+}
+.empty-state {
+    border-radius: 12px;
+    border: 2px dashed #e9ecef;
+}
+.card-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+}
+.survey-card .btn {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+}
+.d-flex.gap-2.mt-auto {
+    position: relative;
+    z-index: 10;
+}
+.btn-view-responses {
+    min-width: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    position: relative;
+    z-index: 10;
+}
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const colors = [
+        '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD',
+        '#D4A5A5', '#9B59B6', '#3498DB', '#E67E22', '#2ECC71',
+        '#FF9F43', '#00B894', '#74B9FF', '#A8E6CF', '#FFD93D',
+        '#FF6B81', '#6C5CE7', '#00CEC9', '#FD79A8', '#81ECEC'
+    ];
+    document.querySelectorAll('.survey-card').forEach(card => {
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        const icon = card.querySelector('.card-icon');
+        const btnStart = card.querySelector('.btn-start');
+        if (icon) {
+            icon.style.color = randomColor;
+            icon.style.backgroundColor = `${randomColor}15`;
+        }
+        if (btnStart) {
+            btnStart.style.backgroundColor = randomColor;
+            btnStart.style.borderColor = randomColor;
+            btnStart.style.pointerEvents = 'auto';
+            btnStart.style.position = 'relative';
+            btnStart.style.zIndex = '2';
+        }
+        card.style.borderLeft = `4px solid ${randomColor}`;
+        const buttons = card.querySelectorAll('a.btn');
+        buttons.forEach(btn => {
+            btn.style.pointerEvents = 'auto';
+            btn.style.position = 'relative';
+            btn.style.zIndex = '2';
+        });
+    });
+});
+</script>
 @endsection

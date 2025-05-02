@@ -99,5 +99,17 @@ Route::prefix('admin')->group(function () {
             ->name('admin.surveys.update-logo');
         Route::get('/users/create', [\App\Http\Controllers\Admin\UserManagementController::class, 'create'])->name('admin.users.create');
         Route::post('/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('admin.users.store');
+
+        // Logo management routes
+        Route::resource('logos', \App\Http\Controllers\Admin\LogoController::class)->names([
+            'index' => 'admin.logos.index',
+            'create' => 'admin.logos.create',
+            'store' => 'admin.logos.store',
+            'show' => 'admin.logos.show',
+            'edit' => 'admin.logos.edit',
+            'update' => 'admin.logos.update',
+            'destroy' => 'admin.logos.destroy'
+        ]);
+        Route::post('logos/{logo}/activate', [\App\Http\Controllers\Admin\LogoController::class, 'activate'])->name('admin.logos.activate');
     });
 });

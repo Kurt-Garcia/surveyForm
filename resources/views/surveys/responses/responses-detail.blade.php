@@ -3,16 +3,16 @@
 @section('content')
 <div class="container mt-5">
     <!-- Action Buttons Section -->
-    <div class="mb-3 d-flex justify-content-between align-items-center">
-        <div>
-            <button onclick="window.print()" class="btn btn-outline-secondary me-2">
+    <div class="mb-3 d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 gap-sm-0">
+        <div class="d-flex flex-column flex-sm-row gap-2 mb-2 mb-sm-0">
+            <button onclick="window.print()" class="btn btn-outline-secondary">
                 <i class="fas fa-print me-2"></i>Print
             </button>
             <button onclick="generatePDF()" class="btn btn-outline-secondary">
                 <i class="fas fa-file-pdf me-2"></i>Download PDF
             </button>
         </div>
-        <a href="{{ route('surveys.responses.index', $survey) }}" class="btn btn-outline-primary">
+        <a href="{{ route('surveys.responses.index', $survey) }}" class="btn btn-outline-primary align-self-start align-self-sm-center">
             <i class="fas fa-arrow-left me-2"></i>Back to Responses
         </a>
     </div>
@@ -164,31 +164,47 @@
                 <div class="card-body p-4">
                     <div class="card user-info-card mb-4">
                         <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-auto">
+                            <div class="row">
+                                <div class="col-auto mb-3 mb-md-0">
                                     <div class="response-icon">
                                         <i class="fas fa-user-circle fa-3x"></i>
                                     </div>
                                 </div>
                                 <div class="col">
+                                    <div class="row mb-3">
+                                        <div class="col-12 col-md-4 mb-3 mb-md-0">
+                                            <label class="text-muted small mb-1">Account Name</label>
+                                            <h5 class="mb-0">{{ $response->account_name }}</h5>
+                                        </div>
+                                        <div class="col-12 col-md-4 mb-3 mb-md-0">
+                                            <label class="text-muted small mb-1">Account Type</label>
+                                            <h5 class="mb-0"><span class="badge bg-light text-dark">{{ $response->account_type }}</span></h5>
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="text-muted small mb-1">Date</label>
+                                            <h5 class="mb-0"><i class="fas fa-calendar-alt me-1 small"></i> {{ $response->date->format('M d, Y') }}</h5>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Time Information -->
                                     <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="mb-3 mb-md-0">
-                                                <label class="text-muted small mb-1">Account Name</label>
-                                                <h5 class="mb-0">{{ $response->account_name }}</h5>
-                                            </div>
+                                        <div class="col-12 col-md-4 mb-3 mb-md-0">
+                                            <label class="text-muted small mb-1">Start Time</label>
+                                            <h5 class="mb-0"><i class="fas fa-clock me-1 small"></i> {{ $response->start_time ? $response->start_time->format('h:i:s A') : 'N/A' }}</h5>
                                         </div>
-                                        <div class="col-md-4">
-                                            <div class="mb-3 mb-md-0">
-                                                <label class="text-muted small mb-1">Account Type</label>
-                                                <h5 class="mb-0"><span class="badge bg-light text-dark">{{ $response->account_type }}</span></h5>
-                                            </div>
+                                        <div class="col-12 col-md-4 mb-3 mb-md-0">
+                                            <label class="text-muted small mb-1">End Time</label>
+                                            <h5 class="mb-0"><i class="fas fa-clock me-1 small"></i> {{ $response->end_time ? $response->end_time->format('h:i:s A') : 'N/A' }}</h5>
                                         </div>
-                                        <div class="col-md-4">
-                                            <div>
-                                                <label class="text-muted small mb-1">Date</label>
-                                                <h5 class="mb-0"><i class="fas fa-calendar-alt me-1 small"></i> {{ $response->date }}</h5>
-                                            </div>
+                                        <div class="col-12 col-md-4">
+                                            <label class="text-muted small mb-1">Duration</label>
+                                            <h5 class="mb-0"><i class="fas fa-stopwatch me-1 small"></i> 
+                                                @if($response->start_time && $response->end_time)
+                                                    {{ $response->end_time->diffForHumans($response->start_time, ['parts' => 2]) }}
+                                                @else
+                                                    N/A
+                                                @endif
+                                            </h5>
                                         </div>
                                     </div>
                                 </div>
@@ -345,16 +361,137 @@
     line-height: 1.6;
 }
 
-@media print {
-    .btn, .hover-lift:hover {
-        transform: none !important;
-        box-shadow: none !important;
+/* Responsive styles for radio buttons on mobile */
+@media (max-width: 576px) {
+    .radio-display {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
     }
+    
+    .form-check-inline {
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+    
+    .d-flex.align-items-center.mt-2 {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+    
+    .d-flex.align-items-center.mt-2 .ms-2 {
+        margin-left: 0 !important;
+        margin-top: 8px;
+    }
+}
+
+@media print {
+    @page {
+        size: auto;
+        margin: 5mm 10mm 10mm 10mm; /* Reduced top margin */
+    }
+    
+    body {
+        margin: 0;
+        padding: 0;
+        font-size: 10pt;
+        line-height: 1.2;
+    }
+    
+    .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .btn, 
+    .hover-lift:hover,
+    .mb-3.d-flex, /* Action Buttons Section */
+    #resubmissionForm, /* Allow Resubmission Section */
+    #copyLinkSection, /* Copy Link Section */
+    #copyLinkBtn, /* Copy Link Button */
+    #resubmissionButton, /* Resubmission Button */
+    .fa-bars, /* Burger Icon (FontAwesome) */
+    .fa-print, /* Print Icon */
+    .fa-file-pdf, /* PDF Icon */
+    .fa-arrow-left /* Back Icon */
+    {
+        display: none !important;
+    }
+    
     .card {
-        border: 1px solid #ddd;
+        border: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+    
+    .card-header {
+        padding: 0.5rem 0 !important;
+        border-bottom: 1px solid #ddd !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .card-body {
+        padding: 0 !important;
+    }
+    
+    .response-item {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        border: 1px solid #eee !important;
+        margin-bottom: 0.5rem !important;
+        padding: 0.5rem !important;
+        background-color: #f9f9f9 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    h4 {
+        font-size: 16pt !important;
+        margin: 0.5rem 0 !important;
+    }
+    
+    h5 {
+        font-size: 12pt !important;
+        margin: 0.25rem 0 !important;
+    }
+    
+    .mb-4, .my-4 {
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .p-4, .py-4, .px-4 {
+        padding: 0.5rem !important;
+    }
+    
+    .alert {
+        display: none !important;
+    }
+    
+    .text-warning, .fa-star.text-warning {
+        color: #ffc107 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    .recommendation-meter {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    .recommendation-fill {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 }
 </style>
+
+<!-- Add jsPDF library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -397,7 +534,83 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function generatePDF() {
-    window.print();
+    // Show loading indicator
+    const loadingToast = document.createElement('div');
+    loadingToast.className = 'position-fixed bottom-0 end-0 p-3';
+    loadingToast.style.zIndex = '5000';
+    loadingToast.innerHTML = `
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Processing PDF</strong>
+            </div>
+            <div class="toast-body">
+                <div class="d-flex align-items-center">
+                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                    <span>Creating your PDF file. Please wait...</span>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(loadingToast);
+
+    // Get content to convert
+    const contentElement = document.querySelector('.card.shadow-sm.border-0');
+    
+    // Hide buttons for PDF and prepare content
+    const actionButtons = document.querySelectorAll('.btn');
+    actionButtons.forEach(btn => btn.style.display = 'none');
+    
+    // Set max width for better fitting
+    const originalWidth = contentElement.style.width;
+    contentElement.style.width = '800px';
+    
+    // Use html2canvas to convert the card to an image
+    window.html2canvas(contentElement, {
+        scale: 1.5, // Higher quality rendering
+        useCORS: true,
+        allowTaint: true,
+        scrollY: -window.scrollY // Fix positioning issues
+    }).then(canvas => {
+        // Restore original styles
+        contentElement.style.width = originalWidth;
+        actionButtons.forEach(btn => btn.style.display = '');
+        
+        // Create PDF with proper dimensions
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
+        
+        // Calculate dimensions to fit the image perfectly on the page
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        
+        // Calculate scaling ratio with adjusted margins (reduced top margin)
+        const marginSide = 10; // Side margins
+        const marginTop = 5;   // Reduced top margin
+        const marginBottom = 10; // Bottom margin
+        const availableWidth = pdfWidth - (marginSide * 2);
+        const availableHeight = pdfHeight - (marginTop + marginBottom);
+        const ratio = Math.min(availableWidth / imgWidth, availableHeight / imgHeight);
+        
+        // Calculate centered position with reduced top margin
+        const imgX = marginSide + (availableWidth - (imgWidth * ratio)) / 2;
+        const imgY = marginTop; // Place content closer to the top
+        
+        // Add image to PDF
+        pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+        
+        // Save PDF
+        pdf.save(`${document.title || 'survey-response'}-details.pdf`);
+        
+        // Remove loading indicator
+        document.body.removeChild(loadingToast);
+    });
 }
 </script>
 @endsection

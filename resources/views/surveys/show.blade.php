@@ -179,16 +179,18 @@
                     <i class="fas fa-paper-plane ms-2"></i>
                 </button>
             </div>
+            
+            <div class="thank-you-message">
+                <div class="message-content">
+                    <h3>WE APPRECIATE YOUR FEEDBACK!</h3>
+                    <p>Your input helps us serve you better.</p>
+                </div>
+                <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()">
+                    <span>View Response</span>
+                    <i class="fas fa-eye ms-2"></i>
+                </button>
+            </div>
         </form>
-        
-        <div class="thank-you-message">
-            <h3>WE APPRECIATE YOUR FEEDBACK!</h3>
-            <p>Your input helps us serve you better.</p>
-            <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()">
-                <span>View Response</span>
-                <i class="fas fa-eye ms-2"></i>
-            </button>
-        </div>
     </div>
 </div>
 
@@ -205,7 +207,6 @@
                     <i class="fas fa-check-circle text-success" style="font-size: 48px;"></i>
                     <h4 class="mt-3">Thank you for your feedback!</h4>
                     <p>Your response has been successfully submitted.</p>
-                    <button type="button" class="btn btn-primary mt-3" onclick="showResponseSummaryModal()">View Response</button>
                 </div>
                 <div id="errorMessage" class="d-none">
                     <i class="fas fa-exclamation-circle text-danger" style="font-size: 48px;"></i>
@@ -305,14 +306,14 @@ $(document).ready(function() {
                 _token: '{{ csrf_token() }}'
             },
             success: function(response) {
-                if (response.exists) {
-                    // Account exists, show message and hide copy link
+                if (response.exists && !response.allow_resubmit) {
+                    // Account exists and resubmission is not allowed, hide copy link and show message
                     $('#copyLinkSection').addClass('d-none');
                     $('#account_name_error').text('This account has already submitted a response.')
                         .addClass('text-warning')
                         .removeClass('text-danger');
                 } else {
-                    // Account doesn't exist, show copy link
+                    // Account doesn't exist or resubmission is allowed, show copy link
                     $('#copyLinkSection').removeClass('d-none');
                     $('#account_name_error').text('');
                 }
@@ -766,4 +767,85 @@ function closeNotification(id) {
     document.getElementById(id).style.display = 'none';
 }
 </script>
+
+<style>
+.thank-you-message {
+    margin-top: 2rem;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0 0 8px 8px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #eee;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s ease;
+}
+
+.thank-you-message.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.thank-you-message .message-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.thank-you-message h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.2rem;
+}
+
+.thank-you-message p {
+    margin-bottom: 0;
+}
+
+.thank-you-message .small-button {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+/* Fix for radio buttons on mobile */
+@media (max-width: 576px) {
+    .modern-rating-group {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        margin-bottom: 0.5rem;
+    }
+    
+    .modern-radio {
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+    
+    .modern-radio label {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .radio-number {
+        font-size: 14px;
+    }
+    
+    .rating-legend {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .rating-legend .rating-item {
+        margin-bottom: 5px;
+    }
+}
+
+.customer-name-display {
+    display: none;
+    margin-top: 5px;
+    font-size: 0.9em;
+}
+</style>
 @endsection

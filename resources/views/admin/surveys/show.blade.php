@@ -75,14 +75,16 @@
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-cloud-upload me-2"></i>Update Logo
-                                </button>
-                                @if($survey->logo)
-                                    <button type="submit" name="remove_logo" value="1" class="btn btn-outline-danger ms-2" onclick="return confirm('Are you sure you want to remove the logo?')">
-                                        <i class="bi bi-trash me-2"></i>Remove Logo
+                                <div class="d-flex flex-column flex-sm-row gap-2 w-100 logo-btn-group">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-cloud-upload me-2"></i>Update Logo
                                     </button>
-                                @endif
+                                    @if($survey->logo)
+                                        <button type="submit" name="remove_logo" value="1" class="btn btn-outline-danger ms-0 ms-sm-2 mt-2 mt-sm-0" onclick="return confirm('Are you sure you want to remove the logo?')">
+                                            <i class="bi bi-trash me-2"></i>Remove Logo
+                                        </button>
+                                    @endif
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -262,6 +264,17 @@
     }
     .h1-md {
         font-size: 2.5rem;
+    }
+}
+.logo-btn-group > .btn {
+    width: 100%;
+}
+@media (min-width: 576px) {
+    .logo-btn-group {
+        flex-direction: row !important;
+    }
+    .logo-btn-group > .btn {
+        width: auto;
     }
 }
 </style>

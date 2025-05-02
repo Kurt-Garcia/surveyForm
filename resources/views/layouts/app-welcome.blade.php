@@ -26,8 +26,15 @@
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container-fluid px-4">
-                <a class="navbar-brand">
-                    <img src="{{ asset('img/logo.png') }}" alt="Logo" class="logo" style="max-width: 100px;">
+                <a class="navbar-brand" href="/">
+                    @php
+                        $activeLogo = \App\Models\Logo::where('is_active', true)->first();
+                    @endphp
+                    @if($activeLogo)
+                        <img src="{{ asset('storage/' . $activeLogo->file_path) }}" alt="Logo" class="logo" style="max-width: 100px;">
+                    @else
+                        <img src="{{ asset('img/logo.png') }}" alt="Logo" class="logo" style="max-width: 100px;">
+                    @endif
                 </a>
                 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">

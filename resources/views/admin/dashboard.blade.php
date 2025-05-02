@@ -3,160 +3,406 @@
 @section('content')
 <link href="{{ asset('css/admin.css') }}" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<div class="container-fluid px-4 mt-4">
-    <div class="row justify-content-start">
-        <div class="col-12">
-            <!-- Welcome Section with improved design -->
-            <div class="card border-0 bg-primary bg-opacity-10 mb-4" style="border-radius: 20px;">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <h1 class="h2 fw-bold text-primary mb-2">Welcome Back, Admin!</h1>
-                            <p class="text-muted mb-0">{{ now()->format('l, F j, Y') }}</p>
-                        </div>
-                        <div>
-                            <a href="{{ route('admin.surveys.create') }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm d-flex align-items-center">
-                                <i class="bi bi-plus-lg me-2"></i>Create Survey
-                            </a>
+<div class="admin-dashboard">
+    <div class="container-fluid px-4 py-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10">
+                <!-- Welcome Section with modern design -->
+                <div class="welcome-card position-relative overflow-hidden mb-5">
+                    <div class="welcome-card-bg"></div>
+                    <div class="card-body p-5 position-relative">
+                        <div class="row align-items-center">
+                            <div class="col-lg-7 mb-4 mb-lg-0">
+                                <span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill mb-3">Admin Dashboard</span>
+                                <h1 class="display-4 fw-bold text-white mb-2 welcome-title">Welcome Back, Admin!</h1>
+                                <p class="text-white text-opacity-90 mb-0 fs-5">{{ now()->format('l, F j, Y') }}</p>
+                            </div>
+                            <div class="col-lg-5 text-lg-end">
+                                <a href="{{ route('admin.surveys.create') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill shadow-sm d-inline-flex align-items-center me-2 mb-2">
+                                    <i class="bi bi-plus-circle-fill me-2 text-primary"></i>Create Survey
+                                </a>
+                                <a href="{{ route('admin.logos.index') }}" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill mb-2">
+                                    <i class="bi bi-image me-2"></i>Manage Logos
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
             <div class="row g-4">
                 <!-- Quick Actions -->
                 <div class="col-12 col-lg-8">
-                    <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
-                        <div class="card-header bg-white p-4 border-bottom">
-                            <h4 class="m-0">Quick Actions</h4>
+                    <div class="feature-card h-100">
+                        <div class="card-header p-4">
+                            <h4 class="fw-bold">Quick Actions</h4>
                         </div>
                         <div class="card-body p-0">
-                            <div class="row g-0 h-100">
-                                <div class="col-12 col-md-6 border-end mt-5">
-                                    <a href="{{ route('admin.surveys.index') }}" class="d-block p-4 text-decoration-none quick-action-link h-100">
-                                        <div class="text-center p-3 rounded-4 bg-success bg-opacity-15 mb-3 mx-auto icon-container" style="width: 70px; height: 70px;">
-                                            <i class="bi bi-eye-fill text-white" style="font-size: 2rem;"></i>
+                            <div class="row g-0">
+                                <div class="col-12 col-md-4">
+                                    <a href="{{ route('admin.surveys.index') }}" class="action-card">
+                                        <div class="action-icon bg-gradient-success">
+                                            <i class="bi bi-eye-fill"></i>
                                         </div>
-                                        <h5 class="text-success text-center mb-2">View Surveys</h5>
-                                        <p class="text-muted text-center mb-0 small">Manage your existing surveys</p>
+                                        <div class="action-content">
+                                            <h5>View Surveys</h5>
+                                            <p>Manage your existing surveys</p>
+                                        </div>
                                     </a>
                                 </div>
-                                <div class="col-12 col-md-6 mt-5">
-                                    <a href="{{ route('admin.admins.create') }}" class="d-block p-4 text-decoration-none quick-action-link h-100">
-                                        <div class="text-center p-3 rounded-4 bg-info bg-opacity-15 mb-3 mx-auto icon-container" style="width: 70px; height: 70px;">
-                                            <i class="bi bi-shield-lock-fill text-white" style="font-size: 2rem;"></i>
+                                <div class="col-12 col-md-4">
+                                    <a href="{{ route('admin.admins.create') }}" class="action-card">
+                                        <div class="action-icon bg-gradient-info">
+                                            <i class="bi bi-shield-lock-fill"></i>
                                         </div>
-                                        <h5 class="text-info text-center mb-2">Add Admin</h5>
-                                        <p class="text-muted text-center mb-0 small">Create new admin accounts</p>
+                                        <div class="action-content">
+                                            <h5>Add Admin</h5>
+                                            <p>Create new admin accounts</p>
+                                        </div>
                                     </a>
                                 </div>
-                                <div class="col-12 col-md-6 mt-5">
-                                    <a href="{{ route('admin.users.create') }}" class="d-block p-4 text-decoration-none quick-action-link h-100">
-                                        <div class="text-center p-3 rounded-4 bg-warning bg-opacity-15 mb-3 mx-auto icon-container" style="width: 70px; height: 70px;">
-                                            <i class="bi bi-person-plus-fill text-white" style="font-size: 2rem;"></i>
+                                <div class="col-12 col-md-4">
+                                    <a href="{{ route('admin.users.create') }}" class="action-card">
+                                        <div class="action-icon bg-gradient-warning">
+                                            <i class="bi bi-person-plus-fill"></i>
                                         </div>
-                                        <h5 class="text-warning text-center mb-2">Add User</h5>
-                                        <p class="text-muted text-center mb-0 small">Create new user accounts</p>
+                                        <div class="action-content">
+                                            <h5>Add Surveyor</h5>
+                                            <p>Create new user accounts</p>
+                                        </div>
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
                 <!-- Stats Summary -->
                 <div class="col-12 col-lg-4">
-                    <div class="card border-0 shadow-sm h-100" style="border-radius: 15px;">
-                        <div class="card-header bg-white p-4 border-bottom">
-                            <h4 class="m-0">Statistics</h4>
+                    <div class="stats-card h-100">
+                        <div class="card-header p-4">
+                            <h4 class="fw-bold">Statistics</h4>
                         </div>
-                        <div class="card-body p-0 d-flex flex-column justify-content-center">
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                    <div class="d-flex align-items-center">
-                                        <div class="rounded-circle bg-primary bg-opacity-10 p-2 me-3">
-                                            <i class="bi bi-bar-chart-fill text-primary"></i>
-                                        </div>
-                                        <span>Total Surveys</span>
-                                    </div>
-                                    <span class="badge bg-primary rounded-pill">{{ $totalSurveys }}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                    <div class="d-flex align-items-center">
-                                        <div class="rounded-circle bg-success bg-opacity-10 p-2 me-3">
-                                            <i class="bi bi-people-fill text-success"></i>
-                                        </div>
-                                        <span>Total Responses</span>
-                                    </div>
-                                    <span class="badge bg-success rounded-pill">{{ $totalResponses }}</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                    <div class="d-flex align-items-center">
-                                        <div class="rounded-circle bg-info bg-opacity-10 p-2 me-3">
-                                            <i class="bi bi-lightning-fill text-info"></i>
-                                        </div>
-                                        <span>Active Surveys</span>
-                                    </div>
-                                    <span class="badge bg-info rounded-pill">{{ $activeSurveys }}</span>
-                                </li>
-                            </ul>
+                        <div class="card-body">
+                            <div class="stat-item">
+                                <div class="stat-icon bg-gradient-primary">
+                                    <i class="bi bi-bar-chart-fill"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h6>Total Surveys</h6>
+                                    <span class="stat-value">{{ $totalSurveys }}</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon bg-gradient-success">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h6>Total Responses</h6>
+                                    <span class="stat-value">{{ $totalResponses }}</span>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-icon bg-gradient-info">
+                                    <i class="bi bi-lightning-fill"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h6>Active Surveys</h6>
+                                    <span class="stat-value">{{ $activeSurveys }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- Subtle background pattern -->
+    <div class="background-pattern"></div>
 </div>
 
+<script>
+// Add subtle animation for dashboard elements
+document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effect to action cards
+    const actionCards = document.querySelectorAll('.action-card');
+    actionCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+
 <style>
-    .hover-shadow {
-        transition: all 0.3s ease;
-    }
-    .hover-shadow:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-    }
-    .card {
-        overflow: hidden;
-    }
-    .list-group-item {
-        border-left: none;
-        border-right: none;
-    }
-    .list-group-item:last-child {
-        border-bottom: none;
-    }
-    .card-header {
-        border-top-left-radius: 15px !important;
-        border-top-right-radius: 15px !important;
-    }
-    .quick-action-link {
-        transition: all 0.3s ease;
-        border-radius: 10px;
-    }
-    .quick-action-link:hover {
-        background-color: rgba(0,0,0,0.025);
-        transform: translateY(-5px);
-    }
-    .icon-container {
-        position: relative;
-        transition: all 0.3s ease;
-        overflow: hidden;
-    }
-    .quick-action-link:hover .icon-container {
-        transform: scale(1.1);
-    }
-    .secondary-icon {
-        position: absolute;
-        font-size: 1rem;
-        right: 10px;
-        bottom: 10px;
+:root {
+    --primary-gradient: linear-gradient(135deg, #0093E9, #0050C8);
+    --success-gradient: linear-gradient(135deg, #0BAB64, #3BB78F);
+    --info-gradient: linear-gradient(135deg, #0093E9, #80D0C7);
+    --warning-gradient: linear-gradient(135deg, #FF9966, #FF5E62);
+    --card-radius: 16px;
+    --transition-speed: 0.3s;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.admin-dashboard {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding-bottom: 3rem;
+}
+
+/* Welcome Card Styles */
+.welcome-card {
+    border-radius: var(--card-radius);
+    border: none;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    position: relative;
+}
+
+.welcome-card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--primary-gradient);
+    z-index: 0;
+}
+
+.welcome-title {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    animation: fadeInUp 0.8s ease-out;
+    color: #fff;
+    background: none;
+    -webkit-background-clip: initial;
+    -webkit-text-fill-color: initial;
+}
+
+/* Feature Card Styles */
+.feature-card, .stats-card {
+    background: white;
+    border-radius: var(--card-radius);
+    border: none;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.feature-card:hover, .stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.feature-card .card-header, .stats-card .card-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: white;
+    padding: 1.5rem;
+}
+
+.feature-card h4, .stats-card h4 {
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+/* Action Card Styles */
+.action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1.5rem;
+    text-decoration: none;
+    color: #333;
+    transition: all var(--transition-speed);
+    height: 100%;
+    border-radius: 12px;
+    margin: 0.5rem;
+}
+
+.action-card:hover {
+    background: rgba(0, 0, 0, 0.02);
+    transform: translateY(-5px);
+}
+
+.action-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: white;
+    font-size: 1.8rem;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transition: all var(--transition-speed);
+}
+
+.action-card:hover .action-icon {
+    transform: scale(1.1) rotate(-5deg);
+}
+
+.action-content {
+    text-align: center;
+}
+
+.action-content h5 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.action-content p {
+    color: #6c757d;
+    margin-bottom: 0;
+    font-size: 0.9rem;
+}
+
+/* Stats Card Styles */
+.stats-card .card-body {
+    padding: 1.5rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: white;
+    font-size: 1.4rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-info h6 {
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+    color: #6c757d;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+}
+
+/* Gradient Backgrounds */
+.bg-gradient-primary {
+    background: var(--primary-gradient);
+}
+
+.bg-gradient-success {
+    background: var(--success-gradient);
+}
+
+.bg-gradient-info {
+    background: var(--info-gradient);
+}
+
+.bg-gradient-warning {
+    background: var(--warning-gradient);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
         opacity: 0;
-        transition: all 0.3s ease;
+        transform: translateY(20px);
     }
-    .quick-action-link:hover .secondary-icon {
+    to {
         opacity: 1;
+        transform: translateY(0);
     }
+}
+
+.feature-card, .stats-card {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.feature-card {
+    animation-delay: 0.2s;
+}
+
+.stats-card {
+    animation-delay: 0.4s;
+}
+
+/* Responsive Styles */
+@media (max-width: 991.98px) {
+    .welcome-title {
+        font-size: 2.2rem;
+    }
+    
+    .action-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .stat-value {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .container-fluid {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    .action-card {
+        margin-bottom: 1rem;
+        padding: 1.5rem 1rem;
+    }
+    
+    .welcome-card .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .action-icon {
+        margin-bottom: 1rem;
+    }
+    
+    /* Background Pattern */
+    .background-pattern {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(rgba(0, 0, 0, 0.03) 2px, transparent 2px);
+        background-size: 30px 30px;
+        pointer-events: none;
+        z-index: -1;
+    }
+}
 </style>
 @endsection
