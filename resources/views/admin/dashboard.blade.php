@@ -51,6 +51,15 @@
                                         <p class="text-muted text-center mb-0 small">Create new admin accounts</p>
                                     </a>
                                 </div>
+                                <div class="col-12 col-md-6 mt-5">
+                                    <a href="{{ route('admin.users.create') }}" class="d-block p-4 text-decoration-none quick-action-link h-100">
+                                        <div class="text-center p-3 rounded-4 bg-warning bg-opacity-15 mb-3 mx-auto icon-container" style="width: 70px; height: 70px;">
+                                            <i class="bi bi-person-plus-fill text-white" style="font-size: 2rem;"></i>
+                                        </div>
+                                        <h5 class="text-warning text-center mb-2">Add User</h5>
+                                        <p class="text-muted text-center mb-0 small">Create new user accounts</p>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>

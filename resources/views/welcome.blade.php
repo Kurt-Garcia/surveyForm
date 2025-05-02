@@ -14,10 +14,7 @@
                         <h1 class="display-3 fw-bold mb-4 text-gradient">Your feedback helps us improve.</h1>
                         <p class="lead mb-4 text-light">Share your thoughts and help shape the future</p>
                         <div class="d-flex justify-content-center justify-content-lg-start gap-3">
-                            <a href="{{ route('register') }}" class="btn btn-primary btn-lg px-4 rounded-pill shadow-lg pulse-button">
-                                Get Started
-                                <i class="bi bi-arrow-right-circle-fill ms-2"></i>
-                            </a>
+                            <!-- Register button removed -->
                         </div>
                     </div>
                 </div>

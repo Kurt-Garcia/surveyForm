@@ -97,5 +97,7 @@ Route::prefix('admin')->group(function () {
         // Survey logo update route
         Route::patch('surveys/{survey}/update-logo', [\App\Http\Controllers\Admin\SurveyController::class, 'updateLogo'])
             ->name('admin.surveys.update-logo');
+        Route::get('/users/create', [\App\Http\Controllers\Admin\UserManagementController::class, 'create'])->name('admin.users.create');
+        Route::post('/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('admin.users.store');
     });
 });

@@ -725,7 +725,6 @@ $(document).ready(function() {
             $('#customer_name_display').html('').hide();
             return;
         }
-        
         // If input looks like it might be a customer code (alphanumeric without spaces),
         // try to look up the customer
         if (input.length >= 3 && !input.includes(' ')) {
@@ -740,12 +739,16 @@ $(document).ready(function() {
                         $('#account_type').val(response.customer.custtype);
                         updateCopyLinkVisibility();
                     } else {
-                        // Clear the display if no match found
-                        $('#customer_name_display').html('').hide();
+                        // Show 'No Data Found!' if no match found
+                        $('#customer_name_display').html('<span class="text-danger">No Data Found!</span>').show();
+                        $('#account_type').val('');
+                        updateCopyLinkVisibility();
                     }
                 },
                 error: function() {
-                    $('#customer_name_display').html('').hide();
+                    $('#customer_name_display').html('<span class="text-danger">No Data Found!</span>').show();
+                    $('#account_type').val('');
+                    updateCopyLinkVisibility();
                 }
             });
         } else {

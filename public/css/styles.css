@@ -283,9 +283,9 @@ body {
 
 .modern-rating-group {
     display: flex;
-    justify-content: space-between;
-    gap: clamp(0rem, 0vw, 10rem);
-    padding: 0 2rem;
+    justify-content: center;
+    gap: 5vw;
+    flex-wrap: wrap;
 }
 
 .modern-radio input {
@@ -296,12 +296,17 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 9vw;
+    min-width: 32px;
+    max-width: 48px;
+    height: 9vw;
+    min-height: 32px;
+    max-height: 48px;
     border-radius: 50%;
     border: 2px solid #E2E8F0;
     cursor: pointer;
     transition: var(--transition);
+    font-size: 1.1rem;
 }
 
 .modern-radio input:checked + label {
@@ -313,9 +318,9 @@ body {
 .modern-star-rating {
     display: flex;
     flex-direction: row-reverse;
-    justify-content: space-between;
-    gap: clamp(1rem, 5vw, 10rem);
-    padding: 0 2rem;
+    gap: 5vw;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .modern-star-rating input {
@@ -324,8 +329,12 @@ body {
 
 .modern-star-rating label.star-label {
     cursor: pointer;
-    width: 35px;
-    height: 35px;
+    width: 8vw;
+    min-width: 28px;
+    max-width: 40px;
+    height: 8vw;
+    min-height: 28px;
+    max-height: 40px;
     background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="%23E2E8F0"/></svg>') no-repeat center;
     background-size: contain;
     transition: transform 0.2s ease;
@@ -566,4 +575,30 @@ body {
 
 .customer-name-display .fa-check-circle {
     color: #28a745;
+}
+
+@media (max-width: 600px) {
+  .modern-rating-group {
+    gap: 2vw;
+  }
+  .modern-radio label {
+    width: 12vw;
+    min-width: 28px;
+    max-width: 36px;
+    height: 12vw;
+    min-height: 28px;
+    max-height: 36px;
+    font-size: 1rem;
+  }
+  .modern-star-rating {
+    gap: 2vw;
+  }
+  .modern-star-rating label.star-label {
+    width: 10vw;
+    min-width: 22px;
+    max-width: 32px;
+    height: 10vw;
+    min-height: 22px;
+    max-height: 32px;
+  }
 }

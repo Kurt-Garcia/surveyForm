@@ -83,3 +83,4 @@ class RegisterController extends Controller
         ]);
     }
 }
+// Registration controller disabled: Self-registration is not allowed.
