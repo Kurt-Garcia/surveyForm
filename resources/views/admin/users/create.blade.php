@@ -5,8 +5,11 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-header bg-white py-3">
-                    <h3 class="mb-0 fw-bold">Add User</h3>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>{{ __('Add New User') }}</span>
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
                 </div>
                 <div class="card-body p-4">
                     @if(session('success'))
@@ -40,7 +43,6 @@
                             <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
                         </div>
                         <button type="submit" class="btn btn-primary">Create User</button>
-                        <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary ms-2">Cancel</a>
                     </form>
                 </div>
             </div>

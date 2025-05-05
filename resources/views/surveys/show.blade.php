@@ -840,6 +840,33 @@ function closeNotification(id) {
     .rating-legend .rating-item {
         margin-bottom: 5px;
     }
+    
+    /* Specific styles for the response summary modal */
+    #responseSummaryModal .modern-rating-group {
+        flex-wrap: wrap;
+    }
+    
+    #responseSummaryModal .modern-radio-display {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+        margin-right: 3px;
+        margin-bottom: 3px;
+    }
+    
+    #responseSummaryModal .rating-display {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    #responseSummaryModal .rating-text {
+        margin-top: 5px;
+        font-size: 12px;
+    }
+    
+    #responseSummaryModal .response-item {
+        padding: 10px !important;
+    }
 }
 
 .customer-name-display {

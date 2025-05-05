@@ -26,7 +26,7 @@
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container-fluid px-4">
-                <a class="navbar-brand" href="/">
+                <a class="navbar-brand" href="{{ route('admin.dashboard') }}">
                     @php
                         $activeLogo = \App\Models\Logo::where('is_active', true)->first();
                     @endphp

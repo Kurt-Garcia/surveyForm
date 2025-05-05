@@ -207,7 +207,7 @@ $(document).ready(function() {
         
         // Initialize start time when the form is first loaded
         const startTime = new Date();
-        $('#start_time').val(startTime.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
+        $('#start_time').val(startTime.toISOString());
     }
     
     // Function to close notification
@@ -310,14 +310,85 @@ $(document).ready(function() {
     // Function to show response summary directly
     // Note: We've removed the thank you modal functionality
 
+    // Function to validate all inputs and display errors
+    function validateForm() {
+        let isValid = true;
+        let errorList = [];
+        // Clear previous error messages
+        $('.validation-message').text('');
+        $('#validationErrorsList ul').empty();
+        $('.modern-input, .modern-select, .modern-textarea, .modern-rating-group, .modern-star-rating').removeClass('input-error error');
+        $('.question-card').removeClass('has-error');
+        // Validate account name
+        if (!$('#account_name').val().trim()) {
+            isValid = false;
+            $('#account_name').addClass('input-error error');
+            $('#account_name').parent().addClass('has-error');
+            $('#account_name_error').text('Account name is required').addClass('text-danger');
+            errorList.push('Account name is required');
+        }
+        // Validate account type
+        if (!$('#account_type').val().trim()) {
+            isValid = false;
+            $('#account_type').addClass('input-error error');
+            $('#account_type').parent().addClass('has-error');
+            $('#account_type_error').text('Account type is required').addClass('text-danger');
+            errorList.push('Account type is required');
+        }
+        // Validate date
+        if (!$('#date').val()) {
+            isValid = false;
+            $('#date').addClass('input-error error');
+            $('#date').parent().addClass('has-error');
+            $('#date_error').text('Date is required').addClass('text-danger');
+            errorList.push('Date is required');
+        }
+        // Validate required questions
+        $('.question-card').each(function() {
+            const questionId = $(this).data('question-id');
+            const isRequired = $(this).find('.badge.required').length > 0;
+            const questionText = $(this).find('.question-text').contents().first().text().trim();
+            const hasResponse = $(`input[name="responses[${questionId}]"]:checked`).length > 0;
+            if (isRequired && !hasResponse) {
+                isValid = false;
+                $(this).addClass('has-error');
+                $(`#question_${questionId}_error`).text('This question requires an answer').addClass('text-danger');
+                errorList.push(`Question \"${questionText}\" requires an answer`);
+                $(this).find('.modern-rating-group, .modern-star-rating').addClass('input-error error');
+            }
+        });
+        // Validate recommendation
+        if (!$('#survey-number').val()) {
+            isValid = false;
+            $('#survey-number').addClass('input-error error');
+            $('#survey-number').parent().addClass('has-error');
+            $('#recommendation_error').text('Recommendation is required').addClass('text-danger');
+            errorList.push('Recommendation is required');
+        }
+        // Optionally validate comments if required (not required here)
+        // Show alert if not valid
+        if (!isValid) {
+            $('#validationAlertContainer').removeClass('d-none');
+            let errorListHtml = '';
+            errorList.forEach(function(err) {
+                errorListHtml += `<li>${err}</li>`;
+            });
+            $('#validationErrorsList ul').html(errorListHtml);
+        } else {
+            $('#validationAlertContainer').addClass('d-none');
+        }
+        return isValid;
+    }
     // AJAX form submission
     $('#surveyForm').on('submit', function(event) {
         event.preventDefault();
-        
         // Set end time
         const endTime = new Date();
-        $('#end_time').val(endTime.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
-        
+        $('#end_time').val(endTime.toISOString());
+        // Client-side validation
+        if (!validateForm()) {
+            return;
+        }
         const formData = $(this).serialize();
         $.ajax({
             url: $(this).attr('action'),
@@ -368,6 +439,39 @@ $(document).ready(function() {
                     
                     // No longer showing the thank you modal - directly displaying the thank you message instead
                 }
+            },
+            error: function(xhr) {
+                // Try to parse validation errors from server response
+                let errors = {};
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    errors = xhr.responseJSON.errors;
+                }
+                // Remove previous error states
+                $('.modern-input, .modern-select, .modern-star-rating, .modern-rating-group').removeClass('input-error error');
+                $('.validation-message').text('');
+                $('#validationAlertContainer').removeClass('d-none');
+                let errorListHtml = '';
+                // Highlight fields and show messages
+                if (Object.keys(errors).length > 0) {
+                    Object.keys(errors).forEach(function(key) {
+                        // For question responses, key will be like responses.12
+                        if (key.startsWith('responses.')) {
+                            const qid = key.split('.')[1];
+                            $(`#question_${qid}_error`).text(message).addClass('text-danger');
+                            $(`.question-card[data-question-id="${qid}"]`).addClass('has-error');
+                            $(`.question-card[data-question-id="${qid}"] .modern-rating-group, .question-card[data-question-id="${qid}"] .modern-star-rating`).addClass('input-error error');
+                        } else {
+                            // For normal fields
+                            $('#' + key).addClass('input-error');
+                            $('#' + key + '_error').text(errors[key][0]);
+                        }
+                        errorListHtml += `<li>${errors[key][0]}</li>`;
+                    });
+                } else {
+                    // Fallback generic error
+                    errorListHtml = '<li>There was an error submitting the form. Please try again.</li>';
+                }
+                $('#validationErrorsList ul').html(errorListHtml);
             },
             error: function() {
                 alert('There was an error submitting the form. Please try again.');
@@ -434,3 +538,10 @@ function showResponseSummaryModal() {
     </div>
 </div>
 @endsection
+
+<style>
+.input-error {
+    border: 2px solid #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25);
+}
+</style>

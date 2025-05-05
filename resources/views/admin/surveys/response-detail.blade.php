@@ -68,13 +68,13 @@
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="text-muted mb-1">Start Time</label>
-                                <h5>{{ $header->start_time ? $header->start_time->format('h:i:s A') : 'N/A' }}</h5>
+                                <h5>{{ $header->start_time ? $header->start_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</h5>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="text-muted mb-1">End Time</label>
-                                <h5>{{ $header->end_time ? $header->end_time->format('h:i:s A') : 'N/A' }}</h5>
+                                <h5>{{ $header->end_time ? $header->end_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</h5>
                             </div>
                         </div>
                         <div class="col-md-4">

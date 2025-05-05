@@ -190,11 +190,11 @@
                                     <div class="row">
                                         <div class="col-12 col-md-4 mb-3 mb-md-0">
                                             <label class="text-muted small mb-1">Start Time</label>
-                                            <h5 class="mb-0"><i class="fas fa-clock me-1 small"></i> {{ $response->start_time ? $response->start_time->format('h:i:s A') : 'N/A' }}</h5>
+                                            <h5 class="mb-0"><i class="fas fa-clock me-1 small"></i> {{ $response->start_time ? $response->start_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</h5>
                                         </div>
                                         <div class="col-12 col-md-4 mb-3 mb-md-0">
                                             <label class="text-muted small mb-1">End Time</label>
-                                            <h5 class="mb-0"><i class="fas fa-clock me-1 small"></i> {{ $response->end_time ? $response->end_time->format('h:i:s A') : 'N/A' }}</h5>
+                                            <h5 class="mb-0"><i class="fas fa-clock me-1 small"></i> {{ $response->end_time ? $response->end_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</h5>
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label class="text-muted small mb-1">Duration</label>
@@ -382,6 +382,27 @@
     .d-flex.align-items-center.mt-2 .ms-2 {
         margin-left: 0 !important;
         margin-top: 8px;
+    }
+    
+    /* Fix for resubmission and copy link buttons on mobile */
+    .card-header .d-flex.align-items-center.gap-2 {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+    }
+    
+    #copyLinkSection {
+        display: block !important;
+        margin-bottom: 0.5rem;
+        width: 100%;
+    }
+    
+    #copyLinkBtn, #resubmissionButton {
+        width: 100%;
+    }
+    
+    #resubmissionForm {
+        width: 100%;
     }
 }
 

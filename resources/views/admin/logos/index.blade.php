@@ -7,6 +7,9 @@
             <div class="card shadow-lg border-0 rounded-4 mb-5 animate__animated animate__fadeIn">
                 <div class="card-header bg-primary text-white py-4 d-flex justify-content-between align-items-center rounded-top-4 border-0">
                     <h3 class="mb-0 fw-bold"><i class="bi bi-image me-2"></i>Manage Logos</h3>
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-light btn-sm" id="closeFormBtn">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
                 </div>
                 <div class="card-body p-5">
                     @if(session('success'))
@@ -73,6 +76,16 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById('closeFormBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        if (confirm('Are you sure you want to close the form? Any unsaved changes will be lost.')) {
+            window.location.href = this.href;
+        }
+    });
+</script>
+
 <style>
 .bg-gradient-blue {
     background: linear-gradient(90deg, #2563eb 0%, #1e40af 100%) !important;

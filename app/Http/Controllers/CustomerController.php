@@ -44,4 +44,10 @@ class CustomerController extends Controller
             'message' => 'Customer not found'
         ]);
     }
+    
+    public function index()
+    {
+        $customers = DB::table('tblcustomer')->orderByDesc('created_at')->paginate(25);
+        return view('admin.customers', compact('customers'));
+    }
 }

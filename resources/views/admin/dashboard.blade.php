@@ -20,7 +20,7 @@
                                 <p class="text-white text-opacity-90 mb-0 fs-5">{{ now()->format('l, F j, Y') }}</p>
                             </div>
                             <div class="col-lg-5 text-lg-end">
-                                <a href="{{ route('admin.surveys.create') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill shadow-sm d-inline-flex align-items-center me-2 mb-2">
+                                <a href="{{ route('admin.surveys.create') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill shadow-sm align-items-center me-2 mb-2">
                                     <i class="bi bi-plus-circle-fill me-2 text-primary"></i>Create Survey
                                 </a>
                                 <a href="{{ route('admin.logos.index') }}" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill mb-2">
@@ -40,7 +40,7 @@
                         </div>
                         <div class="card-body p-0">
                             <div class="row g-0">
-                                <div class="col-12 col-md-4">
+                                <div class="col-12 col-md-6">
                                     <a href="{{ route('admin.surveys.index') }}" class="action-card">
                                         <div class="action-icon bg-gradient-success">
                                             <i class="bi bi-eye-fill"></i>
@@ -51,7 +51,7 @@
                                         </div>
                                     </a>
                                 </div>
-                                <div class="col-12 col-md-4">
+                                <div class="col-12 col-md-6">
                                     <a href="{{ route('admin.admins.create') }}" class="action-card">
                                         <div class="action-icon bg-gradient-info">
                                             <i class="bi bi-shield-lock-fill"></i>
@@ -62,7 +62,9 @@
                                         </div>
                                     </a>
                                 </div>
-                                <div class="col-12 col-md-4">
+                            </div>
+                            <div class="row g-0">
+                                <div class="col-12 col-md-6">
                                     <a href="{{ route('admin.users.create') }}" class="action-card">
                                         <div class="action-icon bg-gradient-warning">
                                             <i class="bi bi-person-plus-fill"></i>
@@ -70,6 +72,17 @@
                                         <div class="action-content">
                                             <h5>Add Surveyor</h5>
                                             <p>Create new user accounts</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <a href="{{ route('admin.customers.index') }}" class="action-card">
+                                        <div class="action-icon bg-gradient-primary">
+                                            <i class="bi bi-people"></i>
+                                        </div>
+                                        <div class="action-content">
+                                            <h5>List of Customers</h5>
+                                            <p>See all registered customers</p>
                                         </div>
                                     </a>
                                 </div>

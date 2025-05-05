@@ -7,6 +7,7 @@ use App\Models\SurveyResponseHeader;
 use App\Models\SurveyResponseDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class UserSurveyController extends Controller
 {
@@ -104,8 +105,8 @@ class UserSurveyController extends Controller
                 'account_name' => $validated['account_name'],
                 'account_type' => $validated['account_type'],
                 'date' => $validated['date'],
-                'start_time' => $request->start_time ? now() : null,
-                'end_time' => $request->end_time ? now() : null,
+                'start_time' => $request->start_time ? \Carbon\Carbon::parse($request->start_time) : null,
+                'end_time' => $request->end_time ? \Carbon\Carbon::parse($request->end_time) : null,
                 'recommendation' => $validated['recommendation'],
                 'comments' => $validated['comments'] ?? '',
                 'allow_resubmit' => false
@@ -256,8 +257,8 @@ class UserSurveyController extends Controller
                 'account_name' => $validated['account_name'],
                 'account_type' => $validated['account_type'],
                 'date' => $validated['date'],
-                'start_time' => $request->start_time ? now() : null,
-                'end_time' => $request->end_time ? now() : null,
+                'start_time' => $request->start_time ? \Carbon\Carbon::parse($request->start_time) : null,
+                'end_time' => $request->end_time ? \Carbon\Carbon::parse($request->end_time) : null,
                 'recommendation' => $validated['recommendation'],
                 'comments' => $validated['comments'] ?? '',
                 'allow_resubmit' => false

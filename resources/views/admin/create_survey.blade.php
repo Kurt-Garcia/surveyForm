@@ -64,8 +64,8 @@
                         </div>
 
                         <div class="form-group row">
-                            <div class="col-md-12 text-center">
-                                <button type="button" class="btn btn-info btn-lg me-2" onclick="addQuestion()">
+                            <div class="col-md-12 d-flex flex-column flex-md-row justify-content-center gap-3">
+                                <button type="button" class="btn btn-info btn-lg" onclick="addQuestion()">
                                     <i class="fas fa-plus-circle me-2"></i>{{ __('Add Question') }}
                                 </button>
                                 <button type="submit" class="btn btn-primary btn-lg">
