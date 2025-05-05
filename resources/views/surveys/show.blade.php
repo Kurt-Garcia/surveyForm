@@ -6,6 +6,14 @@
 <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<style>
+    :root {
+        --primary-color: {{ $activeTheme->primary_color ?? '#E53935' }};
+        --secondary-color: {{ $activeTheme->secondary_color ?? '#2C3E50' }};
+        --accent-color: {{ $activeTheme->accent_color ?? '#F1C40F' }};
+        --button-hover-color: {{ $activeTheme->button_hover_color ?? '#B71C1C' }};
+    }
+</style>
 
 <div class="survey-wrapper">
     @if($hasResponded)
@@ -174,7 +182,7 @@
             @endforeach
 
             <div class="form-footer">
-                <button type="submit" class="submit-button">
+                <button type="submit" class="submit-button" style="background-color: var(--primary-color); border-color: var(--primary-color); color: white;">
                     <span>Submit Survey</span>
                     <i class="fas fa-paper-plane ms-2"></i>
                 </button>
@@ -185,7 +193,7 @@
                     <h3>WE APPRECIATE YOUR FEEDBACK!</h3>
                     <p>Your input helps us serve you better.</p>
                 </div>
-                <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()">
+                <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()" style="background-color: var(--secondary-color); border-color: var(--accent-color); color: white;">
                     <span>View Response</span>
                     <i class="fas fa-eye ms-2"></i>
                 </button>
@@ -225,7 +233,7 @@
 <div class="modal fade" id="responseSummaryModal" tabindex="-1" aria-labelledby="responseSummaryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header" style="background-color: var(--primary-color); color: white; border-bottom: 2px solid var(--primary-color);">
                 <h5 class="modal-title" id="responseSummaryModalLabel">Survey Response Summary</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -263,7 +271,7 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" style="border: 2px solid var(--primary-color);">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>

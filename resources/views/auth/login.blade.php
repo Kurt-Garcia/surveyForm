@@ -5,8 +5,8 @@
     <div class="row justify-content-center align-items-center min-vh-75">
         <div class="col-md-6">
             <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-header bg-primary text-white text-center py-3">
-                    <h3 class="mb-0">{{ __('Welcome Back!') }}</h3>
+                <div class="card-header text-white text-center py-3">
+                    <h3 class="mb-0 text-white">{{ __('Welcome Back!') }}</h3>
                 </div>
 
                 <div class="card-body p-5">
@@ -50,7 +50,7 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">
+                            <button type="submit" class="btn btn-lg btn-primary">
                                 {{ __('Sign In') }}
                             </button>
                             @if (Route::has('password.request'))
@@ -66,22 +66,66 @@
     </div>
 </div>
 
-<!-- Add this in the head section of your layout file -->
 <style>
+    /* Theme-specific styles for the login page */
     .card {
         backdrop-filter: blur(10px);
         background-color: rgba(255, 255, 255, 0.9);
     }
+    
+    .card-header {
+        background-color: var(--primary-color) !important;
+        border-bottom: none;
+    }
+    
+    .form-label {
+        color: var(--text-color);
+        font-weight: 500;
+        font-family: var(--body-font);
+    }
+    
     .input-group-text {
         background-color: transparent;
         border-right: none;
+        color: var(--text-color);
     }
+    
     .input-group input {
         border-left: none;
+        font-family: var(--body-font);
     }
+    
     .input-group input:focus {
         box-shadow: none;
-        border-color: #ced4da;
+        border-color: var(--primary-color);
+    }
+    
+    .form-check-label {
+        color: var(--text-color);
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-link {
+        color: var(--primary-color);
+    }
+    
+    .btn-link:hover {
+        color: var(--secondary-color);
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+        color: #ffffff !important;
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--secondary-color) !important;
+        border-color: var(--secondary-color) !important;
     }
 </style>
 @endsection

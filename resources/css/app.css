@@ -22,12 +22,12 @@
 
 /* Badge Styles */
 .badge.bg-success-subtle {
-    background-color: rgba(25, 135, 84, 0.1)!important;
+    background-color: var(--color-success-subtle, rgba(25, 135, 84, 0.1))!important;
     font-weight: 500;
 }
 
 .badge.bg-danger-subtle {
-    background-color: rgba(220, 53, 69, 0.1)!important;
+    background-color: var(--color-danger-subtle, rgba(220, 53, 69, 0.1))!important;
     font-weight: 500;
 }
 
@@ -38,22 +38,31 @@
 }
 
 .btn-primary {
-    background: linear-gradient(45deg, #4e73df, #2e59d9);
+    background: linear-gradient(45deg, var(--color-primary-gradient-start, #4e73df), var(--color-primary-gradient-end, #2e59d9));
     border: none;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(45deg, #2e59d9, #224abe);
+    background: linear-gradient(45deg, var(--color-primary-gradient-end, #2e59d9), var(--color-primary-gradient-hover, #224abe));
+}
+
+:root {
+    --color-primary-gradient-start: #4e73df;
+    --color-primary-gradient-end: #2e59d9;
+    --color-primary-gradient-hover: #224abe;
+    --color-card-title: #2d3748;
+    --color-muted: #718096;
+    --color-page-link: #4e73df;
 }
 
 /* Card Content */
 .card-title {
     font-weight: 600;
-    color: #2d3748;
+    color: var(--color-card-title, #2d3748);
 }
 
 .text-muted {
-    color: #718096!important;
+    color: var(--color-muted, #718096)!important;
 }
 
 /* Container Padding */
@@ -70,9 +79,9 @@
     border-radius: 6px;
     border: none;
     padding: 8px 16px;
-    color: #4e73df;
+    color: var(--color-page-link, #4e73df);
 }
 
 .page-item.active .page-link {
-    background: linear-gradient(45deg, #4e73df, #2e59d9);
+    background: linear-gradient(45deg, var(--color-primary-gradient-start, #4e73df), var(--color-primary-gradient-end, #2e59d9));
 }

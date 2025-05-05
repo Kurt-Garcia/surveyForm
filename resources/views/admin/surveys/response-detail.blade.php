@@ -250,8 +250,8 @@ function generatePDF() {
 <!-- Print Styles -->
 <style media="print">
 @page {
-    size: auto; /* Auto will adapt to the printer's default (Letter or A4) */
-    margin: 0.5in; /* Standard margin for documents */
+    size: letter;
+    margin: 0.5in;
 }
 body {
     margin: 0;

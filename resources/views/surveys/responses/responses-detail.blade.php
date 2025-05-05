@@ -12,8 +12,8 @@
                 <i class="fas fa-file-pdf me-2"></i>Download PDF
             </button>
         </div>
-        <a href="{{ route('surveys.responses.index', $survey) }}" class="btn btn-outline-primary align-self-start align-self-sm-center">
-            <i class="fas fa-arrow-left me-2"></i>Back to Responses
+        <a href="{{ route('surveys.responses.index', $survey) }}" class="btn btn-outline-light custom-hover-btn" style="color: var(--primary-color); border-color: var(--primary-color)">
+            <i class="fas fa-arrow-left me-1"></i> Back to Survey
         </a>
     </div>
 
@@ -288,6 +288,12 @@
 </div>
 
 <style>
+
+.custom-hover-btn:hover {
+    background-color: var(--secondary-color);
+    color: white; /* Optional: change text color on hover */
+}
+
 .card {
     border-radius: 12px;
     border: none;
@@ -406,6 +412,11 @@
     }
 }
 
+@page {
+    size: letter;
+    margin: 0in;
+}
+
 @media print {
     @page {
         size: auto;
@@ -417,6 +428,8 @@
         padding: 0;
         font-size: 10pt;
         line-height: 1.2;
+        color: #000;
+        background-color: #fff;
     }
     
     .container {
@@ -436,13 +449,13 @@
     .fa-bars, /* Burger Icon (FontAwesome) */
     .fa-print, /* Print Icon */
     .fa-file-pdf, /* PDF Icon */
-    .fa-arrow-left /* Back Icon */
-    {
+    .fa-arrow-left, /* Back Icon */
+    .btn-close {
         display: none !important;
     }
     
     .card {
-        border: none !important;
+        border: 1px solid #ddd !important;
         box-shadow: none !important;
         margin: 0 !important;
         page-break-inside: avoid !important;
@@ -453,10 +466,65 @@
         padding: 0.5rem 0 !important;
         border-bottom: 1px solid #ddd !important;
         margin-bottom: 0.5rem !important;
+        background-color: #f8f9fa !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
     
     .card-body {
         padding: 0 !important;
+    }
+    
+    /* Font size adjustments */
+    h1, h2, h3 {
+        font-size: 16pt !important;
+    }
+    
+    h4 {
+        font-size: 16pt !important;
+        margin: 0.5rem 0 !important;
+    }
+    
+    h5 {
+        font-size: 12pt !important;
+        margin: 0.25rem 0 !important;
+    }
+    
+    p, span, div {
+        font-size: 12pt !important;
+    }
+    
+    .small, small {
+        font-size: 10pt !important;
+    }
+    
+    /* Spacing adjustments */
+    .mb-4, .my-4 {
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .mb-3, .my-3 {
+        margin-bottom: 0.25rem !important;
+    }
+    
+    .p-4, .py-4, .px-4 {
+        padding: 0.5rem !important;
+    }
+    
+    .p-3, .py-3, .px-3 {
+        padding: 0.25rem !important;
+    }
+    
+    /* Layout adjustments */
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 !important;
+    }
+    
+    .col-md-4 {
+        width: 33% !important;
+        padding: 0 0.25rem !important;
     }
     
     .response-item {
@@ -470,26 +538,14 @@
         print-color-adjust: exact !important;
     }
     
-    h4 {
-        font-size: 16pt !important;
-        margin: 0.5rem 0 !important;
-    }
-    
-    h5 {
-        font-size: 12pt !important;
-        margin: 0.25rem 0 !important;
-    }
-    
-    .mb-4, .my-4 {
-        margin-bottom: 0.5rem !important;
-    }
-    
-    .p-4, .py-4, .px-4 {
-        padding: 0.5rem !important;
-    }
-    
     .alert {
         display: none !important;
+    }
+    
+    .bg-light {
+        background-color: #f9f9f9 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
     
     .text-warning, .fa-star.text-warning {

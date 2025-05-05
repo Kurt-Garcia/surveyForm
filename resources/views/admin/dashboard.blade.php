@@ -87,6 +87,30 @@
                                     </a>
                                 </div>
                             </div>
+                            <div class="row g-0">
+                                <div class="col-12 col-md-6">
+                                    <a href="{{ route('admin.themes.index') }}" class="action-card">
+                                        <div class="action-icon bg-gradient-primary" style="background: linear-gradient(135deg, #9C27B0, #673AB7);">
+                                            <i class="bi bi-palette-fill"></i>
+                                        </div>
+                                        <div class="action-content">
+                                            <h5>Theme Settings</h5>
+                                            <p>Customize app appearance</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <a href="{{ route('admin.logos.index') }}" class="action-card">
+                                        <div class="action-icon" style="background: linear-gradient(135deg, #00BCD4, #009688);">
+                                            <i class="bi bi-image"></i>
+                                        </div>
+                                        <div class="action-content">
+                                            <h5>Logo Manager</h5>
+                                            <p>Update application logos</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -153,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <style>
 :root {
-    --primary-gradient: linear-gradient(135deg, #0093E9, #0050C8);
+    --primary-color;
     --success-gradient: linear-gradient(135deg, #0BAB64, #3BB78F);
     --info-gradient: linear-gradient(135deg, #0093E9, #80D0C7);
     --warning-gradient: linear-gradient(135deg, #FF9966, #FF5E62);

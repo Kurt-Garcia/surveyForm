@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\UserSurveyController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\Admin\ThemeController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -55,6 +56,15 @@ Route::prefix('admin')->group(function () {
         // Admin management routes
         Route::get('/admins/create', [App\Http\Controllers\Admin\AdminManagementController::class, 'create'])->name('admin.admins.create');
         Route::post('/admins', [App\Http\Controllers\Admin\AdminManagementController::class, 'store'])->name('admin.admins.store');
+
+        // Theme management routes
+        Route::get('/themes', [ThemeController::class, 'index'])->name('admin.themes.index');
+        Route::get('/themes/create', [ThemeController::class, 'create'])->name('admin.themes.create');
+        Route::post('/themes', [ThemeController::class, 'store'])->name('admin.themes.store');
+        Route::get('/themes/{theme}/edit', [ThemeController::class, 'edit'])->name('admin.themes.edit');
+        Route::put('/themes/{theme}', [ThemeController::class, 'update'])->name('admin.themes.update');
+        Route::delete('/themes/{theme}', [ThemeController::class, 'destroy'])->name('admin.themes.destroy');
+        Route::post('/themes/{theme}/activate', [ThemeController::class, 'activate'])->name('admin.themes.activate');
 
         // Survey routes
         Route::resource('surveys', \App\Http\Controllers\Admin\SurveyController::class)->names([

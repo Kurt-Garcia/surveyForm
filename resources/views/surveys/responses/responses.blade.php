@@ -5,9 +5,9 @@
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card mb-4">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h2 class="mb-0">{{ $survey->title }} - Responses</h2>
-                    <a href="{{ route('index', $survey) }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('index', $survey) }}" class="btn btn-outline-light">
                         <i class="fas fa-arrow-left me-1"></i> Back to Survey
                     </a>
                 </div>
@@ -57,6 +57,12 @@
 <style>
     .card-header {
         border-bottom: 1px solid rgba(0,0,0,.125);
+    }
+    
+    .btn-outline-light:hover {
+        background-color: var(--secondary-color) !important;
+        border-color: var(--secondary-color) !important;
+        color: #fff !important;
     }
     
     .responses-list {

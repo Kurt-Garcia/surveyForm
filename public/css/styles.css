@@ -6,12 +6,12 @@
 }
 
 .form-control:focus, .form-select:focus {
-    border-color: #4a90e2;
-    box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(229, 57, 53, 0.15);
 }
 
 .btn-primary {
-    background-color: #4a90e2;
+    background-color: var(--primary-color);
     border: none;
     padding: 0.8rem 2rem;
     border-radius: 8px;
@@ -20,7 +20,7 @@
 }
 
 .btn-primary:hover {
-    background-color: #357abd;
+    background-color: var(--button-hover-color);
     transform: translateY(-2px);
 }
 
@@ -82,13 +82,14 @@ hr {
 }
 
 :root {
-    --primary-color: #4A90E2;
-    --secondary-color: #2C3E50;
+    --primary-color:,
+    --text-color:,
+    --secondary-color:,
+    --danger-color: #E53935;
+    --button-hover-color: #B71C1C;
+    --background-color: #F8FAFC;
     --success-color: #2ECC71;
     --warning-color: #F1C40F;
-    --danger-color: #E74C3C;
-    --text-color: #2C3E50;
-    --background-color: #F8FAFC;
     --card-background: #FFFFFF;
     --border-radius: 12px;
     --transition: all 0.3s ease;
@@ -132,7 +133,7 @@ body {
 
 .survey-title {
     font-size: 2.5rem;
-    color: var(--secondary-color);
+    color: var(--text-color);
     font-weight: 700;
     margin-bottom: 2rem;
 }
@@ -144,7 +145,7 @@ body {
     background: none;
     border: none;
     font-size: 1.5rem;
-    color: var(--secondary-color);
+    color: var(--text-color);
     cursor: pointer;
     transition: var(--transition);
 }
@@ -169,7 +170,7 @@ body {
     font-weight: 500;
     margin-bottom: 0.5rem;
     display: block;
-    color: var(--secondary-color);
+    color: var(--text-color);
 }
 
 .modern-input {
@@ -182,7 +183,7 @@ body {
 }
 
 .modern-input:focus {
-    border-color: var(--primary-color);
+    border-color: var(--accent-color);
     box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
     outline: none;
 }
@@ -216,7 +217,7 @@ body {
 
 .section-title {
     font-size: 1.5rem;
-    color: var(--secondary-color);
+    color: var(--text-color);
     margin-bottom: 1.5rem;
     text-align: center;
     font-weight: 600;
@@ -235,7 +236,7 @@ body {
 
 .rating-item {
     font-size: 0.875rem;
-    color: var(--secondary-color);
+    color: var(--text-color);
     padding: 0.5rem 1rem;
     background: white;
     border-radius: 20px;
@@ -259,7 +260,7 @@ body {
 .question-text {
     margin-bottom: 1rem;
     font-size: 1.1rem;
-    color: var(--secondary-color);
+    color: var(--text-color);
 }
 
 .badge {
@@ -374,7 +375,7 @@ body {
 }
 
 .modern-textarea:focus {
-    border-color: var(--primary-color);
+    border-color: var(--accent-color);
     box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
     outline: none;
 }
@@ -386,6 +387,7 @@ body {
 
 .submit-button {
     background-color: var(--primary-color);
+    border-color: var(--primary-color);
     color: white;
     border: none;
     padding: 1rem 2rem;
@@ -399,7 +401,7 @@ body {
 }
 
 .submit-button:hover {
-    background-color: #357ABD;
+    background-color: var(--button-hover-color);
     transform: translateY(-2px);
 }
 
@@ -408,7 +410,8 @@ body {
     text-align: center;
     margin-top: 3rem;
     padding: 2rem;
-    background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+    background-color: var(--primary-color);
+    border-color: var(--secondary-color);
     border-radius: var(--border-radius);
     color: white;
 }
@@ -601,4 +604,20 @@ body {
     min-height: 22px;
     max-height: 32px;
   }
+}
+.modal-content {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 8px 32px rgba(229,57,53,0.15);
+}
+.modal-header {
+    background-color: var(--primary-color);
+    color: white;
+    border-bottom: 2px solid var(--primary-color);
+}
+.modal-footer {
+    border-top: 2px solid #363535;
+}
+.modal-title {
+    color: white;
 }

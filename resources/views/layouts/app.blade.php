@@ -18,11 +18,76 @@
     <link href="{{ asset('css/styles.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Theme Fonts -->
+    @if($activeTheme)
+    <link href="https://fonts.googleapis.com/css2?family={{ str_replace(' ', '+', $activeTheme->heading_font) }}:wght@400;500;600;700&family={{ str_replace(' ', '+', $activeTheme->body_font) }}:wght@400;500;600&display=swap" rel="stylesheet">
+    @endif
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
 <body>
+    <!-- Theme CSS Variables -->
+    @if($activeTheme)
+    <style>
+        :root {
+            --primary-color: {{ $activeTheme->primary_color }};
+            --secondary-color: {{ $activeTheme->secondary_color }};
+            --accent-color: {{ $activeTheme->accent_color }};
+            --background-color: {{ $activeTheme->background_color }};
+            --text-color: {{ $activeTheme->text_color }};
+            --heading-font: '{{ $activeTheme->heading_font }}', sans-serif;
+            --body-font: '{{ $activeTheme->body_font }}', sans-serif;
+            
+            /* Derived variables */
+            --primary-gradient: linear-gradient(135deg, {{ $activeTheme->primary_color }}, {{ $activeTheme->secondary_color }});
+            --card-bg-color: #ffffff;
+            --border-color: rgba(0, 0, 0, 0.125);
+            --input-bg: #ffffff;
+            --input-border: #ced4da;
+            --input-focus-border: {{ $activeTheme->primary_color }};
+            --btn-primary-bg: {{ $activeTheme->primary_color }};
+            --btn-primary-color: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+        }
+        
+        body {
+            font-family: var(--body-font);
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--heading-font);
+        }
+        
+        .btn-primary {
+            background-color: var(--btn-primary-bg);
+            border-color: var(--btn-primary-bg);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .text-primary {
+            color: var(--primary-color) !important;
+        }
+        
+        .bg-primary {
+            background-color: var(--primary-color) !important;
+        }
+        
+        .border-primary {
+            border-color: var(--primary-color) !important;
+        }
+        
+        {{ $activeTheme->custom_css ?? '' }}
+    </style>
+    @endif
+    
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container-fluid px-4">

@@ -4,10 +4,10 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>{{ __('Add New Admin') }}</span>
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">{{ __('Add New Admin') }}</span>
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-light btn-sm">
                         <i class="bi bi-x-lg"></i>
                     </a>
                 </div>
@@ -78,4 +78,38 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Theme-specific overrides for this page */
+    .card-header {
+        background-color: var(--primary-color) !important;
+        color: #ffffff !important;
+        border-bottom: none;
+    }
+    
+    .btn-outline-light:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(var(--primary-color), 0.25);
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+    }
+    
+    label {
+        font-weight: 500;
+        color: var(--text-color);
+    }
+</style>
 @endsection

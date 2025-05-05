@@ -1,6 +1,23 @@
 @extends('layouts.customer')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+
+<style>
+    :root {
+        --primary-color: {{ $activeTheme->primary_color ?? '#E53935' }};
+        --text-color: {{ $activeTheme->text_color?? '#333' }};
+        --secondary-color: {{ $activeTheme->secondary_color ?? '#2C3E50' }};
+        --accent-color: {{ $activeTheme->accent_color ?? '#F1C40F' }};
+        --button-hover-color: {{ $activeTheme->button_hover_color ?? '#B71C1C' }};
+    }
+
+    .input-error {
+    border: 2px solid #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25);
+}
+</style>
+
 <div class="survey-wrapper">
     @if($hasResponded)
         <div class="container">
@@ -144,7 +161,7 @@
             </div>
 
             <div class="form-footer">
-                <button type="submit" class="submit-button">
+                <button type="submit" class="submit-button" style="background-color: var(--primary-color); border-color: var(--primary-color); color: white;">
                     <span>Submit Survey</span>
                     <i class="fas fa-paper-plane ms-2"></i>
                 </button>
@@ -155,7 +172,7 @@
             <h3>THANK YOU!</h3>
             <h3>WE APPRECIATE YOUR FEEDBACK!</h3>
             <p>Your input helps us serve you better.</p>
-            <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()">
+            <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()" style="background-color: var(--secondary-color); border-color: var(--accent-color); color: white;">
                 <span>View Response</span>
                 <i class="fas fa-eye ms-2"></i>
             </button>
@@ -538,10 +555,3 @@ function showResponseSummaryModal() {
     </div>
 </div>
 @endsection
-
-<style>
-.input-error {
-    border: 2px solid #dc3545 !important;
-    box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25);
-}
-</style>
