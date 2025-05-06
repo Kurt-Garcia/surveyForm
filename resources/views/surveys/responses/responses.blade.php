@@ -7,8 +7,8 @@
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h2 class="mb-0">{{ $survey->title }} - Responses</h2>
-                    <a href="{{ route('index', $survey) }}" class="btn btn-outline-light">
-                        <i class="fas fa-arrow-left me-1"></i> Back to Survey
+                    <a href="{{ route('index', $survey) }}" class="notification-close" onclick="confirmClose(event)">
+                        <i class="fas fa-times"></i>
                     </a>
                 </div>
                 <div class="card-body">

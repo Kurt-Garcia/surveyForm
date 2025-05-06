@@ -86,7 +86,7 @@ hr {
     --text-color:,
     --secondary-color:,
     --danger-color: #E53935;
-    --button-hover-color: #B71C1C;
+    --button-hover-color: #b71c1c;
     --background-color: #F8FAFC;
     --success-color: #2ECC71;
     --warning-color: #F1C40F;
@@ -363,6 +363,12 @@ body {
     background-size: 1.5rem;
 }
 
+.modern-select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    outline: none;
+}
+
 .modern-textarea {
     width: 100%;
     padding: 1rem;
@@ -401,7 +407,9 @@ body {
 }
 
 .submit-button:hover {
-    background-color: var(--button-hover-color);
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    color: white;
     transform: translateY(-2px);
 }
 
@@ -409,11 +417,18 @@ body {
     display: none;
     text-align: center;
     margin-top: 3rem;
-    padding: 2rem;
+    padding: 1rem;
     background-color: var(--primary-color);
     border-color: var(--secondary-color);
     border-radius: var(--border-radius);
     color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #eee;
+    visibility: hidden;
+    transition: all 0.5s ease;
 }
 
 .thank-you-message.show {
@@ -616,7 +631,7 @@ body {
     border-bottom: 2px solid var(--primary-color);
 }
 .modal-footer {
-    border-top: 2px solid #363535;
+    border-top: 2px solid #969696;
 }
 .modal-title {
     color: white;

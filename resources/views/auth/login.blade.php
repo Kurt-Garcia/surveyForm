@@ -97,7 +97,7 @@
     
     .input-group input:focus {
         box-shadow: none;
-        border-color: var(--primary-color);
+        border-color: var(--accent-color);
     }
     
     .form-check-label {

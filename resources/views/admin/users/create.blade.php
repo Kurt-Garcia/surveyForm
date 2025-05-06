@@ -72,8 +72,8 @@
     }
     
     .form-control:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.25rem rgba(var(--accent-color-rgb), 0.25);
     }
     
     .btn-primary {

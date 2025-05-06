@@ -12,7 +12,7 @@
                 <i class="fas fa-file-pdf me-2"></i>Download PDF
             </button>
         </div>
-        <a href="{{ route('surveys.responses.index', $survey) }}" class="btn btn-outline-light custom-hover-btn" style="color: var(--primary-color); border-color: var(--primary-color)">
+        <a href="{{ route('surveys.responses.index', $survey) }}" class="btn custom-hover-btn" style="border: 1px solid" >
             <i class="fas fa-arrow-left me-1"></i> Back to Survey
         </a>
     </div>
@@ -173,38 +173,38 @@
                                 <div class="col">
                                     <div class="row mb-3">
                                         <div class="col-12 col-md-4 mb-3 mb-md-0">
-                                            <label class="text-muted small mb-1">Account Name</label>
-                                            <h5 class="mb-0">{{ $response->account_name }}</h5>
+                                            <label class="text-muted mb-1">Account Name</label>
+                                            <p class="mb-0">{{ $response->account_name }}</p>
                                         </div>
                                         <div class="col-12 col-md-4 mb-3 mb-md-0">
-                                            <label class="text-muted small mb-1">Account Type</label>
-                                            <h5 class="mb-0"><span class="badge bg-light text-dark">{{ $response->account_type }}</span></h5>
+                                            <label class="text-muted mb-1">Account Type</label>
+                                            <p class="mb-0"><span class="bg-light text-dark">{{ $response->account_type }}</span></p>
                                         </div>
                                         <div class="col-12 col-md-4">
-                                            <label class="text-muted small mb-1">Date</label>
-                                            <h5 class="mb-0"><i class="fas fa-calendar-alt me-1 small"></i> {{ $response->date->format('M d, Y') }}</h5>
+                                            <label class="text-muted mb-1">Date</label>
+                                            <p class="mb-0"><i class="fas fa-calendar-alt me-1 small"></i> {{ $response->date->format('M d, Y') }}</p>
                                         </div>
                                     </div>
                                     
                                     <!-- Time Information -->
                                     <div class="row">
                                         <div class="col-12 col-md-4 mb-3 mb-md-0">
-                                            <label class="text-muted small mb-1">Start Time</label>
-                                            <h5 class="mb-0"><i class="fas fa-clock me-1 small"></i> {{ $response->start_time ? $response->start_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</h5>
+                                            <label class="text-muted mb-1">Start Time</label>
+                                            <p class="mb-0"><i class="fas fa-clock me-1 small"></i> {{ $response->start_time ? $response->start_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</p>
                                         </div>
                                         <div class="col-12 col-md-4 mb-3 mb-md-0">
-                                            <label class="text-muted small mb-1">End Time</label>
-                                            <h5 class="mb-0"><i class="fas fa-clock me-1 small"></i> {{ $response->end_time ? $response->end_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</h5>
+                                            <label class="text-muted mb-1">End Time</label>
+                                            <p class="mb-0"><i class="fas fa-clock me-1 small"></i> {{ $response->end_time ? $response->end_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</p>
                                         </div>
                                         <div class="col-12 col-md-4">
-                                            <label class="text-muted small mb-1">Duration</label>
-                                            <h5 class="mb-0"><i class="fas fa-stopwatch me-1 small"></i> 
+                                            <label class="text-muted mb-1">Duration</label>
+                                            <p class="mb-0"><i class="fas fa-stopwatch me-1 small"></i> 
                                                 @if($response->start_time && $response->end_time)
                                                     {{ $response->end_time->diffForHumans($response->start_time, ['parts' => 2]) }}
                                                 @else
                                                     N/A
                                                 @endif
-                                            </h5>
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

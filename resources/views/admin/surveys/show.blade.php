@@ -234,7 +234,7 @@
 }
 
 .text-primary {
-    color: #4e73df!important;
+    color: var(--text-color)!important;
 }
 
 .question-number {
@@ -276,6 +276,11 @@
     .logo-btn-group > .btn {
         width: auto;
     }
+}
+
+.form-control:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.25rem rgba(var(--accent-color-rgb), 0.25);
 }
 </style>
 

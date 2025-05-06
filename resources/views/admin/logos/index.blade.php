@@ -36,7 +36,7 @@
                         </div>
                         <button type="submit" class="btn btn-gradient-blue btn-lg px-5 shadow-sm">Upload <i class="bi bi-upload ms-2"></i></button>
                     </form>
-                    <h5 class="fw-bold mb-4 text-primary">Available Logos</h5>
+                    <h5 class="fw-bold mb-4" style="color: var(--text-color)">Available Logos</h5>
                     <div class="table-responsive animate__animated animate__fadeInUp">
                         <table class="table table-hover table-borderless align-middle rounded-3 overflow-hidden">
                             <thead class="bg-light-blue text-primary">
@@ -96,13 +96,14 @@
     color: #fff !important;
 }
 .btn-gradient-blue {
-    background: linear-gradient(90deg, #2563eb 0%, #1e40af 100%) !important;
+    background: var(--primary-color) !important;
     color: #fff !important;
     border: none;
     transition: box-shadow 0.2s, transform 0.2s;
 }
 .btn-gradient-blue:hover, .btn-gradient-blue:focus {
-    box-shadow: 0 4px 16px rgba(37,99,235,0.15);
+    background: var(--secondary-color) !important;
+    box-shadow: 0 4px 16px rgba(var(--secondary-color-rgb), 0.15);
     transform: translateY(-2px) scale(1.03);
 }
 .btn-outline-gradient-blue {
@@ -112,12 +113,17 @@
     transition: background 0.2s, color 0.2s;
 }
 .btn-outline-gradient-blue:hover, .btn-outline-gradient-blue:focus {
-    background: linear-gradient(90deg, #2563eb 0%, #1e40af 100%) !important;
+    background: var(--secondary-color) !important;
     color: #fff !important;
 }
 .bg-light-blue {
     background: #e0e7ff !important;
 }
 .animate__animated {animation-duration: 0.7s;}
+.form-control:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.25rem rgba(var(--accent-color-rgb), 0.25);
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
 </style>
 @endsection

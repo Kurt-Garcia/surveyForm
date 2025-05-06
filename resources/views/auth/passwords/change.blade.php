@@ -2,11 +2,11 @@
 
 @section('content')
 <div class="container mt-5 mb-5">
-    <div class="row justify-content-center align-items-center">
+    <div class="row justify-content-center align-items-center min-vh-75">
         <div class="col-md-6">
             <div class="card shadow-lg border-0 rounded-lg">
-                <div class="card-header bg-primary text-white text-center py-3">
-                    <h3 class="mb-0">{{ __('Change Password') }}</h3>
+                <div class="card-header text-white text-center py-3">
+                    <h3 class="mb-0 text-white">{{ __('Change Password') }}</h3>
                 </div>
 
                 <div class="card-body p-5">
@@ -71,6 +71,9 @@
         backdrop-filter: blur(10px);
         background-color: rgba(255, 255, 255, 0.9);
     }
+    .card-header {
+        background-color: var(--primary-color) !important;
+    }
     .input-group-text {
         background-color: transparent;
         border-right: none;
@@ -80,7 +83,7 @@
     }
     .input-group input:focus {
         box-shadow: none;
-        border-color: #ced4da;
+        border-color: var(--accent-color);
     }
 </style>
 @endsection

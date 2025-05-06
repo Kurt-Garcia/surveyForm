@@ -65,7 +65,7 @@
 
                         <div class="form-group row">
                             <div class="col-md-12 d-flex flex-column flex-md-row justify-content-center gap-3">
-                                <button type="button" class="btn btn-info btn-lg" onclick="addQuestion()">
+                                <button type="button" class="btn btn-info btn-lg" onclick="addQuestion()" style="background-color: var(--secondary-color); border-color: var(--secondary-color); color: #fff;">
                                     <i class="fas fa-plus-circle me-2"></i>{{ __('Add Question') }}
                                 </button>
                                 <button type="submit" class="btn btn-primary btn-lg">
@@ -252,6 +252,11 @@
 
 .form-control, .form-select {
     border-radius: 6px;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.25rem rgba(var(--accent-color-rgb), 0.25);
 }
 
 .card-header {

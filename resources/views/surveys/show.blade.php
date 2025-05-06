@@ -156,7 +156,7 @@
             <div class="recommendation-section mt-5">
                 <h2 class="section-title">Recommendation</h2>
                 <div class="recommendation-container">
-                    <h6>How likely is it that you would recommend our company to a friend or colleague?</h6>
+                    <p>How likely is it that you would recommend our company to a friend or colleague?</p>
                     <select id="survey-number" name="recommendation" class="modern-select">
                         <option value="" disabled selected>Select a rating</option>
                         @for($i = 1; $i <= 10; $i++)
@@ -182,15 +182,15 @@
             @endforeach
 
             <div class="form-footer">
-                <button type="submit" class="submit-button" style="background-color: var(--primary-color); border-color: var(--primary-color); color: white;">
+                <button type="submit" class="submit-button">
                     <span>Submit Survey</span>
                     <i class="fas fa-paper-plane ms-2"></i>
                 </button>
             </div>
             
             <div class="thank-you-message">
-                <div class="message-content">
-                    <h3>WE APPRECIATE YOUR FEEDBACK!</h3>
+                <div class="message-content mb-3">
+                    <h3 class="mb-1">WE APPRECIATE YOUR FEEDBACK!</h3>
                     <p>Your input helps us serve you better.</p>
                 </div>
                 <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()" style="background-color: var(--secondary-color); border-color: var(--accent-color); color: white;">
@@ -271,7 +271,7 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer" style="border: 2px solid var(--primary-color);">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
@@ -583,8 +583,8 @@ $(document).ready(function() {
                                 5: 'Excellent'
                             }[response.rating];
                             ratingHtml = `
-                                <div class="rating-display d-flex align-items-center">
-                                    <div class="modern-rating-group me-3">
+                                <div class="rating-display d-flex align-items-center flex-wrap">
+                                    <div class="modern-rating-group me-3 mb-2">
                                         ${Array.from({length: 5}, (_, i) => {
                                             const isSelected = i + 1 <= response.rating;
                                             return `<div class="modern-radio-display ${isSelected ? 'selected' : ''}">${i + 1}</div>`;
@@ -777,21 +777,6 @@ function closeNotification(id) {
 </script>
 
 <style>
-.thank-you-message {
-    margin-top: 2rem;
-    background-color: #f8f9fa;
-    padding: 1rem;
-    border-radius: 0 0 8px 8px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid #eee;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.5s ease;
-}
-
 .thank-you-message.show {
     opacity: 1;
     visibility: visible;
@@ -852,6 +837,8 @@ function closeNotification(id) {
     /* Specific styles for the response summary modal */
     #responseSummaryModal .modern-rating-group {
         flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 5px;
     }
     
     #responseSummaryModal .modern-radio-display {
@@ -860,6 +847,7 @@ function closeNotification(id) {
         font-size: 12px;
         margin-right: 3px;
         margin-bottom: 3px;
+        flex-shrink: 0;
     }
     
     #responseSummaryModal .rating-display {
@@ -870,6 +858,22 @@ function closeNotification(id) {
     #responseSummaryModal .rating-text {
         margin-top: 5px;
         font-size: 12px;
+    }
+    
+    /* Additional responsive styles for very small screens */
+    @media (max-width: 320px) {
+        #responseSummaryModal .modern-rating-group {
+            width: 100%;
+            justify-content: space-between;
+        }
+        
+        #responseSummaryModal .modern-radio-display {
+            width: 28px;
+            height: 28px;
+            font-size: 11px;
+            margin-right: 2px;
+            margin-bottom: 2px;
+        }
     }
     
     #responseSummaryModal .response-item {
