@@ -12,8 +12,12 @@
                 <i class="fas fa-file-pdf me-2"></i>Download PDF
             </button>
         </div>
-        <a href="{{ route('surveys.responses.index', $survey) }}" class="btn custom-hover-btn" style="border: 1px solid" >
-            <i class="fas fa-arrow-left me-1"></i> Back to Survey
+        <a href="{{ route('surveys.responses.index', $survey) }}" 
+            class="btn btn-sm" 
+            style="border-color: var(--primary-color); color: var(--primary-color)"
+            onmouseover="this.style.backgroundColor='var(--secondary-color)'; this.style.color='white'"
+            onmouseout="this.style.borderColor='var(--primary-color)'; this.style.backgroundColor='white'; this.style.color='var(--primary-color)'">
+            <i class="fas fa-arrow-left me-2"></i>Back to Responses
         </a>
     </div>
 
@@ -28,7 +32,7 @@
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <h4 class="mb-0 fw-bold">{{ strtoupper($survey->title) }} - RESPONSE DETAILS</h4>
+                    <h4 class="mb-0 fw-bold" style="color: var(--text-color)">{{ strtoupper($survey->title) }} - RESPONSE DETAILS</h4>
                     <div class="d-flex align-items-center gap-2">
                         <form id="resubmissionForm" action="{{ route('surveys.responses.toggle-resubmission', ['survey' => $survey, 'account_name' => $response->account_name]) }}" 
                               method="POST" class="d-inline">
@@ -165,11 +169,6 @@
                     <div class="card user-info-card mb-4">
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-auto mb-3 mb-md-0">
-                                    <div class="response-icon">
-                                        <i class="fas fa-user-circle fa-3x"></i>
-                                    </div>
-                                </div>
                                 <div class="col">
                                     <div class="row mb-3">
                                         <div class="col-12 col-md-4 mb-3 mb-md-0">
@@ -182,23 +181,25 @@
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label class="text-muted mb-1">Date</label>
-                                            <p class="mb-0"><i class="fas fa-calendar-alt me-1 small"></i> {{ $response->date->format('M d, Y') }}</p>
+                                            <p class="mb-0">{{ $response->date->format('M d, Y') }}</p>
                                         </div>
                                     </div>
+
+                                </br> 
                                     
                                     <!-- Time Information -->
                                     <div class="row">
                                         <div class="col-12 col-md-4 mb-3 mb-md-0">
                                             <label class="text-muted mb-1">Start Time</label>
-                                            <p class="mb-0"><i class="fas fa-clock me-1 small"></i> {{ $response->start_time ? $response->start_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</p>
+                                            <p class="mb-0">{{ $response->start_time ? $response->start_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</p>
                                         </div>
                                         <div class="col-12 col-md-4 mb-3 mb-md-0">
                                             <label class="text-muted mb-1">End Time</label>
-                                            <p class="mb-0"><i class="fas fa-clock me-1 small"></i> {{ $response->end_time ? $response->end_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</p>
+                                            <p class="mb-0">{{ $response->end_time ? $response->end_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</p>
                                         </div>
                                         <div class="col-12 col-md-4">
                                             <label class="text-muted mb-1">Duration</label>
-                                            <p class="mb-0"><i class="fas fa-stopwatch me-1 small"></i> 
+                                            <p class="mb-0">
                                                 @if($response->start_time && $response->end_time)
                                                     {{ $response->end_time->diffForHumans($response->start_time, ['parts' => 2]) }}
                                                 @else
@@ -211,6 +212,8 @@
                             </div>
                         </div>
                     </div>
+
+                    <hr class="my-4">
 
                     <!-- Question Responses -->
                     <div class="responses-list">

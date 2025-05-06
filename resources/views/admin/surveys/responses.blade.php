@@ -8,7 +8,7 @@
             <div class="card shadow-lg border-0 mb-4">
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
-                        <h2 class="display-6 fw-bold text-primary mb-3">{{ strtoupper($survey->title) }} - RESPONSES</h2>
+                        <h2 class="display-6 fw-bold mb-3 text-color">{{ strtoupper($survey->title) }} - RESPONSES</h2>
                         <div class="d-flex gap-3 text-muted">
                             <div><i class="bi bi-people-fill me-2"></i>{{ $responses->count() }} Respondents</div>
                             <div><i class="bi bi-star-fill me-2"></i>Average Rating: {{ number_format($avgRecommendation, 1) }}/10</div>
@@ -22,7 +22,7 @@
                 <div class="col-md-4">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-body">
-                            <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Response Rate</h5>
+                            <h5 class="text-color fw-bold mb-3"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Response Rate</h5>
                             <div class="display-6 text-primary mb-2">{{ $responses->count() }}</div>
                             <p class="text-muted">Total responses received</p>
                         </div>
@@ -31,7 +31,7 @@
                 <div class="col-md-4">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-body">
-                            <h5 class="fw-bold mb-3"><i class="bi bi-calendar-fill text-success me-2"></i>Latest Response</h5>
+                            <h5 class="text-color fw-bold mb-3"><i class="bi bi-calendar-fill text-success me-2"></i>Latest Response</h5>
                             <div class="display-6 text-success mb-2">
                                 {{ $responses->first() ? $responses->first()->date->format('M d') : 'N/A' }}
                             </div>
@@ -42,7 +42,7 @@
                 <div class="col-md-4">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-body">
-                            <h5 class="fw-bold mb-3"><i class="bi bi-person-fill text-info me-2"></i>Unique Respondents</h5>
+                            <h5 class="text-color fw-bold mb-3"><i class="bi bi-person-fill text-info me-2"></i>Unique Respondents</h5>
                             <div class="display-6 text-info mb-2">{{ $responses->unique('account_name')->count() }}</div>
                             <p class="text-muted">Individual participants</p>
                         </div>
@@ -55,12 +55,12 @@
                 <div class="col-12">
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-white py-3">
-                            <h4 class="mb-0 fw-bold">Response Summary</h4>
+                            <h4 class="text-color mb-0 fw-bold">Response Summary</h4>
                         </div>
                         <div class="card-body">
                             @foreach($questions as $question)
                                 <div class="question-stats mb-5">
-                                    <h5 class="fw-bold mb-3">{{ $question->text }}</h5>
+                                    <h5 class="text-color fw-bold mb-3">{{ $question->text }}</h5>
                                     @php
                                         $stats = $statistics[$question->id];
                                         $total = array_sum($stats['responses']);
@@ -97,7 +97,7 @@
                 <div class="col-12">
                     <div class="card shadow-sm border-0" id="individual-responses">
                         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                            <h4 class="mb-0 fw-bold">Individual Responses</h4>
+                            <h4 class="text-color mb-0 fw-bold">Individual Responses</h4>
                             <div class="search-container w-100 w-md-50 w-lg-25">
                                 <form method="GET" action="{{ route('admin.surveys.responses.index', $survey) }}">
                                     <div class="input-group">
@@ -131,7 +131,10 @@
                                                 <td>{{ $response->date->format('M d, Y') }}</td>
                                                 <td>
                                                     <a href="{{ route('admin.surveys.responses.show', ['survey' => $survey->id, 'account_name' => $response->account_name]) }}" 
-                                                       class="btn btn-sm btn-outline-primary">
+                                                       class="btn btn-sm" 
+                                                       style="border-color: var(--primary-color); color: var(--primary-color)"
+                                                       onmouseover="this.style.backgroundColor='var(--secondary-color)'; this.style.color='white'"
+                                                       onmouseout="this.style.borderColor='var(--primary-color)'; this.style.backgroundColor='white'; this.style.color='var(--primary-color)'">
                                                         <i class="bi bi-eye-fill me-1"></i>View Details
                                                     </a>
                                                 </td>
@@ -186,6 +189,10 @@
             @endpush
 
             <style>
+            .text-color {
+                color: var(--text-color);
+            }
+
             .question-stats {
                 border-bottom: 1px solid #eee;
                 padding-bottom: 2rem;
@@ -247,6 +254,11 @@
                 max-width: 100%;
                 transition: all 0.3s ease;
             }
+            
+            .search-container input:focus {
+                border-color: var(--accent-color) !important;
+                box-shadow: 0 0 0 0.25rem rgba(var(--accent-color-rgb), 0.25) !important;
+            }
 
             @media (min-width: 768px) {
                 .search-container {
@@ -266,6 +278,30 @@
             
             .response-row:hover {
                 background-color: #f8f9fa;
+            }
+            
+            /* Pagination Styling */
+            .pagination {
+                justify-content: center;
+            }
+            
+            .pagination .page-item .page-link {
+                color: var(--primary-color);
+                border: 1px solid var(--primary-color);
+                margin: 0 5px;
+                border-radius: 4px;
+                transition: all 0.3s ease;
+            }
+            
+            .pagination .page-item.active .page-link {
+                background-color: var(--primary-color);
+                border-color: var(--primary-color);
+                color: white;
+            }
+            
+            .pagination .page-item .page-link:hover {
+                background-color: var(--primary-color);
+                color: white;
             }
             </style>
         </div>

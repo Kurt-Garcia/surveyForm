@@ -23,9 +23,6 @@
                                 <a href="{{ route('admin.surveys.create') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill shadow-sm align-items-center me-2 mb-2">
                                     <i class="bi bi-plus-circle-fill me-2 text-primary"></i>Create Survey
                                 </a>
-                                <a href="{{ route('admin.logos.index') }}" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill mb-2">
-                                    <i class="bi bi-image me-2"></i>Manage Logos
-                                </a>
                             </div>
                         </div>
                     </div>
@@ -40,7 +37,7 @@
                         </div>
                         <div class="card-body p-0">
                             <div class="row g-0">
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-md-4">
                                     <a href="{{ route('admin.surveys.index') }}" class="action-card">
                                         <div class="action-icon bg-gradient-success">
                                             <i class="bi bi-eye-fill"></i>
@@ -51,7 +48,7 @@
                                         </div>
                                     </a>
                                 </div>
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-md-4">
                                     <a href="{{ route('admin.admins.create') }}" class="action-card">
                                         <div class="action-icon bg-gradient-info">
                                             <i class="bi bi-shield-lock-fill"></i>
@@ -62,9 +59,7 @@
                                         </div>
                                     </a>
                                 </div>
-                            </div>
-                            <div class="row g-0">
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-md-4">
                                     <a href="{{ route('admin.users.create') }}" class="action-card">
                                         <div class="action-icon bg-gradient-warning">
                                             <i class="bi bi-person-plus-fill"></i>
@@ -75,7 +70,9 @@
                                         </div>
                                     </a>
                                 </div>
-                                <div class="col-12 col-md-6">
+                            </div>
+                            <div class="row g-0">
+                                <div class="col-12 col-md-4">
                                     <a href="{{ route('admin.customers.index') }}" class="action-card">
                                         <div class="action-icon bg-gradient-primary">
                                             <i class="bi bi-people"></i>
@@ -86,9 +83,7 @@
                                         </div>
                                     </a>
                                 </div>
-                            </div>
-                            <div class="row g-0">
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-md-4">
                                     <a href="{{ route('admin.themes.index') }}" class="action-card">
                                         <div class="action-icon bg-gradient-primary" style="background: linear-gradient(135deg, #9C27B0, #673AB7);">
                                             <i class="bi bi-palette-fill"></i>
@@ -99,7 +94,7 @@
                                         </div>
                                     </a>
                                 </div>
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-md-4">
                                     <a href="{{ route('admin.logos.index') }}" class="action-card">
                                         <div class="action-icon" style="background: linear-gradient(135deg, #00BCD4, #009688);">
                                             <i class="bi bi-image"></i>

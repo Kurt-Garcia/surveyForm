@@ -24,9 +24,6 @@
                                 <div class="list-group-item response-item p-0 border-0 mb-3">
                                     <div class="response-container shadow-sm hover-lift">
                                         <div class="d-flex align-items-center response-row">
-                                            <div class="response-icon me-3">
-                                                <i class="fas fa-user-circle fa-2x"></i>
-                                            </div>
                                             <div class="response-info flex-grow-1">
                                                 <h5 class="mb-1">{{ $response->account_name }}</h5>
                                                 <div class="d-flex align-items-center">
@@ -38,14 +35,20 @@
                                             </div>
                                             <div class="response-actions">
                                                 <a href="{{ route('surveys.responses.show', ['survey' => $survey->id, 'account_name' => $response->account_name]) }}" 
-                                                   class="btn btn-primary btn-view-details">
-                                                    <i class="fas fa-eye me-1"></i> View Details
+                                                    class="btn btn-sm" 
+                                                    style="border-color: var(--primary-color); color: var(--primary-color)"
+                                                    onmouseover="this.style.backgroundColor='var(--secondary-color)'; this.style.color='white'"
+                                                    onmouseout="this.style.borderColor='var(--primary-color)'; this.style.backgroundColor='white'; this.style.color='var(--primary-color)'">
+                                                     <i class="bi bi-eye-fill me-1"></i>View Details
                                                 </a>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             @endforeach
+                        </div>
+                        <div class="d-flex justify-content-center mt-4">
+                            {{ $responses->links() }}
                         </div>
                     @endif
                 </div>
@@ -55,6 +58,38 @@
 </div>
 
 <style>
+    /* Pagination Styling */
+    .pagination {
+        justify-content: center;
+    }
+    
+    .pagination .page-item .page-link {
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        margin: 0 5px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+    
+    .pagination .page-item .page-link:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .page-link {
+        color: var(--primary-color);
+    }
+    
+    .page-link:hover {
+        color: var(--secondary-color);
+    }
+    
     .card-header {
         border-bottom: 1px solid rgba(0,0,0,.125);
     }
@@ -81,6 +116,7 @@
     .response-row {
         width: 100%;
     }
+    
     
     @media (max-width: 768px) {
         .response-row {

@@ -12,8 +12,12 @@
                 <i class="bi bi-file-pdf me-2"></i>Download PDF
             </button>
         </div>
-        <a href="{{ route('admin.surveys.responses.index', $survey) }}" class="btn btn-outline-primary align-self-start align-self-sm-center">
-            <i class="bi bi-arrow-left me-2"></i>Back to Responses
+        <a href="{{ route('admin.surveys.responses.index', $survey) }}" 
+            class="btn btn-sm" 
+            style="border-color: var(--primary-color); color: var(--primary-color)"
+            onmouseover="this.style.backgroundColor='var(--secondary-color)'; this.style.color='white'"
+            onmouseout="this.style.borderColor='var(--primary-color)'; this.style.backgroundColor='white'; this.style.color='var(--primary-color)'">
+            <i class="fas fa-arrow-left me-2"></i>Back to Responses
         </a>
     </div>
 
@@ -28,7 +32,7 @@
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <h4 class="mb-0 fw-bold">{{ strtoupper($survey->title) }} - RESPONSE DETAILS</h4>
+                    <h4 class="mb-0 fw-bold" style="color: var(--text-color)">{{ strtoupper($survey->title) }} - RESPONSE DETAILS</h4>
                     <form action="{{ route('admin.surveys.responses.toggle-resubmission', ['survey' => $survey, 'account_name' => $header->account_name]) }}" 
                           method="POST" class="d-inline">
                         @csrf
@@ -46,19 +50,19 @@
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="text-muted mb-1">Account Name</label>
-                                <h5>{{ $header->account_name }}</h5>
+                                <p>{{ $header->account_name }}</p>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="text-muted mb-1">Account Type</label>
-                                <h5>{{ $header->account_type }}</h5>
+                                <p>{{ $header->account_type }}</p>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="text-muted mb-1">Date</label>
-                                <h5>{{ $header->date->format('M d, Y') }}</h5>
+                                <p>{{ $header->date->format('M d, Y') }}</p>
                             </div>
                         </div>
                     </div>
@@ -68,25 +72,25 @@
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="text-muted mb-1">Start Time</label>
-                                <h5>{{ $header->start_time ? $header->start_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</h5>
+                                <p>{{ $header->start_time ? $header->start_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</p>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="text-muted mb-1">End Time</label>
-                                <h5>{{ $header->end_time ? $header->end_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</h5>
+                                <p>{{ $header->end_time ? $header->end_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</p>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="text-muted mb-1">Duration</label>
-                                <h5>
+                                <p>
                                     @if($header->start_time && $header->end_time)
                                         {{ $header->end_time->diffForHumans($header->start_time, ['parts' => 2]) }}
                                     @else
                                         N/A
                                     @endif
-                                </h5>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -137,7 +141,12 @@
                         <div class="response-item mb-4 p-3 bg-light rounded">
                             <div class="mb-2">
                                 <label class="text-muted">Recommendation Score</label>
-                                <h5 class="fw-bold">{{ $header->recommendation }} / 10</h5>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress" style="height: 11px; width: 170px;">
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ $header->recommendation * 10 }}%;" aria-valuenow="{{ $header->recommendation }}" aria-valuemin="0" aria-valuemax="10"></div>
+                                    </div>
+                                    <span class="fw-bold">{{ $header->recommendation }} / 10</span>
+                                </div>
                             </div>
                         </div>
 
@@ -159,6 +168,7 @@
 .response-item {
     transition: transform 0.2s;
     border: 1px solid rgba(0,0,0,0.05);
+    border-left: 4px solid transparent;
 }
 
 .response-item:hover {
@@ -201,6 +211,23 @@
 <!-- Include html2pdf library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
+function getRandomColor() {
+    // Generate pastel colors by limiting RGB values between 150 and 255
+    const r = Math.floor(Math.random() * 105) + 150;
+    const g = Math.floor(Math.random() * 105) + 150;
+    const b = Math.floor(Math.random() * 105) + 150;
+    return `rgb(${r}, ${g}, ${b})`;
+}
+
+function applyRandomColors() {
+    const items = document.querySelectorAll('.response-item');
+    items.forEach(item => {
+        item.style.borderLeftColor = getRandomColor();
+    });
+}
+
+document.addEventListener('DOMContentLoaded', applyRandomColors);
+
 function generatePDF() {
     const element = document.querySelector('.card');
     const opt = {

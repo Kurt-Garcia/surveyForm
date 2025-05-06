@@ -96,6 +96,30 @@
     z-index: 1000;
     min-width: 300px;
 }
+
+.pagination {
+        justify-content: center;
+    }
+    
+.pagination .page-item .page-link {
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    margin: 0 5px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.pagination .page-item .page-link:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
 .pagination-container {
     display: flex;
     justify-content: center;
@@ -104,10 +128,7 @@
 .pagination-container .pagination {
     margin: 0;
 }
-.pagination .page-item.active .page-link {
-    background-color: #4ECDC4;
-    border-color: #4ECDC4;
-}
+
 .pagination .page-link {
     color: #333;
     transition: all 0.2s ease;

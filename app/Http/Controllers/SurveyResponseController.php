@@ -41,7 +41,7 @@ class SurveyResponseController extends Controller
 
         $responses = SurveyResponseHeader::where('survey_id', $survey->id)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(10);
 
         return view('surveys.responses.responses', [
             'survey' => $survey,

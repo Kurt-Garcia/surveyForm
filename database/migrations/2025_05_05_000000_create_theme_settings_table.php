@@ -33,24 +33,9 @@ return new class extends Migration
             'is_active' => true,
             'primary_color' => '#0093E9',
             'secondary_color' => '#80D0C7',
-            'accent_color' => '#FF5E62', 
+            'accent_color' => '#00ffe1', 
             'background_color' => '#f8f9fa',
             'text_color' => '#333333',
-            'heading_font' => 'Inter',
-            'body_font' => 'Inter',
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
-
-        // Insert a dark theme
-        DB::table('theme_settings')->insert([
-            'name' => 'Dark Mode',
-            'is_active' => false,
-            'primary_color' => '#3498db',
-            'secondary_color' => '#2c3e50', 
-            'accent_color' => '#e74c3c',
-            'background_color' => '#121212',
-            'text_color' => '#f5f5f5',
             'heading_font' => 'Inter',
             'body_font' => 'Inter',
             'created_at' => now(),
