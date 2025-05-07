@@ -30,15 +30,6 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="description" class="form-label">Description (Optional)</label>
-                            <textarea class="form-control @error('description') is-invalid @enderror"
-                                id="description" name="description" rows="2">{{ old('description', $question->description) }}</textarea>
-                            @error('description')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-4">
                             <div class="flex-grow-1">
                                 <label for="type" class="form-label">Question Type</label>
                                 <select class="form-select form-select-lg @error('type') is-invalid @enderror"

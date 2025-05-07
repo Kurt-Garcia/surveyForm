@@ -18,14 +18,12 @@ class SurveyQuestionController extends Controller
     {
         $validated = $request->validate([
             'text' => 'required|string|max:255',
-            'description' => 'nullable|string',
             'type' => 'required|string|in:radio,star',
             'required' => 'boolean'
         ]);
 
         $survey->questions()->create([
             'text' => ucfirst($validated['text']),
-            'description' => $validated['description'],
             'type' => $validated['type'],
             'required' => $validated['required'] ?? false,
             'order' => $survey->questions->count() + 1
@@ -44,14 +42,12 @@ class SurveyQuestionController extends Controller
     {
         $validated = $request->validate([
             'text' => 'required|string|max:255',
-            'description' => 'nullable|string',
             'type' => 'required|string|in:radio,star',
             'required' => 'boolean'
         ]);
 
         $question->update([
             'text' => ucfirst($validated['text']),
-            'description' => $validated['description'],
             'type' => $validated['type'],
             'required' => $validated['required'] ?? false,
         ]);

@@ -12,7 +12,6 @@ class SurveyQuestion extends Model
         'text',
         'type',
         'survey_id',
-        'description',
         'required'
     ];
 
