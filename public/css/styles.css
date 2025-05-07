@@ -423,31 +423,21 @@ body {
     border-radius: var(--border-radius);
     color: white;
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
     border-top: 1px solid #eee;
-    visibility: hidden;
     transition: all 0.5s ease;
 }
 
 .thank-you-message.show {
-    display: block;
+    display: flex;
     animation: fadeIn 0.5s ease-in-out;
 }
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
-}
-
-.thank-you-message h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.thank-you-message p {
-    opacity: 0.9;
 }
 
 .error-message {

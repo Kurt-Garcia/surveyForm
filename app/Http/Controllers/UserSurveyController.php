@@ -13,7 +13,7 @@ class UserSurveyController extends Controller
 {
     public function index()
     {
-        $surveys = Survey::where('is_active', true)->with('questions')->paginate(9);
+        $surveys = Survey::where('is_active', true)->with('questions')->paginate(6);
         return view('index', compact('surveys'));
     }
 

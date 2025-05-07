@@ -19,7 +19,6 @@ class ThemeSetting extends Model
         'text_color',
         'heading_font',
         'body_font',
-        'custom_css',
     ];
 
     protected $casts = [

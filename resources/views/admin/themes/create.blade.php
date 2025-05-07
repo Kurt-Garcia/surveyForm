@@ -155,19 +155,7 @@
                                 </div>
                             </div>
                         </div>
-
-                        <h5 class="mb-3">Custom CSS (Optional)</h5>
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <textarea class="form-control code-editor @error('custom_css') is-invalid @enderror" id="custom_css" 
-                                    name="custom_css" rows="8">{{ old('custom_css') }}</textarea>
-                                @error('custom_css')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <small class="text-muted">Add any additional CSS to customize your theme further.</small>
-                            </div>
-                        </div>
-
+                        
                         <div class="text-end">
                             <a href="{{ route('admin.themes.index') }}" class="btn btn-outline-secondary me-2">Cancel</a>
                             <button type="submit" class="btn btn-primary">Create Theme</button>

@@ -16,7 +16,7 @@
                         <div class="row align-items-center">
                             <div class="col-lg-7 mb-4 mb-lg-0">
                                 <span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill mb-3">Admin Dashboard</span>
-                                <h1 class="display-4 fw-bold text-white mb-2 welcome-title">Welcome Back, Admin!</h1>
+                                <h1 class="display-4 fw-bold text-white mb-2 welcome-title">Welcome Back, {{ explode(' ', Auth::guard('admin')->user()->name)[0] }}!</h1>
                                 <p class="text-white text-opacity-90 mb-0 fs-5">{{ now()->format('l, F j, Y') }}</p>
                             </div>
                             <div class="col-lg-5 text-lg-end">

@@ -25,7 +25,15 @@
     </div>
 
     <div class="container survey-container mt-4">
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="search-container mb-4 d-flex justify-content-end">
+            <div class="input-group search-modern" style="max-width: 400px;">
+                <input type="text" id="survey-search" class="form-control search-input-modern" placeholder="Search surveys...">
+                <button class="btn btn-search-modern" type="button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="surveys-grid">
             @forelse($surveys as $survey)
                 @php
                     $hasResponded = session('account_name') ? App\Models\SurveyResponseHeader::hasResponded($survey->id, session('account_name')) : false;
@@ -83,7 +91,10 @@
             @endforelse
         </div>
         
-        <div class="pagination-container mt-4">
+        <div class="pagination-container mt-4 d-flex justify-content-between align-items-center">
+            <div class="pagination-info">
+                Showing {{ $surveys->firstItem() }} to {{ $surveys->lastItem() }} of {{ $surveys->total() }} surveys
+            </div>
             {{ $surveys->links() }}
         </div>
     </div>
@@ -96,10 +107,51 @@
         z-index: 1000;
         min-width: 300px;
     }
+    
+    /* Modern Search Styles */
+    .search-modern {
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .search-modern:hover {
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+    
+    .search-input-modern {
+        border: none;
+        padding: 12px 20px;
+        background: #f8f9fa;
+    }
+    
+    .search-input-modern:focus {
+        background: white;
+        box-shadow: none;
+    }
+    
+    .btn-search-modern {
+        background: linear-gradient(135deg, #4ECDC4, #45B7D1);
+        color: white;
+        border: none;
+        padding: 0 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-search-modern:hover {
+        background: linear-gradient(135deg, #45B7D1, #4ECDC4);
+        transform: scale(1.05);
+    }
     .pagination-container {
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
+        align-items: center;
         margin-top: 2rem;
+    }
+    .pagination-info {
+        font-size: 0.9rem;
+        color: #666;
     }
     .pagination-container .pagination {
         margin: 0;
@@ -207,6 +259,28 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const searchInput = document.getElementById('survey-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const cols = document.querySelectorAll('#surveys-grid .col');
+            
+            cols.forEach(col => {
+                const card = col.querySelector('.survey-card');
+                if (card) {
+                    const title = card.querySelector('.card-title').textContent.toLowerCase();
+                    if (title.includes(searchTerm)) {
+                        col.style.display = '';
+                    } else {
+                        col.style.display = 'none';
+                    }
+                }
+            });
+        });
+    }
+    
+    // Original color assignment code
         const colors = [
             '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD',
             '#D4A5A5', '#9B59B6', '#3498DB', '#E67E22', '#2ECC71',

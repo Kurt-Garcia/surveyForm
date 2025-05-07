@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid py-4 px-4">
+<div class="container-fluid py-4 px-4" style="background-color: #f5f5f5;">
     <div class="row justify-content-center">
         <div class="col-12">
             <!-- Header Section -->
@@ -11,11 +11,15 @@
                     <p class="text-muted small mb-0 mt-2">Total Surveys: {{ $totalSurveys }}</p>
                 </div>
                 <div class="d-flex gap-2 align-items-center">
-                    <form method="GET" action="{{ route('admin.surveys.index') }}" class="d-flex align-items-center me-2" style="min-width:220px;">
-                        <input type="text" name="search" id="survey-search" class="form-control form-control-sm" placeholder="Search surveys..." value="{{ request('search') }}" style="min-width:150px;">
-                        <button type="submit" class="btn btn-outline-secondary btn-sm ms-2"><i class="bi bi-search"></i></button>
+                    <form method="GET" action="{{ route('admin.surveys.index') }}" class="search-form me-2">
+                        <div class="search-container">
+                            <input type="text" name="search" id="survey-search" class="search-input" placeholder="Search surveys..." value="{{ request('search') }}">
+                            <button type="submit" class="search-button">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
                     </form>
-                    <a href="{{ route('admin.surveys.create') }}" class="btn btn-primary">
+                    <a href="{{ route('admin.surveys.create') }}" class="btn btn-primary" style="background-color: var(--primary-color); border-radius: 8px; text-transform: none; font-weight: 500;">
                         <i class="bi bi-plus-lg me-1"></i>{{ __('Create Survey') }}
                     </a>
                 </div>
@@ -23,9 +27,9 @@
 
             <!-- Alert Messages -->
             @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <div class="MuiAlert-root MuiAlert-standardSuccess MuiAlert-filled" role="alert">
                     <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium" aria-label="Close"><svg class="MuiSvgIcon-root" focusable="false" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg></button>
                 </div>
             @endif
 
@@ -33,7 +37,7 @@
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                 @forelse ($surveys as $survey)
                     <div class="col">
-                        <div class="card h-100 survey-card shadow-sm hover-lift">
+                        <div class="card h-100 survey-card shadow-sm hover-lift" style="border-radius: 16px; background-color: white;">
                             <div class="card-body">
                                 <div class="survey-logo-wrapper text-center mb-3">
                                     @if($survey->logo)
@@ -112,10 +116,65 @@
     min-width: 300px;
 }
 
-.pagination {
-        justify-content: center;
+.search-form {
+    min-width: 280px;
+    width: 100%;
+}
+
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 15px 10px 40px;
+    border-radius: 30px;
+    border: none;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .search-form {
+        min-width: auto;
+        margin-bottom: 10px;
     }
     
+    .d-flex.gap-2.align-items-center {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+.search-input:focus {
+    outline: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    background: linear-gradient(135deg, #ffffff 0%, #f0f4f7 100%);
+}
+
+.search-button {
+    position: absolute;
+    left: 10px;
+    background: transparent;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.search-button:hover {
+    color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.pagination {
+    justify-content: center;
+}
+
 .pagination .page-item .page-link {
     color: var(--primary-color);
     border: 1px solid var(--primary-color);
@@ -324,6 +383,31 @@ document.addEventListener('DOMContentLoaded', function() {
                     const pagination = document.querySelector('.pagination-container');
                     if (grid && newGrid) grid.innerHTML = newGrid.innerHTML;
                     if (pagination && newPagination) pagination.innerHTML = newPagination.innerHTML;
+                    
+                    // Reapply random colors to new survey cards
+                    document.querySelectorAll('.survey-card').forEach(card => {
+                        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                        const icon = card.querySelector('.card-icon');
+                        const btnStart = card.querySelector('.btn-start');
+                        if (icon) {
+                            icon.style.color = randomColor;
+                            icon.style.backgroundColor = `${randomColor}15`;
+                        }
+                        if (btnStart) {
+                            btnStart.style.backgroundColor = randomColor;
+                            btnStart.style.borderColor = randomColor;
+                            btnStart.style.pointerEvents = 'auto';
+                            btnStart.style.position = 'relative';
+                            btnStart.style.zIndex = '2';
+                        }
+                        card.style.borderLeft = `4px solid ${randomColor}`;
+                        const buttons = card.querySelectorAll('a.btn');
+                        buttons.forEach(btn => {
+                            btn.style.pointerEvents = 'auto';
+                            btn.style.position = 'relative';
+                            btn.style.zIndex = '2';
+                        });
+                    });
                 });
             }, 300); // Debounce
         });

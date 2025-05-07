@@ -159,70 +159,11 @@
                             </div>
                         </div>
 
-                        <h5 class="mb-3">Custom CSS (Optional)</h5>
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <textarea class="form-control code-editor @error('custom_css') is-invalid @enderror" id="custom_css" 
-                                    name="custom_css" rows="8">{{ old('custom_css', $theme->custom_css) }}</textarea>
-                                @error('custom_css')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <small class="text-muted">Add any additional CSS to customize your theme further.</small>
-                            </div>
-                        </div>
-
                         <div class="text-end">
                             <a href="{{ route('admin.themes.index') }}" class="btn btn-outline-secondary me-2">Cancel</a>
                             <button type="submit" class="btn btn-primary">Update Theme</button>
                         </div>
                     </form>
-                </div>
-            </div>
-
-            <!-- Theme Preview Card -->
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h4 class="mb-0">Theme Preview</h4>
-                </div>
-                <div class="card-body" id="theme-preview">
-                    <div class="preview-container p-4">
-                        <h1 class="preview-heading">Heading 1</h1>
-                        <h3 class="preview-subheading">This is a sample subheading</h3>
-                        <p class="preview-text mb-4">This is a paragraph of text that demonstrates how your theme's body font will look on your pages. Good typography ensures that your content is readable and pleasing to the eye.</p>
-                        
-                        <div class="d-flex gap-2 mb-4">
-                            <button class="btn btn-primary preview-primary-btn">Primary Button</button>
-                            <button class="btn btn-outline-primary preview-outline-btn">Outline Button</button>
-                        </div>
-                        
-                        <div class="preview-card card mb-4">
-                            <div class="card-header preview-card-header">
-                                Card Header
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title preview-card-title">Card Title</h5>
-                                <p class="card-text preview-card-text">Some sample card content to demonstrate how cards will look with your theme.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="previewInput" class="form-label preview-label">Input Field Label</label>
-                                    <input type="text" class="form-control preview-input" id="previewInput" placeholder="Input placeholder">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="previewSelect" class="form-label preview-label">Select Field Label</label>
-                                    <select class="form-select preview-select" id="previewSelect">
-                                        <option>Option 1</option>
-                                        <option>Option 2</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

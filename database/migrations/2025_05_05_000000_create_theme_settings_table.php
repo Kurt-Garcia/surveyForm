@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('text_color')->default('#333333');
             $table->string('heading_font')->default('Inter');
             $table->string('body_font')->default('Inter');
-            $table->text('custom_css')->nullable();
             $table->timestamps();
         });
 
@@ -33,7 +32,7 @@ return new class extends Migration
             'is_active' => true,
             'primary_color' => '#0093E9',
             'secondary_color' => '#80D0C7',
-            'accent_color' => '#00ffe1', 
+            'accent_color' => '#0091ff', 
             'background_color' => '#f8f9fa',
             'text_color' => '#333333',
             'heading_font' => 'Inter',

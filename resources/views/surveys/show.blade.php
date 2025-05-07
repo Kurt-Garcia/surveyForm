@@ -13,6 +13,13 @@
         --accent-color: {{ $activeTheme->accent_color ?? '#F1C40F' }};
         --button-hover-color: {{ $activeTheme->button_hover_color ?? '#B71C1C' }};
     }
+
+    /* Hide thank-you message by default */
+    .thank-you-message {
+        display: none;
+        opacity: 0;
+        visibility: hidden;
+    }
 </style>
 
 <div class="survey-wrapper">
@@ -612,10 +619,16 @@ $(document).ready(function() {
                     const commentText = formData.get('comments') || 'No additional feedback provided';
                     $('#summary-comments').text(commentText);
                     
-                    // Show thank you message with animation
-                    $('.thank-you-message').addClass('show');
+                    // Show thank you message with animation without hiding the form
+                    $('.thank-you-message').css('display', 'flex').addClass('show');
+                    
+                    // Scroll to the thank you message
+                    $('html, body').animate({
+                        scrollTop: $('.thank-you-message').offset().top - 100
+                    }, 500);
+                    
                     // Show modal and reset form
-                    thankYouModal.show();
+                    // thankYouModal.show(); // Hide modal, only show the thank-you message in the form
                     $('#surveyForm')[0].reset();
                 }
             },

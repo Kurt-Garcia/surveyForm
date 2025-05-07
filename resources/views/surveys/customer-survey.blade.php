@@ -195,19 +195,8 @@ $(document).ready(function() {
     
     // Only show the thank you message if the survey was submitted AND resubmission is not allowed
     if (localStorage.getItem(submissionKey) === 'true' && !allowResubmit) {
-        // Hide form content keeping only logo, title, and footer
-        $('.form-grid, .survey-section, .recommendation-section, .comments-section').hide();
-        $('.form-footer').hide();
-        
-        // Show thank you message
-        $('.thank-you-message').addClass('show');
-        
-        // Create and show a simple footer if needed
-        if ($('.survey-footer').length === 0) {
-            $('<div class="survey-footer mt-5 text-center">').html(`
-                <p class="text-muted small">© ${new Date().getFullYear()} ${$('.survey-title').text()}. All rights reserved.</p>
-            `).insertAfter('.thank-you-message');
-        }
+        // Use dedicated function to display thank you message and hide form
+        displayThankYouMessage();
         
         // Retrieve saved data and update summary
         const savedData = JSON.parse(localStorage.getItem(surveyDataKey) || '{}');
@@ -215,6 +204,9 @@ $(document).ready(function() {
             updateResponseSummary(savedData);
         }
     } else {
+        // Make sure the thank-you-message is hidden when the form is shown
+        $('.thank-you-message').removeClass('show').hide();
+        
         // If survey was not submitted OR resubmission is allowed, show the form
         // For resubmission, we need to clear the previous submission flag
         if (allowResubmit && localStorage.getItem(submissionKey) === 'true') {
@@ -440,21 +432,8 @@ $(document).ready(function() {
                     // Update response summary with form data
                     updateResponseSummary(surveyData);
                     
-                    // Hide form content keeping only logo, title, and footer
-                    $('.form-grid, .survey-section, .recommendation-section, .comments-section').hide();
-                    $('.form-footer').hide();
-                    
-                    // Show thank you message
-                    $('.thank-you-message').addClass('show');
-                    
-                    // Create and show a simple footer if needed
-                    if ($('.survey-footer').length === 0) {
-                        $('<div class="survey-footer mt-5 text-center">').html(`
-                            <p class="text-muted small">© ${new Date().getFullYear()} ${$('.survey-title').text()}. All rights reserved.</p>
-                        `).insertAfter('.thank-you-message');
-                    }
-                    
-                    // No longer showing the thank you modal - directly displaying the thank you message instead
+                    // Use dedicated function to display thank you message
+                    displayThankYouMessage();
                 }
             },
             error: function(xhr) {
@@ -496,6 +475,188 @@ $(document).ready(function() {
         });
     });
 });
+
+/**
+ * Display thank you message and hide all form content
+ * Dedicated function to ensure consistent behavior across the application
+ */
+function displayThankYouMessage() {
+    // Hide form content keeping only logo, title, and footer
+    $('.form-grid, .survey-section, .recommendation-section, .comments-section').hide();
+    $('.form-footer').hide();
+    
+    // Show thank you message
+    $('.thank-you-message').addClass('show').css('display', 'flex');
+    
+    // Create and show a simple footer if needed
+    if ($('.survey-footer').length === 0) {
+        $('<div class="survey-footer mt-5 text-center">').html(`
+            <p class="text-muted small">© ${new Date().getFullYear()} ${$('.survey-title').text()}. All rights reserved.</p>
+        `).insertAfter('.thank-you-message');
+    }
+}
+
+// Function to validate all inputs and display errors
+function validateForm() {
+    let isValid = true;
+    let errorList = [];
+    // Clear previous error messages
+    $('.validation-message').text('');
+    $('#validationErrorsList ul').empty();
+    $('.modern-input, .modern-select, .modern-textarea, .modern-rating-group, .modern-star-rating').removeClass('input-error error');
+    $('.question-card').removeClass('has-error');
+    // Validate account name
+    if (!$('#account_name').val().trim()) {
+        isValid = false;
+        $('#account_name').addClass('input-error error');
+        $('#account_name').parent().addClass('has-error');
+        $('#account_name_error').text('Account name is required').addClass('text-danger');
+        errorList.push('Account name is required');
+    }
+    // Validate account type
+    if (!$('#account_type').val().trim()) {
+        isValid = false;
+        $('#account_type').addClass('input-error error');
+        $('#account_type').parent().addClass('has-error');
+        $('#account_type_error').text('Account type is required').addClass('text-danger');
+        errorList.push('Account type is required');
+    }
+    // Validate date
+    if (!$('#date').val()) {
+        isValid = false;
+        $('#date').addClass('input-error error');
+        $('#date').parent().addClass('has-error');
+        $('#date_error').text('Date is required').addClass('text-danger');
+        errorList.push('Date is required');
+    }
+    // Validate required questions
+    $('.question-card').each(function() {
+        const questionId = $(this).data('question-id');
+        const isRequired = $(this).find('.badge.required').length > 0;
+        const questionText = $(this).find('.question-text').contents().first().text().trim();
+        const hasResponse = $(`input[name="responses[${questionId}]"]:checked`).length > 0;
+        if (isRequired && !hasResponse) {
+            isValid = false;
+            $(this).addClass('has-error');
+            $(`#question_${questionId}_error`).text('This question requires an answer').addClass('text-danger');
+            errorList.push(`Question \"${questionText}\" requires an answer`);
+            $(this).find('.modern-rating-group, .modern-star-rating').addClass('input-error error');
+        }
+    });
+    // Validate recommendation
+    if (!$('#survey-number').val()) {
+        isValid = false;
+        $('#survey-number').addClass('input-error error');
+        $('#survey-number').parent().addClass('has-error');
+        $('#recommendation_error').text('Recommendation is required').addClass('text-danger');
+        errorList.push('Recommendation is required');
+    }
+    // Optionally validate comments if required (not required here)
+    // Show alert if not valid
+    if (!isValid) {
+        $('#validationAlertContainer').removeClass('d-none');
+        let errorListHtml = '';
+        errorList.forEach(function(err) {
+            errorListHtml += `<li>${err}</li>`;
+        });
+        $('#validationErrorsList ul').html(errorListHtml);
+    } else {
+        $('#validationAlertContainer').addClass('d-none');
+    }
+    return isValid;
+}
+
+// Function to update response summary
+function updateResponseSummary(data) {
+    $('#summary-account-name').text(data.account_name);
+    $('#summary-account-type').text(data.account_type);
+    $('#summary-date').text(data.date);
+    $('#summary-recommendation').text(data.recommendation);
+    $('#summary-comments').text(data.comments || 'No additional comments provided.');
+    
+    // Clear and update responses
+    const responsesContainer = $('#summary-responses');
+    responsesContainer.empty();
+    
+    $('.question-card').each(function() {
+        const questionId = $(this).data('question-id');
+        const questionText = $(this).find('.question-text').contents().first().text().trim();
+        const response = data.responses ? data.responses[questionId] : null;
+        const questionType = $(this).find('.question-input').children('div').first().hasClass('modern-star-rating') ? 'star' : 'radio';
+        
+        if (response) {
+            let ratingHtml = '';
+            
+            if (questionType === 'star') {
+                // Display stars for star rating questions
+                ratingHtml = Array.from({length: 5}, (_, i) => {
+                    const starClass = i < response ? 'text-warning' : 'text-muted';
+                    return `<i class="fas fa-star ${starClass}"></i>`;
+                }).join('');
+                ratingHtml += `<span class="ms-2">${response}/5</span>`;
+            } else {
+                // Display radio buttons for radio questions
+                const ratingText = {
+                    1: 'Poor',
+                    2: 'Needs Improvement',
+                    3: 'Satisfactory',
+                    4: 'Very Satisfactory',
+                    5: 'Excellent'
+                }[response];
+                ratingHtml = `
+                    <div class="rating-display d-flex flex-wrap align-items-center">
+                        <div class="modern-rating-group me-3 mb-2">
+                            ${Array.from({length: 5}, (_, i) => {
+                                const isSelected = i + 1 <= response;
+                                return `<div class="modern-radio-display ${isSelected ? 'selected' : ''}">${i + 1}</div>`;
+                            }).join('')}
+                        </div>
+                        <span class="rating-text">${ratingText}</span>
+                    </div>
+                `;
+            }
+            
+            responsesContainer.append(`
+                <div class="response-item mb-3 p-3 bg-light rounded">
+                    <div class="question-text mb-2 fw-bold">${questionText}</div>
+                    <div class="rating-wrapper w-100">
+                        ${ratingHtml}
+                    </div>
+                </div>
+            `);
+            
+            // Add responsive styles for radio buttons if not already added
+            if (!$('#responsive-radio-styles').length) {
+                $('head').append(`
+                    <style id="responsive-radio-styles">
+                        @media (max-width: 576px) {
+                            .modern-rating-group {
+                                display: flex;
+                                flex-wrap: wrap;
+                                justify-content: flex-start;
+                                margin-bottom: 0.5rem;
+                                width: 100%;
+                            }
+                            .modern-radio-display {
+                                width: 35px;
+                                height: 35px;
+                                margin-right: 5px;
+                                margin-bottom: 5px;
+                            }
+                            .rating-display {
+                                flex-direction: column;
+                                align-items: flex-start !important;
+                            }
+                            .rating-text {
+                                margin-top: 0.5rem;
+                            }
+                        }
+                    </style>
+                `);
+            }
+        }
+    });
+}
 
 // Function to show response summary modal
 function showResponseSummaryModal() {

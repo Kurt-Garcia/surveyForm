@@ -2,6 +2,8 @@
 
 npm install
 
+npm install @mui/material @emotion/react @emotion/styled
+
 composer install
 
 npm run dev
