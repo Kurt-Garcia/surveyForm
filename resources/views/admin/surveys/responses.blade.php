@@ -139,62 +139,62 @@
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <!-- DataTables scripts are already included in the layout -->
             <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                // Add hover effect to stat rows
-                document.querySelectorAll('.stat-row').forEach(row => {
-                    row.addEventListener('mouseenter', function() {
-                        this.querySelector('.progress-bar').style.opacity = '0.9';
+                $(document).ready(function() {
+                    // Add hover effect to stat rows
+                    document.querySelectorAll('.stat-row').forEach(row => {
+                        row.addEventListener('mouseenter', function() {
+                            this.querySelector('.progress-bar').style.opacity = '0.9';
+                        });
+                        row.addEventListener('mouseleave', function() {
+                            this.querySelector('.progress-bar').style.opacity = '1';
+                        });
                     });
-                    row.addEventListener('mouseleave', function() {
-                        this.querySelector('.progress-bar').style.opacity = '1';
+                    
+                    // Initialize DataTables with proper configuration
+                    $('#responsesTable').DataTable({
+                        responsive: true,
+                        pageLength: 10,
+                        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                        language: {
+                            search: "_INPUT_",
+                            searchPlaceholder: "Search by name, type or date..."
+                        },
+                        dom: 'lfrtip', // Default DOM elements: l-length, f-filter, r-processing, t-table, i-info, p-pagination
+                        initComplete: function() {
+                            // Style the search input
+                            $('.dataTables_filter input').addClass('form-control');
+                            $('.dataTables_filter input').css({
+                                'border-radius': '20px',
+                                'padding-left': '15px',
+                                'border-color': '#ced4da'
+                            });
+                            
+                            // Style the length select
+                            $('.dataTables_length select').addClass('form-select');
+                            $('.dataTables_length select').css({
+                                'border-radius': '20px',
+                                'padding-left': '10px',
+                                'border-color': '#ced4da'
+                            });
+                        },
+                        // Apply custom styling to match the existing design
+                        drawCallback: function() {
+                            $('.paginate_button.current').css({
+                                'background-color': 'var(--primary-color)',
+                                'border-color': 'var(--primary-color)',
+                                'color': 'white'
+                            });
+                        }
                     });
-                });
-                
-                // Initialize DataTables
-                $('#responsesTable').DataTable({
-                    responsive: true,
-                    pageLength: 10,
-                    lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
-                    language: {
-                        search: "_INPUT_",
-                        searchPlaceholder: "Search by name, type or date..."
-                    },
-                    dom: '<"d-flex justify-content-between align-items-center mb-3"<"d-flex align-items-center"l><"d-flex align-items-center"f>>t<"d-flex justify-content-between align-items-center mt-3"<"text-muted"i><""p>>',
-                    initComplete: function() {
-                        // Style the search input
-                        $('.dataTables_filter input').addClass('form-control');
-                        $('.dataTables_filter input').css({
-                            'border-radius': '20px',
-                            'padding-left': '15px',
-                            'border-color': '#ced4da'
-                        });
-                        
-                        // Style the length select
-                        $('.dataTables_length select').addClass('form-select');
-                        $('.dataTables_length select').css({
-                            'border-radius': '20px',
-                            'padding-left': '10px',
-                            'border-color': '#ced4da'
-                        });
-                    },
-                    // Apply custom styling to match the existing design
-                    drawCallback: function() {
-                        $('.paginate_button.current').css({
-                            'background-color': 'var(--primary-color)',
-                            'border-color': 'var(--primary-color)',
-                            'color': 'white'
-                        });
+                    
+                    // Smooth scroll to table when URL has fragment
+                    if (window.location.hash === '#individual-responses') {
+                        const element = document.querySelector('#individual-responses');
+                        if (element) {
+                            element.scrollIntoView({ behavior: 'smooth' });
+                        }
                     }
                 });
-                
-                // Smooth scroll to table when URL has fragment
-                if (window.location.hash === '#individual-responses') {
-                    const element = document.querySelector('#individual-responses');
-                    if (element) {
-                        element.scrollIntoView({ behavior: 'smooth' });
-                    }
-                }
-            });
             </script>
             @endpush
 

@@ -208,6 +208,9 @@
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
+    <!-- Stack for page-specific scripts -->
+    @stack('scripts')
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
           // This will be used for dynamically created tables with this ID
