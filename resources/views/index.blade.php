@@ -34,8 +34,12 @@
                 <div class="col">
                     <div class="card h-100 survey-card shadow-sm hover-lift">
                         <div class="card-body">
-                            <div class="card-icon mb-3">
-                                <i class="fas fa-poll fa-2x"></i>
+                            <div class="survey-logo-wrapper text-center mb-3">
+                                @if($survey->logo)
+                                    <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="survey-logo-large">
+                                @else
+                                    <i class="fas fa-poll fa-2x"></i>
+                                @endif
                             </div>
                             <h4 class="card-title">{{ strtoupper($survey->title) }}</h4>
                             <div class="d-flex justify-content-between mt-3 mb-3">
@@ -192,6 +196,12 @@
     .d-flex.gap-2.mt-auto {
         position: relative;
         z-index: 10;
+    }
+    .survey-logo-large {
+        max-width: 100px;
+        max-height: 100px;
+        object-fit: contain;
+        margin: 0 auto;
     }
     </style>
 

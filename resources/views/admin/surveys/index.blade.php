@@ -31,10 +31,14 @@
                     <div class="col">
                         <div class="card h-100 survey-card shadow-sm hover-lift">
                             <div class="card-body">
-                                <div class="card-icon mb-3">
-                                    <i class="bi bi-bar-chart-fill" style="font-size:2.5rem;"></i>
+                                <div class="survey-logo-wrapper text-center mb-3">
+                                    @if($survey->logo)
+                                        <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="survey-logo-large">
+                                    @else
+                                        <i class="bi bi-bar-chart-fill" style="font-size:2.5rem;"></i>
+                                    @endif
                                 </div>
-                                <h4 class="card-title">{{ strtoupper($survey->title) }}</h4>
+                                <h4 class="card-title text-center">{{ strtoupper($survey->title) }}</h4>
                                 <div class="d-flex justify-content-between mt-3 mb-3">
                                     <div class="survey-info">
                                         <div class="text-muted mb-2">
@@ -155,6 +159,26 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+}
+.survey-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 50%;
+    padding: 5px;
+}
+.survey-logo-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+.survey-logo-large {
+    width: 96px;
+    height: 64px;
+    object-fit: contain;
+    /* Removed border-radius, background, box-shadow, and padding for a cleaner logo */
 }
 .card-title {
     font-size: 1.25rem;
@@ -166,6 +190,7 @@
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+    text-align: center;
 }
 .survey-info {
     font-size: 0.9rem;

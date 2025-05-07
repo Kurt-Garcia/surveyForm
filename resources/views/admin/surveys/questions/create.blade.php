@@ -145,13 +145,30 @@ function removeOption(button) {
 </script>
 
 <style>
+.card-header {
+    background-color: var(--primary-color) !important;
+    color: #fff;
+}
+.card-header p {
+    color: #fff !important;
+}
+.card-header a.btn.btn-outline-secondary {
+    color: #fff !important;
+    border-color: #fff !important;
+}
+.card-header a.btn.btn-outline-secondary:hover, .card-header a.btn.btn-outline-secondary:focus {
+    background-color: rgba(255,255,255,0.15) !important;
+    color: #fff !important;
+    border-color: #fff !important;
+}
+
 .form-control, .form-select {
     border-radius: 6px;
 }
 
 .form-control:focus, .form-select:focus {
-    border-color: #4e73df;
-    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--accent-color), 0.25); 
 }
 
 .btn {
@@ -159,8 +176,9 @@ function removeOption(button) {
 }
 
 .form-check-input:checked {
-    background-color: #4e73df;
-    border-color: #4e73df;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
 }
 
 .input-group > .btn {
@@ -184,8 +202,8 @@ function removeOption(button) {
 }
 
 .form-switch .form-check-input:checked {
-    background-color: #4e73df;
-    border-color: #4e73df;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
 }
 
