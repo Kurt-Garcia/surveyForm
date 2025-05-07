@@ -14,17 +14,9 @@ class SurveyResponseController extends Controller
     public function index(Survey $survey, Request $request)
     {
         $query = SurveyResponseHeader::where('survey_id', $survey->id);
-
-        // Handle search
-        if ($search = $request->input('search')) {
-            $query->where(function($q) use ($search) {
-                $q->where('account_name', 'like', '%' . $search . '%')
-                  ->orWhere('account_type', 'like', '%' . $search . '%')
-                  ->orWhere('date', 'like', '%' . $search . '%');
-            });
-        }
-
-        $responses = $query->orderBy('date', 'desc')->paginate(10);
+        
+        // Get all responses for DataTables to handle filtering/pagination client-side
+        $responses = $query->orderBy('date', 'desc')->get();
         $questions = $survey->questions;
 
         // Get response statistics for each question
@@ -95,17 +87,9 @@ class SurveyResponseController extends Controller
     public function uniqueRespondents(Survey $survey, Request $request)
     {
         $query = SurveyResponseHeader::where('survey_id', $survey->id);
-
-        // Handle search
-        if ($search = $request->input('search')) {
-            $query->where(function($q) use ($search) {
-                $q->where('account_name', 'like', '%' . $search . '%')
-                  ->orWhere('account_type', 'like', '%' . $search . '%')
-                  ->orWhere('date', 'like', '%' . $search . '%');
-            });
-        }
-
-        $responses = $query->orderBy('date', 'desc')->paginate(10);
+        
+        // Get all responses for DataTables to handle filtering/pagination client-side
+        $responses = $query->orderBy('date', 'desc')->get();
 
         return view('admin.surveys.unique-respondents', compact('survey', 'responses'));
     }

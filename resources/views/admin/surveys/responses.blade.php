@@ -96,21 +96,8 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card shadow-sm border-0" id="individual-responses">
-                        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <div class="card-header bg-white py-3">
                             <h4 class="text-color mb-0 fw-bold">Individual Responses</h4>
-                            <div class="search-container w-100 w-md-50 w-lg-25">
-                                <form method="GET" action="{{ route('admin.surveys.responses.index', $survey) }}">
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white border-end-0">
-                                            <i class="bi bi-search"></i>
-                                        </span>
-                                        <input type="text" name="search" class="form-control border-start-0" 
-                                            value="{{ request('search') }}" 
-                                            placeholder="Search by name, type or date..." 
-                                            style="border-radius: 0 20px 20px 0;">
-                                    </div>
-                                </form>
-                            </div>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -142,9 +129,6 @@
                                         @endforeach
                                     </tbody>
                                 </table>
-                                <div class="d-flex justify-content-center mt-4">
-                                    {{ $responses->fragment('individual-responses')->links() }}
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -153,6 +137,7 @@
 
             @push('scripts')
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <!-- DataTables scripts are already included in the layout -->
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                 // Add hover effect to stat rows
@@ -165,18 +150,43 @@
                     });
                 });
                 
-                // Auto-submit search form after a short delay when typing
-                const searchForm = document.querySelector('.search-container form');
-                const searchInput = searchForm.querySelector('input[name="search"]');
-                
-                let timeout = null;
-                searchInput.addEventListener('input', function() {
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => {
-                        searchForm.submit();
-                    }, 500);
+                // Initialize DataTables
+                $('#responsesTable').DataTable({
+                    responsive: true,
+                    pageLength: 10,
+                    lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                    language: {
+                        search: "_INPUT_",
+                        searchPlaceholder: "Search by name, type or date..."
+                    },
+                    dom: '<"d-flex justify-content-between align-items-center mb-3"<"d-flex align-items-center"l><"d-flex align-items-center"f>>t<"d-flex justify-content-between align-items-center mt-3"<"text-muted"i><""p>>',
+                    initComplete: function() {
+                        // Style the search input
+                        $('.dataTables_filter input').addClass('form-control');
+                        $('.dataTables_filter input').css({
+                            'border-radius': '20px',
+                            'padding-left': '15px',
+                            'border-color': '#ced4da'
+                        });
+                        
+                        // Style the length select
+                        $('.dataTables_length select').addClass('form-select');
+                        $('.dataTables_length select').css({
+                            'border-radius': '20px',
+                            'padding-left': '10px',
+                            'border-color': '#ced4da'
+                        });
+                    },
+                    // Apply custom styling to match the existing design
+                    drawCallback: function() {
+                        $('.paginate_button.current').css({
+                            'background-color': 'var(--primary-color)',
+                            'border-color': 'var(--primary-color)',
+                            'color': 'white'
+                        });
+                    }
                 });
-            
+                
                 // Smooth scroll to table when URL has fragment
                 if (window.location.hash === '#individual-responses') {
                     const element = document.querySelector('#individual-responses');
@@ -250,28 +260,6 @@
                 transform: translateY(-5px);
             }
             
-            .search-container {
-                max-width: 100%;
-                transition: all 0.3s ease;
-            }
-            
-            .search-container input:focus {
-                border-color: var(--accent-color) !important;
-                box-shadow: 0 0 0 0.25rem rgba(var(--accent-color-rgb), 0.25) !important;
-            }
-
-            @media (min-width: 768px) {
-                .search-container {
-                    max-width: 50%;
-                }
-            }
-
-            @media (min-width: 992px) {
-                .search-container {
-                    max-width: 300px;
-                }
-            }
-            
             .response-row {
                 transition: all 0.2s ease;
             }
@@ -280,28 +268,52 @@
                 background-color: #f8f9fa;
             }
             
-            /* Pagination Styling */
-            .pagination {
-                justify-content: center;
+            /* DataTables Styling */
+            .dataTables_wrapper .dataTables_length, 
+            .dataTables_wrapper .dataTables_filter, 
+            .dataTables_wrapper .dataTables_info, 
+            .dataTables_wrapper .dataTables_processing, 
+            .dataTables_wrapper .dataTables_paginate {
+                color: var(--text-color);
             }
             
-            .pagination .page-item .page-link {
-                color: var(--primary-color);
-                border: 1px solid var(--primary-color);
-                margin: 0 5px;
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+                background: var(--primary-color) !important;
+                color: white !important;
+                border-color: var(--primary-color) !important;
+                border-radius: 4px;
+            }
+            
+            .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+                background: var(--primary-color) !important;
+                color: white !important;
+                border-color: var(--primary-color) !important;
+                border-radius: 4px;
+            }
+            
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                margin: 0 3px;
                 border-radius: 4px;
                 transition: all 0.3s ease;
             }
             
-            .pagination .page-item.active .page-link {
-                background-color: var(--primary-color);
-                border-color: var(--primary-color);
-                color: white;
+            .dataTables_filter input:focus {
+                border-color: var(--accent-color) !important;
+                box-shadow: 0 0 0 0.25rem rgba(var(--accent-color-rgb), 0.25) !important;
             }
             
-            .pagination .page-item .page-link:hover {
-                background-color: var(--primary-color);
-                color: white;
+            .dataTables_length select:focus {
+                border-color: var(--accent-color) !important;
+                box-shadow: 0 0 0 0.25rem rgba(var(--accent-color-rgb), 0.25) !important;
+            }
+            
+            table.dataTable tbody tr.even {
+                background-color: #f8f9fa;
+            }
+            
+            table.dataTable tbody tr.odd {
+                background-color: white;
             }
             </style>
         </div>
