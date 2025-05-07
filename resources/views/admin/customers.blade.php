@@ -17,22 +17,28 @@
             color: var(--text-color) !important;
             background-color: white !important;
             border: 1px solid #dee2e6 !important;
-            padding: 0.375rem 0.75rem !important;
-            border-radius: 0.25rem !important;
-            margin-right: 0.5rem !important;
-            transition: all 0.15s ease-in-out !important;
+            padding: 8px 22px !important;
+            border-radius: 20px !important;
+            margin: 0 6px 8px 0 !important;
+            font-weight: 600;
+            transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.2s;
+            outline: none;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
         }
 
-        .dt-button:hover {
-            background-color: var(--primary-color) !important;
-            border-color: var(--primary-color) !important;
-            color: white !important;
+        .dt-button:hover, .dt-button:focus {
+            background: linear-gradient(90deg, var(--secondary-color) 0%, var(--primary-color) 100%) !important;
+            color: #fff !important;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+            transform: translateY(-2px) scale(1.04);
+            border: none;
         }
 
-        .dt-button.active {
-            background-color: var(--primary-color) !important;
-            border-color: var(--primary-color) !important;
-            color: white !important;
+        .dt-button:active {
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transform: scale(0.98);
+            color: #fff !important;
         }
         
         /* DataTables General Styling */
@@ -44,25 +50,38 @@
             color: var(--text-color);
         }
         
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current, 
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-            background: var(--primary-color) !important;
-            color: white !important;
-            border-color: var(--primary-color) !important;
-            border-radius: 4px;
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+            color: #fff !important;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            transform: translateY(-1px) scale(1.03);
         }
         
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-            background: var(--primary-color) !important;
-            color: white !important;
-            border-color: var(--primary-color) !important;
-            border-radius: 4px;
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+            background: #f8f9fa !important;
+            color: #bdbdbd !important;
+            border: 1px solid #e0e0e0 !important;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:active {
+            transform: scale(0.97);
         }
         
         .dataTables_wrapper .dataTables_paginate .paginate_button {
+            cursor: pointer;
+            background: linear-gradient(90deg, #fff 0%, #f0f4fa 100%);
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color) !important;
+            border-radius: 18px !important;
             margin: 0 3px;
-            border-radius: 4px;
-            transition: all 0.3s ease;
+            padding: 6px 16px;
+            font-weight: 500;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+            transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.2s;
         }
 
         table.dataTable tbody tr.even {
@@ -253,7 +272,13 @@
                 $('.dataTables_filter input').css({
                     'border-radius': '20px',
                     'padding-left': '15px',
-                    'border-color': '#ced4da'
+                    'border-color': '#ced4da',
+                    'outline': 'none',
+                    'box-shadow': 'none'
+                }).focus(function() {
+                    $(this).css('border-color', 'var(--accent-color)');
+                }).blur(function() {
+                    $(this).css('border-color', '#ced4da');
                 });
                 
                 // Style the length select
