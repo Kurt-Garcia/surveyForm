@@ -3,6 +3,76 @@
 @section('content')
 <head>
     @vite(['resources/js/app.js'])
+    <style>
+        /* DataTables Export Button Styling */
+        div.dt-buttons {
+            margin-bottom: 1rem;
+        }
+
+        div.dt-button-collection {
+            width: auto !important;
+        }
+
+        .dt-button {
+            color: var(--text-color) !important;
+            background-color: white !important;
+            border: 1px solid #dee2e6 !important;
+            padding: 0.375rem 0.75rem !important;
+            border-radius: 0.25rem !important;
+            margin-right: 0.5rem !important;
+            transition: all 0.15s ease-in-out !important;
+        }
+
+        .dt-button:hover {
+            background-color: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+            color: white !important;
+        }
+
+        .dt-button.active {
+            background-color: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+            color: white !important;
+        }
+        
+        /* DataTables General Styling */
+        .dataTables_wrapper .dataTables_length, 
+        .dataTables_wrapper .dataTables_filter, 
+        .dataTables_wrapper .dataTables_info, 
+        .dataTables_wrapper .dataTables_processing, 
+        .dataTables_wrapper .dataTables_paginate {
+            color: var(--text-color);
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            background: var(--primary-color) !important;
+            color: white !important;
+            border-color: var(--primary-color) !important;
+            border-radius: 4px;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: var(--primary-color) !important;
+            color: white !important;
+            border-color: var(--primary-color) !important;
+            border-radius: 4px;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            margin: 0 3px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        table.dataTable tbody tr.even {
+            background-color: #f8f9fa;
+        }
+        
+        table.dataTable tbody tr.odd {
+            background-color: white;
+        }
+    </style>
 </head>
 
 <div class="container-fluid px-4 mt-4">
@@ -116,8 +186,85 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        new DataTable('#customersTable');
+    $(document).ready(function() {
+        $('#customersTable').DataTable({
+            responsive: true,
+            pageLength: 10,
+            lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search customers..."
+            },
+            dom: 'Blfrtip', // B-buttons, l-length, f-filter, r-processing, t-table, i-info, p-pagination
+            buttons: [
+                {
+                    extend: 'copy',
+                    text: '<i class="bi bi-clipboard me-1"></i> Copy',
+                    className: 'btn btn-sm',
+                    exportOptions: {
+                        columns: [1, 2, 3, 4, 5, 6, 7] // Export only important columns
+                    }
+                },
+                {
+                    extend: 'csv',
+                    text: '<i class="bi bi-filetype-csv me-1"></i> CSV',
+                    className: 'btn btn-sm',
+                    exportOptions: {
+                        columns: [1, 2, 3, 4, 5, 6, 7]
+                    },
+                    title: 'Customer List'
+                },
+                {
+                    extend: 'excel',
+                    text: '<i class="bi bi-file-earmark-excel me-1"></i> Excel',
+                    className: 'btn btn-sm',
+                    exportOptions: {
+                        columns: [1, 2, 3, 4, 5, 6, 7]
+                    },
+                    title: 'Customer List'
+                },
+                {
+                    extend: 'pdf',
+                    text: '<i class="bi bi-file-earmark-pdf me-1"></i> PDF',
+                    className: 'btn btn-sm',
+                    exportOptions: {
+                        columns: [1, 2, 3, 4, 5, 6, 7]
+                    },
+                    title: 'Customer List',
+                    customize: function(doc) {
+                        doc.defaultStyle.fontSize = 10;
+                        doc.styles.tableHeader.fontSize = 11;
+                        doc.styles.tableHeader.alignment = 'left';
+                    }
+                },
+                {
+                    extend: 'print',
+                    text: '<i class="bi bi-printer me-1"></i> Print',
+                    className: 'btn btn-sm',
+                    exportOptions: {
+                        columns: [1, 2, 3, 4, 5, 6, 7]
+                    },
+                    title: 'Customer List'
+                }
+            ],
+            initComplete: function() {
+                // Style the search input
+                $('.dataTables_filter input').addClass('form-control');
+                $('.dataTables_filter input').css({
+                    'border-radius': '20px',
+                    'padding-left': '15px',
+                    'border-color': '#ced4da'
+                });
+                
+                // Style the length select
+                $('.dataTables_length select').addClass('form-select');
+                $('.dataTables_length select').css({
+                    'border-radius': '20px',
+                    'padding-left': '10px',
+                    'border-color': '#ced4da'
+                });
+            }
+        });
     });
 </script>
 @endsection

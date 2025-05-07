@@ -137,6 +137,12 @@
 
             @push('scripts')
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
+            <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
+            <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
             <!-- DataTables scripts are already included in the layout -->
             <script>
                 $(document).ready(function() {
@@ -150,7 +156,7 @@
                         });
                     });
                     
-                    // Initialize DataTables with proper configuration
+                    // Initialize DataTables with proper configuration and export buttons
                     $('#responsesTable').DataTable({
                         responsive: true,
                         pageLength: 10,
@@ -159,7 +165,59 @@
                             search: "_INPUT_",
                             searchPlaceholder: "Search by name, type or date..."
                         },
-                        dom: 'lfrtip', // Default DOM elements: l-length, f-filter, r-processing, t-table, i-info, p-pagination
+                        dom: 'Blfrtip', // B-buttons, l-length, f-filter, r-processing, t-table, i-info, p-pagination
+                        buttons: [
+                            {
+                                extend: 'copy',
+                                text: '<i class="bi bi-clipboard me-1"></i> Copy',
+                                className: 'btn btn-sm',
+                                exportOptions: {
+                                    columns: [0, 1, 2] // Export only specific columns
+                                }
+                            },
+                            {
+                                extend: 'csv',
+                                text: '<i class="bi bi-filetype-csv me-1"></i> CSV',
+                                className: 'btn btn-sm',
+                                exportOptions: {
+                                    columns: [0, 1, 2]
+                                },
+                                title: 'Survey Responses - {{ $survey->title }}'
+                            },
+                            {
+                                extend: 'excel',
+                                text: '<i class="bi bi-file-earmark-excel me-1"></i> Excel',
+                                className: 'btn btn-sm',
+                                exportOptions: {
+                                    columns: [0, 1, 2]
+                                },
+                                title: 'Survey Responses - {{ $survey->title }}'
+                            },
+                            {
+                                extend: 'pdf',
+                                text: '<i class="bi bi-file-earmark-pdf me-1"></i> PDF',
+                                className: 'btn btn-sm',
+                                exportOptions: {
+                                    columns: [0, 1, 2]
+                                },
+                                title: 'Survey Responses - {{ $survey->title }}',
+                                customize: function(doc) {
+                                    doc.defaultStyle.fontSize = 10;
+                                    doc.styles.tableHeader.fontSize = 11;
+                                    doc.styles.tableHeader.alignment = 'left';
+                                    doc.content[1].table.widths = ['*', '*', '*'];
+                                }
+                            },
+                            {
+                                extend: 'print',
+                                text: '<i class="bi bi-printer me-1"></i> Print',
+                                className: 'btn btn-sm',
+                                exportOptions: {
+                                    columns: [0, 1, 2]
+                                },
+                                title: 'Survey Responses - {{ $survey->title }}'
+                            }
+                        ],
                         initComplete: function() {
                             // Style the search input
                             $('.dataTables_filter input').addClass('form-control');
@@ -314,6 +372,37 @@
             
             table.dataTable tbody tr.odd {
                 background-color: white;
+            }
+
+            /* DataTables Export Button Styling */
+            div.dt-buttons {
+                margin-bottom: 1rem;
+            }
+
+            div.dt-button-collection {
+                width: auto !important;
+            }
+
+            .dt-button {
+                color: var(--text-color) !important;
+                background-color: white !important;
+                border: 1px solid #dee2e6 !important;
+                padding: 0.375rem 0.75rem !important;
+                border-radius: 0.25rem !important;
+                margin-right: 0.5rem !important;
+                transition: all 0.15s ease-in-out !important;
+            }
+
+            .dt-button:hover {
+                background-color: var(--primary-color) !important;
+                border-color: var(--primary-color) !important;
+                color: white !important;
+            }
+
+            .dt-button.active {
+                background-color: var(--primary-color) !important;
+                border-color: var(--primary-color) !important;
+                color: white !important;
             }
             </style>
         </div>
