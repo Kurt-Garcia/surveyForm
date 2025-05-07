@@ -62,12 +62,25 @@ class SurveyController extends Controller
 
     public function index()
     {
-        $surveys = Survey::with('questions')
-            ->where('admin_id', Auth::guard('admin')->id())
-            ->latest()
-            ->paginate(6);
+        $query = Survey::with('questions')
+            ->where('admin_id', Auth::guard('admin')->id());
 
-        return view('admin.surveys.index', compact('surveys'));
+        $search = request('search');
+        $date = request('date');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%$search%")
+                  ->orWhereDate('created_at', $search);
+            });
+        }
+        if ($date) {
+            $query->whereDate('created_at', $date);
+        }
+
+        $surveys = $query->latest()->paginate(6);
+        $totalSurveys = $query->count();
+        return view('admin.surveys.index', compact('surveys', 'totalSurveys'));
     }
 
     public function show(Survey $survey)

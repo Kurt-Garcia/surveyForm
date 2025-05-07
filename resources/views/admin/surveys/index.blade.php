@@ -8,9 +8,13 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h2 class="h3 mb-0 text-gray-800">{{ __('My Surveys') }}</h2>
-                    <p class="text-muted small mb-0">Manage and monitor your survey collection</p>
+                    <p class="text-muted small mb-0 mt-2">Total Surveys: {{ $totalSurveys }}</p>
                 </div>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 align-items-center">
+                    <form method="GET" action="{{ route('admin.surveys.index') }}" class="d-flex align-items-center me-2" style="min-width:220px;">
+                        <input type="text" name="search" id="survey-search" class="form-control form-control-sm" placeholder="Search surveys..." value="{{ request('search') }}" style="min-width:150px;">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm ms-2"><i class="bi bi-search"></i></button>
+                    </form>
                     <a href="{{ route('admin.surveys.create') }}" class="btn btn-primary">
                         <i class="bi bi-plus-lg me-1"></i>{{ __('Create Survey') }}
                     </a>
@@ -62,7 +66,7 @@
                                     Created {{ $survey->created_at->format('M d, Y') }}
                                 </div>
                                 <div class="d-flex gap-2 mt-auto">
-                                    <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-start btn-primary flex-grow-1">
+                                    <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-start flex-grow-1"> {{--add a (btn-primary if you want to turn --primary-color)--}}
                                         <i class="fas fa-eye me-1"></i> View Details
                                     </a>
                                     <a href="{{ route('admin.surveys.responses.index', $survey) }}" class="btn btn-outline-secondary btn-view-responses flex-grow-1">
@@ -86,7 +90,14 @@
             </div>
 
             <div class="pagination-container mt-4">
-                {{ $surveys->links() }}
+                <div class="row align-items-center">
+                    <div class="col-md-6 text-muted small text-start mb-2 mb-md-0">
+                        Showing {{ $surveys->firstItem() }} to {{ $surveys->lastItem() }} of {{ $surveys->total() }} entries
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        {{ $surveys->links() }}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -126,10 +137,15 @@
 
 .pagination-container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: flex-start;
     margin-top: 2rem;
 }
+.pagination-container .row {
+    width: 100%;
+}
 .pagination-container .pagination {
+    justify-content: center;
     margin: 0;
 }
 
@@ -282,6 +298,36 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.style.zIndex = '2';
         });
     });
+    // Real-time AJAX search for surveys
+    const searchInput = document.getElementById('survey-search');
+    if (searchInput) {
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function() {
+                const query = searchInput.value;
+                const url = new URL(window.location.href);
+                url.searchParams.set('search', query);
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    // Replace the surveys grid only
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newGrid = doc.querySelector('.row.row-cols-1.row-cols-md-2.row-cols-lg-3.g-4');
+                    const newPagination = doc.querySelector('.pagination-container');
+                    const grid = document.querySelector('.row.row-cols-1.row-cols-md-2.row-cols-lg-3.g-4');
+                    const pagination = document.querySelector('.pagination-container');
+                    if (grid && newGrid) grid.innerHTML = newGrid.innerHTML;
+                    if (pagination && newPagination) pagination.innerHTML = newPagination.innerHTML;
+                });
+            }, 300); // Debounce
+        });
+    }
 });
 </script>
 @endsection
