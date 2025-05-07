@@ -2,6 +2,17 @@
 
 @section('content')
 <div class="container-fluid px-4 mt-4">
+    <!-- Print-only logo header -->
+    <div class="print-only-header d-none">
+        <div class="text-center mb-4">
+            @if($survey->logo)
+                <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="print-logo">
+            @else
+                <img src="{{ asset('img/logo.png') }}" alt="Default Logo" class="print-logo">
+            @endif
+        </div>
+    </div>
+    
     <!-- Action Buttons Section -->
     <div class="mb-3 d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 gap-sm-0">
         <div class="d-flex flex-column flex-sm-row gap-2 mb-2 mb-sm-0">
@@ -208,8 +219,10 @@
 }
 </style>
 
-<!-- Include html2pdf library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<!-- Include html2canvas and jsPDF libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
 function getRandomColor() {
     // Generate pastel colors by limiting RGB values between 150 and 255
@@ -229,47 +242,111 @@ function applyRandomColors() {
 document.addEventListener('DOMContentLoaded', applyRandomColors);
 
 function generatePDF() {
-    const element = document.querySelector('.card');
-    const opt = {
-        margin: [0.5, 0.5, 0.5, 0.5],
-        filename: 'survey-response.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-            scale: 2,
-            useCORS: true,
-            logging: false
-        },
-        jsPDF: { 
-            unit: 'in', 
-            format: 'letter',
-            orientation: 'portrait',
-            compress: true
-        },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-    };
-
-    // Add custom CSS for PDF generation
-    const style = document.createElement('style');
-    style.textContent = `
-        .response-item {
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-        }
-        body {
-            font-size: 10pt !important;
-            line-height: 1.2 !important;
-        }
-        .card-body {
-            padding: 0.25in !important;
-        }
-        form[action*="toggle-resubmission"] {
-            display: none !important;
-        }
+    // Show loading indicator
+    const loadingToast = document.createElement('div');
+    loadingToast.className = 'position-fixed bottom-0 end-0 p-3';
+    loadingToast.style.zIndex = '5000';
+    loadingToast.innerHTML = `
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Processing PDF</strong>
+            </div>
+            <div class="toast-body">
+                <div class="d-flex align-items-center">
+                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                    <span>Creating your PDF file. Please wait...</span>
+                </div>
+            </div>
+        </div>
     `;
-    document.head.appendChild(style);
+    document.body.appendChild(loadingToast);
 
-    html2pdf().set(opt).from(element).save().then(() => {
-        document.head.removeChild(style);
+    // Create a temporary container for PDF content including the logo
+    const pdfContainer = document.createElement('div');
+    pdfContainer.style.width = '800px';
+    pdfContainer.style.padding = '20px';
+    pdfContainer.style.backgroundColor = 'white';
+    
+    // Clone the print header with logo for PDF
+    const logoHeader = document.querySelector('.print-only-header').cloneNode(true);
+    logoHeader.classList.remove('d-none');
+    logoHeader.style.display = 'block';
+    logoHeader.style.marginBottom = '20px';
+    
+    // Make the logo smaller in the PDF
+    const logoImage = logoHeader.querySelector('img.print-logo');
+    if (logoImage) {
+        logoImage.style.maxWidth = '200px';
+        logoImage.style.height = 'auto';
+        logoImage.style.margin = '0 auto';
+        logoImage.style.display = 'block';
+    }
+    
+    // Clone the content
+    const contentClone = document.querySelector('.card.shadow-sm.border-0').cloneNode(true);
+    
+    // Remove buttons and unnecessary elements from the clone
+    const buttonsToRemove = contentClone.querySelectorAll('.btn, form[action*="toggle-resubmission"]');
+    buttonsToRemove.forEach(btn => {
+        if (btn && btn.parentNode) {
+            btn.parentNode.removeChild(btn);
+        }
+    });
+    
+    // Append elements to the PDF container
+    pdfContainer.appendChild(logoHeader);
+    pdfContainer.appendChild(contentClone);
+    
+    // Temporarily add to document body but hidden
+    pdfContainer.style.position = 'absolute';
+    pdfContainer.style.left = '-9999px';
+    document.body.appendChild(pdfContainer);
+    
+    // Use html2canvas to convert the container to an image
+    window.html2canvas(pdfContainer, {
+        scale: 1.5, // Higher quality rendering
+        useCORS: true,
+        allowTaint: true,
+        scrollY: -window.scrollY // Fix positioning issues
+    }).then(canvas => {
+        // Clean up - remove temporary container
+        document.body.removeChild(pdfContainer);
+        
+        // Create PDF with proper dimensions
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
+        
+        // Calculate dimensions to fit the image perfectly on the page
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        
+        // Calculate scaling ratio with adjusted margins
+        const marginSide = 10; // Side margins
+        const marginTop = 10;   // Top margin
+        const marginBottom = 10; // Bottom margin
+        const availableWidth = pdfWidth - (marginSide * 2);
+        const availableHeight = pdfHeight - (marginTop + marginBottom);
+        const ratio = Math.min(availableWidth / imgWidth, availableHeight / imgHeight);
+        
+        // Calculate centered position
+        const imgX = marginSide + (availableWidth - (imgWidth * ratio)) / 2;
+        const imgY = marginTop;
+        
+        // Add image to PDF
+        pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+        
+        // Save PDF
+        pdf.save(`${document.title || 'survey-response'}-details.pdf`);
+        
+        // Remove loading indicator
+        document.body.removeChild(loadingToast);
     });
 }
 </script>
@@ -286,13 +363,13 @@ body {
     font-size: 10pt; /* Slightly smaller font for better fit */
     line-height: 1.2;
 }
-.container {
+.container-fluid {
     width: 100% !important;
     max-width: 100% !important;
     padding: 0 !important;
     margin: 0 !important;
 }
-.btn, .card-header form, .btn-close {
+.btn, .card-header form, .btn-close, .mb-3.d-flex {
     display: none !important;
 }
 .card {
@@ -361,6 +438,22 @@ hr {
     color: #ffc107 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+}
+
+.print-only-header {
+    display: block !important;
+}
+
+.print-logo {
+    max-width: 200px;
+    height: auto;
+    margin: 0 auto 15px;
+    display: block;
+}
+
+/* Make sure the navbar is hidden during print */
+nav.navbar, nav.navbar * {
+    display: none !important;
 }
 }
 </style>

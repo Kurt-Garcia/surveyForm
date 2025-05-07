@@ -49,11 +49,11 @@
                                 <h4 class="card-title text-center">{{ strtoupper($survey->title) }}</h4>
                                 <div class="d-flex justify-content-between mt-3 mb-3">
                                     <div class="survey-info">
-                                        <div class="text-muted mb-2">
+                                        <div class=" small text-muted mb-1">
                                             <i class="fas fa-question-circle me-1"></i>
                                             {{ $survey->questions->count() }} questions
                                         </div>
-                                        <div class="text-muted">
+                                        <div class="small text-muted">
                                             <i class="bi bi-person me-1"></i>
                                             {{ $survey->admin->name }}
                                         </div>
@@ -65,9 +65,15 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="small text-muted mb-3">
-                                    <i class="bi bi-calendar me-1"></i>
-                                    Created {{ $survey->created_at->format('M d, Y') }}
+                                <div class="d-flex flex-column mb-3">
+                                    <div class="small text-muted">
+                                        <i class="bi bi-calendar me-1"></i>
+                                        Created {{ $survey->created_at->format('M d, Y') }}
+                                    </div>
+                                    <div class="small text-muted mt-1">
+                                        <i class="bi bi-bar-chart-fill me-1"></i>
+                                        {{ $survey->responseHeaders->count() }} responses
+                                    </div>
                                 </div>
                                 <div class="d-flex gap-2 mt-auto">
                                     <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-start flex-grow-1"> {{--add a (btn-primary if you want to turn --primary-color)--}}

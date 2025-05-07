@@ -2,6 +2,17 @@
 
 @section('content')
 <div class="container mt-5">
+    <!-- Print-only logo header -->
+    <div class="print-only-header d-none">
+        <div class="text-center mb-4">
+            @if($survey->logo)
+                <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="print-logo">
+            @else
+                <img src="{{ asset('img/logo.png') }}" alt="Default Logo" class="print-logo">
+            @endif
+        </div>
+    </div>
+
     <!-- Action Buttons Section -->
     <div class="mb-3 d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 gap-sm-0">
         <div class="d-flex flex-column flex-sm-row gap-2 mb-2 mb-sm-0">
@@ -566,6 +577,37 @@
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
+
+    .print-only-header {
+        display: block !important;
+    }
+
+    .print-logo {
+        max-width: 200px;
+        height: auto;
+    }
+
+    /* Make sure the navbar is hidden during print */
+    nav.navbar, nav.navbar * {
+        display: none !important;
+    }
+    
+    /* Show the print-only header during printing */
+    .print-only-header {
+        display: block !important;
+        margin-bottom: 20px;
+    }
+
+    .print-logo {
+        max-width: 200px;
+        height: auto;
+        margin-bottom: 15px;
+    }
+    
+    /* Add space at the top of the page for the logo */
+    body {
+        padding-top: 20px !important;
+    }
 }
 </style>
 
@@ -633,27 +675,56 @@ function generatePDF() {
     `;
     document.body.appendChild(loadingToast);
 
-    // Get content to convert
-    const contentElement = document.querySelector('.card.shadow-sm.border-0');
+    // Create a temporary container for PDF content including the logo
+    const pdfContainer = document.createElement('div');
+    pdfContainer.style.width = '800px';
+    pdfContainer.style.padding = '20px';
+    pdfContainer.style.backgroundColor = 'white';
     
-    // Hide buttons for PDF and prepare content
-    const actionButtons = document.querySelectorAll('.btn');
-    actionButtons.forEach(btn => btn.style.display = 'none');
+    // Clone the print header with logo for PDF
+    const logoHeader = document.querySelector('.print-only-header').cloneNode(true);
+    logoHeader.classList.remove('d-none');
+    logoHeader.style.display = 'block';
+    logoHeader.style.marginBottom = '20px';
     
-    // Set max width for better fitting
-    const originalWidth = contentElement.style.width;
-    contentElement.style.width = '800px';
+    // Make the logo smaller in the PDF
+    const logoImage = logoHeader.querySelector('img.print-logo');
+    if (logoImage) {
+        logoImage.style.maxWidth = '200px'; // Smaller size for PDF
+        logoImage.style.height = 'auto';
+        logoImage.style.margin = '0 auto';
+        logoImage.style.display = 'block';
+    }
     
-    // Use html2canvas to convert the card to an image
-    window.html2canvas(contentElement, {
+    // Clone the content
+    const contentClone = document.querySelector('.card.shadow-sm.border-0').cloneNode(true);
+    
+    // Remove buttons and unnecessary elements from the clone
+    const buttonsToRemove = contentClone.querySelectorAll('.btn, #resubmissionForm, #copyLinkSection');
+    buttonsToRemove.forEach(btn => {
+        if (btn && btn.parentNode) {
+            btn.parentNode.removeChild(btn);
+        }
+    });
+    
+    // Append elements to the PDF container
+    pdfContainer.appendChild(logoHeader);
+    pdfContainer.appendChild(contentClone);
+    
+    // Temporarily add to document body but hidden
+    pdfContainer.style.position = 'absolute';
+    pdfContainer.style.left = '-9999px';
+    document.body.appendChild(pdfContainer);
+    
+    // Use html2canvas to convert the container to an image
+    window.html2canvas(pdfContainer, {
         scale: 1.5, // Higher quality rendering
         useCORS: true,
         allowTaint: true,
         scrollY: -window.scrollY // Fix positioning issues
     }).then(canvas => {
-        // Restore original styles
-        contentElement.style.width = originalWidth;
-        actionButtons.forEach(btn => btn.style.display = '');
+        // Clean up - remove temporary container
+        document.body.removeChild(pdfContainer);
         
         // Create PDF with proper dimensions
         const imgData = canvas.toDataURL('image/png');
@@ -670,17 +741,17 @@ function generatePDF() {
         const imgWidth = canvas.width;
         const imgHeight = canvas.height;
         
-        // Calculate scaling ratio with adjusted margins (reduced top margin)
+        // Calculate scaling ratio with adjusted margins
         const marginSide = 10; // Side margins
-        const marginTop = 5;   // Reduced top margin
+        const marginTop = 10;   // Top margin
         const marginBottom = 10; // Bottom margin
         const availableWidth = pdfWidth - (marginSide * 2);
         const availableHeight = pdfHeight - (marginTop + marginBottom);
         const ratio = Math.min(availableWidth / imgWidth, availableHeight / imgHeight);
         
-        // Calculate centered position with reduced top margin
+        // Calculate centered position
         const imgX = marginSide + (availableWidth - (imgWidth * ratio)) / 2;
-        const imgY = marginTop; // Place content closer to the top
+        const imgY = marginTop;
         
         // Add image to PDF
         pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);

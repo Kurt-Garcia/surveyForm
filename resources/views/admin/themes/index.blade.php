@@ -114,7 +114,7 @@
                             <ul class="list-unstyled">
                                 <li><strong>Primary Color:</strong> Main branding color used for headers and buttons</li>
                                 <li><strong>Secondary Color:</strong> Used for secondary elements and hover states</li>
-                                <li><strong>Accent Color:</strong> Used for highlights and call-to-action elements</li>
+                                <li><strong>Accent Color:</strong> Used for highlights</li>
                                 <li><strong>Background Color:</strong> The main page background color</li>
                                 <li><strong>Text Color:</strong> The color used for body text</li>
                             </ul>
@@ -125,8 +125,6 @@
                                 <li><strong>Heading Font:</strong> Used for headings, titles, and important text</li>
                                 <li><strong>Body Font:</strong> Used for general content and paragraph text</li>
                             </ul>
-                            <h5>Custom CSS</h5>
-                            <p>Use custom CSS for advanced styling needs beyond the basic theme settings.</p>
                         </div>
                     </div>
                 </div>

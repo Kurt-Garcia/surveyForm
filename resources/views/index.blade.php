@@ -92,9 +92,11 @@
         </div>
         
         <div class="pagination-container mt-4 d-flex justify-content-between align-items-center">
+            @if($surveys->hasPages())
             <div class="pagination-info">
                 Showing {{ $surveys->firstItem() }} to {{ $surveys->lastItem() }} of {{ $surveys->total() }} surveys
             </div>
+            @endif
             {{ $surveys->links() }}
         </div>
     </div>
