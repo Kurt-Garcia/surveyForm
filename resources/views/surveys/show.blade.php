@@ -176,7 +176,7 @@
 
             <div class="comments-section mt-5">
                 <h2 class="section-title">Additional Feedback</h2>
-                <textarea class="modern-textarea" name="comments" rows="5" placeholder="We value your thoughts. Please share any additional feedback..."></textarea>
+                <textarea class="modern-textarea" name="comments" rows="5" placeholder="We value your thoughts. Please share any additional feedback..." maxlength="150"></textarea>
                 <div class="validation-message" id="comments_error"></div>
             </div>
 
@@ -423,28 +423,22 @@ $(document).ready(function() {
             const questionId = $(this).data('question-id');
             const isRequired = $(this).find('.badge.required').length > 0;
             const questionText = $(this).find('.question-text').contents().first().text().trim();
-            const hasResponse = $(`input[name="responses[${questionId}]"]:checked`).length > 0;
-            
+            const hasResponse = $(this).find('input[type=radio]:checked').length > 0 || $(this).find('input[type=checkbox]:checked').length > 0 || $(this).find('select').val();
             if (isRequired && !hasResponse) {
                 isValid = false;
                 $(this).addClass('has-error');
-                $(`#question_${questionId}_error`).text('This question requires an answer')
-                    .addClass('text-danger');
-                errorList.push(`Question "${questionText}" requires an answer`);
+                $(this).find('.validation-message').text('This question is required').addClass('text-danger');
+                errorList.push('Question: ' + questionText + ' is required');
                 requiredQuestionsEmpty = true;
-                
-                // Add red border to the question card
-                $(this).find('.modern-rating-group, .modern-star-rating').addClass('error');
             }
         });
-        
-        // Validate recommendation
-        if (!$('#survey-number').val()) {
+        // Validate comments length
+        const comments = $('textarea[name="comments"]').val();
+        if (comments && comments.length > 150) {
             isValid = false;
-            $('#survey-number').addClass('error');
-            $('#survey-number').parent().addClass('has-error');
-            $('#recommendation_error').text('Please select a recommendation rating').addClass('text-danger');
-            errorList.push('Recommendation rating is required');
+            $('textarea[name="comments"]').addClass('error');
+            $('#comments_error').text('Comments cannot exceed 150 characters.').addClass('text-danger');
+            errorList.push('Comments cannot exceed 150 characters.');
         }
         
         // Show validation errors summary if any

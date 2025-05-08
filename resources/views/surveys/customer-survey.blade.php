@@ -156,7 +156,7 @@
 
             <div class="comments-section mt-5">
                 <h2 class="section-title">Additional Feedback</h2>
-                <textarea class="modern-textarea" name="comments" rows="5" placeholder="We value your thoughts. Please share any additional feedback..."></textarea>
+                <textarea class="modern-textarea" name="comments" rows="5" placeholder="We value your thoughts. Please share any additional feedback..." maxlength="150"></textarea>
                 <div class="validation-message" id="comments_error"></div>
             </div>
 
