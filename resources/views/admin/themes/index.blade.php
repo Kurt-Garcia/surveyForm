@@ -52,7 +52,7 @@
                                 <h6 class="preview-title">Color Palette</h6>
                                 <div class="color-palette">
                                     <div class="color-item">
-                                        <div class="color-swatch primary-swatch" style="background-color: {{ $theme->primary_color }};"></div>
+                                        <div class="color-swatch" style="background-color: {{ $theme->primary_color }};"></div>
                                         <div class="color-label">Primary</div>
                                     </div>
                                     <div class="color-item">

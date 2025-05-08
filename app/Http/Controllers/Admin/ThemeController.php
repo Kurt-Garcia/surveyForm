@@ -99,7 +99,12 @@ class ThemeController extends Controller
     public function update(Request $request, ThemeSetting $theme)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:theme_settings,name',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('theme_settings', 'name')->ignore($theme->id),
+            ],
             'primary_color' => 'required|string|max:7',
             'secondary_color' => 'required|string|max:7',
             'accent_color' => 'required|string|max:7',

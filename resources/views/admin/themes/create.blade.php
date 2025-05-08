@@ -129,9 +129,6 @@
                                     @error('heading_font')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                    <div class="mt-3 p-3 rounded heading-preview-container">
-                                        <p class="heading-font-preview mb-0">Heading Font Preview</p>
-                                    </div>
                                 </div>
                                 
                                 <!-- Body Font -->
@@ -148,9 +145,6 @@
                                     @error('body_font')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                    <div class="mt-3 p-3 rounded body-preview-container">
-                                        <p class="body-font-preview mb-0">Body Font Preview</p>
-                                    </div>
                                 </div>
                             </div>
                         </div>
