@@ -1,96 +1,104 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid px-4 py-4">
+<div class="container-fluid px-4 py-5">
     <div class="row justify-content-center">
         <div class="col-12 col-xl-10">
             <!-- Header Section -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="fw-bold mb-0">Theme Settings</h2>
-                    <p class="text-muted">Customize the appearance of your survey application</p>
+            <div class="header-container mb-5">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="display-5 fw-bold mb-0">Theme Gallery</h2>
+                        <p class="text-muted lead">Customize the look and feel of your surveys</p>
+                    </div>
+                    <a href="{{ route('admin.themes.create') }}" class="btn btn-primary btn-lg create-theme-btn">
+                        <i class="bi bi-plus-circle me-2"></i>Create New Theme
+                    </a>
                 </div>
-                <a href="{{ route('admin.themes.create') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-2"></i>Create New Theme
-                </a>
+                <div class="header-decoration"></div>
             </div>
 
             @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <div class="alert alert-success alert-dismissible fade show custom-alert" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
             @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show custom-alert" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
                     {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
             <!-- Theme Cards -->
-            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 mb-4">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-5 mb-5">
                 @foreach($themes as $theme)
-                <div class="col">
-                    <div class="card theme-card h-100 {{ $theme->is_active ? 'border-primary active' : '' }}">
+                <div class="col theme-card-container">
+                    <div class="card theme-card h-100 {{ $theme->is_active ? 'active' : '' }}">
+                        <div class="theme-status-indicator" style="background-color: {{ $theme->primary_color }};"></div>
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0 fw-bold">{{ $theme->name }}</h5>
+                            <h5 class="mb-0 fw-bold theme-title">{{ $theme->name }}</h5>
                             @if($theme->is_active)
-                                <span class="badge bg-primary">Active</span>
+                                <span class="badge active-badge"><i class="bi bi-check-circle-fill me-1"></i>Active</span>
                             @endif
                         </div>
                         <div class="card-body">
                             <!-- Color Preview -->
-                            <div class="theme-preview mb-3">
-                                <div class="row g-2">
-                                    <div class="col-4">
-                                        <div class="color-swatch" style="background-color: {{ $theme->primary_color }};"></div>
+                            <div class="theme-preview mb-4">
+                                <h6 class="preview-title">Color Palette</h6>
+                                <div class="color-palette">
+                                    <div class="color-item">
+                                        <div class="color-swatch primary-swatch" style="background-color: {{ $theme->primary_color }};"></div>
                                         <div class="color-label">Primary</div>
                                     </div>
-                                    <div class="col-4">
-                                        <div class="color-swatch" style="background-color: {{ $theme->secondary_color }};"></div>
+                                    <div class="color-item">
+                                        <div class="color-swatch secondary-swatch" style="background-color: {{ $theme->secondary_color }};"></div>
                                         <div class="color-label">Secondary</div>
                                     </div>
-                                    <div class="col-4">
-                                        <div class="color-swatch" style="background-color: {{ $theme->accent_color }};"></div>
+                                    <div class="color-item">
+                                        <div class="color-swatch accent-swatch" style="background-color: {{ $theme->accent_color }};"></div>
                                         <div class="color-label">Accent</div>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Font Info -->
-                            <div class="theme-fonts mb-3">
-                                <div class="row">
-                                    <div class="col-6">
-                                        <p class="mb-1 small text-muted">Heading Font</p>
-                                        <p class="mb-0" style="font-family: '{{ $theme->heading_font }}', sans-serif;">{{ $theme->heading_font }}</p>
+                            <div class="theme-fonts mb-4">
+                                <h6 class="preview-title">Typography</h6>
+                                <div class="font-preview">
+                                    <div class="font-item">
+                                        <p class="font-name" style="font-family: '{{ $theme->heading_font }}', sans-serif;">{{ $theme->heading_font }}</p>
+                                        <p class="font-label">Heading Font</p>
                                     </div>
-                                    <div class="col-6">
-                                        <p class="mb-1 small text-muted">Body Font</p>
-                                        <p class="mb-0" style="font-family: '{{ $theme->body_font }}', sans-serif;">{{ $theme->body_font }}</p>
+                                    <div class="font-item">
+                                        <p class="font-name" style="font-family: '{{ $theme->body_font }}', sans-serif;">{{ $theme->body_font }}</p>
+                                        <p class="font-label">Body Font</p>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Theme Actions -->
-                            <div class="d-flex flex-column gap-2 mt-3">
+                            <div class="theme-actions">
                                 @if(!$theme->is_active)
                                 <form action="{{ route('admin.themes.activate', $theme->id) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="btn btn-outline-primary w-100">
+                                    <button type="submit" class="btn btn-action activate-btn">
                                         <i class="bi bi-check-circle me-2"></i>Activate Theme
                                     </button>
                                 </form>
                                 @endif
-                                <a href="{{ route('admin.themes.edit', $theme->id) }}" class="btn btn-outline-secondary">
+                                <a href="{{ route('admin.themes.edit', $theme->id) }}" class="btn btn-action edit-btn">
                                     <i class="bi bi-pencil-square me-2"></i>Edit Theme
                                 </a>
                                 @if(!$theme->is_active)
                                 <form action="{{ route('admin.themes.destroy', $theme->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this theme?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-outline-danger w-100">
+                                    <button type="submit" class="btn btn-action delete-btn">
                                         <i class="bi bi-trash me-2"></i>Delete Theme
                                     </button>
                                 </form>
@@ -103,28 +111,32 @@
             </div>
 
             <!-- Theme Documentation -->
-            <div class="card bg-light">
-                <div class="card-header">
-                    <h4 class="mb-0">How Themes Work</h4>
+            <div class="documentation-card">
+                <div class="doc-header">
+                    <h4 class="doc-title"><i class="bi bi-info-circle me-2"></i>How Themes Work</h4>
                 </div>
-                <div class="card-body">
-                    <div class="row">
+                <div class="doc-body">
+                    <div class="row g-4">
                         <div class="col-md-6">
-                            <h5>Color Settings</h5>
-                            <ul class="list-unstyled">
-                                <li><strong>Primary Color:</strong> Main branding color used for headers and buttons</li>
-                                <li><strong>Secondary Color:</strong> Used for secondary elements and hover states</li>
-                                <li><strong>Accent Color:</strong> Used for highlights</li>
-                                <li><strong>Background Color:</strong> The main page background color</li>
-                                <li><strong>Text Color:</strong> The color used for body text</li>
-                            </ul>
+                            <div class="doc-section">
+                                <h5 class="section-title"><i class="bi bi-palette me-2"></i>Color Settings</h5>
+                                <ul class="feature-list">
+                                    <li><span class="feature-name">Primary Color:</span> Main branding color used for headers and buttons</li>
+                                    <li><span class="feature-name">Secondary Color:</span> Used for secondary elements and hover states</li>
+                                    <li><span class="feature-name">Accent Color:</span> Used for highlights and important elements</li>
+                                    <li><span class="feature-name">Background Color:</span> The main page background color</li>
+                                    <li><span class="feature-name">Text Color:</span> The color used for body text</li>
+                                </ul>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <h5>Font Settings</h5>
-                            <ul class="list-unstyled">
-                                <li><strong>Heading Font:</strong> Used for headings, titles, and important text</li>
-                                <li><strong>Body Font:</strong> Used for general content and paragraph text</li>
-                            </ul>
+                            <div class="doc-section">
+                                <h5 class="section-title"><i class="bi bi-type me-2"></i>Font Settings</h5>
+                                <ul class="feature-list">
+                                    <li><span class="feature-name">Heading Font:</span> Used for headings, titles, and important text</li>
+                                    <li><span class="feature-name">Body Font:</span> Used for general content and paragraph text</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -134,35 +146,351 @@
 </div>
 
 <style>
-.theme-card {
-    transition: all 0.3s ease;
+/* General Styles */
+.container-fluid {
+    background-color: #f8f9fa;
+}
+
+/* Header Styles */
+.header-container {
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.header-decoration {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100px;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary-color, #4e73df), var(--secondary-color, #6f42c1));
     border-radius: 10px;
+}
+
+.display-5 {
+    background: linear-gradient(90deg, var(--primary-color, #4e73df), var(--secondary-color, #6f42c1));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 800;
+}
+
+.create-theme-btn {
+    border-radius: 50px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: none;
+    background-color: var(--primary-color, #4e73df);
+}
+
+.create-theme-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    background-color: var(--primary-color, #4e73df);
+    filter: brightness(110%);
+}
+
+/* Alert Styles */
+.custom-alert {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    padding: 1rem;
+}
+
+/* Theme Card Styles */
+.theme-card-container {
+    perspective: 1000px;
+}
+
+.theme-card {
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border-radius: 16px;
     overflow: hidden;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    position: relative;
 }
 
 .theme-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-10px) rotateX(5deg);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
 }
 
 .theme-card.active {
-    box-shadow: 0 0 0 2px var(--primary-color, #4e73df);
+    box-shadow: 0 10px 25px rgba(var(--primary-rgb, 78, 115, 223), 0.25);
+}
+
+.theme-status-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background-color: #e9ecef;
+}
+
+.theme-card.active .theme-status-indicator {
+    background-color: var(--primary-color, #4e73df);
+}
+
+.card-header {
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1.25rem;
+}
+
+.theme-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.active-badge {
+    background-color: rgba(var(--primary-rgb, 78, 115, 223), 0.1);
+    color: var(--primary-color, #4e73df);
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+    border-radius: 50px;
+}
+
+/* Color Palette Styles */
+.preview-title {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #6c757d;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.color-palette {
+    display: flex;
+    gap: 10px;
+}
+
+.color-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .color-swatch {
-    height: 50px;
-    border-radius: 8px;
-    margin-bottom: 5px;
+    height: 60px;
+    width: 100%;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.color-swatch:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.primary-swatch {
+    position: relative;
+    overflow: hidden;
+}
+
+.primary-swatch::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 0 0 0 20px;
 }
 
 .color-label {
     font-size: 0.8rem;
+    font-weight: 600;
     text-align: center;
+    color: #495057;
 }
 
+/* Font Preview Styles */
+.font-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.font-item {
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.font-item:hover {
+    background-color: #e9ecef;
+}
+
+.font-name {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.font-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin: 0;
+}
+
+/* Theme Actions Styles */
+.theme-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 1.5rem;
+}
+
+.btn-action {
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.activate-btn {
+    background-color: rgba(var(--primary-rgb, 78, 115, 223), 0.1);
+    color: var(--primary-color, #4e73df);
+    border: 1px solid rgba(var(--primary-rgb, 78, 115, 223), 0.2);
+}
+
+.activate-btn:hover {
+    background-color: var(--primary-color, #4e73df);
+    color: white;
+}
+
+.edit-btn {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+    border: 1px solid rgba(108, 117, 125, 0.2);
+}
+
+.edit-btn:hover {
+    background-color: #6c757d;
+    color: white;
+}
+
+.delete-btn {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.delete-btn:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Documentation Card Styles */
+.documentation-card {
+    background-color: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    margin-top: 2rem;
+}
+
+.doc-header {
+    background: linear-gradient(45deg, var(--primary-color, #4e73df), var(--secondary-color, #6f42c1));
+    color: white;
+    padding: 1.5rem;
+    position: relative;
+}
+
+.doc-title {
+    margin: 0;
+    font-weight: 700;
+}
+
+.doc-body {
+    padding: 2rem;
+}
+
+.doc-section {
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.doc-section:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    transform: translateY(-5px);
+}
+
+.section-title {
+    color: var(--primary-color, #4e73df);
+    margin-bottom: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.feature-list li {
+    padding: 8px 0;
+    border-bottom: 1px dashed #e9ecef;
+    display: flex;
+    flex-direction: column;
+}
+
+.feature-list li:last-child {
+    border-bottom: none;
+}
+
+.feature-name {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 3px;
+}
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
+    .header-container {
+        padding-bottom: 1rem;
+    }
+    
+    .display-5 {
+        font-size: 1.8rem;
+    }
+    
+    .create-theme-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
     .color-swatch {
         height: 40px;
+    }
+    
+    .theme-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    .doc-section {
+        padding: 1rem;
     }
 }
 </style>
@@ -186,6 +514,26 @@
             google: {
                 families: uniqueFonts
             }
+        });
+        
+        // Add hover effects and animations
+        const themeCards = document.querySelectorAll('.theme-card');
+        themeCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                const colorSwatches = this.querySelectorAll('.color-swatch');
+                colorSwatches.forEach((swatch, index) => {
+                    setTimeout(() => {
+                        swatch.style.transform = 'scale(1.05)';
+                    }, index * 50);
+                });
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                const colorSwatches = this.querySelectorAll('.color-swatch');
+                colorSwatches.forEach(swatch => {
+                    swatch.style.transform = 'scale(1)';
+                });
+            });
         });
     });
 </script>

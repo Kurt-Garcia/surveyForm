@@ -46,7 +46,7 @@ class ThemeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:theme_settings,name',
             'primary_color' => 'required|string|max:7',
             'secondary_color' => 'required|string|max:7',
             'accent_color' => 'required|string|max:7',
@@ -99,7 +99,7 @@ class ThemeController extends Controller
     public function update(Request $request, ThemeSetting $theme)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:theme_settings,name',
             'primary_color' => 'required|string|max:7',
             'secondary_color' => 'required|string|max:7',
             'accent_color' => 'required|string|max:7',
