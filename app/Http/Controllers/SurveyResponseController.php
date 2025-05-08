@@ -32,16 +32,28 @@ class SurveyResponseController extends Controller
         ]);
     }
 
-    public function index(Survey $survey)
+    public function index(Survey $survey, Request $request)
     {
         // Ensure the user has access to view responses
         if (!Auth::check()) {
             abort(403, 'Unauthorized action.');
         }
 
-        $responses = SurveyResponseHeader::where('survey_id', $survey->id)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $search = $request->input('search');
+        
+        $query = SurveyResponseHeader::where('survey_id', $survey->id);
+        
+        // Apply search filter if search term is provided
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('account_name', 'like', '%' . $search . '%')
+                  ->orWhere('account_type', 'like', '%' . $search . '%');
+            });
+        }
+        
+        $responses = $query->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->withQueryString(); // This preserves the search parameter in pagination links
 
         return view('surveys.responses.responses', [
             'survey' => $survey,

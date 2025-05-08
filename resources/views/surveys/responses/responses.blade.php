@@ -12,6 +12,18 @@
                     </a>
                 </div>
                 <div class="card-body">
+                    <!-- Search Bar -->
+                    <div class="mb-4">
+                        <div class="input-group">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search by account name or type..." value="{{ request('search') }}">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div id="searchResults"></div>
+                    
                     @if($responses->isEmpty())
                         <div class="text-center py-5">
                             <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
@@ -29,7 +41,7 @@
                                                 <div class="d-flex align-items-center">
                                                     <span class="badge bg-light text-dark me-2">{{ $response->account_type }}</span>
                                                     <span class="text-muted small">
-                                                        <i class="fas fa-calendar-alt me-1"></i> {{ $response->date }}
+                                                        <i class="fas fa-calendar-alt me-1"></i> {{ \Carbon\Carbon::parse($response->date)->format('M d, Y') }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -47,9 +59,16 @@
                                 </div>
                             @endforeach
                         </div>
-                        <div class="d-flex justify-content-center mt-4">
-                            {{ $responses->links() }}
-                        </div>
+                        @if($responses->hasPages())
+                            <div class="d-flex justify-content-between align-items-center mt-4">
+                                <div class="text-muted">
+                                    Showing {{ $responses->firstItem() }} to {{ $responses->lastItem() }} of {{ $responses->total() }} entries
+                                </div>
+                                <div>
+                                    {{ $responses->links() }}
+                                </div>
+                            </div>
+                        @endif
                     @endif
                 </div>
             </div>
@@ -84,6 +103,12 @@
 
     .page-link {
         color: var(--primary-color);
+    }
+    
+    #searchInput:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.2rem rgba(var(--accent-color-rgb), 0.25);
+        outline: 0;
     }
     
     .page-link:hover {
@@ -181,27 +206,73 @@
             '#FF6B81', '#6C5CE7', '#00CEC9', '#FD79A8', '#81ECEC'
         ];
 
-        document.querySelectorAll('.response-container').forEach(item => {
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            const icon = item.querySelector('.response-icon i');
-            const viewDetailsBtn = item.querySelector('.btn-view-details');
-            const recommendationBadge = item.querySelector('.recommendation-badge .badge');
-            
-            if (icon) {
-                icon.style.color = randomColor;
-            }
-            
-            if (viewDetailsBtn) {
-                viewDetailsBtn.style.backgroundColor = randomColor;
-                viewDetailsBtn.style.borderColor = randomColor;
-            }
-            
-            if (recommendationBadge) {
-                recommendationBadge.style.backgroundColor = randomColor;
-            }
-            
-            // Add a subtle left border to the item with the random color
-            item.style.borderLeftColor = randomColor;
+        function applyColors() {
+            document.querySelectorAll('.response-container').forEach(item => {
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                const icon = item.querySelector('.response-icon i');
+                const viewDetailsBtn = item.querySelector('.btn-view-details');
+                const recommendationBadge = item.querySelector('.recommendation-badge .badge');
+                
+                if (icon) {
+                    icon.style.color = randomColor;
+                }
+                
+                if (viewDetailsBtn) {
+                    viewDetailsBtn.style.backgroundColor = randomColor;
+                    viewDetailsBtn.style.borderColor = randomColor;
+                }
+                
+                if (recommendationBadge) {
+                    recommendationBadge.style.backgroundColor = randomColor;
+                }
+                
+                item.style.borderLeftColor = randomColor;
+            });
+        }
+
+        applyColors();
+
+        let typingTimer;
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const responsesList = document.querySelector('.responses-list');
+        const paginationStatus = document.querySelector('.mb-3.text-muted');
+        const paginationLinks = document.querySelector('.d-flex.justify-content-center');
+
+        searchInput.addEventListener('input', function() {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                const searchQuery = this.value.trim();
+                
+                fetch(`${window.location.pathname}?search=${encodeURIComponent(searchQuery)}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    
+                    const newResponsesList = tempDiv.querySelector('.responses-list');
+                    const newPaginationStatus = tempDiv.querySelector('.mb-3.text-muted');
+                    const newPaginationLinks = tempDiv.querySelector('.d-flex.justify-content-center');
+
+                    if (newResponsesList) {
+                        responsesList.innerHTML = newResponsesList.innerHTML;
+                        applyColors();
+                    }
+                    
+                    if (newPaginationStatus) {
+                        paginationStatus.innerHTML = newPaginationStatus.innerHTML;
+                    }
+                    
+                    if (newPaginationLinks) {
+                        paginationLinks.innerHTML = newPaginationLinks.innerHTML;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }, 300);
         });
     });
 </script>

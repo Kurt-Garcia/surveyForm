@@ -11,9 +11,23 @@ use Carbon\Carbon;
 
 class UserSurveyController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $surveys = Survey::where('is_active', true)->with('questions')->paginate(6);
+        $query = Survey::where('is_active', true);
+        
+        // Handle search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            $query->where('title', 'LIKE', "%{$searchTerm}%");
+        }
+        
+        $surveys = $query->with('questions')->paginate(6);
+        
+        // Preserve search parameter in pagination links
+        if ($request->has('search')) {
+            $surveys->appends(['search' => $request->search]);
+        }
+        
         return view('index', compact('surveys'));
     }
 

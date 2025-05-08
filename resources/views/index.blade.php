@@ -26,12 +26,14 @@
 
     <div class="container survey-container mt-4">
         <div class="search-container mb-4 d-flex justify-content-end">
-            <div class="input-group search-modern" style="max-width: 400px;">
-                <input type="text" id="survey-search" class="form-control search-input-modern" placeholder="Search surveys...">
-                <button class="btn btn-search-modern" type="button">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
+            <form id="search-form" action="{{ route('index') }}" method="GET" class="w-100 d-flex justify-content-end">
+                <div class="input-group search-modern" style="max-width: 400px;">
+                    <input type="text" id="survey-search" name="search" class="form-control search-input-modern" placeholder="Search surveys..." value="{{ request('search') }}">
+                    <button class="btn btn-search-modern" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
         </div>
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="surveys-grid">
             @forelse($surveys as $survey)
@@ -261,24 +263,38 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-    // Search functionality
+    // AJAX Instant Search functionality
+    const searchForm = document.getElementById('search-form');
     const searchInput = document.getElementById('survey-search');
-    if (searchInput) {
+    const surveysGrid = document.getElementById('surveys-grid');
+    let searchTimeout = null;
+    
+    function fetchSurveys(query) {
+        const url = searchForm.action + '?search=' + encodeURIComponent(query);
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Try to extract only the surveys grid from the returned HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newGrid = doc.getElementById('surveys-grid');
+            if (newGrid && surveysGrid) {
+                surveysGrid.innerHTML = newGrid.innerHTML;
+            }
+        });
+    }
+    
+    if (searchInput && searchForm && surveysGrid) {
         searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const cols = document.querySelectorAll('#surveys-grid .col');
-            
-            cols.forEach(col => {
-                const card = col.querySelector('.survey-card');
-                if (card) {
-                    const title = card.querySelector('.card-title').textContent.toLowerCase();
-                    if (title.includes(searchTerm)) {
-                        col.style.display = '';
-                    } else {
-                        col.style.display = 'none';
-                    }
-                }
-            });
+            clearTimeout(searchTimeout);
+            const query = this.value;
+            searchTimeout = setTimeout(() => {
+                fetchSurveys(query);
+            }, 300); // Debounce for 300ms
         });
     }
     
