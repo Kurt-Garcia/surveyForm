@@ -96,13 +96,29 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card shadow-sm border-0" id="individual-responses">
-                        <div class="card-header bg-white py-3">
-                            <h4 class="text-color mb-0 fw-bold">Individual Responses</h4>
+                        <div class="card-header bg-white py-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                            <div class="d-flex align-items-center gap-3 flex-grow-1">
+                                <h4 class="text-color me-4 mb-0 fw-bold ms-0 ms-md-3">Individual Responses</h4>
+                                <div class="input-group w-auto">
+                                    <label for="entriesPerPage" class="me-2 align-self-center small text-muted">Show</label>
+                                    <select id="entriesPerPage" class="form-select form-select-sm w-auto me-2">
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                    <span class="align-self-center small text-muted">entries</span>
+                                </div>
+                            </div>
+                            <div class="input-group w-auto mt-3 mt-md-0">
+                                <input type="text" id="searchInput" class="form-control form-control-sm ms-3" placeholder="Search by account name or type...">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table" id="responsesTable">
-                                    <thead>
+                                <table class="table table-hover align-middle mb-0" id="customResponsesTable">
+                                    <thead class="table-light">
                                         <tr>
                                             <th>Account Name</th>
                                             <th>Account Type</th>
@@ -110,7 +126,7 @@
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="responsesTableBody">
                                         @foreach($responses as $response)
                                             <tr class="response-row">
                                                 <td>{{ $response->account_name }}</td>
@@ -130,272 +146,162 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <!-- Pagination Status -->
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <div id="paginationStatus" class="text-muted small"></div>
+                            </div>
+                            <!-- Pagination -->
+                            <nav>
+                                <ul class="pagination justify-content-end mt-3" id="pagination"></ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
             </div>
-
-            @push('scripts')
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-            <script src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
-            <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
-            <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-            <!-- DataTables scripts are already included in the layout -->
             <script>
-                $(document).ready(function() {
-                    // Add hover effect to stat rows
-                    document.querySelectorAll('.stat-row').forEach(row => {
-                        row.addEventListener('mouseenter', function() {
-                            this.querySelector('.progress-bar').style.opacity = '0.9';
-                        });
-                        row.addEventListener('mouseleave', function() {
-                            this.querySelector('.progress-bar').style.opacity = '1';
-                        });
-                    });
+                document.addEventListener('DOMContentLoaded', function() {
+                    const rows = Array.from(document.querySelectorAll('#responsesTableBody tr'));
+                    const searchInput = document.getElementById('searchInput');
+                    const pagination = document.getElementById('pagination');
+                    const paginationStatus = document.getElementById('paginationStatus');
+                    let currentPage = 1;
+                    let rowsPerPage = 10;
+                    const entriesPerPageSelect = document.getElementById('entriesPerPage');
                     
-                    // Initialize DataTables with proper configuration and export buttons
-                    $('#responsesTable').DataTable({
-                        responsive: true,
-                        pageLength: 10,
-                        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
-                        language: {
-                            search: "_INPUT_",
-                            searchPlaceholder: "Search by name, type or date..."
-                        },
-                        dom: 'Blfrtip', // B-buttons, l-length, f-filter, r-processing, t-table, i-info, p-pagination
-                        buttons: [
-                            {
-                                extend: 'copy',
-                                text: '<i class="bi bi-clipboard me-1"></i> Copy',
-                                className: 'btn btn-sm',
-                                exportOptions: {
-                                    columns: [0, 1, 2] // Export only specific columns
-                                }
-                            },
-                            {
-                                extend: 'csv',
-                                text: '<i class="bi bi-filetype-csv me-1"></i> CSV',
-                                className: 'btn btn-sm',
-                                exportOptions: {
-                                    columns: [0, 1, 2]
-                                },
-                                title: 'Survey Responses - {{ $survey->title }}'
-                            },
-                            {
-                                extend: 'excel',
-                                text: '<i class="bi bi-file-earmark-excel me-1"></i> Excel',
-                                className: 'btn btn-sm',
-                                exportOptions: {
-                                    columns: [0, 1, 2]
-                                },
-                                title: 'Survey Responses - {{ $survey->title }}'
-                            },
-                            {
-                                extend: 'pdf',
-                                text: '<i class="bi bi-file-earmark-pdf me-1"></i> PDF',
-                                className: 'btn btn-sm',
-                                exportOptions: {
-                                    columns: [0, 1, 2]
-                                },
-                                title: 'Survey Responses - {{ $survey->title }}',
-                                customize: function(doc) {
-                                    doc.defaultStyle.fontSize = 10;
-                                    doc.styles.tableHeader.fontSize = 11;
-                                    doc.styles.tableHeader.alignment = 'left';
-                                    doc.content[1].table.widths = ['*', '*', '*'];
-                                }
-                            },
-                            {
-                                extend: 'print',
-                                text: '<i class="bi bi-printer me-1"></i> Print',
-                                className: 'btn btn-sm',
-                                exportOptions: {
-                                    columns: [0, 1, 2]
-                                },
-                                title: 'Survey Responses - {{ $survey->title }}'
-                            }
-                        ],
-                        initComplete: function() {
-                            // Style the search input
-                            $('.dataTables_filter input').addClass('form-control');
-                            $('.dataTables_filter input').css({
-                                'border-radius': '20px',
-                                'padding-left': '15px',
-                                'border-color': '#ced4da',
-                                'outline': 'none',
-                                'box-shadow': 'none'
-                            }).focus(function() {
-                                $(this).css({
-                                    'border-color': 'var(--accent-color)',
-                                    'outline': 'none',
-                                    'box-shadow': 'none'
-                                });
-                            }).blur(function() {
-                                $(this).css('border-color', '#ced4da');
-                            });
-                            
-                            // Style the length select
-                            $('.dataTables_length select').addClass('form-select');
-                            $('.dataTables_length select').css({
-                                'border-radius': '20px',
-                                'padding-left': '10px',
-                                'border-color': '#ced4da'
-                            });
-                        },
-                        // Apply custom styling to match the existing design
-                        drawCallback: function() {
-                            $('.paginate_button.current').css({
-                                'background-color': 'var(--primary-color)',
-                                'border-color': 'var(--primary-color)',
-                                'color': 'white'
-                            });
+                    function renderTable(filteredRows) {
+                        const start = (currentPage - 1) * rowsPerPage;
+                        const end = start + rowsPerPage;
+                        rows.forEach(row => row.style.display = 'none');
+                        filteredRows.slice(start, end).forEach(row => row.style.display = '');
+                        updatePaginationStatus(filteredRows.length, start, Math.min(end, filteredRows.length));
+                    }
+                    
+                    function renderPagination(filteredRows) {
+                        const pageCount = Math.ceil(filteredRows.length / rowsPerPage);
+                        let html = '';
+                        for (let i = 1; i <= pageCount; i++) {
+                            html += `<li class="page-item${i === currentPage ? ' active' : ''}"><a class="page-link" href="#">${i}</a></li>`;
                         }
-                    });
+                        pagination.innerHTML = html;
+                        Array.from(pagination.querySelectorAll('a')).forEach((a, idx) => {
+                            a.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                currentPage = idx + 1;
+                                renderTable(filteredRows);
+                                renderPagination(filteredRows);
+                            });
+                        });
+                    }
                     
-                    // Smooth scroll to table when URL has fragment
-                    if (window.location.hash === '#individual-responses') {
-                        const element = document.querySelector('#individual-responses');
-                        if (element) {
-                            element.scrollIntoView({ behavior: 'smooth' });
+                    function updatePaginationStatus(total, start, end) {
+                        if (total === 0) {
+                            paginationStatus.textContent = 'Showing 0 entries';
+                        } else {
+                            paginationStatus.textContent = `Showing ${total === 0 ? 0 : start + 1} to ${end} of ${total} entries`;
                         }
                     }
+                    
+                    function filterRows() {
+                        const query = searchInput.value.toLowerCase();
+                        const filtered = rows.filter(row => {
+                            return row.children[0].textContent.toLowerCase().includes(query) ||
+                                   row.children[1].textContent.toLowerCase().includes(query);
+                        });
+                        currentPage = 1;
+                        renderTable(filtered);
+                        renderPagination(filtered);
+                    }
+                    entriesPerPageSelect.addEventListener('change', function() {
+                        rowsPerPage = parseInt(this.value, 10);
+                        currentPage = 1;
+                        filterRows();
+                    });
+                    searchInput.addEventListener('input', filterRows);
+                    filterRows();
                 });
             </script>
-            @endpush
-
             <style>
-            .text-color {
-                color: var(--text-color);
-            }
-
-            .question-stats {
-                border-bottom: 1px solid #eee;
-                padding-bottom: 2rem;
-            }
-
-            .question-stats:last-child {
-                border-bottom: none;
-            }
-
-            .progress {
-                border-radius: 100px;
-                background-color: #f8f9fa;
-                box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-                height: 25px !important;
-            }
-
-            .progress-bar {
-                border-radius: 100px;
-                transition: all 0.4s ease;
-                background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
-                background-size: 1rem 1rem;
-                animation: progress-bar-stripes 1s linear infinite;
-            }
-
-            .bg-danger { background-color: #dc3545 !important; }
-            .bg-warning { background-color: #ffc107 !important; }
-            .bg-info { background-color: #17a2b8 !important; }
-            .bg-primary { background-color: #0d6efd !important; }
-            .bg-success { background-color: #28a745 !important; }
-
-            .stat-row:hover .progress-bar {
-                filter: brightness(1.1);
-                transform: scaleX(1.01);
-            }
-            @keyframes progress-bar-stripes {
-                from { background-position: 1rem 0; }
-                to { background-position: 0 0; }
-            }
-
-            .stat-row {
-                transition: all 0.3s ease;
-                padding: 10px;
-                border-radius: 8px;
-            }
-
-            .stat-row:hover {
-                background-color: #f8f9fa;
-            }
-
-            .card {
-                transition: transform 0.2s;
-            }
-
-            .card:hover {
-                transform: translateY(-5px);
-            }
-            
-            .response-row {
-                transition: all 0.2s ease;
-            }
-            
-            .response-row:hover {
-                background-color: #f8f9fa;
-            }
-
-            /* Modern Export Buttons */
-            .dt-button {
-                background: linear-gradient(90deg, #fff 0%, #f0f4fa 100%);
-                color: var(--text-color) !important;
-                border: 1px solid var(--primary-color);
-                border-radius: 18px !important;
-                box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-                padding: 8px 22px !important;
-                margin: 0 6px 8px 0;
-                font-weight: 600;
-                transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.2s;
-                outline: none;
-            }
-            .dt-button:hover, .dt-button:focus {
-                background: linear-gradient(90deg, var(--secondary-color) 0%, var(--primary-color) 100%) !important;
-                color: #fff !important;
-                box-shadow: 0 4px 16px rgba(0,0,0,0.13);
-                transform: translateY(-2px) scale(1.04);
-                border: none;
-            }
-            .dt-button:active {
-                background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-                transform: scale(0.98);
-                color: #fff !important;
-            }
-
-            /* Modern Pagination Buttons */
-            .dataTables_wrapper .dataTables_paginate .paginate_button {
-                cursor: pointer;
-                background: linear-gradient(90deg, #fff 0%, #f0f4fa 100%);
-                border: 1px solid var(--primary-color);
-                color: var(--primary-color) !important;
-                border-radius: 18px !important;
-                margin: 0 3px;
-                padding: 2px 16px;
-                font-weight: 500;
-                box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-                transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.2s;
-            }
-            .dataTables_wrapper .dataTables_paginate .paginate_button.current,
-            .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-                background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-                color: #fff !important;
-                border: none;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-                transform: translateY(-1px) scale(1.03);
-            }
-            .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
-                background: #f8f9fa !important;
-                color: #bdbdbd !important;
-                border: 1px solid #e0e0e0 !important;
-                box-shadow: none;
-                cursor: not-allowed;
-            }
-            .dataTables_wrapper .dataTables_paginate .paginate_button:active {
-                transform: scale(0.97);
-            }
+                #individual-responses .table th, #individual-responses .table td {
+                    vertical-align: middle;
+                }
+                #individual-responses .table-hover tbody tr:hover {
+                    background-color: #f8f9fa;
+                }
+                #individual-responses .pagination .page-item.active .page-link {
+                    background-color: var(--primary-color);
+                    border-color: var(--primary-color);
+                    color: #fff;
+                }
+                #individual-responses .pagination .page-link {
+                    color: var(--primary-color);
+                }
             </style>
         </div>
     </div>
 </div>
 @endsection
+
+<style>
+    .text-color {
+        color: var(--text-color);
+    }
+
+    .question-stats {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 2rem;
+    }
+
+    .question-stats:last-child {
+        border-bottom: none;
+    }
+
+    .progress {
+        border-radius: 100px;
+        background-color: #f8f9fa;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+        height: 25px !important;
+    }
+
+    .progress-bar {
+        border-radius: 100px;
+        transition: all 0.4s ease;
+        background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+        background-size: 1rem 1rem;
+        animation: progress-bar-stripes 1s linear infinite;
+    }
+
+    .stat-row:hover .progress-bar {
+        filter: brightness(1.1);
+        transform: scaleX(1.01);
+    }
+    @keyframes progress-bar-stripes {
+        from { background-position: 1rem 0; }
+        to { background-position: 0 0; }
+    }
+
+    .stat-row {
+        transition: all 0.3s ease;
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    .stat-row:hover {
+        background-color: #f8f9fa;
+    }
+
+    .card {
+        transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .response-row {
+        transition: all 0.2s ease;
+    }
+    
+    .response-row:hover {
+        background-color: #f8f9fa;
+    }
+</style>
