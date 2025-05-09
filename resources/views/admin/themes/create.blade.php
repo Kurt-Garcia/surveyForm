@@ -118,7 +118,7 @@
                                 <!-- Heading Font -->
                                 <div class="col-md-6">
                                     <label for="heading_font" class="form-label">Heading Font</label>
-                                    <select class="form-select form-select-lg @error('heading_font') is-invalid @enderror" id="heading_font" name="heading_font">
+                                    <select class="form-select select2 form-select-lg @error('heading_font') is-invalid @enderror" id="heading_font" name="heading_font">
                                         @foreach($fonts as $key => $font)
                                             <option value="{{ $key }}" {{ old('heading_font') == $key ? 'selected' : '' }} 
                                                 style="font-family: '{{ $key }}', sans-serif;">
@@ -134,7 +134,7 @@
                                 <!-- Body Font -->
                                 <div class="col-md-6">
                                     <label for="body_font" class="form-label">Body Font</label>
-                                    <select class="form-select form-select-lg @error('body_font') is-invalid @enderror" id="body_font" name="body_font">
+                                    <select class="form-select select2 form-select-lg @error('body_font') is-invalid @enderror" id="body_font" name="body_font">
                                         @foreach($fonts as $key => $font)
                                             <option value="{{ $key }}" {{ old('body_font') == $key ? 'selected' : '' }}
                                                 style="font-family: '{{ $key }}', sans-serif;">
