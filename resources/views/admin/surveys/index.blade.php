@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid py-4 px-4" style="background-color: #f5f5f5;">
+<div class="container-fluid py-4 px-4" style="background-color: var(--background-color)">
     <div class="row justify-content-center">
         <div class="col-12">
             <!-- Header Section -->
@@ -76,7 +76,7 @@
                                     </div>
                                 </div>
                                 <div class="d-flex gap-2 mt-auto">
-                                    <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-start flex-grow-1"> {{--add a (btn-primary if you want to turn --primary-color)--}}
+                                    <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-start btn-primary flex-grow-1"> {{--add a (btn-primary if you want to turn --primary-color)--}}
                                         <i class="fas fa-eye me-1"></i> View Details
                                     </a>
                                     <a href="{{ route('admin.surveys.responses.index', $survey) }}" class="btn btn-outline-secondary btn-view-responses flex-grow-1">
@@ -224,6 +224,7 @@
 .survey-card {
     border-radius: 12px;
     border: none;
+    border-left: 4px solid var(--primary-color);
     transition: all 0.3s ease;
     height: 100%;
 }
@@ -333,36 +334,6 @@
 }
 </style>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const colors = [
-        '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD',
-        '#D4A5A5', '#9B59B6', '#3498DB', '#E67E22', '#2ECC71',
-        '#FF9F43', '#00B894', '#74B9FF', '#A8E6CF', '#FFD93D',
-        '#FF6B81', '#6C5CE7', '#00CEC9', '#FD79A8', '#81ECEC'
-    ];
-    document.querySelectorAll('.survey-card').forEach(card => {
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        const icon = card.querySelector('.card-icon');
-        const btnStart = card.querySelector('.btn-start');
-        if (icon) {
-            icon.style.color = randomColor;
-            icon.style.backgroundColor = `${randomColor}15`;
-        }
-        if (btnStart) {
-            btnStart.style.backgroundColor = randomColor;
-            btnStart.style.borderColor = randomColor;
-            btnStart.style.pointerEvents = 'auto';
-            btnStart.style.position = 'relative';
-            btnStart.style.zIndex = '2';
-        }
-        card.style.borderLeft = `4px solid ${randomColor}`;
-        const buttons = card.querySelectorAll('a.btn');
-        buttons.forEach(btn => {
-            btn.style.pointerEvents = 'auto';
-            btn.style.position = 'relative';
-            btn.style.zIndex = '2';
-        });
-    });
     // Real-time AJAX search for surveys
     const searchInput = document.getElementById('survey-search');
     if (searchInput) {

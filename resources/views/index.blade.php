@@ -136,7 +136,7 @@
     }
     
     .btn-search-modern {
-        background: linear-gradient(135deg, #4ECDC4, #45B7D1);
+        background: var(--primary-color);
         color: white;
         border: none;
         padding: 0 20px;
@@ -144,7 +144,8 @@
     }
     
     .btn-search-modern:hover {
-        background: linear-gradient(135deg, #45B7D1, #4ECDC4);
+        background: var(--primary-color);
+        opacity: 0.9;
         transform: scale(1.05);
     }
     .pagination-container {
@@ -161,8 +162,8 @@
         margin: 0;
     }
     .pagination .page-item.active .page-link {
-        background-color: #4ECDC4;
-        border-color: #4ECDC4;
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
     }
     .pagination .page-link {
         color: #333;
@@ -185,7 +186,7 @@
     }
     .card-icon {
         display: inline-block;
-        background-color: rgba(78, 205, 196, 0.1);
+        background-color: rgba(var(--primary-color-rgb), 0.1);
         width: 60px;
         height: 60px;
         border-radius: 50%;
@@ -298,27 +299,21 @@
         });
     }
     
-    // Original color assignment code
-        const colors = [
-            '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD',
-            '#D4A5A5', '#9B59B6', '#3498DB', '#E67E22', '#2ECC71',
-            '#FF9F43', '#00B894', '#74B9FF', '#A8E6CF', '#FFD93D',
-            '#FF6B81', '#6C5CE7', '#00CEC9', '#FD79A8', '#81ECEC'
-        ];
-
+    // Use primary color for all cards
         document.querySelectorAll('.survey-card').forEach(card => {
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            // Get the primary color from CSS variables
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
             const icon = card.querySelector('.card-icon');
             const btnStart = card.querySelector('.btn-start');
             
             if (icon) {
-                icon.style.color = randomColor;
-                icon.style.backgroundColor = `${randomColor}15`; // Very light background of the same color
+                icon.style.color = primaryColor;
+                icon.style.backgroundColor = `${primaryColor}15`; // Very light background of the primary color
             }
             
             if (btnStart) {
-                btnStart.style.backgroundColor = randomColor;
-                btnStart.style.borderColor = randomColor;
+                btnStart.style.backgroundColor = primaryColor;
+                btnStart.style.borderColor = primaryColor;
                 
                 // Make sure the button is clickable
                 btnStart.style.pointerEvents = 'auto';
@@ -326,8 +321,8 @@
                 btnStart.style.zIndex = '2';
             }
             
-            // Add a subtle left border to the card with the random color
-            card.style.borderLeft = `4px solid ${randomColor}`;
+            // Add a subtle left border to the card with the primary color
+            card.style.borderLeft = `4px solid ${primaryColor}`;
             
             // Ensure the card's hover effect doesn't interfere with button clicks
             const buttons = card.querySelectorAll('a.btn');

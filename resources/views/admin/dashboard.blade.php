@@ -10,7 +10,7 @@
         <div class="row justify-content-center">
             <div class="col-12 col-lg-10">
                 <!-- Welcome Section with modern design -->
-                <div class="welcome-card position-relative overflow-hidden mb-5">
+                <div class="welcome-card position-relative mb-5">
                     <div class="welcome-card-bg"></div>
                     <div class="card-body p-5 position-relative">
                         <div class="row align-items-center">
@@ -185,7 +185,7 @@ body {
 }
 
 .admin-dashboard {
-    background-color: #f8f9fa;
+    background-color: var(--background-color);
     min-height: 100vh;
     padding-bottom: 3rem;
 }

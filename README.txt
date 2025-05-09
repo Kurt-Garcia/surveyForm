@@ -32,13 +32,8 @@ php artisan serve --host=192.168.1.130 --port=8000
 
 
 
+nefegix327@bocapies.com
+Admin12350?!$
 
 
-
-<a href="{{ route('admin.surveys.responses.show', ['survey' => $survey->id, 'account_name' => $response->account_name]) }}" 
-    class="btn btn-sm" 
-    style="border-color: var(--primary-color); color: var(--primary-color)"
-    onmouseover="this.style.backgroundColor='var(--secondary-color)'; this.style.color='white'"
-    onmouseout="this.style.borderColor='var(--primary-color)'; this.style.backgroundColor='white'; this.style.color='var(--primary-color)'">
-    <i class="bi bi-eye-fill me-1"></i>View Details
-</a>
+https://cssgridgenerator.io/

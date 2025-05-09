@@ -110,8 +110,8 @@
                                             <div class="question-content flex-grow-1">
                                                 <div class="d-flex align-items-center gap-2 mb-2">
                                                     <span class="question-number fw-bold text-primary">Q{{ $index + 1 }}</span>
-                                                    <span class="badge bg-info-subtle text-info rounded-pill">
-                                                        <i class="bi bi-tag-fill me-1"></i>{{ ucfirst($question->type) }}
+                                                    <span class="badge {{ $question->type === 'star' ? 'bg-warning-subtle text-warning' : 'bg-info-subtle text-info' }} rounded-pill">
+                                                        <i class="bi {{ $question->type === 'star' ? 'bi-star-fill' : 'bi bi-circle-fill' }} me-1"></i>{{ ucfirst($question->type) }}
                                                     </span>
                                                     @if($question->required)
                                                         <span class="badge bg-danger-subtle text-danger">
@@ -123,7 +123,7 @@
                                                         </span>
                                                     @endif
                                                 </div>
-                                                <h5 class="mb-2">{{ $question->text }}</h5>
+                                                <p class="mb-2">{{ $question->text }}</p>
                                                 @if($question->description)
                                                     <p class="text-muted mb-0 small">{{ $question->description }}</p>
                                                 @endif
@@ -239,7 +239,12 @@
 
 .question-number {
     display: inline-block;
-    min-width: 28px;
+    min-width: 32px;
+    font-size: 1.3rem;
+}
+
+.question-content p {
+    font-size: 1.1rem;
 }
 
 .empty-state {

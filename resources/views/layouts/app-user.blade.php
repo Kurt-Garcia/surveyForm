@@ -30,7 +30,7 @@
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
-<body>
+<body style="background-color: var(--background-color)">
     <!-- Theme CSS Variables -->
     @if($activeTheme)
     <style>

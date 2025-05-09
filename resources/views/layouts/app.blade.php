@@ -73,6 +73,9 @@
         h1, h2, h3, h4, h5, h6 {
             font-family: var(--heading-font);
         }
+        .nav-link {
+            font-family: var(--heading-font);
+        }
         
         .btn-primary {
             background-color: var(--btn-primary-bg);

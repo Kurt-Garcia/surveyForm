@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid px-4 py-5">
+<div class="container-fluid px-4 py-5" style="background-color: var(--background-color)">
     <div class="row justify-content-center">
         <div class="col-12 col-xl-10">
             <!-- Header Section -->
