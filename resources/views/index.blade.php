@@ -6,6 +6,7 @@
     <link href="{{ asset('css/index.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="{{ asset('js/lib/smooth-pagination.js') }}"></script>
 
     @if(session('warning'))
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -29,13 +30,14 @@
             <form id="search-form" action="{{ route('index') }}" method="GET" class="w-100 d-flex justify-content-end">
                 <div class="input-group search-modern" style="max-width: 400px;">
                     <input type="text" id="survey-search" name="search" class="form-control search-input-modern" placeholder="Search surveys..." value="{{ request('search') }}">
-                    <button class="btn btn-search-modern" type="submit">
+                    <button class="btn btn-search-modern" type="button">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
             </form>
         </div>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="surveys-grid">
+        <div class="surveys-content">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="surveys-grid">
             @forelse($surveys as $survey)
                 @php
                     $hasResponded = session('account_name') ? App\Models\SurveyResponseHeader::hasResponded($survey->id, session('account_name')) : false;
@@ -100,6 +102,7 @@
             </div>
             @endif
             {{ $surveys->links() }}
+        </div>
         </div>
     </div>
 
@@ -177,12 +180,16 @@
     .survey-card {
         border-radius: 12px;
         border: none;
+        border-left: 4px solid var(--primary-color);
         transition: all 0.3s ease;
         height: 100%;
+        position: relative;
+        overflow: hidden;
     }
     .survey-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        border-left: 4px solid var(--secondary-color);
     }
     .card-icon {
         display: inline-block;
@@ -245,6 +252,11 @@
         box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
     }
     
+    /* Smooth Pagination Styles */
+    .surveys-content {
+        min-height: 300px;
+    }
+    
     /* Fix for button clickability */
     .survey-card .btn {
         cursor: pointer !important;
@@ -264,57 +276,40 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // AJAX Instant Search functionality
+        // Initialize Smooth Pagination
+        const smoothPagination = new SmoothPagination({
+            contentSelector: '.surveys-content',
+            paginationSelector: '.pagination',
+            scrollToTop: false,
+            loadingIndicator: false,
+            onAfterLoad: function() {
+                // Apply any necessary styling or event handlers after content is loaded
+            }
+        });
+        
+        // AJAX Instant Search functionality with SmoothPagination
         const searchForm = document.getElementById('search-form');
         const searchInput = document.getElementById('survey-search');
-        const surveysGrid = document.getElementById('surveys-grid');
-        const paginationLinks = document.querySelectorAll('.pagination a');
         let searchTimeout = null;
-    
-        function fetchSurveys(url) {
-            fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const newGrid = doc.getElementById('surveys-grid');
-                const newPagination = doc.querySelector('.pagination-container');
-                if (newGrid && surveysGrid) {
-                    surveysGrid.innerHTML = newGrid.innerHTML;
-                }
-                if (newPagination) {
-                    document.querySelector('.pagination-container').innerHTML = newPagination.innerHTML;
-                    attachPaginationEvents();
-                }
-            });
-        }
-    
-        function attachPaginationEvents() {
-            document.querySelectorAll('.pagination a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const url = this.href;
-                    fetchSurveys(url);
-                });
-            });
-        }
-    
-        if (searchInput && searchForm && surveysGrid) {
+        
+        if (searchInput && searchForm) {
             searchInput.addEventListener('input', function() {
                 clearTimeout(searchTimeout);
                 const query = this.value;
                 searchTimeout = setTimeout(() => {
                     const url = searchForm.action + '?search=' + encodeURIComponent(query);
-                    fetchSurveys(url);
+                    smoothPagination.loadPage(url);
                 }, 300); // Debounce for 300ms
             });
+            
+            // Prevent form submission and use SmoothPagination instead
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const query = searchInput.value;
+                const url = this.action + '?search=' + encodeURIComponent(query);
+                smoothPagination.loadPage(url);
+            });
         }
-    
-        attachPaginationEvents();
     });
     </script>
 @endsection

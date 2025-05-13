@@ -24,6 +24,7 @@
                     
                     <div id="searchResults"></div>
                     
+                    <div class="responses-container">
                     @if($responses->isEmpty())
                         <div class="text-center py-5">
                             <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
@@ -70,6 +71,7 @@
                             </div>
                         @endif
                     @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -138,6 +140,10 @@
         border-left-style: solid;
     }
     
+    .response-container:hover {
+        border-left-color: var(--secondary-color) !important;
+    }
+    
     .response-row {
         width: 100%;
     }
@@ -195,13 +201,25 @@
         transform: translateY(-5px);
         box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
     }
+    
+    /* Smooth Pagination Additional Styles */
+    .responses-container {
+        min-height: 200px;
+    }
+    
+    .fade-transition {
+        transition: all 0.3s ease;
+    }
 </style>
 
+<script src="{{ asset('js/lib/smooth-pagination.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Apply primary color styling
         function applyColors() {
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
+            
             document.querySelectorAll('.response-container').forEach(item => {
-                const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
                 const icon = item.querySelector('.response-icon i');
                 const viewDetailsBtn = item.querySelector('.btn-view-details');
                 const recommendationBadge = item.querySelector('.recommendation-badge .badge');
@@ -223,108 +241,37 @@
             });
         }
 
+        // Initialize smooth pagination
+        const smoothPagination = new SmoothPagination({
+            contentSelector: '.responses-container',
+            paginationSelector: '.pagination',
+            scrollToTop: false,
+            loadingIndicator: false,
+            animationSpeed: 500,
+            onBeforeLoad: function() {
+                // Any action before loading
+            },
+            onAfterLoad: function() {
+                // Apply colors to newly loaded content
+                applyColors();
+            }
+        });
+
+        // Apply colors initially
         applyColors();
 
+        // Handle search functionality
         let typingTimer;
         const searchInput = document.getElementById('searchInput');
-        const searchResults = document.getElementById('searchResults');
-        const responsesContainer = document.querySelector('.card-body');
-        const responsesList = document.querySelector('.responses-list');
         
-        // Function to load content via AJAX
-        function loadContent(url) {
-            fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.text())
-            .then(html => {
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = html;
-                
-                const newResponsesList = tempDiv.querySelector('.responses-list');
-                const paginationInfo = tempDiv.querySelector('.d-flex.justify-content-between');
-
-                if (newResponsesList) {
-                    responsesList.innerHTML = newResponsesList.innerHTML;
-                    applyColors();
-                }
-                
-                if (paginationInfo) {
-                    // Replace the pagination section
-                    const currentPaginationInfo = document.querySelector('.d-flex.justify-content-between');
-                    if (currentPaginationInfo) {
-                        currentPaginationInfo.innerHTML = paginationInfo.innerHTML;
-                    } else if (responsesList) {
-                        // If pagination wasn't there before but is now, add it
-                        responsesList.insertAdjacentHTML('afterend', paginationInfo.outerHTML);
-                    }
-                    
-                    // Re-attach event listeners to the new pagination links
-                    attachPaginationListeners();
-                    
-                    // Make sure hover effects are applied correctly to the active page
-                    const activePage = document.querySelector('.pagination .page-item.active .page-link');
-                    if (activePage) {
-                        activePage.classList.add('hover-effect');
-                    }
-                }
-                
-                // Update URL without refreshing the page
-                history.pushState({}, '', url);
-            })
-            .catch(error => console.error('Error:', error));
-        }
-        
-        // Function to attach event listeners to pagination links
-        function attachPaginationListeners() {
-            document.querySelectorAll('.pagination .page-link').forEach(link => {
-                // Remove existing event listeners
-                const newLink = link.cloneNode(true);
-                if (link.parentNode) {
-                    link.parentNode.replaceChild(newLink, link);
-                }
-                
-                // Add click event listener
-                newLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    // Save active page information before loading new content
-                    const activePage = document.querySelector('.pagination .page-item.active');
-                    const activePageNumber = activePage ? activePage.textContent.trim() : null;
-                    
-                    // Store the target page number to highlight after loading
-                    const targetPageNumber = this.textContent.trim();
-                    
-                    // Add a temporary active class to indicate loading
-                    this.classList.add('hover-effect');
-                    
-                    loadContent(this.getAttribute('href'));
-                });
-                
-                // Add hover effects
-                newLink.addEventListener('mouseenter', function() {
-                    this.classList.add('hover-effect');
-                });
-                
-                newLink.addEventListener('mouseleave', function() {
-                    if (!this.parentElement.classList.contains('active')) {
-                        this.classList.remove('hover-effect');
-                    }
-                });
-            });
-        }
-        
-        // Initial attachment of pagination listeners
-        attachPaginationListeners();
-        attachPaginationHoverEffects();
-        
-        // Handle search input
         searchInput.addEventListener('input', function() {
             clearTimeout(typingTimer);
             typingTimer = setTimeout(() => {
                 const searchQuery = this.value.trim();
-                loadContent(`${window.location.pathname}?search=${encodeURIComponent(searchQuery)}`);
+                const searchUrl = `${window.location.pathname}?search=${encodeURIComponent(searchQuery)}`;
+                
+                // Use smooth pagination to load search results
+                smoothPagination.loadPage(searchUrl);
             }, 300);
         });
     });

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<script src="{{ asset('js/lib/smooth-pagination.js') }}"></script>
 <div class="container-fluid py-4 px-4" style="background-color: var(--background-color)">
     <div class="row justify-content-center">
         <div class="col-12">
@@ -11,13 +12,12 @@
                     <p class="text-muted small mb-0 mt-2">Total Surveys: {{ $totalSurveys }}</p>
                 </div>
                 <div class="d-flex gap-2 align-items-center">
-                    <form method="GET" action="{{ route('admin.surveys.index') }}" class="search-form me-2">
-                        <div class="search-container">
-                            <input type="text" name="search" id="survey-search" class="search-input" placeholder="Search surveys..." value="{{ request('search') }}">
-                            <button type="submit" class="search-button">
-                                <i class="bi bi-search"></i>
-                            </button>
-                        </div>
+                    <form method="GET" action="{{ route('admin.surveys.index') }}" class="search-form me-2">                <div class="search-container">
+                    <input type="text" name="search" id="survey-search" class="search-input" placeholder="Search surveys..." value="{{ request('search') }}">
+                    <button type="button" class="search-button">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
                     </form>
                     <a href="{{ route('admin.surveys.create') }}" class="btn btn-primary" style="background-color: var(--primary-color); border-radius: 8px; text-transform: none; font-weight: 500;">
                         <i class="bi bi-plus-lg me-1"></i>{{ __('Create Survey') }}
@@ -34,8 +34,9 @@
             @endif
 
             <!-- Surveys Grid -->
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                @forelse ($surveys as $survey)
+            <div class="surveys-content">
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    @forelse ($surveys as $survey)
                     <div class="col">
                         <div class="card h-100 survey-card shadow-sm hover-lift" style="border-radius: 16px; background-color: white;">
                             <div class="card-body">
@@ -97,15 +98,16 @@
                         </div>
                     </div>
                 @endforelse
-            </div>
+                </div>
 
-            <div class="pagination-container mt-4">
-                <div class="row align-items-center">
-                    <div class="col-md-6 text-muted small text-start mb-2 mb-md-0">
-                        Showing {{ $surveys->firstItem() }} to {{ $surveys->lastItem() }} of {{ $surveys->total() }} entries
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        {{ $surveys->links() }}
+                <div class="pagination-container mt-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 text-muted small text-start mb-2 mb-md-0">
+                            Showing {{ $surveys->firstItem() }} to {{ $surveys->lastItem() }} of {{ $surveys->total() }} entries
+                        </div>
+                        <div class="d-flex justify-content-center">
+                            {{ $surveys->links() }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -212,6 +214,9 @@
 .pagination-container .pagination {
     justify-content: center;
     margin: 0;
+}
+.surveys-content {
+    min-height: 300px;
 }
 
 .pagination .page-link {
@@ -334,61 +339,78 @@
 }
 </style>
 <script>
-    // Real-time AJAX search for surveys
-    const searchInput = document.getElementById('survey-search');
-    if (searchInput) {
-        let searchTimeout;
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(function() {
-                const query = searchInput.value;
-                const url = new URL(window.location.href);
-                url.searchParams.set('search', query);
-                fetch(url, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.text())
-                .then(html => {
-                    // Replace the surveys grid only
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const newGrid = doc.querySelector('.row.row-cols-1.row-cols-md-2.row-cols-lg-3.g-4');
-                    const newPagination = doc.querySelector('.pagination-container');
-                    const grid = document.querySelector('.row.row-cols-1.row-cols-md-2.row-cols-lg-3.g-4');
-                    const pagination = document.querySelector('.pagination-container');
-                    if (grid && newGrid) grid.innerHTML = newGrid.innerHTML;
-                    if (pagination && newPagination) pagination.innerHTML = newPagination.innerHTML;
-                    
-                    // Reapply random colors to new survey cards
-                    document.querySelectorAll('.survey-card').forEach(card => {
-                        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                        const icon = card.querySelector('.card-icon');
-                        const btnStart = card.querySelector('.btn-start');
-                        if (icon) {
-                            icon.style.color = randomColor;
-                            icon.style.backgroundColor = `${randomColor}15`;
-                        }
-                        if (btnStart) {
-                            btnStart.style.backgroundColor = randomColor;
-                            btnStart.style.borderColor = randomColor;
-                            btnStart.style.pointerEvents = 'auto';
-                            btnStart.style.position = 'relative';
-                            btnStart.style.zIndex = '2';
-                        }
-                        card.style.borderLeft = `4px solid ${randomColor}`;
-                        const buttons = card.querySelectorAll('a.btn');
-                        buttons.forEach(btn => {
-                            btn.style.pointerEvents = 'auto';
-                            btn.style.position = 'relative';
-                            btn.style.zIndex = '2';
-                        });
-                    });
-                });
-            }, 300); // Debounce
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Smooth Pagination
+        const smoothPagination = new SmoothPagination({
+            contentSelector: '.surveys-content',
+            paginationSelector: '.pagination',
+            scrollToTop: false,
+            loadingIndicator: false,
+            onAfterLoad: function() {
+                // Apply styling to survey cards after loading
+                applyStylingToCards();
+            }
         });
-    }
-});
+        
+        // Function to apply styling to survey cards
+        function applyStylingToCards() {
+            document.querySelectorAll('.survey-card').forEach(card => {
+                const btnStart = card.querySelector('.btn-start');
+                if (btnStart) {
+                    btnStart.style.pointerEvents = 'auto';
+                    btnStart.style.position = 'relative';
+                    btnStart.style.zIndex = '2';
+                }
+                const buttons = card.querySelectorAll('a.btn');
+                buttons.forEach(btn => {
+                    btn.style.pointerEvents = 'auto';
+                    btn.style.position = 'relative';
+                    btn.style.zIndex = '2';
+                });
+            });
+        }
+        
+        // Handle search functionality
+        const searchInput = document.getElementById('survey-search');
+        const searchForm = document.querySelector('.search-form');
+        const searchButton = document.querySelector('.search-button');
+        
+        if (searchInput && searchForm) {
+            let searchTimeout;
+            
+            // Handle input typing
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    const query = this.value;
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('search', query);
+                    smoothPagination.loadPage(url.toString());
+                }, 300); // Debounce for 300ms
+            });
+            
+            // Handle search button click
+            if (searchButton) {
+                searchButton.addEventListener('click', function() {
+                    const query = searchInput.value;
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('search', query);
+                    smoothPagination.loadPage(url.toString());
+                });
+            }
+            
+            // Prevent form submission and use SmoothPagination instead
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const query = searchInput.value;
+                const url = new URL(this.action);
+                url.searchParams.set('search', query);
+                smoothPagination.loadPage(url.toString());
+            });
+        }
+        
+        // Apply initial styling
+        applyStylingToCards();
+    });
 </script>
 @endsection
