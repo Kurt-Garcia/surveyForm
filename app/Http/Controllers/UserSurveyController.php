@@ -8,6 +8,8 @@ use App\Models\SurveyResponseDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class UserSurveyController extends Controller
 {
@@ -305,5 +307,75 @@ class UserSurveyController extends Controller
                 'error' => 'Failed to submit survey response: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Get customers for the broadcast modal
+     */
+    public function getCustomers(Survey $survey)
+    {
+        $customers = DB::table('TBLCUSTOMER')
+            ->select('id', 'CUSTCODE', 'CUSTNAME', 'EMAIL', 'CUSTTYPE')
+            ->whereNotNull('EMAIL')
+            ->where('EMAIL', '!=', '')
+            ->orderBy('CUSTNAME')
+            ->get();
+        
+        return response()->json([
+            'customers' => $customers
+        ]);
+    }
+
+    /**
+     * Send survey broadcast to selected customers
+     */
+    public function broadcastSurvey(Request $request, Survey $survey)
+    {
+        $request->validate([
+            'customer_ids' => 'required|array',
+            'customer_ids.*' => 'exists:TBLCUSTOMER,id',
+        ]);
+
+        $successCount = 0;
+        $failCount = 0;
+        $customerIds = $request->input('customer_ids');
+        
+        $customers = DB::table('TBLCUSTOMER')
+            ->select('id', 'CUSTCODE', 'CUSTNAME', 'EMAIL', 'CUSTTYPE')
+            ->whereIn('id', $customerIds)
+            ->whereNotNull('EMAIL')
+            ->where('EMAIL', '!=', '')
+            ->get();
+            
+        foreach ($customers as $customer) {
+            try {
+                // Create personalized survey URL with customer name and account type pre-filled
+                $surveyUrl = route('customer.survey', $survey->id) . '?account_name=' . urlencode($customer->CUSTNAME) . '&account_type=' . urlencode($customer->CUSTTYPE ?? 'Customer');
+                
+                // Send email to customer
+                $emailData = [
+                    'customer_name' => $customer->CUSTNAME,
+                    'survey_title' => $survey->title,
+                    'survey_url' => $surveyUrl
+                ];
+                
+                Mail::send('emails.survey_invitation', $emailData, function($message) use ($customer, $survey) {
+                    $message->to($customer->EMAIL, $customer->CUSTNAME)
+                            ->subject('You\'re invited to complete a survey: ' . $survey->title)
+                            ->from('testsurvey_1@w-itsolutions.com', 'Fast Distribution Corporation');
+                });
+                
+                $successCount++;
+            } catch (\Exception $e) {
+                Log::error('Failed to send survey email to ' . $customer->EMAIL . ': ' . $e->getMessage());
+                $failCount++;
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => "Survey invitation sent to {$successCount} customer(s)",
+            'failed' => $failCount
+        ]);
     }
 }

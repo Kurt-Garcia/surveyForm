@@ -37,6 +37,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/check-account-exists', [UserSurveyController::class, 'checkAccountExists'])->name('check.account.exists');
     Route::get('/surveys/thankyou', [UserSurveyController::class, 'thankyou'])->name('surveys.thankyou');
     
+    // Survey broadcast routes
+    Route::get('/surveys/{survey}/customers', [UserSurveyController::class, 'getCustomers'])->name('surveys.customers');
+    Route::post('/surveys/{survey}/broadcast', [UserSurveyController::class, 'broadcastSurvey'])->name('surveys.broadcast');
+    
     // Survey response routes for surveyors
     Route::get('/surveys/{survey}/responses', [\App\Http\Controllers\SurveyResponseController::class, 'index'])->name('surveys.responses.index');
     Route::get('/surveys/{survey}/responses/{account_name}', [\App\Http\Controllers\SurveyResponseController::class, 'show'])->name('surveys.responses.show');
@@ -89,6 +93,12 @@ Route::prefix('admin')->group(function () {
         Route::delete('surveys/{survey}/questions/{question}', [\App\Http\Controllers\Admin\SurveyQuestionController::class, 'destroy'])
             ->name('admin.surveys.questions.destroy');
 
+        // Survey broadcast routes
+        Route::get('surveys/{survey}/customers', [\App\Http\Controllers\UserSurveyController::class, 'getCustomers'])
+            ->name('admin.surveys.customers');
+        Route::post('surveys/{survey}/broadcast', [\App\Http\Controllers\UserSurveyController::class, 'broadcastSurvey'])
+            ->name('admin.surveys.broadcast');
+            
         // Survey response routes
         Route::get('surveys/{survey}/responses', [\App\Http\Controllers\Admin\SurveyResponseController::class, 'index'])
             ->name('admin.surveys.responses.index');

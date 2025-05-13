@@ -78,6 +78,9 @@
                                 <a href="{{ route('surveys.responses.index', $survey) }}" class="btn btn-outline-secondary">
                                     <i class="fas fa-chart-bar"></i>
                                 </a>
+                                <button type="button" class="btn btn-outline-primary broadcast-btn" data-survey-id="{{ $survey->id }}" data-survey-title="{{ $survey->title }}">
+                                    <i class="fas fa-bullhorn"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -272,6 +275,110 @@
         object-fit: contain;
         margin: 0 auto;
     }
+    
+    /* Broadcast Modal Styles */
+    .customer-list {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        border-radius: 6px;
+        padding: 0.5rem;
+    }
+    
+    .customer-item {
+        padding: 10px 15px;
+        border-bottom: 1px solid #f5f5f5;
+        display: flex;
+        align-items: center;
+        transition: background-color 0.2s;
+    }
+    
+    .customer-item:last-child {
+        border-bottom: none;
+    }
+    
+    .customer-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .customer-item label {
+        margin-bottom: 0;
+        cursor: pointer;
+        flex: 1;
+        display: flex;
+        align-items: center;
+    }
+    
+    .customer-item input[type="checkbox"] {
+        margin-right: 12px;
+    }
+    
+    .customer-details {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+    
+    .customer-name {
+        font-weight: 500;
+    }
+    
+    .customer-email {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .customer-code {
+        color: #6c757d;
+        font-size: 0.8rem;
+        background: #f0f0f0;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin-left: auto;
+    }
+    
+    .selected-count {
+        font-weight: 500;
+        color: var(--primary-color);
+    }
+    
+    /* Broadcast button */
+    .broadcast-btn {
+        width: 40px;
+        height: 38px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Success Animation */
+    .broadcast-success {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1051;
+        background: #28a745;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 4px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        opacity: 0;
+        transform: translateY(-20px);
+        transition: all 0.3s ease;
+    }
+    
+    .broadcast-success.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .broadcast-success i {
+        margin-right: 10px;
+        font-size: 20px;
+    }
     </style>
 
     <script>
@@ -283,7 +390,8 @@
             scrollToTop: false,
             loadingIndicator: false,
             onAfterLoad: function() {
-                // Apply any necessary styling or event handlers after content is loaded
+                // Re-attach event handlers after content is loaded
+                attachBroadcastHandlers();
             }
         });
         
@@ -310,6 +418,281 @@
                 smoothPagination.loadPage(url);
             });
         }
+        
+        // Broadcast functionality
+        function attachBroadcastHandlers() {
+            const broadcastBtns = document.querySelectorAll('.broadcast-btn');
+            broadcastBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const surveyId = this.getAttribute('data-survey-id');
+                    const surveyTitle = this.getAttribute('data-survey-title');
+                    
+                    // Set modal title
+                    document.getElementById('broadcastModalLabel').textContent = 'Broadcast: ' + surveyTitle;
+                    
+                    // Show modal
+                    const broadcastModal = new bootstrap.Modal(document.getElementById('broadcastModal'));
+                    broadcastModal.show();
+                    
+                    // Load customers
+                    loadCustomers(surveyId);
+                });
+            });
+        }
+        
+        // Initial attachment of broadcast handlers
+        attachBroadcastHandlers();
+        
+        // Customer search functionality
+        const customerSearch = document.getElementById('customerSearch');
+        if (customerSearch) {
+            customerSearch.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const customerItems = document.querySelectorAll('.customer-item');
+                
+                customerItems.forEach(item => {
+                    const customerName = item.querySelector('.customer-name').textContent.toLowerCase();
+                    const customerEmail = item.querySelector('.customer-email').textContent.toLowerCase();
+                    const customerCode = item.querySelector('.customer-code').textContent.toLowerCase();
+                    
+                    if (customerName.includes(searchTerm) || 
+                        customerEmail.includes(searchTerm) || 
+                        customerCode.includes(searchTerm)) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // Select/Deselect All functionality
+        const selectAllBtn = document.querySelector('.select-all-btn');
+        const deselectAllBtn = document.querySelector('.deselect-all-btn');
+        
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', function() {
+                const checkboxes = document.querySelectorAll('.customer-checkbox:not([disabled])');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+                updateSelectedCount();
+            });
+        }
+        
+        if (deselectAllBtn) {
+            deselectAllBtn.addEventListener('click', function() {
+                const checkboxes = document.querySelectorAll('.customer-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                updateSelectedCount();
+            });
+        }
+        
+        // Send broadcast functionality
+        const sendBroadcastBtn = document.querySelector('.send-broadcast-btn');
+        if (sendBroadcastBtn) {
+            sendBroadcastBtn.addEventListener('click', function() {
+                const surveyId = document.querySelector('.broadcast-btn').getAttribute('data-survey-id');
+                const selectedCustomers = Array.from(document.querySelectorAll('.customer-checkbox:checked'))
+                    .map(checkbox => checkbox.value);
+                
+                if (selectedCustomers.length === 0) {
+                    alert('Please select at least one customer');
+                    return;
+                }
+                
+                // Show loading state
+                this.disabled = true;
+                this.querySelector('.spinner-border').classList.remove('d-none');
+                
+                // Send broadcast request
+                fetch(`/surveys/${surveyId}/broadcast`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        customer_ids: selectedCustomers
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Hide modal
+                    bootstrap.Modal.getInstance(document.getElementById('broadcastModal')).hide();
+                    
+                    // Show success notification
+                    showBroadcastSuccess(data.message);
+                    
+                    // Reset button state
+                    sendBroadcastBtn.disabled = false;
+                    sendBroadcastBtn.querySelector('.spinner-border').classList.add('d-none');
+                })
+                .catch(error => {
+                    console.error('Error sending broadcast:', error);
+                    alert('Failed to send broadcast. Please try again.');
+                    
+                    // Reset button state
+                    sendBroadcastBtn.disabled = false;
+                    sendBroadcastBtn.querySelector('.spinner-border').classList.add('d-none');
+                });
+            });
+        }
+        
+        function loadCustomers(surveyId) {
+            const customerList = document.querySelector('.customer-list');
+            if (!customerList) return;
+            
+            // Show loading state
+            customerList.innerHTML = `
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading customers...</p>
+                </div>
+            `;
+            
+            // Fetch customers
+            fetch(`/surveys/${surveyId}/customers`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.customers && data.customers.length > 0) {
+                        let customersHtml = '';
+                        
+                        data.customers.forEach(customer => {
+                            customersHtml += `
+                                <div class="customer-item">
+                                    <label>
+                                        <input type="checkbox" class="customer-checkbox" value="${customer.id}" 
+                                            ${!customer.EMAIL ? 'disabled' : ''}>
+                                        <div class="customer-details">
+                                            <div class="customer-name">${customer.CUSTNAME}</div>
+                                            <div class="customer-email">${customer.EMAIL || 'No email available'}</div>
+                                        </div>
+                                        <div class="customer-code">${customer.CUSTCODE}</div>
+                                    </label>
+                                </div>
+                            `;
+                        });
+                        
+                        customerList.innerHTML = customersHtml;
+                        
+                        // Attach change event to checkboxes
+                        const checkboxes = document.querySelectorAll('.customer-checkbox');
+                        checkboxes.forEach(checkbox => {
+                            checkbox.addEventListener('change', updateSelectedCount);
+                        });
+                        
+                        updateSelectedCount();
+                    } else {
+                        customerList.innerHTML = `
+                            <div class="text-center py-4">
+                                <i class="fas fa-users-slash fs-1 text-muted mb-3"></i>
+                                <p>No customers with email addresses found.</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading customers:', error);
+                    customerList.innerHTML = `
+                        <div class="text-center py-4">
+                            <i class="fas fa-exclamation-triangle fs-1 text-danger mb-3"></i>
+                            <p>Failed to load customers. Please try again.</p>
+                        </div>
+                    `;
+                });
+        }
+        
+        function updateSelectedCount() {
+            const selectedCount = document.querySelectorAll('.customer-checkbox:checked').length;
+            const selectedCountText = document.querySelector('.selected-count');
+            if (selectedCountText) {
+                selectedCountText.textContent = `${selectedCount} selected`;
+            }
+            
+            // Enable/disable send button
+            const sendButton = document.querySelector('.send-broadcast-btn');
+            if (sendButton) {
+                sendButton.disabled = selectedCount === 0;
+            }
+        }
+        
+        function showBroadcastSuccess(message) {
+            // Create success notification
+            const notification = document.createElement('div');
+            notification.className = 'broadcast-success';
+            notification.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span>${message}</span>
+            `;
+            
+            // Add to DOM
+            document.body.appendChild(notification);
+            
+            // Show with animation
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Remove after delay
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 5000);
+        }
     });
     </script>
+
+    <!-- Broadcast Modal -->
+    <div class="modal fade" id="broadcastModal" tabindex="-1" aria-labelledby="broadcastModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="broadcastModalLabel">Broadcast Survey</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="customerSearch" class="form-label">Search Customers</label>
+                        <input type="text" class="form-control" id="customerSearch" placeholder="Type to search...">
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> Select customers to receive an email invitation for this survey.
+                    </div>
+
+                    <div class="customer-list-container">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-secondary select-all-btn">Select All</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary deselect-all-btn ms-2">Deselect All</button>
+                            </div>
+                            <div class="selected-count">0 selected</div>
+                        </div>
+                        <div class="customer-list">
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2">Loading customers...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary send-broadcast-btn" disabled>
+                        <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
+                        <i class="fas fa-paper-plane me-1"></i> Send Invitations
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
