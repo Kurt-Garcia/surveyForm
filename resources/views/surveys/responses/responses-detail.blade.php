@@ -302,10 +302,10 @@
 </div>
 
 <style>
-
+/* Regular styles */
 .custom-hover-btn:hover {
     background-color: var(--secondary-color);
-    color: white; /* Optional: change text color on hover */
+    color: white;
 }
 
 .card {
@@ -379,6 +379,76 @@
 
 .response-text {
     line-height: 1.6;
+}
+
+/* Print styles */
+@media print {
+    @page {
+        size: A4;
+        margin: 1cm;
+    }
+
+    body {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .print-only-header {
+        display: block !important;
+        page-break-after: avoid;
+    }
+
+    .container {
+        page-break-before: avoid;
+        page-break-after: avoid;
+    }
+
+    .container {
+        width: 100% !important;
+        max-width: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .btn, .navbar, .no-print {
+        display: none !important;
+    }
+
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .print-only-header {
+        display: block !important;
+        margin-bottom: 20px;
+    }
+
+    .print-logo {
+        max-width: 200px;
+        height: auto;
+        margin: 0 auto;
+        display: block;
+    }
+
+    .response-item {
+        page-break-inside: avoid;
+        border: 1px solid #ddd;
+        margin-bottom: 15px;
+    }
+
+    .hover-lift {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .recommendation-meter {
+        border: 1px solid #ddd;
+    }
+
+    .text-warning {
+        color: #000 !important;
+    }
 }
 
 /* Responsive styles for radio buttons on mobile */

@@ -67,22 +67,25 @@
                                     @endphp
                                     
                                     @if($question->type === 'radio' || $question->type === 'star')
-                                        <div class="stats-bars">
-                                            @foreach($stats['responses'] as $response => $count)
-                                                <div class="stat-row mb-2">
-                                                    <div class="d-flex justify-content-between mb-1">
-                                                        <span>{{ $response == 1 ? 'Poor' : ($response == 2 ? 'Need Improvement' : ($response == 3 ? 'Satisfactory' : ($response == 4 ? 'Very Satisfactory' : 'Excellent'))) }}</span>
-                                                        <span class="text-muted">{{ $count }} responses</span>
-                                                    </div>
-                                                    <div class="progress" style="height: 25px;">
-                                                        <div class="progress-bar {{ $response == 1 ? 'bg-danger' : ($response == 2 ? 'bg-warning' : ($response == 3 ? 'bg-info' : ($response == 4 ? 'bg-primary' : 'bg-success'))) }}" 
-                                                             role="progressbar" 
-                                                             style="width: {{ ($count / $total) * 100 }}%">
-                                                            {{ round(($count / $total) * 100) }}%
-                                                        </div>
-                                                    </div>
+                                        <div class="row align-items-center">
+                                            <div class="col-md-6">
+                                                <div class="chart-container" style="position: relative; height: 283px; width: 100%;">
+                                                    <canvas id="pieChart-{{ $question->id }}" class="question-chart"></canvas>
                                                 </div>
-                                            @endforeach
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="legend-container mt-3 mt-md-0">
+                                                    @foreach($stats['responses'] as $response => $count)
+                                                        <div class="legend-item mb-2 d-flex align-items-center">
+                                                            <div class="legend-color me-2" style="background-color: {{ $response == 1 ? '#dc3545' : ($response == 2 ? '#ffc107' : ($response == 3 ? '#17a2b8' : ($response == 4 ? '#0d6efd' : '#28a745'))) }};"></div>
+                                                            <div class="d-flex justify-content-between w-100">
+                                                                <span>{{ $response == 1 ? 'Poor' : ($response == 2 ? 'Need Improvement' : ($response == 3 ? 'Satisfactory' : ($response == 4 ? 'Very Satisfactory' : 'Excellent'))) }}</span>
+                                                                <span class="text-muted">{{ $count }} ({{ round(($count / $total) * 100) }}%)</span>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
                                         </div>
                                     @endif
                                 </div>
@@ -113,10 +116,10 @@
                                 <table class="table table-hover align-middle modern-table" id="responsesTable">
                                     <thead class="table-light">
                                         <tr>
-                                            <th class="ps-4">Account Name</th>
-                                            <th>Account Type</th>
-                                            <th>Date</th>
-                                            <th class="text-end">Actions</th>
+                                            <th class="ps-4 align-middle">Account Name</th>
+                                            <th class="align-middle">Account Type</th>
+                                            <th class="align-middle">Date</th>
+                                            <th class="align-middle text-end pe-4">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -124,19 +127,13 @@
                                             <tr class="response-row">
                                                 <td class="ps-4">
                                                     <div class="d-flex align-items-center">
-                                                        <div class="avatar-circle bg-primary-subtle text-primary me-3">
-                                                            {{ substr($response->account_name, 0, 1) }}
-                                                        </div>
                                                         <div>
                                                             <h6 class="mb-0 fw-semibold">{{ $response->account_name }}</h6>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <span class="badge rounded-pill {{ $response->account_type == 'Student' ? 'bg-info-subtle text-info' : ($response->account_type == 'Teacher' ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary') }} px-3 py-2">
-                                                        <i class="bi {{ $response->account_type == 'Student' ? 'bi-mortarboard-fill' : ($response->account_type == 'Teacher' ? 'bi-person-workspace' : 'bi-person-fill') }} me-1"></i>
-                                                        {{ $response->account_type }}
-                                                    </span>
+                                                    {{ $response->account_type }}
                                                 </td>
                                                 <td>
                                                     <div class="d-flex align-items-center">
@@ -144,7 +141,7 @@
                                                         <span>{{ $response->date->format('M d, Y') }}</span>
                                                     </div>
                                                 </td>
-                                                <td class="text-end">
+                                                <td class="text-end align-middle pe-4">
                                                     <a href="{{ route('admin.surveys.responses.show', ['survey' => $survey->id, 'account_name' => $response->account_name]) }}" 
                                                        class="btn btn-primary btn-sm rounded-pill px-3 action-btn">
                                                         <i class="bi bi-eye-fill me-1"></i>View Details
@@ -171,13 +168,70 @@
             <!-- DataTables scripts are already included in the layout -->
             <script>
                 $(document).ready(function() {
-                    // Add hover effect to stat rows
-                    document.querySelectorAll('.stat-row').forEach(row => {
-                        row.addEventListener('mouseenter', function() {
-                            this.querySelector('.progress-bar').style.opacity = '0.9';
+                    // Initialize pie charts for each question
+                    @foreach($questions as $question)
+                        @if($question->type === 'radio' || $question->type === 'star')
+                            @php
+                                $stats = $statistics[$question->id];
+                                $chartLabels = [];
+                                $chartData = [];
+                                $chartColors = [];
+                                
+                                foreach($stats['responses'] as $response => $count) {
+                                    $label = $response == 1 ? 'Poor' : ($response == 2 ? 'Need Improvement' : ($response == 3 ? 'Satisfactory' : ($response == 4 ? 'Very Satisfactory' : 'Excellent')));
+                                    $color = $response == 1 ? '#dc3545' : ($response == 2 ? '#ffc107' : ($response == 3 ? '#17a2b8' : ($response == 4 ? '#0d6efd' : '#28a745')));
+                                    
+                                    array_push($chartLabels, $label);
+                                    array_push($chartData, $count);
+                                    array_push($chartColors, $color);
+                                }
+                            @endphp
+                            
+                            new Chart(document.getElementById('pieChart-{{ $question->id }}'), {
+                                type: 'pie',
+                                data: {
+                                    labels: {!! json_encode($chartLabels) !!},
+                                    datasets: [{
+                                        data: {!! json_encode($chartData) !!},
+                                        backgroundColor: {!! json_encode($chartColors) !!},
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            display: false
+                                        },
+                                        tooltip: {
+                                            callbacks: {
+                                                label: function(context) {
+                                                    const label = context.label || '';
+                                                    const value = context.raw || 0;
+                                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                    const percentage = Math.round((value / total) * 100);
+                                                    return `${label}: ${value} (${percentage}%)`;
+                                                }
+                                            }
+                                        }
+                                    },
+                                    animation: {
+                                        animateScale: true,
+                                        animateRotate: true
+                                    }
+                                }
+                            });
+                        @endif
+                    @endforeach
+                    
+                    // Add hover effect to legend items
+                    document.querySelectorAll('.legend-item').forEach(item => {
+                        item.addEventListener('mouseenter', function() {
+                            this.style.backgroundColor = '#f8f9fa';
                         });
-                        row.addEventListener('mouseleave', function() {
-                            this.querySelector('.progress-bar').style.opacity = '1';
+                        item.addEventListener('mouseleave', function() {
+                            this.style.backgroundColor = 'transparent';
                         });
                     });
                     
@@ -321,34 +375,45 @@
                 border-bottom: none;
             }
 
-            .progress {
-                border-radius: 100px;
-                background-color: #f8f9fa;
-                box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-                height: 25px !important;
+            .chart-container {
+                margin-bottom: 1rem;
+                border-radius: 8px;
+                background-color: #ffffff;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                padding: 10px;
             }
 
-            .progress-bar {
-                border-radius: 100px;
-                transition: all 0.4s ease;
-                background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
-                background-size: 1rem 1rem;
-                animation: progress-bar-stripes 1s linear infinite;
+            .legend-container {
+                padding: 15px;
+                border-radius: 8px;
+                background-color: #ffffff;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             }
 
-            .bg-danger { background-color: #dc3545 !important; }
-            .bg-warning { background-color: #ffc107 !important; }
-            .bg-info { background-color: #17a2b8 !important; }
-            .bg-primary { background-color: #0d6efd !important; }
-            .bg-success { background-color: #28a745 !important; }
-
-            .stat-row:hover .progress-bar {
-                filter: brightness(1.1);
-                transform: scaleX(1.01);
+            .legend-item {
+                padding: 8px 12px;
+                border-radius: 6px;
+                transition: all 0.2s ease;
+                cursor: pointer;
             }
-            @keyframes progress-bar-stripes {
-                from { background-position: 1rem 0; }
-                to { background-position: 0 0; }
+
+            .legend-color {
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                display: inline-block;
+            }
+
+            .question-chart {
+                transition: all 0.3s ease;
+            }
+
+            .question-chart:hover {
+                transform: scale(1.02);
+            }
+
+            .question-stats {
+                transition: all 0.3s ease;
             }
 
             .stat-row {

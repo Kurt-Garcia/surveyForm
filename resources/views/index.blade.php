@@ -264,74 +264,57 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-    // AJAX Instant Search functionality
-    const searchForm = document.getElementById('search-form');
-    const searchInput = document.getElementById('survey-search');
-    const surveysGrid = document.getElementById('surveys-grid');
-    let searchTimeout = null;
+        // AJAX Instant Search functionality
+        const searchForm = document.getElementById('search-form');
+        const searchInput = document.getElementById('survey-search');
+        const surveysGrid = document.getElementById('surveys-grid');
+        const paginationLinks = document.querySelectorAll('.pagination a');
+        let searchTimeout = null;
     
-    function fetchSurveys(query) {
-        const url = searchForm.action + '?search=' + encodeURIComponent(query);
-        fetch(url, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.text())
-        .then(html => {
-            // Try to extract only the surveys grid from the returned HTML
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const newGrid = doc.getElementById('surveys-grid');
-            if (newGrid && surveysGrid) {
-                surveysGrid.innerHTML = newGrid.innerHTML;
-            }
-        });
-    }
-    
-    if (searchInput && searchForm && surveysGrid) {
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            const query = this.value;
-            searchTimeout = setTimeout(() => {
-                fetchSurveys(query);
-            }, 300); // Debounce for 300ms
-        });
-    }
-    
-    // Use primary color for all cards
-        document.querySelectorAll('.survey-card').forEach(card => {
-            // Get the primary color from CSS variables
-            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
-            const icon = card.querySelector('.card-icon');
-            const btnStart = card.querySelector('.btn-start');
-            
-            if (icon) {
-                icon.style.color = primaryColor;
-                icon.style.backgroundColor = `${primaryColor}15`; // Very light background of the primary color
-            }
-            
-            if (btnStart) {
-                btnStart.style.backgroundColor = primaryColor;
-                btnStart.style.borderColor = primaryColor;
-                
-                // Make sure the button is clickable
-                btnStart.style.pointerEvents = 'auto';
-                btnStart.style.position = 'relative';
-                btnStart.style.zIndex = '2';
-            }
-            
-            // Add a subtle left border to the card with the primary color
-            card.style.borderLeft = `4px solid ${primaryColor}`;
-            
-            // Ensure the card's hover effect doesn't interfere with button clicks
-            const buttons = card.querySelectorAll('a.btn');
-            buttons.forEach(btn => {
-                btn.style.pointerEvents = 'auto';
-                btn.style.position = 'relative';
-                btn.style.zIndex = '2';
+        function fetchSurveys(url) {
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newGrid = doc.getElementById('surveys-grid');
+                const newPagination = doc.querySelector('.pagination-container');
+                if (newGrid && surveysGrid) {
+                    surveysGrid.innerHTML = newGrid.innerHTML;
+                }
+                if (newPagination) {
+                    document.querySelector('.pagination-container').innerHTML = newPagination.innerHTML;
+                    attachPaginationEvents();
+                }
             });
-        });
+        }
+    
+        function attachPaginationEvents() {
+            document.querySelectorAll('.pagination a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = this.href;
+                    fetchSurveys(url);
+                });
+            });
+        }
+    
+        if (searchInput && searchForm && surveysGrid) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                const query = this.value;
+                searchTimeout = setTimeout(() => {
+                    const url = searchForm.action + '?search=' + encodeURIComponent(query);
+                    fetchSurveys(url);
+                }, 300); // Debounce for 300ms
+            });
+        }
+    
+        attachPaginationEvents();
     });
     </script>
 @endsection
