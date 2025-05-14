@@ -239,6 +239,7 @@
     height: 100%;
 }
 .survey-card:hover {
+    border-left-color: var(--secondary-color);
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
 }

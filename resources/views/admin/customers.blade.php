@@ -4,92 +4,204 @@
 <head>
     @vite(['resources/js/app.js'])
     <style>
-        /* DataTables Export Button Styling */
-        div.dt-buttons {
-            margin-bottom: 1rem;
+        /* Modern Card Styling */
+        .card {
+            border: none;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
         }
 
-        div.dt-button-collection {
-            width: auto !important;
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            border-bottom: none;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px 12px 0 0 !important;
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        /* DataTable Styling */
+        .dataTables_wrapper {
+            margin-top: 1rem;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table.dataTable {
+            border-collapse: separate !important;
+            border-spacing: 0 8px !important;
+            margin-top: 1rem !important;
+            width: 100% !important;
+            min-width: 1500px; /* Ensures table maintains minimum width for all columns */
+        }
+
+        table.dataTable thead th {
+            background: #f8f9fa;
+            font-weight: 600;
+            padding: 15px;
+            border: none;
+            color: var(--text-color);
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        table.dataTable tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-top: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+            color: #555;
+        }
+
+        table.dataTable tbody tr {
+            background: white;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 8px;
+        }
+
+        table.dataTable tbody tr:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Export Buttons */
+        div.dt-buttons {
+            margin-right: 20px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
         .dt-button {
+            background: white !important;
             color: var(--text-color) !important;
-            background-color: white !important;
-            border: 1px solid #dee2e6 !important;
-            padding: 8px 22px !important;
-            border-radius: 20px !important;
-            margin: 0 6px 8px 0 !important;
+            border: 2px solid var(--primary-color) !important;
+            padding: 8px 20px !important;
+            border-radius: 25px !important;
             font-weight: 600;
-            transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.2s;
-            outline: none;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
         }
 
-        .dt-button:hover, .dt-button:focus {
-            background: linear-gradient(90deg, var(--secondary-color) 0%, var(--primary-color) 100%) !important;
-            color: #fff !important;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.13);
-            transform: translateY(-2px) scale(1.04);
-            border: none;
+        .dt-button:hover {
+            background: var(--primary-color) !important;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(var(--primary-color-rgb), 0.2);
         }
 
         .dt-button:active {
-            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transform: scale(0.98);
-            color: #fff !important;
-        }
-        
-        /* DataTables General Styling */
-        .dataTables_wrapper .dataTables_length, 
-        .dataTables_wrapper .dataTables_filter, 
-        .dataTables_wrapper .dataTables_info, 
-        .dataTables_wrapper .dataTables_processing, 
-        .dataTables_wrapper .dataTables_paginate {
-            color: var(--text-color);
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current,
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-            color: #fff !important;
-            border: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-            transform: translateY(-1px) scale(1.03);
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
-            background: #f8f9fa !important;
-            color: #bdbdbd !important;
-            border: 1px solid #e0e0e0 !important;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button:active {
-            transform: scale(0.97);
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button {
-            cursor: pointer;
-            background: linear-gradient(90deg, #fff 0%, #f0f4fa 100%);
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color) !important;
-            border-radius: 18px !important;
-            margin: 0 3px;
-            padding: 6px 16px;
-            font-weight: 500;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-            transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.2s;
+            transform: translateY(0);
         }
 
-        table.dataTable tbody tr.even {
-            background-color: #f8f9fa;
+        /* Search and Length Controls */
+        .dataTables_filter input {
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            padding: 8px 20px;
+            width: 250px;
+            transition: all 0.3s;
         }
-        
-        table.dataTable tbody tr.odd {
-            background-color: white;
+
+        .dataTables_filter input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
+        }
+
+        .dataTables_length select {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 5px 15px;
+            margin: 0 5px;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+
+        .dataTables_length select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
+        }
+
+        /* Pagination */
+        .dataTables_paginate {
+            margin-top: 1.5rem !important;
+        }
+
+        .paginate_button {
+            border: none !important;
+            border-radius: 20px !important;
+            padding: 8px 16px !important;
+            margin: 0 3px !important;
+            color: var(--text-color) !important;
+            font-weight: 500;
+            transition: all 0.3s ease !important;
+        }
+
+        .paginate_button.current,
+        .paginate_button:hover {
+            background: var(--primary-color) !important;
+            color: white !important;
+            box-shadow: 0 5px 15px rgba(var(--primary-color-rgb), 0.2);
+        }
+
+        .paginate_button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed !important;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .card-body {
+                padding: 1rem;
+            }
+
+            .dt-buttons {
+                justify-content: center;
+                margin-bottom: 1rem;
+            }
+
+            .dataTables_filter input {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+
+            .dataTables_length,
+            .dataTables_filter {
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+
+            table.dataTable tbody td {
+                padding: 0.75rem;
+                font-size: 0.9rem;
+                white-space: nowrap;
+            }
+
+            .dataTables_wrapper {
+                margin: 0 -1rem;
+                padding: 0 1rem;
+                width: calc(100% + 2rem);
+            }
         }
     </style>
 </head>
@@ -97,18 +209,22 @@
 <div class="container-fluid px-4 mt-4">
     <div class="row justify-content-start">
         <div class="col-12">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h3 class="mb-0 fw-bold">Customer List</h3>
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-arrow-left"></i> Back to Dashboard
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3><i class="bi bi-people me-2"></i>Customer List</h3>
+                    <a href="{{ route('admin.dashboard') }}" class="close-button" onclick="window.close();">
+                        <i class="fas fa-times"></i>
                     </a>
                 </div>
-                <div class="card-body p-4">
+                <div class="card-body">
                     @if(session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle me-1"></i>
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                     @endif
-                    <table id="customersTable" class="display" style="width:100%">
+                    <table id="customersTable" class="table table-hover" style="width:100%">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -217,53 +333,61 @@
             dom: 'Blfrtip', // B-buttons, l-length, f-filter, r-processing, t-table, i-info, p-pagination
             buttons: [
                 {
-                    extend: 'copy',
-                    text: '<i class="bi bi-clipboard me-1"></i> Copy',
-                    className: 'btn btn-sm',
-                    exportOptions: {
-                        columns: [1, 2, 3, 4, 5, 6, 7] // Export only important columns
-                    }
-                },
-                {
-                    extend: 'csv',
-                    text: '<i class="bi bi-filetype-csv me-1"></i> CSV',
-                    className: 'btn btn-sm',
-                    exportOptions: {
-                        columns: [1, 2, 3, 4, 5, 6, 7]
-                    },
-                    title: 'Customer List'
-                },
-                {
-                    extend: 'excel',
-                    text: '<i class="bi bi-file-earmark-excel me-1"></i> Excel',
-                    className: 'btn btn-sm',
-                    exportOptions: {
-                        columns: [1, 2, 3, 4, 5, 6, 7]
-                    },
-                    title: 'Customer List'
-                },
-                {
-                    extend: 'pdf',
-                    text: '<i class="bi bi-file-earmark-pdf me-1"></i> PDF',
-                    className: 'btn btn-sm',
-                    exportOptions: {
-                        columns: [1, 2, 3, 4, 5, 6, 7]
-                    },
-                    title: 'Customer List',
-                    customize: function(doc) {
-                        doc.defaultStyle.fontSize = 10;
-                        doc.styles.tableHeader.fontSize = 11;
-                        doc.styles.tableHeader.alignment = 'left';
-                    }
-                },
-                {
-                    extend: 'print',
-                    text: '<i class="bi bi-printer me-1"></i> Print',
-                    className: 'btn btn-sm',
-                    exportOptions: {
-                        columns: [1, 2, 3, 4, 5, 6, 7]
-                    },
-                    title: 'Customer List'
+                    extend: 'collection',
+                    text: '<i class="bi bi-download me-1"></i> Export',
+                    className: 'btn btn-sm btn-primary',
+                    autoClose: true,
+                    buttons: [
+                        {
+                            extend: 'copy',
+                            text: '<i class="bi bi-clipboard me-1"></i> Copy',
+                            className: 'btn btn-sm',
+                            exportOptions: {
+                                columns: [1, 2, 3, 4, 5, 6, 7]
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            text: '<i class="bi bi-filetype-csv me-1"></i> CSV',
+                            className: 'btn btn-sm',
+                            exportOptions: {
+                                columns: [1, 2, 3, 4, 5, 6, 7]
+                            },
+                            title: 'Customer List'
+                        },
+                        {
+                            extend: 'excel',
+                            text: '<i class="bi bi-file-earmark-excel me-1"></i> Excel',
+                            className: 'btn btn-sm',
+                            exportOptions: {
+                                columns: [1, 2, 3, 4, 5, 6, 7]
+                            },
+                            title: 'Customer List'
+                        },
+                        {
+                            extend: 'pdf',
+                            text: '<i class="bi bi-file-earmark-pdf me-1"></i> PDF',
+                            className: 'btn btn-sm',
+                            exportOptions: {
+                                columns: [1, 2, 3, 4, 5, 6, 7]
+                            },
+                            title: 'Customer List',
+                            customize: function(doc) {
+                                doc.defaultStyle.fontSize = 10;
+                                doc.styles.tableHeader.fontSize = 11;
+                                doc.styles.tableHeader.alignment = 'left';
+                            }
+                        },
+                        {
+                            extend: 'print',
+                            text: '<i class="bi bi-printer me-1"></i> Print',
+                            className: 'btn btn-sm',
+                            exportOptions: {
+                                columns: [1, 2, 3, 4, 5, 6, 7]
+                            },
+                            title: 'Customer List'
+                        }
+                    ]
                 }
             ],
             initComplete: function() {
