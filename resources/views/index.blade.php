@@ -166,17 +166,23 @@
     }
     .pagination-container .pagination {
         margin: 0;
+        justify-content: center;
+    }
+    .pagination .page-item .page-link {
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        margin: 0 5px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
     }
     .pagination .page-item.active .page-link {
         background-color: var(--primary-color);
         border-color: var(--primary-color);
-    }
-    .pagination .page-link {
-        color: #333;
-        transition: all 0.2s ease;
+        color: white;
     }
     .pagination .page-link:hover {
-        background-color: #eee;
+        background-color: var(--primary-color);
+        color: white;
     }
     
     /* Card Styles */
@@ -664,7 +670,7 @@
                     </div>
                     
                     <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i> Select customers to receive an email invitation for this survey.
+                        <i class="fas fa-info-circle me-2"></i> Choose customers to invite by email.
                     </div>
 
                     <div class="customer-list-container">

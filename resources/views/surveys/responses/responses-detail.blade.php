@@ -681,117 +681,95 @@
 }
 </style>
 
-<!-- Add jsPDF library -->
+<!-- Add jsPDF, html2canvas, and html2pdf.js libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
 function generatePDF() {
-    // Show loading indicator
+    // Show loading toast
     const loadingToast = document.createElement('div');
-    loadingToast.className = 'position-fixed bottom-0 end-0 p-3';
-    loadingToast.style.zIndex = '5000';
+    loadingToast.id = 'pdfLoadingToast';
+    loadingToast.style.position = 'fixed';
+    loadingToast.style.top = '20px';
+    loadingToast.style.right = '20px';
+    loadingToast.style.zIndex = '9999';
     loadingToast.innerHTML = `
-        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header">
-                <strong class="me-auto">Processing PDF</strong>
-            </div>
-            <div class="toast-body">
-                <div class="d-flex align-items-center">
-                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-                    <span>Creating your PDF file. Please wait...</span>
-                </div>
+        <div class="toast show align-items-center text-white bg-primary border-0" role="alert">
+            <div class="d-flex align-items-center p-2">
+                <i class="fas fa-spinner fa-spin me-2"></i>
+                <span>Creating your PDF file. Please wait...</span>
             </div>
         </div>
     `;
     document.body.appendChild(loadingToast);
 
-    // Create a temporary container for PDF content including the logo
+    // Prepare PDF content
     const pdfContainer = document.createElement('div');
-    pdfContainer.style.width = '800px';
-    pdfContainer.style.padding = '20px';
+    pdfContainer.style.width = '1000px'; // A4 width is about 700-750px at 96dpi
+    pdfContainer.style.maxWidth = '100%';
     pdfContainer.style.backgroundColor = 'white';
-    
+    pdfContainer.style.fontFamily = 'Arial, sans-serif';
+    pdfContainer.style.color = '#222';
+
     // Clone the print header with logo for PDF
     const logoHeader = document.querySelector('.print-only-header').cloneNode(true);
     logoHeader.classList.remove('d-none');
     logoHeader.style.display = 'block';
-    logoHeader.style.marginBottom = '20px';
     
-    // Make the logo smaller in the PDF
     const logoImage = logoHeader.querySelector('img.print-logo');
     if (logoImage) {
-        logoImage.style.maxWidth = '200px'; // Smaller size for PDF
+        logoImage.style.maxWidth = '100px'; // smaller logo for PDF
         logoImage.style.height = 'auto';
         logoImage.style.margin = '0 auto';
         logoImage.style.display = 'block';
     }
-    
-    // Clone the content
+
+    // Clone the main card content
     const contentClone = document.querySelector('.card.shadow-sm.border-0').cloneNode(true);
-    
     // Remove buttons and unnecessary elements from the clone
-    const buttonsToRemove = contentClone.querySelectorAll('.btn, #resubmissionForm, #copyLinkSection');
+    const buttonsToRemove = contentClone.querySelectorAll('.btn, form[action*="toggle-resubmission"]');
     buttonsToRemove.forEach(btn => {
         if (btn && btn.parentNode) {
             btn.parentNode.removeChild(btn);
         }
     });
-    
-    // Append elements to the PDF container
+
     pdfContainer.appendChild(logoHeader);
     pdfContainer.appendChild(contentClone);
-    
-    // Temporarily add to document body but hidden
-    pdfContainer.style.position = 'absolute';
-    pdfContainer.style.left = '-9999px';
+
+    // Add page-break CSS for html2pdf
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .response-item { page-break-inside: avoid; }
+        .recommendation-item { page-break-inside: avoid; }
+        .user-info-card { page-break-inside: avoid; }
+        .card-header { page-break-after: avoid; }
+        .card-body { page-break-inside: auto; }
+        .responses-list { page-break-inside: auto; }
+        @media print {
+            .response-item, .recommendation-item, .user-info-card { page-break-inside: avoid; }
+        }
+    `;
+    pdfContainer.appendChild(style);
+
     document.body.appendChild(pdfContainer);
-    
-    // Use html2canvas to convert the container to an image
-    window.html2canvas(pdfContainer, {
-        scale: 1.5, // Higher quality rendering
-        useCORS: true,
-        allowTaint: true,
-        scrollY: -window.scrollY // Fix positioning issues
-    }).then(canvas => {
-        // Clean up - remove temporary container
+
+    // Use html2pdf to generate the PDF with proper page breaks
+    const opt = {
+        margin:       0.3,
+        filename:     'survey-response.pdf',
+        image:        { type: 'jpeg', quality: 1 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' },
+        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+    html2pdf().set(opt).from(pdfContainer).save().then(() => {
         document.body.removeChild(pdfContainer);
-        
-        // Create PDF with proper dimensions
-        const imgData = canvas.toDataURL('image/png');
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-        });
-        
-        // Calculate dimensions to fit the image perfectly on the page
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-        
-        // Calculate scaling ratio with adjusted margins
-        const marginSide = 10; // Side margins
-        const marginTop = 10;   // Top margin
-        const marginBottom = 10; // Bottom margin
-        const availableWidth = pdfWidth - (marginSide * 2);
-        const availableHeight = pdfHeight - (marginTop + marginBottom);
-        const ratio = Math.min(availableWidth / imgWidth, availableHeight / imgHeight);
-        
-        // Calculate centered position
-        const imgX = marginSide + (availableWidth - (imgWidth * ratio)) / 2;
-        const imgY = marginTop;
-        
-        // Add image to PDF
-        pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-        
-        // Save PDF
-        pdf.save(`${document.title || 'survey-response'}-details.pdf`);
-        
-        // Remove loading indicator
-        document.body.removeChild(loadingToast);
+        if (document.getElementById('pdfLoadingToast')) {
+            document.getElementById('pdfLoadingToast').remove();
+        }
     });
 }
 </script>
