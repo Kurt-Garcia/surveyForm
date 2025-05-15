@@ -12,14 +12,15 @@
                     <p class="text-muted small mb-0 mt-2">Total Surveys: {{ $totalSurveys }}</p>
                 </div>
                 <div class="d-flex gap-2 align-items-center">
-                    <form method="GET" action="{{ route('admin.surveys.index') }}" class="search-form me-2">                <div class="search-container">
+                    <form method="GET" action="{{ route('admin.surveys.index') }}" class="search-form me-2">                
+                <div class="search-container">
                     <input type="text" name="search" id="survey-search" class="search-input" placeholder="Search surveys..." value="{{ request('search') }}">
                     <button type="button" class="search-button">
                         <i class="bi bi-search"></i>
                     </button>
                 </div>
                     </form>
-                    <a href="{{ route('admin.surveys.create') }}" class="btn btn-primary" style="background-color: var(--primary-color); border-radius: 8px; text-transform: none; font-weight: 500;">
+                    <a href="{{ route('admin.surveys.create') }}" class="btn btn-custom" >
                         <i class="bi bi-plus-lg me-1"></i>{{ __('Create Survey') }}
                     </a>
                 </div>
@@ -77,7 +78,7 @@
                                     </div>
                                 </div>
                                 <div class="d-flex gap-2 mt-auto">
-                                    <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-start btn-primary flex-grow-1"> {{--add a (btn-primary if you want to turn --primary-color)--}}
+                                    <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-custom flex-grow-1"> {{--add a (btn-primary if you want to turn --primary-color)--}}
                                         <i class="fas fa-eye me-1"></i> View Details
                                     </a>
                                     <a href="{{ route('admin.surveys.responses.index', $survey) }}" class="btn btn-outline-secondary btn-view-responses">
@@ -121,6 +122,24 @@
 </div>
 
 <style>
+.btn-custom{
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    position: relative;
+    z-index: 10;
+}
+
+.btn-custom:hover{
+    background-color: var(--secondary-color);
+    color: white;
+}
+
 .alert {
     position: fixed;
     top: 20px;

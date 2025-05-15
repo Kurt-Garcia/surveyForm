@@ -41,6 +41,63 @@
             width: 100%;
             overflow-x: auto;
         }
+        .dataTables_wrapper .dataTables_length,
+        .dataTables_wrapper .dt-buttons,
+        .dataTables_wrapper .dataTables_filter {
+            display: inline-block;
+            vertical-align: middle;
+            margin-bottom: 0;
+        }
+        .dataTables_wrapper .dataTables_length {
+            margin-right: 1.5rem;
+        }
+        .dataTables_wrapper .dt-buttons {
+            margin-right: 1.5rem;
+        }
+        .dataTables_wrapper .dataTables_filter {
+            float: right;
+        }
+        .dataTables_wrapper .dataTables_length label,
+        .dataTables_wrapper .dataTables_filter label {
+            margin-bottom: 0;
+        }
+        .dataTables_wrapper .dt-buttons {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            margin-bottom: 0;
+        }
+        .dataTables_wrapper .dataTables_length {
+            margin-right: 1.5rem;
+        }
+        .dataTables_wrapper .dt-buttons {
+            margin-right: 1.5rem;
+        }
+        .dataTables_wrapper .dataTables_filter {
+            float: right;
+        }
+        @media (max-width: 768px) {
+            .dt-buttons,
+            .dataTables_length {
+                justify-content: center;
+                margin-bottom: 1rem;
+                width: 100%;
+            }
+            .dataTables_filter {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+        }
+        .dataTables_wrapper .dataTables_length label,
+        .dataTables_wrapper .dataTables_filter label {
+            margin-bottom: 0;
+        }
+        .dataTables_wrapper .dt-buttons {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
         table.dataTable {
             border-collapse: separate !important;
@@ -92,7 +149,6 @@
         .dt-button {
             background: white !important;
             color: var(--text-color) !important;
-            border: 2px solid var(--primary-color) !important;
             padding: 8px 20px !important;
             border-radius: 25px !important;
             font-weight: 600;
@@ -330,7 +386,7 @@
                 search: "_INPUT_",
                 searchPlaceholder: "Search customers..."
             },
-            dom: 'Blfrtip', // B-buttons, l-length, f-filter, r-processing, t-table, i-info, p-pagination
+            dom: '<"d-flex align-items-center justify-content-between mb-3"<"d-flex align-items-center gap-3"Bl>f>rtip', // B-buttons, l-length, f-filter
             buttons: [
                 {
                     extend: 'collection',

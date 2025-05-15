@@ -20,7 +20,7 @@
 }
 
 .btn-primary:hover {
-    background-color: var(--button-hover-color);
+    background-color: var(--secondary-color);
     transform: translateY(-2px);
 }
 

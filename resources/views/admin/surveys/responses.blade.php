@@ -254,7 +254,7 @@
                             },
                             emptyTable: "<div class='text-center py-5'><i class='bi bi-inbox-fill text-muted fs-1 mb-3'></i><p class='text-muted'>No responses found</p></div>"
                         },
-                        dom: '<"row mb-4 mt-3"<"col-md-6 d-flex gap-2 ps-4"Bl><"col-md-6 pe-4"f>>rt<"row align-items-center"<"col-md-6"i><"col-md-6"p>>',
+                        dom: '<"row mb-4 mt-3"<"col-md-6 d-flex gap-2 ps-4"Bl><"col-md-6 pe-4"f>>rt<"row align-items-center py-4 mt-3"<"col-md-6"i><"col-md-6"p>>',
                         buttons: [
                             {
                                 extend: 'collection',
@@ -336,6 +336,10 @@
                             // Style pagination buttons
                             $('.paginate_button').addClass('rounded-pill');
                             $('.paginate_button.current').addClass('active-page');
+                            
+                            // Add spacing to pagination container
+                            $('.dataTables_paginate').addClass('pe-4');
+                            $('.dataTables_info').addClass('ps-4');
                             
                             // Add hover effect to rows
                             $('.response-row').off('mouseenter mouseleave');
@@ -627,8 +631,8 @@
                 border: 1px solid var(--primary-color);
                 color: var(--primary-color) !important;
                 border-radius: 18px !important;
-                margin: 0 3px;
-                padding: 2px 16px;
+                margin: 0 5px;
+                padding: 0.5em 1em !important;
                 font-weight: 500;
                 box-shadow: 0 1px 4px rgba(0,0,0,0.07);
                 transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.2s;
@@ -640,6 +644,18 @@
                 border: none;
                 box-shadow: 0 2px 8px rgba(0,0,0,0.10);
                 transform: translateY(-1px) scale(1.03);
+            }
+            
+            /* Additional spacing for pagination area */
+            .dataTables_wrapper .row:last-child {
+                margin-bottom: 1.5rem;
+                padding-top: 1rem;
+                border-top: 1px solid rgba(0,0,0,0.05);
+            }
+            
+            .dataTables_info {
+                padding-top: 0.5rem !important;
+                margin-left: 0.5rem;
             }
             .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
                 background: #f8f9fa !important;

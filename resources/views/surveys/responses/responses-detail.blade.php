@@ -331,7 +331,7 @@
 
 .response-item {
     border-radius: 12px;
-    border-left: 4px solid #4ECDC4;
+    border-left: 4px solid var(--primary-color);
     transition: all 0.3s ease;
     background-color: white;
 }
@@ -686,45 +686,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const colors = [
-        '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD',
-        '#D4A5A5', '#9B59B6', '#3498DB', '#E67E22', '#2ECC71',
-        '#FF9F43', '#00B894', '#74B9FF', '#A8E6CF', '#FFD93D',
-        '#FF6B81', '#6C5CE7', '#00CEC9', '#FD79A8', '#81ECEC'
-    ];
-
-    // Set icon color
-    const responseIcon = document.querySelector('.response-icon i');
-    const iconColor = colors[Math.floor(Math.random() * colors.length)];
-    if (responseIcon) {
-        responseIcon.style.color = iconColor;
-    }
-
-    // Set recommendation badge color
-    const recommendationBadge = document.querySelector('.recommendation-badge .badge');
-    const recommendationColor = colors[Math.floor(Math.random() * colors.length)];
-    if (recommendationBadge) {
-        recommendationBadge.style.backgroundColor = recommendationColor;
-    }
-    
-    const recommendationFill = document.querySelector('.recommendation-fill');
-    if (recommendationFill) {
-        recommendationFill.style.backgroundColor = recommendationColor;
-    }
-
-    // Set different colors for each response item
-    document.querySelectorAll('.response-item').forEach(item => {
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        item.style.borderLeftColor = randomColor;
-        
-        const ratedStars = item.querySelectorAll('.rated');
-        ratedStars.forEach(star => {
-            star.style.color = randomColor;
-        });
-    });
-});
-
 function generatePDF() {
     // Show loading indicator
     const loadingToast = document.createElement('div');

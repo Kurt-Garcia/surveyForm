@@ -179,7 +179,7 @@
 .response-item {
     transition: transform 0.2s;
     border: 1px solid rgba(0,0,0,0.05);
-    border-left: 4px solid transparent;
+    border-left: 4px solid var(--primary-color);
 }
 
 .response-item:hover {
@@ -224,23 +224,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-function getRandomColor() {
-    // Generate pastel colors by limiting RGB values between 150 and 255
-    const r = Math.floor(Math.random() * 105) + 150;
-    const g = Math.floor(Math.random() * 105) + 150;
-    const b = Math.floor(Math.random() * 105) + 150;
-    return `rgb(${r}, ${g}, ${b})`;
-}
-
-function applyRandomColors() {
-    const items = document.querySelectorAll('.response-item');
-    items.forEach(item => {
-        item.style.borderLeftColor = getRandomColor();
-    });
-}
-
-document.addEventListener('DOMContentLoaded', applyRandomColors);
-
 function generatePDF() {
     // Show loading indicator
     const loadingToast = document.createElement('div');

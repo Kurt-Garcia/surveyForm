@@ -67,7 +67,7 @@
 
 /* Container Padding */
 .container-fluid {
-    max-width: 1400px;
+     max-width: 1400px;                                         /*----------------------NO TO DELETE---------------------------- */
 }
 
 /* Pagination */
