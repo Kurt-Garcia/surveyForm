@@ -43,3 +43,11 @@ Admin12350?!$
 
 
 https://cssgridgenerator.io/
+
+
+
+
+
+
+
+IN print and pdf only class="card" is the reason
