@@ -504,14 +504,14 @@
 @media print {
     @page {
         size: auto;
-        margin: 5mm 10mm 10mm 10mm; /* Reduced top margin */
+        margin: 3mm 5mm 5mm 5mm; /* Further reduced margins */
     }
     
     body {
         margin: 0;
         padding: 0;
-        font-size: 10pt;
-        line-height: 1.2;
+        font-size: 8pt; /* Smaller base font size */
+        line-height: 1.1; /* Tighter line height */
         color: #000;
         background-color: #fff;
     }
@@ -539,7 +539,7 @@
     }
     
     .card {
-        border: 1px solid #ddd !important;
+        border: 0.5px solid #ddd !important;
         box-shadow: none !important;
         margin: 0 !important;
         page-break-inside: avoid !important;
@@ -547,9 +547,9 @@
     }
     
     .card-header {
-        padding: 0.5rem 0 !important;
-        border-bottom: 1px solid #ddd !important;
-        margin-bottom: 0.5rem !important;
+        padding: 0.25rem 0 !important;
+        border-bottom: 0.5px solid #ddd !important;
+        margin-bottom: 0.25rem !important;
         background-color: #f8f9fa !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
@@ -561,42 +561,45 @@
     
     /* Font size adjustments */
     h1, h2, h3 {
-        font-size: 16pt !important;
-    }
-    
-    h4 {
-        font-size: 16pt !important;
-        margin: 0.5rem 0 !important;
-    }
-    
-    h5 {
         font-size: 12pt !important;
         margin: 0.25rem 0 !important;
     }
     
-    p, span, div {
-        font-size: 12pt !important;
+    h4 {
+        font-size: 11pt !important;
+        margin: 0.25rem 0 !important;
     }
     
-    .small, small {
+    h5 {
         font-size: 10pt !important;
+        margin: 0.15rem 0 !important;
+    }
+    
+    p, span, div {
+        font-size: 8pt !important;
+        margin-bottom: 0.15rem !important;
+    }
+    
+    .small, small, label {
+        font-size: 7pt !important;
+        margin-bottom: 0 !important;
     }
     
     /* Spacing adjustments */
     .mb-4, .my-4 {
-        margin-bottom: 0.5rem !important;
-    }
-    
-    .mb-3, .my-3 {
         margin-bottom: 0.25rem !important;
     }
     
+    .mb-3, .my-3 {
+        margin-bottom: 0.15rem !important;
+    }
+    
     .p-4, .py-4, .px-4 {
-        padding: 0.5rem !important;
+        padding: 0.25rem !important;
     }
     
     .p-3, .py-3, .px-3 {
-        padding: 0.25rem !important;
+        padding: 0.15rem !important;
     }
     
     /* Layout adjustments */
@@ -604,19 +607,20 @@
         display: flex;
         flex-wrap: wrap;
         margin: 0 !important;
+        gap: 0 !important;
     }
     
     .col-md-4 {
         width: 33% !important;
-        padding: 0 0.25rem !important;
+        padding: 0 0.15rem !important;
     }
     
     .response-item {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-        border: 1px solid #eee !important;
-        margin-bottom: 0.5rem !important;
-        padding: 0.5rem !important;
+        border: 0.5px solid #eee !important;
+        margin-bottom: 0.25rem !important;
+        padding: 0.25rem !important;
         background-color: #f9f9f9 !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
@@ -650,10 +654,11 @@
 
     .print-only-header {
         display: block !important;
+        margin-bottom: 5px !important;
     }
 
     .print-logo {
-        max-width: 200px;
+        max-width: 100px !important;
         height: auto;
     }
 
@@ -663,20 +668,19 @@
     }
     
     /* Show the print-only header during printing */
-    .print-only-header {
-        display: block !important;
-        margin-bottom: 20px;
+    .print-only-header .text-center {
+        margin-bottom: 0 !important;
     }
 
     .print-logo {
-        max-width: 200px;
+        max-width: 100px !important;
         height: auto;
-        margin-bottom: 15px;
+        margin-bottom: 5px !important;
     }
     
-    /* Add space at the top of the page for the logo */
+    /* Reduce space at the top of the page for the logo */
     body {
-        padding-top: 20px !important;
+        padding-top: 5px !important;
     }
 }
 </style>
@@ -688,6 +692,10 @@
 
 <script>
 function generatePDF() {
+    // Get survey title and account name for filename
+    const surveyTitle = "{{ $survey->title }}".replace(/[^a-z0-9]/gi, '_');
+    const accountName = "{{ $response->account_name }}".replace(/[^a-z0-9]/gi, '_');
+    
     // Show loading toast
     const loadingToast = document.createElement('div');
     loadingToast.id = 'pdfLoadingToast';
@@ -707,20 +715,23 @@ function generatePDF() {
 
     // Prepare PDF content
     const pdfContainer = document.createElement('div');
-    pdfContainer.style.width = '1000px'; // A4 width is about 700-750px at 96dpi
+    pdfContainer.style.width = '800px'; // Reduced width for more compact output
     pdfContainer.style.maxWidth = '100%';
     pdfContainer.style.backgroundColor = 'white';
     pdfContainer.style.fontFamily = 'Arial, sans-serif';
     pdfContainer.style.color = '#222';
+    pdfContainer.style.fontSize = '8pt'; // Smaller base font size
+    pdfContainer.style.lineHeight = '1.1'; // Tighter line height
 
     // Clone the print header with logo for PDF
     const logoHeader = document.querySelector('.print-only-header').cloneNode(true);
     logoHeader.classList.remove('d-none');
     logoHeader.style.display = 'block';
+    logoHeader.style.marginBottom = '5px';
     
     const logoImage = logoHeader.querySelector('img.print-logo');
     if (logoImage) {
-        logoImage.style.maxWidth = '100px'; // smaller logo for PDF
+        logoImage.style.maxWidth = '80px'; // Even smaller logo for PDF
         logoImage.style.height = 'auto';
         logoImage.style.margin = '0 auto';
         logoImage.style.display = 'block';
@@ -735,6 +746,50 @@ function generatePDF() {
             btn.parentNode.removeChild(btn);
         }
     });
+    
+    // Make the PDF content more compact
+    const cardHeader = contentClone.querySelector('.card-header');
+    if (cardHeader) {
+        cardHeader.style.padding = '0.25rem';
+        const headerTitle = cardHeader.querySelector('h4');
+        if (headerTitle) {
+            headerTitle.style.fontSize = '11pt';
+            headerTitle.style.margin = '0';
+        }
+    }
+    
+    const cardBody = contentClone.querySelector('.card-body');
+    if (cardBody) {
+        cardBody.style.padding = '0.25rem';
+    }
+    
+    // Make response items more compact
+    const responseItems = contentClone.querySelectorAll('.response-item');
+    responseItems.forEach(item => {
+        item.style.padding = '0.25rem';
+        item.style.marginBottom = '0.25rem';
+        item.style.border = '0.5px solid #eee';
+        
+        // Adjust question and response text
+        const questionText = item.querySelector('h5');
+        if (questionText) {
+            questionText.style.fontSize = '9pt';
+            questionText.style.margin = '0';
+        }
+        
+        const labels = item.querySelectorAll('label');
+        labels.forEach(label => {
+            label.style.fontSize = '7pt';
+            label.style.marginBottom = '0';
+        });
+    });
+    
+    // Adjust user info card
+    const userInfoCard = contentClone.querySelector('.user-info-card');
+    if (userInfoCard) {
+        userInfoCard.style.marginBottom = '0.25rem';
+        userInfoCard.style.padding = '0.15rem';
+    }
 
     pdfContainer.appendChild(logoHeader);
     pdfContainer.appendChild(contentClone);
@@ -743,6 +798,15 @@ function generatePDF() {
     const style = document.createElement('style');
     style.innerHTML = `
         .response-item { page-break-inside: avoid; }
+        h1, h2, h3 { font-size: 12pt !important; margin: 0.25rem 0 !important; }
+        h4 { font-size: 11pt !important; margin: 0.25rem 0 !important; }
+        h5 { font-size: 9pt !important; margin: 0.15rem 0 !important; }
+        p, span, div { font-size: 8pt !important; margin-bottom: 0.15rem !important; }
+        .small, small, label { font-size: 7pt !important; margin-bottom: 0 !important; }
+        .mb-4, .my-4 { margin-bottom: 0.25rem !important; }
+        .mb-3, .my-3 { margin-bottom: 0.15rem !important; }
+        .p-4, .py-4, .px-4 { padding: 0.25rem !important; }
+        .p-3, .py-3, .px-3 { padding: 0.15rem !important; }
         .recommendation-item { page-break-inside: avoid; }
         .user-info-card { page-break-inside: avoid; }
         .card-header { page-break-after: avoid; }
@@ -758,9 +822,9 @@ function generatePDF() {
 
     // Use html2pdf to generate the PDF with proper page breaks
     const opt = {
-        margin:       0.3,
-        filename:     'survey-response.pdf',
-        image:        { type: 'jpeg', quality: 1 },
+        margin:       0.15, // Further reduced margins
+        filename:     `${surveyTitle}_Response_${accountName}.pdf`,
+        image:        { type: 'jpeg', quality: 0.95 }, // Slightly reduced quality for smaller file size
         html2canvas:  { scale: 2, useCORS: true },
         jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' },
         pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
