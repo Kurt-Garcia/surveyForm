@@ -165,9 +165,9 @@
                                     </div>
                                 </div>
                                 
-                                <div class="text-end mt-5">
-                                    <a href="{{ route('admin.themes.index') }}" class="btn btn-outline-secondary btn-lg me-2 px-4">Cancel</a>
-                                    <button type="submit" class="btn btn-primary btn-lg px-5"><i class="bi bi-check-circle me-2"></i>Update Theme</button>
+                                <div class="d-flex flex-column flex-sm-row justify-content-sm-end gap-3 mt-5">
+                                    <a href="{{ route('admin.themes.index') }}" class="btn btn-outline-secondary btn-lg px-4 order-1 order-sm-0 w-100 w-sm-auto">Cancel</a>
+                                    <button type="submit" class="btn btn-primary btn-lg px-5 w-100 w-sm-auto"><i class="bi bi-check-circle me-2"></i>Save Changes</button>
                                 </div>
                             </form>
                         </div>

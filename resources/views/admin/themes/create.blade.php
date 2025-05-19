@@ -302,7 +302,7 @@
         
         // Update preview header
         document.querySelector('.preview-header').style.borderBottom = `2px solid ${accentColor}`;
-    }
+
 
     // Initialize when DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {

@@ -348,8 +348,13 @@
 .theme-actions {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 10px;
+    gap: 17px;
     margin-top: 1.5rem;
+}
+
+.btn-action {
+    width: 100%;
+    min-width: 120px;
 }
 
 .btn-action {
@@ -487,6 +492,11 @@
     
     .theme-actions {
         grid-template-columns: 1fr;
+    }
+    
+    .btn-action {
+        width: 100%;
+        min-width: 100%;
     }
     
     .doc-section {

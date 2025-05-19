@@ -300,11 +300,10 @@
                                 <th>#</th>
                                 <th>CUSTCODE</th>
                                 <th>CUSTNAME</th>
-                                <th>CUSTTYPE</th>
-                                <th>CONTACT#</th>
-                                <th>CONTACT PERSON</th>
-                                <th>EMAIL</th>
                                 <th>ADDRESS</th>
+                                <th>CONTACT PERSON</th>
+                                <th>CONTACT#</th>
+                                <th>EMAIL</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -314,11 +313,10 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $customer->CUSTCODE ?? '-' }}</td>
                                     <td>{{ $customer->CUSTNAME ?? '-' }}</td>
-                                    <td>{{ $customer->CUSTTYPE ?? '-' }}</td>
-                                    <td>{{ $customer->CONTACTCELLNUMBER ?? '-' }}</td>
-                                    <td>{{ $customer->CONTACTPERSON ?? '-' }}</td>
-                                    <td>{{ $customer->EMAIL ?? '-' }}</td>
                                     <td>{{ $customer->ADDRESS ?? '-' }}</td>
+                                    <td>{{ $customer->CONTACTPERSON ?? '-' }}</td>
+                                    <td>{{ $customer->CONTACTCELLNUMBER ?? '-' }}</td>
+                                    <td>{{ $customer->EMAIL ?? '-' }}</td>
                                     <td>
                                         <button type="button" class="btn btn-sm btn-primary edit-customer" 
                                             data-id="{{ $customer->id ?? '' }}" 
