@@ -668,10 +668,7 @@
                         <label for="customerSearch" class="form-label">Search Customers</label>
                         <input type="text" class="form-control" id="customerSearch" placeholder="Type to search...">
                     </div>
-                    
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i> Choose customers to invite by email.
-                    </div>
+                
 
                     <div class="customer-list-container">
                         <div class="d-flex justify-content-between mb-2">

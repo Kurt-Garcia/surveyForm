@@ -2,6 +2,7 @@
 
 @section('content')
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/js/app.js'])
     <style>
         /* Modern Card Styling */
@@ -225,6 +226,19 @@
             cursor: not-allowed !important;
         }
 
+        /* Action Buttons */
+        .btn-sm.btn-primary {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-sm.btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
         /* Responsive Design */
         @media (max-width: 768px) {
             .card-body {
@@ -284,84 +298,37 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>MDCODE</th>
                                 <th>CUSTCODE</th>
                                 <th>CUSTNAME</th>
-                                <th>CONTACTCELLNUMBER</th>
-                                <th>CONTACTPERSON</th>
-                                <th>CONTACTLANDLINE</th>
-                                <th>ADDRESS</th>
-                                <th>FREQUENCYCATEGORY</th>
-                                <th>MCPDAY</th>
-                                <th>MCPSCHEDULE</th>
-                                <th>GEOLOCATION</th>
-                                <th>LASTUPDATED</th>
-                                <th>LASTPURCHASE</th>
-                                <th>LATITUDE</th>
-                                <th>LONGITUDE</th>
-                                <th>STOREIMAGE</th>
-                                <th>SYNCSTAT</th>
-                                <th>DATES_TAMP</th>
-                                <th>TIME_STAMP</th>
-                                <th>ISLOCKON</th>
-                                <th>PRICECODE</th>
-                                <th>STOREIMAGE2</th>
                                 <th>CUSTTYPE</th>
-                                <th>ISVISIT</th>
-                                <th>DEFAULTORDTYPE</th>
-                                <th>CITYMUNCODE</th>
-                                <th>REGION</th>
-                                <th>PROVINCE</th>
-                                <th>MUNICIPALITY</th>
-                                <th>BARANGAY</th>
-                                <th>AREA</th>
-                                <th>WAREHOUSE</th>
-                                <th>KASOSYO</th>
+                                <th>CONTACT#</th>
+                                <th>CONTACT PERSON</th>
                                 <th>EMAIL</th>
-                                <th>created_at</th>
-                                <th>updated_at</th>
+                                <th>ADDRESS</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($customers as $customer)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $customer->MDCODE ?? '-' }}</td>
                                     <td>{{ $customer->CUSTCODE ?? '-' }}</td>
                                     <td>{{ $customer->CUSTNAME ?? '-' }}</td>
+                                    <td>{{ $customer->CUSTTYPE ?? '-' }}</td>
                                     <td>{{ $customer->CONTACTCELLNUMBER ?? '-' }}</td>
                                     <td>{{ $customer->CONTACTPERSON ?? '-' }}</td>
-                                    <td>{{ $customer->CONTACTLANDLINE ?? '-' }}</td>
-                                    <td>{{ $customer->ADDRESS ?? '-' }}</td>
-                                    <td>{{ $customer->FREQUENCYCATEGORY ?? '-' }}</td>
-                                    <td>{{ $customer->MCPDAY ?? '-' }}</td>
-                                    <td>{{ $customer->MCPSCHEDULE ?? '-' }}</td>
-                                    <td>{{ $customer->GEOLOCATION ?? '-' }}</td>
-                                    <td>{{ $customer->LASTUPDATED ?? '-' }}</td>
-                                    <td>{{ $customer->LASTPURCHASE ?? '-' }}</td>
-                                    <td>{{ $customer->LATITUDE ?? '-' }}</td>
-                                    <td>{{ $customer->LONGITUDE ?? '-' }}</td>
-                                    <td>{{ $customer->STOREIMAGE ?? '-' }}</td>
-                                    <td>{{ $customer->SYNCSTAT ?? '-' }}</td>
-                                    <td>{{ $customer->DATES_TAMP ?? '-' }}</td>
-                                    <td>{{ $customer->TIME_STAMP ?? '-' }}</td>
-                                    <td>{{ $customer->ISLOCKON ?? '-' }}</td>
-                                    <td>{{ $customer->PRICECODE ?? '-' }}</td>
-                                    <td>{{ $customer->STOREIMAGE2 ?? '-' }}</td>
-                                    <td>{{ $customer->CUSTTYPE ?? '-' }}</td>
-                                    <td>{{ $customer->ISVISIT ?? '-' }}</td>
-                                    <td>{{ $customer->DEFAULTORDTYPE ?? '-' }}</td>
-                                    <td>{{ $customer->CITYMUNCODE ?? '-' }}</td>
-                                    <td>{{ $customer->REGION ?? '-' }}</td>
-                                    <td>{{ $customer->PROVINCE ?? '-' }}</td>
-                                    <td>{{ $customer->MUNICIPALITY ?? '-' }}</td>
-                                    <td>{{ $customer->BARANGAY ?? '-' }}</td>
-                                    <td>{{ $customer->AREA ?? '-' }}</td>
-                                    <td>{{ $customer->WAREHOUSE ?? '-' }}</td>
-                                    <td>{{ $customer->KASOSYO ?? '-' }}</td>
                                     <td>{{ $customer->EMAIL ?? '-' }}</td>
-                                    <td>{{ $customer->created_at ?? '-' }}</td>
-                                    <td>{{ $customer->updated_at ?? '-' }}</td>
+                                    <td>{{ $customer->ADDRESS ?? '-' }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-primary edit-customer" 
+                                            data-id="{{ $customer->id ?? '' }}" 
+                                            data-custcode="{{ $customer->CUSTCODE ?? '' }}" 
+                                            data-custname="{{ $customer->CUSTNAME ?? '' }}" 
+                                            data-phone="{{ $customer->CONTACTCELLNUMBER ?? '' }}" 
+                                            data-email="{{ $customer->EMAIL ?? '' }}">
+                                            <i class="bi bi-pencil-square"></i> Edit
+                                        </button>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
@@ -371,6 +338,46 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Customer Modal -->
+<div class="modal fade" id="editCustomerModal" tabindex="-1" aria-labelledby="editCustomerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCustomerModalLabel">Edit Customer Contact Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCustomerForm">
+                    @csrf
+                    <input type="hidden" id="customer_id" name="customer_id">
+                    <div class="mb-3">
+                        <label for="custcode" class="form-label">Customer Code</label>
+                        <input type="text" class="form-control" id="custcode" name="custcode" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="custname" class="form-label">Customer Name</label>
+                        <input type="text" class="form-control" id="custname" name="custname" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Contact Cell Number</label>
+                        <input type="text" class="form-control" id="phone" name="phone" required>
+                        <div class="invalid-feedback" id="phone-error"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                        <div class="invalid-feedback" id="email-error"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveCustomerChanges">Save Changes</button>
             </div>
         </div>
     </div>
@@ -470,6 +477,89 @@
                 });
             }
         });
+
+        // Handle edit button click
+        $(document).on('click', '.edit-customer', function() {
+            const id = $(this).data('id');
+            const custcode = $(this).data('custcode');
+            const custname = $(this).data('custname');
+            const phone = $(this).data('phone');
+            const email = $(this).data('email');
+            
+            // Populate the modal form
+            $('#customer_id').val(id);
+            $('#custcode').val(custcode);
+            $('#custname').val(custname);
+            $('#phone').val(phone);
+            $('#email').val(email);
+            
+            // Reset any previous validation errors
+            $('#phone').removeClass('is-invalid');
+            $('#email').removeClass('is-invalid');
+            $('#phone-error').text('');
+            $('#email-error').text('');
+            
+            // Show the modal
+            $('#editCustomerModal').modal('show');
+        });
+        
+        // Handle save changes button click
+        $('#saveCustomerChanges').click(function() {
+            const form = $('#editCustomerForm');
+            const customerId = $('#customer_id').val();
+            const formData = new FormData(form[0]);
+        
+            $.ajax({
+                url: `/admin/customers/${customerId}`,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-HTTP-Method-Override': 'PATCH'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Find the table row
+                        const row = $(`button[data-id="${customerId}"]`).closest('tr');
+                        
+                        // Update only the specific cells
+                        row.find('td:eq(4)').text(formData.get('phone') || '-'); // CONTACTCELLNUMBER column
+                        row.find('td:eq(34)').text(formData.get('email') || '-'); // EMAIL column
+                        
+                        // Don't update the updated_at column as it will be correct on refresh
+                        
+                        $('#editCustomerModal').modal('hide');
+                        
+                        // Show success message
+                        const alert = `
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle me-1"></i>
+                                Customer information updated successfully
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>`;
+                        $('.card-body').prepend(alert);
+                    }
+                },
+                error: function(xhr) {
+                    const response = xhr.responseJSON;
+                    if (response && response.errors) {
+                        Object.keys(response.errors).forEach(field => {
+                            $(`#${field}-error`).text(response.errors[field][0]).show();
+                            $(`#${field}`).addClass('is-invalid');
+                        });
+                    } else {
+                        alert('An error occurred. Please try again.');
+                    }
+                }
+            });
+        });
+        
+        // Email validation helper function
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
     });
 </script>
 @endsection

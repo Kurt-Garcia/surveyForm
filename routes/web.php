@@ -56,6 +56,7 @@ Route::prefix('admin')->group(function () {
     Route::middleware(['auth:admin'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/customers', [CustomerController::class, 'index'])->name('admin.customers.index');
+        Route::patch('/customers/{id}', [CustomerController::class, 'update'])->name('admin.customers.update');
         
         // Admin management routes
         Route::get('/admins/create', [App\Http\Controllers\Admin\AdminManagementController::class, 'create'])->name('admin.admins.create');

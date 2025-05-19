@@ -673,7 +673,7 @@
     }
 
     .print-logo {
-        max-width: 100px !important;
+        max-width: 170px !important;
         height: auto;
         margin-bottom: 5px !important;
     }
@@ -721,7 +721,7 @@ function generatePDF() {
     pdfContainer.style.fontFamily = 'Arial, sans-serif';
     pdfContainer.style.color = '#222';
     pdfContainer.style.fontSize = '8pt'; // Smaller base font size
-    pdfContainer.style.lineHeight = '1.1'; // Tighter line height
+    pdfContainer.style.lineHeight = '1.5'; // Tighter line height
 
     // Clone the print header with logo for PDF
     const logoHeader = document.querySelector('.print-only-header').cloneNode(true);
@@ -731,7 +731,7 @@ function generatePDF() {
     
     const logoImage = logoHeader.querySelector('img.print-logo');
     if (logoImage) {
-        logoImage.style.maxWidth = '80px'; // Even smaller logo for PDF
+        logoImage.style.maxWidth = '170px'; // Even smaller logo for PDF
         logoImage.style.height = 'auto';
         logoImage.style.margin = '0 auto';
         logoImage.style.display = 'block';
@@ -826,8 +826,7 @@ function generatePDF() {
         filename:     `${surveyTitle}_Response_${accountName}.pdf`,
         image:        { type: 'jpeg', quality: 0.95 }, // Slightly reduced quality for smaller file size
         html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' },
-        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
     };
     html2pdf().set(opt).from(pdfContainer).save().then(() => {
         document.body.removeChild(pdfContainer);

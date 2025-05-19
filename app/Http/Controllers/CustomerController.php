@@ -13,11 +13,11 @@ class CustomerController extends Controller
     public function autocomplete(Request $request)
     {
         $term = $request->get('term');
-        $results = DB::table('tblcustomer')
-            ->where('custname', 'like', '%' . $term . '%')
-            ->orWhere('custcode', 'like', '%' . $term . '%')
+        $results = DB::table('TBLCUSTOMER')
+            ->where('CUSTNAME', 'like', '%' . $term . '%')
+            ->orWhere('CUSTCODE', 'like', '%' . $term . '%')
             ->limit(20)
-            ->get(['custcode', 'custname as label', 'custname as value', 'custtype']);
+            ->get(['CUSTCODE as custcode', 'CUSTNAME as label', 'CUSTNAME as value', 'CUSTTYPE as custtype']);
         return response()->json($results);
     }
     
@@ -28,9 +28,9 @@ class CustomerController extends Controller
     {
         $code = $request->get('code');
         
-        $customer = DB::table('tblcustomer')
-            ->where('custcode', $code)
-            ->first(['custcode', 'custname', 'custtype']);
+        $customer = DB::table('TBLCUSTOMER')
+            ->where('CUSTCODE', $code)
+            ->first(['CUSTCODE as custcode', 'CUSTNAME as custname', 'CUSTTYPE as custtype']);
             
         if ($customer) {
             return response()->json([
@@ -47,7 +47,33 @@ class CustomerController extends Controller
     
     public function index()
     {
-        $customers = DB::table('tblcustomer')->orderByDesc('created_at')->paginate(25);
+        $customers = DB::table('TBLCUSTOMER')->orderByDesc('created_at')->paginate(25);
         return view('admin.customers', compact('customers'));
+    }
+    
+    /**
+     * Update customer contact information (phone and email).
+     */
+    public function update(Request $request, $id)
+    {
+        // Validate the request data
+        $request->validate([
+            'phone' => 'required|string|max:20',
+            'email' => 'nullable|email|max:255',
+        ]);
+        
+        // Update the customer record
+        DB::table('TBLCUSTOMER')
+            ->where('id', $id)
+            ->update([
+                'CONTACTCELLNUMBER' => $request->phone,
+                'EMAIL' => $request->email,
+                'updated_at' => now()
+            ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Customer contact information updated successfully!'
+        ]);
     }
 }
