@@ -30,8 +30,8 @@ return new class extends Migration
         DB::table('theme_settings')->insert([
             'name' => 'Default',
             'is_active' => true,
-            'primary_color' => '#0093E9',
-            'secondary_color' => '#80D0C7',
+            'primary_color' => '#0078BD',
+            'secondary_color' => '#005799',
             'accent_color' => '#0091ff', 
             'background_color' => '#f8f9fa',
             'text_color' => '#333333',

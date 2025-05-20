@@ -263,10 +263,10 @@ $(document).ready(function() {
                     }[response];
                     ratingHtml = `
                         <div class="rating-display d-flex flex-wrap align-items-center">
-                            <div class="modern-rating-group me-3 mb-2">
+                            <div class="modern-rating-group me-3 mb-2 summary-radio-group">
                                 ${Array.from({length: 5}, (_, i) => {
-                                    const isSelected = i + 1 <= response;
-                                    return `<div class="modern-radio-display ${isSelected ? 'selected' : ''}">${i + 1}</div>`;
+                                    const isSelected = i + 1 === Number(response);
+                                    return `<div class="modern-radio-display summary-radio${isSelected ? ' selected' : ''}">${i + 1}</div>`;
                                 }).join('')}
                             </div>
                             <span class="rating-text">${ratingText}</span>
@@ -288,14 +288,14 @@ $(document).ready(function() {
                     $('head').append(`
                         <style id="responsive-radio-styles">
                             @media (max-width: 576px) {
-                                .modern-rating-group {
+                                .modern-rating-group, .summary-radio-group {
                                     display: flex;
                                     flex-wrap: wrap;
                                     justify-content: flex-start;
                                     margin-bottom: 0.5rem;
                                     width: 100%;
                                 }
-                                .modern-radio-display {
+                                .modern-radio-display, .summary-radio {
                                     width: 35px;
                                     height: 35px;
                                     margin-right: 5px;
@@ -308,6 +308,31 @@ $(document).ready(function() {
                                 .rating-text {
                                     margin-top: 0.5rem;
                                 }
+                            }
+                            .summary-radio-group {
+                                gap: 4px !important;
+                            }
+                            .summary-radio {
+                                width: 32px;
+                                height: 32px;
+                                border-radius: 50%;
+                                border: 2px solid var(--primary-color);
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                margin-right: 4px;
+                                margin-bottom: 0;
+                                background: #fff;
+                                color: var(--primary-color);
+                                font-weight: 600;
+                                font-size: 1.1rem;
+                                transition: background 0.2s, color 0.2s, border 0.2s;
+                            }
+                            .summary-radio.selected {
+                                background: var(--primary-color);
+                                color: #fff;
+                                border-color: var(--primary-color);
+                                box-shadow: 0 0 0 2px var(--accent-color);
                             }
                         </style>
                     `);

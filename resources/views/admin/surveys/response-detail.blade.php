@@ -169,6 +169,8 @@
 .response-item {
     transition: transform 0.2s;
     border: 1px solid rgba(0,0,0,0.05);
+    margin-bottom: 1rem;
+    padding: 1rem;
 }
 
 .response-item:hover {
@@ -177,33 +179,75 @@
 
 .rating-display {
     line-height: 1;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.25rem;
 }
 
 .text-warning {
     color: #ffc107 !important;
 }
 
-/* Responsive styles for radio display */
+/* Responsive styles */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 1rem !important;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .card-header h4 {
+        font-size: 1.25rem;
+    }
+    
+    .card-body {
+        padding: 1rem !important;
+    }
+    
+    .row > [class*='col-'] {
+        margin-bottom: 1rem;
+    }
+}
+
 @media (max-width: 576px) {
     .radio-display {
         display: flex;
         flex-wrap: wrap;
-        margin-bottom: 10px;
+        margin-bottom: 0.75rem;
+        gap: 0.5rem;
     }
     
     .form-check-inline {
-        margin-right: 5px;
-        margin-bottom: 5px;
+        margin: 0;
+        flex: 0 0 auto;
     }
     
     .d-flex.align-items-center.mt-2 {
         flex-direction: column;
         align-items: flex-start !important;
+        gap: 0.5rem;
     }
     
     .d-flex.align-items-center.mt-2 .ms-2 {
         margin-left: 0 !important;
-        margin-top: 8px;
+    }
+    
+    .response-item {
+        padding: 0.75rem;
+    }
+    
+    h5 {
+        font-size: 1rem;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
     }
 }
 </style>

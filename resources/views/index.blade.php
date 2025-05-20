@@ -20,7 +20,7 @@
         <div class="container position-relative">
             <header class="welcome-header text-center">
                 <h1 class="display-4 fw-bold animate-text">Share Your Thoughts</h1>
-                <p class="lead animate-text-delay">Your opinion matters! Select a category below to get started.</p>
+                <p class="lead animate-text-delay">Your opinion matters! Select a survey below to get started.</p>
             </header>
         </div>
     </div>
@@ -98,13 +98,15 @@
             @endforelse
         </div>
         
-        <div class="pagination-container mt-4 d-flex justify-content-between align-items-center">
+        <div class="pagination-container mt-4 d-flex flex-column flex-md-row justify-content-md-between align-items-md-center gap-3 gap-md-0">
             @if($surveys->hasPages())
-            <div class="pagination-info">
+            <div class="pagination-info text-center text-md-start mb-2 mb-md-0">
                 Showing {{ $surveys->firstItem() }} to {{ $surveys->lastItem() }} of {{ $surveys->total() }} surveys
             </div>
             @endif
-            {{ $surveys->links() }}
+            <div class="d-flex justify-content-center">
+                {{ $surveys->links() }}
+            </div>
         </div>
         </div>
     </div>
