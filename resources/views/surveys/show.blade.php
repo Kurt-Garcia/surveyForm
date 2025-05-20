@@ -20,15 +20,7 @@
         opacity: 0;
         visibility: hidden;
     }
-</style>
-
-<div class="survey-wrapper">
-    @if($hasResponded)
-        <div class="container">
-            @if($allowResubmit)
-                <div class="notification-card warning" id="warningNotification">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <p>You have previously submitted this survey, but resubmission has been enabled by an administrator. You may submit a new response.</p>
+ponse.</p>
                     <button type="button" class="notification-close" onclick="closeNotification('warningNotification')">
                         <i class="fas fa-times"></i>
                     </button>
@@ -66,14 +58,13 @@
             <h1 class="survey-title">{{ strtoupper($survey->title) }}</h1>
         </div>
 
-        <form id="surveyForm" method="POST" action="{{ route('surveys.store', $survey) }}" class="modern-form">
-            @csrf
-            <input type="hidden" name="survey_id" value="{{ $survey->id }}">
-            <input type="hidden" name="start_time" id="start_time">
-            <input type="hidden" name="end_time" id="end_time">
+        <form id="surveyForm" method="POST"$}}ass="modern-form">
+                      <input type="hidden" name="survey_id" value="{{ $survey->id }}">
+            <input type="hidden" name=e" start_time">
+     input type="hidden" name="end_time" id="eJPGtime">
             
-            <!-- Validation Alert Container -->
-            <div id="validationAlertContainer" class="alert alert-danger mb-4 d-none">
+            <!-- ValidatConer -->
+           nAlertContainer" class="alert alert-danger mb-4 d-none">
                 <h6><i class="fas fa-exclamation-triangle me-2"></i>Please Fill In All Required Fields!</h6>
             </div>
             

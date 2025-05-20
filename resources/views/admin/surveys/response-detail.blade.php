@@ -108,7 +108,7 @@
                         @foreach($responses as $response)
                             <div class="response-item mb-4 p-3 bg-light rounded">
                                 <div class="mb-2">
-                                    <label class="text-muted">Question</label>
+                                    <label class="text-muted">Question {{ $loop->iteration }}</label>
                                     <h5 class="fw-bold">{{ $response->question->text }}</h5>
                                 </div>
                                 <div>

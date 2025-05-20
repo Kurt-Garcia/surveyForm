@@ -67,20 +67,20 @@
                                     @endphp
                                     
                                     @if($question->type === 'radio' || $question->type === 'star')
-                                        <div class="row align-items-center">
+                                        <div class="row align-items-stretch">
                                             <div class="col-md-6">
-                                                <div class="chart-container" style="position: relative; height: 283px; width: 100%;">
+                                                <div class="chart-container" style="position: relative; min-height: 200px; max-height: 250px;">
                                                     <canvas id="pieChart-{{ $question->id }}" class="question-chart"></canvas>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
-                                                <div class="legend-container mt-3 mt-md-0">
+                                                <div class="legend-container p-3 d-flex flex-column justify-content-center">
                                                     @foreach($stats['responses'] as $response => $count)
-                                                        <div class="legend-item mb-2 d-flex align-items-center">
-                                                            <div class="legend-color me-2" style="background-color: {{ $response == 1 ? '#dc3545' : ($response == 2 ? '#ffc107' : ($response == 3 ? '#17a2b8' : ($response == 4 ? '#0d6efd' : '#28a745'))) }};"></div>
+                                                        <div class="legend-item py-2 d-flex align-items-center">
+                                                            <div class="legend-color me-3" style="width: 16px; height: 16px; border-radius: 4px; background-color: {{ $response == 1 ? '#dc3545' : ($response == 2 ? '#ffc107' : ($response == 3 ? '#17a2b8' : ($response == 4 ? '#0d6efd' : '#28a745'))) }};"></div>
                                                             <div class="d-flex justify-content-between w-100">
                                                                 <span>{{ $response == 1 ? 'Poor' : ($response == 2 ? 'Need Improvement' : ($response == 3 ? 'Satisfactory' : ($response == 4 ? 'Very Satisfactory' : 'Excellent'))) }}</span>
-                                                                <span class="text-muted">{{ $count }} ({{ round(($count / $total) * 100) }}%)</span>
+                                                                <span class="badge bg-light text-dark px-3 py-2">{{ $count }} ({{ round(($count / $total) * 100) }}%)</span>
                                                             </div>
                                                         </div>
                                                     @endforeach

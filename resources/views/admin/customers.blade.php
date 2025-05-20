@@ -89,6 +89,12 @@
                 text-align: center;
                 margin-bottom: 1rem;
             }
+            
+            .dataTables_wrapper .row:last-child {
+                display: flex;
+                align-items: center;
+                flex-direction: column;
+            }
         }
         .dataTables_wrapper .dataTables_length label,
         .dataTables_wrapper .dataTables_filter label {
@@ -201,7 +207,29 @@
 
         /* Pagination */
         .dataTables_paginate {
-            margin-top: 1.5rem !important;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .dataTables_info {
+            padding-top: 0 !important;
+            display: flex;
+            align-items: center;
+        }
+
+        .dataTables_wrapper .row:last-child {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .dataTables_wrapper .dataTables_paginate,
+        .dataTables_wrapper .dataTables_info {
+            width: 50%;
+            float: left;
+            padding: 0;
+            margin: 0;
         }
 
         .paginate_button {
@@ -224,6 +252,24 @@
         .paginate_button.disabled {
             opacity: 0.5;
             cursor: not-allowed !important;
+        }
+
+        @media (max-width: 768px) {
+            .dataTables_wrapper .dataTables_paginate,
+            .dataTables_wrapper .dataTables_info {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+                margin: 0.5rem 0;
+            }
+            
+            .dataTables_wrapper .row:last-child {
+                flex-direction: column;
+            }
+            
+            .dataTables_paginate .paginate_button {
+                padding: 6px 12px !important;
+            }
         }
 
         /* Action Buttons */
