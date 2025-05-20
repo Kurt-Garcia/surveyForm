@@ -564,15 +564,27 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Find the table row
-                        const row = $(`button[data-id="${customerId}"]`).closest('tr');
+                        // Find the edit button and its row
+                        const editButton = $(`button[data-id="${customerId}"]`);
+                        const row = editButton.closest('tr');
                         
-                        // Update only the specific cells
-                        row.find('td:eq(4)').text(formData.get('phone') || '-'); // CONTACTCELLNUMBER column
-                        row.find('td:eq(34)').text(formData.get('email') || '-'); // EMAIL column
+                        // Get the updated values
+                        const updatedPhone = formData.get('phone') || '-';
+                        const updatedEmail = formData.get('email') || '-';
                         
-                        // Don't update the updated_at column as it will be correct on refresh
+                        // Update the table cells
+                        row.find('td:eq(5)').text(updatedPhone); // CONTACT# column (6th column, index 5)
+                        row.find('td:eq(6)').text(updatedEmail); // EMAIL column (7th column, index 6)
                         
+                        // Update the data attributes on the edit button
+                        editButton.data('phone', updatedPhone);
+                        editButton.data('email', updatedEmail);
+                        
+                        // Also update the HTML attributes to ensure jQuery .data() cache is consistent with DOM
+                        editButton.attr('data-phone', updatedPhone);
+                        editButton.attr('data-email', updatedEmail);
+                        
+                        // Close the modal
                         $('#editCustomerModal').modal('hide');
                         
                         // Show success message

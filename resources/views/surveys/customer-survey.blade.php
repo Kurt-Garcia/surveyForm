@@ -10,19 +10,21 @@
         --secondary-color: {{ $activeTheme->secondary_color ?? '#2C3E50' }};
         --accent-color: {{ $activeTheme->accent_color ?? '#F1C40F' }};
         --button-hover-color: {{ $activeTheme->button_hover_color ?? '#B71C1C' }};
+        --body-font: '{{ $activeTheme->body_font ?? "Inter" }}', sans-serif;
+        --heading-font: '{{ $activeTheme->heading_font ?? "Inter" }}', sans-serif;
     }
 
     .input-error {
-    border: 2px solid #dc3545 !important;
-    box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25);
-}
+        border: 2px solid #dc3545 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25);
+    }
 </style>
 
 <div class="survey-wrapper">
     @if($hasResponded)
         <div class="container">
             @if($allowResubmit)
-                <div class="notification-card warning" id="warningNotification">
+                <div class="notification-card warning font-theme" id="warningNotification">
                     <i class="fas fa-info-circle me-2"></i>
                     <p>You have previously submitted this survey, but resubmission has been enabled by an administrator. You may submit a new response.</p>
                     <button type="button" class="notification-close" onclick="closeNotification('warningNotification')">
@@ -30,7 +32,7 @@
                     </button>
                 </div>
             @else
-                <div class="notification-card info" id="infoNotification">
+                <div class="notification-card info font-theme" id="infoNotification">
                     <i class="fas fa-info-circle me-2"></i>
                     <p>You have already submitted this survey. You can view the questions, but submitting again with the same account name will not be allowed.</p>
                     <button type="button" class="notification-close" onclick="closeNotification('infoNotification')">
@@ -48,7 +50,7 @@
             @else
             <img src="{{ asset('img/logo.JPG') }}" alt="Default Logo" class="survey-logo">
             @endif
-            <h1 class="survey-title">{{ strtoupper($survey->title) }}</h1>
+            <h1 class="survey-title font-theme-heading">{{ strtoupper($survey->title) }}</h1>
         </div>
 
         <form id="surveyForm" method="POST" action="{{ route('customer.survey.submit', $survey) }}" class="modern-form">
@@ -58,14 +60,14 @@
             <input type="hidden" name="end_time" id="end_time">
             
             <!-- Validation Alert Container -->
-            <div id="validationAlertContainer" class="alert alert-danger mb-4 d-none">
+            <div id="validationAlertContainer font-theme" class="alert alert-danger mb-4 d-none">
                 <h6><i class="fas fa-exclamation-triangle me-2"></i>Please Fill In All Required Fields!</h6>
                 <div id="validationErrorsList">
                     <ul></ul>
                 </div>
             </div>
             
-            <div class="form-grid">
+            <div class="form-grid font-theme">
                 <div class="form-field">
                     <label for="account_name" class="form-label">Account Name</label>
                     <input type="text" class="modern-input" id="account_name" name="account_name" value="{{ $prefillAccountName ?? '' }}" readonly>
@@ -84,8 +86,8 @@
             </div>
 
             <div class="survey-section">
-                <h2 class="section-title">Satisfaction Level</h2>
-                <div class="rating-legend">
+                <h2 class="section-title font-theme-heading">Satisfaction Level</h2>
+                <div class="rating-legend font-theme">
                     <span class="rating-item">1 - Poor</span>
                     <span class="rating-item">2 - Needs Improvement</span>
                     <span class="rating-item">3 - Satisfactory</span>
@@ -93,7 +95,7 @@
                     <span class="rating-item">5 - Excellent</span>
                 </div>
 
-                <div class="questions-container">
+                <div class="questions-container font-theme">
                     @foreach($questions as $question)
                     <div class="question-card" data-question-id="{{ $question->id }}">
                         <div class="question-text">
@@ -141,8 +143,8 @@
             </div>
 
             <div class="recommendation-section mt-5">
-                <h2 class="section-title">Recommendation</h2>
-                <div class="recommendation-container">
+                <h2 class="section-title font-theme-heading">Recommendation</h2>
+                <div class="recommendation-container font-theme">
                     <h6>How likely is it that you would recommend our company to a friend or colleague?</h6>
                     <select id="survey-number" name="recommendation" class="modern-select">
                         <option value="" disabled selected>Select a rating</option>
@@ -155,20 +157,20 @@
             </div>
 
             <div class="comments-section mt-5">
-                <h2 class="section-title">Additional Feedback</h2>
-                <textarea class="modern-textarea" name="comments" rows="5" placeholder="We value your thoughts. Please share any additional feedback..." maxlength="150"></textarea>
+                <h2 class="section-title font-theme-heading">Additional Feedback</h2>
+                <textarea class="modern-textarea font-theme" name="comments" rows="5" placeholder="We value your thoughts. Please share any additional feedback..." maxlength="150"></textarea>
                 <div class="validation-message" id="comments_error"></div>
             </div>
 
             <div class="form-footer">
-                <button type="submit" class="submit-button" style="background-color: var(--primary-color); border-color: var(--primary-color); color: white;">
+                <button type="submit" class="submit-button font-theme-heading" style="background-color: var(--primary-color); border-color: var(--primary-color); color: white;">
                     <span>Submit Survey</span>
                     <i class="fas fa-paper-plane ms-2"></i>
                 </button>
             </div>
         </form>
         
-        <div class="thank-you-message">
+        <div class="thank-you-message font-theme-heading">
             <h3>THANK YOU!</h3>
             <h3>WE APPRECIATE YOUR FEEDBACK!</h3>
             <p>Your input helps us serve you better.</p>
@@ -515,7 +517,7 @@ function displayThankYouMessage() {
     
     // Create and show a simple footer if needed
     if ($('.survey-footer').length === 0) {
-        $('<div class="survey-footer mt-5 text-center">').html(`
+        $('<div class="survey-footer mt-5 text-center font-theme">').html(`
             <p class="text-muted small">© ${new Date().getFullYear()} ${$('.survey-title').text()}. All rights reserved.</p>
         `).insertAfter('.thank-you-message');
     }
@@ -695,14 +697,14 @@ function showResponseSummaryModal() {
 <!-- Response Summary Modal -->
 <div class="modal fade" id="responseSummaryModal" tabindex="-1" aria-labelledby="responseSummaryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
+        <div class="modal-content font-theme">
             <div class="modal-header">
-                <h5 class="modal-title" id="responseSummaryModalLabel">Survey Response Summary</h5>
+                <h5 class="modal-title font-theme-heading" id="responseSummaryModalLabel">Survey Response Summary</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div id="responseSummary">
-                    <h5 class="border-bottom pb-2">Account Information</h5>
+                    <h5 class="border-bottom pb-2 font-theme-heading">Account Information</h5>
                     <div class="row mb-4">
                         <div class="col-md-4 col-sm-6 mb-3 mb-md-0">
                             <strong>Account Name:</strong>
@@ -718,17 +720,17 @@ function showResponseSummaryModal() {
                         </div>
                     </div>
                     
-                    <h5 class="border-bottom pb-2">Survey Responses</h5>
+                    <h5 class="border-bottom pb-2 font-theme-heading">Survey Responses</h5>
                     <div id="summary-responses" class="mb-4">
                         <!-- Responses will be dynamically inserted here -->
                     </div>
                     
-                    <h5 class="border-bottom pb-2">Recommendation Score</h5>
+                    <h5 class="border-bottom pb-2 font-theme-heading">Recommendation Score</h5>
                     <div class="mb-4">
                         <p>How likely to recommend: <span id="summary-recommendation"></span>/10</p>
                     </div>
                     
-                    <h5 class="border-bottom pb-2">Additional Comments</h5>
+                    <h5 class="border-bottom pb-2 font-theme-heading">Additional Comments</h5>
                     <div class="mb-4">
                         <p id="summary-comments"></p>
                     </div>
@@ -740,4 +742,14 @@ function showResponseSummaryModal() {
         </div>
     </div>
 </div>
+
+<style>
+    .font-theme{
+        font-family: var(--body-font);
+    }
+
+    .font-theme-heading{
+        font-family: var(--heading-font);
+    }
+</style>
 @endsection

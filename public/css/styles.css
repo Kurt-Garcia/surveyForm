@@ -285,6 +285,13 @@ body {
 .modern-rating-group {
     display: flex;
     justify-content: center;
+    gap: 2vw;
+    flex-wrap: wrap;
+}
+
+.modern-rating-group-display {
+    display: flex;
+    justify-content: center;
     gap: 5vw;
     flex-wrap: wrap;
 }

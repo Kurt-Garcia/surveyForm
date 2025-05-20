@@ -20,7 +20,7 @@
         <div class="container position-relative">
             <header class="welcome-header text-center">
                 <h1 class="display-4 fw-bold animate-text">Share Your Thoughts</h1>
-                <p class="lead animate-text-delay">Your opinion matters! Select a survey below to get started.</p>
+                <p class="lead animate-text-delay" style="font-family: var(--body-font)">Your opinion matters! Select a survey below to get started.</p>
             </header>
         </div>
     </div>
@@ -72,7 +72,7 @@
                                 @endif
                             </div>
                             <div class="d-flex gap-2 mt-auto">
-                                <a href="{{ route('surveys.show', $survey) }}" class="btn btn-start btn-primary flex-grow-1">
+                                <a href="{{ route('surveys.show', $survey) }}" class="btn btn-start btn-primary flex-grow-1" style="font-family: var(--body-font)">
                                     <i class="fas fa-eye me-1"></i> View Survey
                                 </a>
                                 <a href="{{ route('surveys.responses.index', $survey) }}" class="btn btn-outline-secondary">
@@ -136,6 +136,7 @@
         border: none;
         padding: 12px 20px;
         background: #f8f9fa;
+        font-family: var(--body-font);
     }
     
     .search-input-modern:focus {
@@ -225,6 +226,7 @@
     }
     .survey-info {
         font-size: 0.9rem;
+        font-family: var(--body-font);
     }
     .responded-badge {
         align-self: flex-start;
@@ -233,6 +235,7 @@
         font-weight: 500;
         padding: 8px 12px;
         border-radius: 30px;
+        font-family: var(--body-font);
     }
     .btn-start {
         border-radius: 8px;
@@ -278,8 +281,10 @@
         z-index: 10;
     }
     .survey-logo-large {
+        min-width: 80px;
+        min-height: 80px;
         max-width: 100px;
-        max-height: 100px;
+        max-height: 80px;
         object-fit: contain;
         margin: 0 auto;
     }
@@ -386,6 +391,10 @@
     .broadcast-success i {
         margin-right: 10px;
         font-size: 20px;
+    }
+
+    .font-theme{
+         font-family: var(--body-font);
     }
     </style>
 
@@ -667,12 +676,12 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="customerSearch" class="form-label">Search Customers</label>
-                        <input type="text" class="form-control" id="customerSearch" placeholder="Type to search...">
+                        <label for="customerSearch" class="form-label font-theme">Search Customers</label>
+                        <input type="text" class="form-control font-theme" id="customerSearch" placeholder="Type to search...">
                     </div>
                 
 
-                    <div class="customer-list-container">
+                    <div class="customer-list-container font-theme">
                         <div class="d-flex justify-content-between mb-2">
                             <div>
                                 <button type="button" class="btn btn-sm btn-outline-secondary select-all-btn">Select All</button>
@@ -690,7 +699,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer font-theme">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary send-broadcast-btn" disabled>
                         <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>

@@ -51,6 +51,20 @@
             --btn-primary-color: #ffffff;
             --shadow-color: rgba(0, 0, 0, 0.08);
         }
+
+        .nav-link, .dropdown-item {
+        font-family: var(--body-font);
+        color: var(--text-color);
+      }
+      
+      .nav-link:hover, .dropdown-item:hover {
+        color: var(--primary-color);
+      }
+      
+      .dropdown-menu {
+        border-color: var(--border-color);
+        box-shadow: 0 2px 4px var(--shadow-color);
+      }
         
         /* Base styles */
         body {
@@ -93,9 +107,9 @@
                         $activeLogo = \App\Models\Logo::where('is_active', true)->first();
                     @endphp
                     @if($activeLogo)
-                        <img src="{{ asset('storage/' . $activeLogo->file_path) }}" alt="Logo" class="logo" style="max-width: 100px;">
+                        <img src="{{ asset('storage/' . $activeLogo->file_path) }}" alt="Logo" class="logo" style="min-width: 50px; max-width: 150px; min-height: 30px; max-height: 60px; object-fit: contain;">
                     @else
-                        <img src="{{ asset('img/logo.png') }}" alt="Logo" class="logo" style="max-width: 100px;">
+                        <img src="{{ asset('img/logo.png') }}" alt="Logo" class="logo" style="min-width: 50px; max-width: 150px; min-height: 30px; max-height: 60px; object-fit: contain;">
                     @endif
                 </a>
                 

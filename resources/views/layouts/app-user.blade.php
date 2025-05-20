@@ -99,9 +99,9 @@
                         $activeLogo = \App\Models\Logo::where('is_active', true)->first();
                     @endphp
                     @if($activeLogo)
-                        <img src="{{ asset('storage/' . $activeLogo->file_path) }}" alt="Logo" class="logo" style="max-width: 100px;">
+                        <img src="{{ asset('storage/' . $activeLogo->file_path) }}" alt="Logo" class="logo" style="min-width: 50px; max-width: 150px; min-height: 30px; max-height: 60px; object-fit: contain;">
                     @else
-                        <img src="{{ asset('img/logo.png') }}" alt="Logo" class="logo" style="max-width: 100px;">
+                        <img src="{{ asset('img/logo.png') }}" alt="Logo" class="logo" style="min-width: 50px; max-width: 150px; min-height: 30px; max-height: 60px; object-fit: contain;">
                     @endif
                 </a>
                 
@@ -194,6 +194,20 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <style>
+      .nav-link, .dropdown-item {
+        font-family: var(--body-font);
+        color: var(--text-color);
+      }
+      
+      .nav-link:hover, .dropdown-item:hover {
+        color: var(--primary-color);
+      }
+      
+      .dropdown-menu {
+        border-color: var(--border-color);
+        box-shadow: 0 2px 4px var(--shadow-color);
+      }
+      
       @media (max-width: 767.98px) {
         .navbar-collapse.d-none.d-md-block { display: none !important; }
         .offcanvas { width: 25vw; min-width: 120px; max-width: 50vw; }

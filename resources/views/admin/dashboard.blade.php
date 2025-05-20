@@ -15,12 +15,12 @@
                     <div class="card-body p-5 position-relative">
                         <div class="row align-items-center">
                             <div class="col-lg-7 mb-4 mb-lg-0">
-                                <span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill mb-3">Admin Dashboard</span>
+                                <span class="badge bg-white bg-opacity-25 text-white px-3 py-2 rounded-pill mb-3 font-theme">Admin Dashboard</span>
                                 <h1 class="display-4 fw-bold text-white mb-2 welcome-title">Welcome Back, {{ explode(' ', Auth::guard('admin')->user()->name)[0] }}!</h1>
-                                <p class="text-white text-opacity-90 mb-0 fs-5">{{ now()->format('l, F j, Y') }}</p>
+                                <p class="text-white text-opacity-90 mb-0 fs-5 font-theme">{{ now()->format('l, F j, Y') }}</p>
                             </div>
                             <div class="col-lg-5 text-lg-end">
-                                <a href="{{ route('admin.surveys.create') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill shadow-sm align-items-center me-2 mb-2">
+                                <a href="{{ route('admin.surveys.create') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill shadow-sm align-items-center me-2 mb-2 font-theme">
                                     <i class="bi bi-plus-circle-fill me-2 text-primary"></i>Create Survey
                                 </a>
                             </div>
@@ -44,7 +44,7 @@
                                         </div>
                                         <div class="action-content">
                                             <h5>View Surveys</h5>
-                                            <p>Manage your existing surveys</p>
+                                            <p class="font-theme">Manage your existing surveys</p>
                                         </div>
                                     </a>
                                 </div>
@@ -55,7 +55,7 @@
                                         </div>
                                         <div class="action-content">
                                             <h5>Add Admin</h5>
-                                            <p>Create new admin accounts</p>
+                                            <p class="font-theme">Create new admin accounts</p>
                                         </div>
                                     </a>
                                 </div>
@@ -66,7 +66,7 @@
                                         </div>
                                         <div class="action-content">
                                             <h5>Add Surveyor</h5>
-                                            <p>Create new user accounts</p>
+                                            <p class="font-theme">Create new surveyor accounts</p>
                                         </div>
                                     </a>
                                 </div>
@@ -79,7 +79,7 @@
                                         </div>
                                         <div class="action-content">
                                             <h5>List of Customers</h5>
-                                            <p>See all registered customers</p>
+                                            <p class="font-theme">See all registered customers</p>
                                         </div>
                                     </a>
                                 </div>
@@ -90,7 +90,7 @@
                                         </div>
                                         <div class="action-content">
                                             <h5>Theme Settings</h5>
-                                            <p>Customize app appearance</p>
+                                            <p class="font-theme">Customize app appearance</p>
                                         </div>
                                     </a>
                                 </div>
@@ -101,7 +101,7 @@
                                         </div>
                                         <div class="action-content">
                                             <h5>Logo Manager</h5>
-                                            <p>Update application logos</p>
+                                            <p class="font-theme">Update application logos</p>
                                         </div>
                                     </a>
                                 </div>
@@ -436,5 +436,10 @@ body {
         z-index: -1;
     }
 }
+
+.font-theme{
+         font-family: var(--body-font);
+}
+
 </style>
 @endsection

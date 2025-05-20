@@ -79,19 +79,19 @@
             
             <div class="form-grid">
                 <div class="form-field">
-                    <label for="account_name" class="form-label">Account Name</label>
-                    <input type="text" class="modern-input" id="account_name" name="account_name" value="{{ $prefillAccountName ?? '' }}" placeholder="Enter customer name or code">
+                    <label for="account_name" class="form-label font-theme">Account Name</label>
+                    <input type="text" class="modern-input font-theme" id="account_name" name="account_name" value="{{ $prefillAccountName ?? '' }}" placeholder="Enter customer name or code">
                     <div id="customer_name_display" class="customer-name-display mt-1"></div>
                     <div class="validation-message" id="account_name_error"></div>
                 </div>
                 <div class="form-field">
-                    <label for="account_type" class="form-label">Account Type</label>
-                    <input type="text" class="modern-input" id="account_type" name="account_type" value="{{ $prefillAccountType ?? '' }}" readonly>
+                    <label for="account_type" class="form-label font-theme">Account Type</label>
+                    <input type="text" class="modern-input font-theme" id="account_type" name="account_type" value="{{ $prefillAccountType ?? '' }}" readonly>
                     <div class="validation-message" id="account_type_error"></div>
                 </div>
                 <div class="form-field">
-                    <label for="date" class="form-label">Date</label>
-                    <input type="date" class="modern-input" id="date" name="date" value="{{ date('Y-m-d') }}">
+                    <label for="date" class="form-label font-theme">Date</label>
+                    <input type="date" class="modern-input font-theme" id="date" name="date" value="{{ date('Y-m-d') }}">
                     <div class="validation-message" id="date_error"></div>
                 </div>
             </div>
@@ -106,16 +106,16 @@
             <div class="survey-section">
                 <h2 class="section-title">Satisfaction Level</h2>
                 <div class="rating-legend">
-                    <span class="rating-item">1 - Poor</span>
-                    <span class="rating-item">2 - Needs Improvement</span>
-                    <span class="rating-item">3 - Satisfactory</span>
-                    <span class="rating-item">4 - Very Satisfactory</span>
-                    <span class="rating-item">5 - Excellent</span>
+                    <span class="rating-item font-theme">1 - Poor</span>
+                    <span class="rating-item font-theme">2 - Needs Improvement</span>
+                    <span class="rating-item font-theme">3 - Satisfactory</span>
+                    <span class="rating-item font-theme">4 - Very Satisfactory</span>
+                    <span class="rating-item font-theme">5 - Excellent</span>
                 </div>
 
                 <div class="questions-container">
                     @foreach($questions as $question)
-                    <div class="question-card" data-question-id="{{ $question->id }}">
+                    <div class="question-card font-theme" data-question-id="{{ $question->id }}">
                         <div class="question-text">
                             {{ $question->text }}
                             @if($question->required)
@@ -127,7 +127,7 @@
                         <div class="question-input">
                             @switch($question->type)
                                 @case('radio')
-                                    <div class="modern-rating-group">
+                                    <div class="modern-rating-group-display">
                                         @for($i = 1; $i <= 5; $i++)
                                             <div class="modern-radio">
                                                 <input type="radio" 
@@ -162,7 +162,7 @@
 
             <div class="recommendation-section mt-5">
                 <h2 class="section-title">Recommendation</h2>
-                <div class="recommendation-container">
+                <div class="recommendation-container font-theme">
                     <p>How likely is it that you would recommend our company to a friend or colleague?</p>
                     <select id="survey-number" name="recommendation" class="modern-select">
                         <option value="" disabled selected>Select a rating</option>
@@ -176,7 +176,7 @@
 
             <div class="comments-section mt-5">
                 <h2 class="section-title">Additional Feedback</h2>
-                <textarea class="modern-textarea" name="comments" rows="5" placeholder="We value your thoughts. Please share any additional feedback..." maxlength="150"></textarea>
+                <textarea class="modern-textarea font-theme" name="comments" rows="5" placeholder="We value your thoughts. Please share any additional feedback..." maxlength="150"></textarea>
                 <div class="validation-message" id="comments_error"></div>
             </div>
 
@@ -190,7 +190,7 @@
 
             <div class="form-footer">
                 <button type="submit" class="submit-button">
-                    <span>Submit Survey</span>
+                    <span style="font-family: var(--heading-font)">Submit Survey</span>
                     <i class="fas fa-paper-plane ms-2"></i>
                 </button>
             </div>
@@ -239,7 +239,7 @@
 <!-- Response Summary Modal -->
 <div class="modal fade" id="responseSummaryModal" tabindex="-1" aria-labelledby="responseSummaryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
+        <div class="modal-content font-theme">
             <div class="modal-header" style="background-color: var(--primary-color); color: white; border-bottom: 2px solid var(--primary-color);">
                 <h5 class="modal-title" id="responseSummaryModalLabel">Survey Response Summary</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -291,6 +291,12 @@
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script>
 $(document).ready(function() {
+    // Auto-hide notification after 2 seconds
+    if ($('#infoNotification').length) {
+        setTimeout(function() {
+            $('#infoNotification').fadeOut('fast');
+        }, 5000);
+    }
     // Initialize start time when the form is first loaded
     const startTime = new Date();
     $('#start_time').val(startTime.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
@@ -852,7 +858,7 @@ function closeNotification(id) {
         width: 30px;
         height: 30px;
         font-size: 12px;
-        margin-right: 3px;
+        margin-right: 1px;
         margin-bottom: 3px;
         flex-shrink: 0;
     }
@@ -892,6 +898,10 @@ function closeNotification(id) {
     display: none;
     margin-top: 5px;
     font-size: 0.9em;
+}
+
+.font-theme{
+    font-family: var(--body-font);
 }
 </style>
 @endsection

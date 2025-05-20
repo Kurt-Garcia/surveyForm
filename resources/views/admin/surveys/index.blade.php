@@ -287,8 +287,12 @@
     width: 100%;
 }
 .survey-logo-large {
-    width: 96px;
-    height: 64px;
+    min-width: 80px;
+    min-height: 64px;
+    max-width: 96px;
+    max-height: 64px;
+    width: auto;
+    height: auto;
     object-fit: contain;
     /* Removed border-radius, background, box-shadow, and padding for a cleaner logo */
 }
@@ -468,6 +472,11 @@
     margin-right: 10px;
     font-size: 20px;
 }
+
+.font-theme{
+    font-family: var(--body-font);
+}
+
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -786,10 +795,7 @@
                     <label for="customerSearch" class="form-label">Search Customers</label>
                     <input type="text" class="form-control" id="customerSearch" placeholder="Type to search...">
                 </div>
-                
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i> Select customers to receive an email invitation for this survey.
-                </div>
+
 
                 <div class="customer-list-container">
                     <div class="d-flex justify-content-between mb-2">
