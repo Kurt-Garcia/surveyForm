@@ -95,7 +95,7 @@
                                     <i class="bi bi-pencil-square me-2"></i>Edit Theme
                                 </a>
                                 @if(!$theme->is_active)
-                                <form action="{{ route('admin.themes.destroy', $theme->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this theme?');">
+                                <form action="{{ route('admin.themes.destroy', $theme->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-action delete-btn">
@@ -507,6 +507,8 @@
 
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     // Load all the Google Fonts used in themes
     document.addEventListener('DOMContentLoaded', function() {
@@ -542,6 +544,103 @@
                 const colorSwatches = this.querySelectorAll('.color-swatch');
                 colorSwatches.forEach(swatch => {
                     swatch.style.transform = 'scale(1)';
+                });
+            });
+        });
+
+        // SweetAlert2 Configuration
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success me-3",
+                cancelButton: "btn btn-outline-danger",
+                actions: 'gap-2 justify-content-center'
+            },
+            buttonsStyling: false
+        });
+        
+        // Handle Activate Theme button clicks
+        const activateButtons = document.querySelectorAll('.activate-btn');
+        activateButtons.forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = this.closest('form');
+                
+                swalWithBootstrapButtons.fire({
+                    title: "Activate this theme?",
+                    text: "This will set this theme as the active theme for all surveys.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, activate it!",
+                    cancelButtonText: "No, cancel!",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        swalWithBootstrapButtons.fire({
+                            title: "Cancelled",
+                            text: "Theme activation was cancelled",
+                            icon: "error"
+                        });
+                    }
+                });
+            });
+        });
+
+        // Handle Edit Theme button clicks
+        const editButtons = document.querySelectorAll('.edit-btn');
+        editButtons.forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                
+                swalWithBootstrapButtons.fire({
+                    title: "Edit this theme?",
+                    text: "You will be redirected to the theme editor.",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, edit it!",
+                    cancelButtonText: "No, cancel!",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = href;
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        swalWithBootstrapButtons.fire({
+                            title: "Cancelled",
+                            text: "Theme editing was cancelled",
+                            icon: "error"
+                        });
+                    }
+                });
+            });
+        });
+
+        // Handle Delete Theme button clicks
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        deleteButtons.forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = this.closest('form');
+                
+                swalWithBootstrapButtons.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this! This action will permanently delete this theme.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, delete it!",
+                    cancelButtonText: "No, cancel!",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        swalWithBootstrapButtons.fire({
+                            title: "Cancelled",
+                            text: "Your theme is safe :)",
+                            icon: "error"
+                        });
+                    }
                 });
             });
         });

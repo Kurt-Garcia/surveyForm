@@ -34,7 +34,7 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                        <button type="submit" class="btn btn-gradient-blue btn-lg px-5 shadow-sm">Upload <i class="bi bi-upload ms-2"></i></button>
+                        <button type="submit" id="uploadLogoBtn" class="btn btn-gradient-blue btn-lg px-5 shadow-sm">Upload <i class="bi bi-upload ms-2"></i></button>
                     </form>
                     <h5 class="fw-bold mb-4" style="color: var(--text-color)">Available Logos</h5>
                     <div class="table-responsive animate__animated animate__fadeInUp">
@@ -55,14 +55,14 @@
                                             @if($logo->is_active)
                                                 <span class="badge bg-gradient-green text-white px-3 py-2 fs-6">Active</span>
                                             @else
-                                                <form action="{{ route('admin.logos.activate', $logo->id) }}" method="POST" style="display:inline-block;">
+                                                <form action="{{ route('admin.logos.activate', $logo->id) }}" method="POST" style="display:inline-block;" class="activate-logo-form">
                                                     @csrf
-                                                    <button type="submit" class="btn btn-sm btn-outline-gradient-blue me-2">Activate</button>
+                                                    <button type="submit" class="btn btn-sm btn-outline-gradient-blue me-2 activate-logo-btn">Activate</button>
                                                 </form>
-                                                <form action="{{ route('admin.logos.destroy', $logo->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Are you sure?')">
+                                                <form action="{{ route('admin.logos.destroy', $logo->id) }}" method="POST" style="display:inline-block;" class="delete-logo-form">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger delete-logo-btn">Delete</button>
                                                 </form>
                                             @endif
                                         </td>
@@ -77,12 +77,112 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.getElementById('closeFormBtn').addEventListener('click', function(e) {
-        e.preventDefault();
-        if (confirm('Are you sure you want to close the form? Any unsaved changes will be lost.')) {
-            window.location.href = this.href;
+    document.addEventListener('DOMContentLoaded', function() {
+        // SweetAlert2 Configuration
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success me-3",
+                cancelButton: "btn btn-outline-danger",
+                actions: 'gap-2 justify-content-center'
+            },
+            buttonsStyling: false
+        });
+
+        // Close Form Button
+        document.getElementById('closeFormBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            const href = this.href;
+            
+            swalWithBootstrapButtons.fire({
+                title: "Are you sure?",
+                text: "Any unsaved changes will be lost!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, close it!",
+                cancelButtonText: "No, cancel!",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = href;
+                }
+            });
+        });
+
+        // Upload Logo Button
+        const uploadBtn = document.getElementById('uploadLogoBtn');
+        const logoForm = document.querySelector('form[action*="logos.store"]');
+        if (uploadBtn && logoForm) {
+            uploadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const fileInput = document.getElementById('logo');
+                if (fileInput && fileInput.files.length > 0) {
+                    swalWithBootstrapButtons.fire({
+                        title: "Upload this logo?",
+                        text: "The logo will be available for use in your surveys",
+                        icon: "question",
+                        showCancelButton: true,
+                        confirmButtonText: "Yes, upload it!",
+                        cancelButtonText: "Cancel",
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            logoForm.submit();
+                        }
+                    });
+                } else {
+                    // If no file selected, trigger the default HTML5 validation
+                    logoForm.reportValidity();
+                }
+            });
         }
+
+        // Activate Logo Buttons
+        const activateBtns = document.querySelectorAll('.activate-logo-btn');
+        activateBtns.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = this.closest('form');
+                
+                swalWithBootstrapButtons.fire({
+                    title: "Activate this logo?",
+                    text: "This will set this logo as the active logo for all surveys",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, activate it!",
+                    cancelButtonText: "No, cancel!",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+
+        // Delete Logo Buttons
+        const deleteBtns = document.querySelectorAll('.delete-logo-btn');
+        deleteBtns.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = this.closest('form');
+                
+                swalWithBootstrapButtons.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this! This logo will be permanently deleted.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, delete it!",
+                    cancelButtonText: "No, cancel!",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
     });
 </script>
 

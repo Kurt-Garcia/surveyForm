@@ -287,5 +287,7 @@
         .navbar-collapse.d-none.d-md-block { display: flex !important; }
       }
     </style>
+    
+    @yield('scripts')
 </body>
 </html>

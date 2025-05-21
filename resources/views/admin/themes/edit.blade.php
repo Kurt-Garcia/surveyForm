@@ -11,7 +11,7 @@
                         <h2 class="display-5 fw-bold mb-0">Edit Theme: {{ $theme->name }}</h2>
                         <p class="text-muted lead">Modify colors, fonts, and styles for this theme</p>
                     </div>
-                    <a href="{{ route('admin.themes.index') }}" class="btn btn-outline-secondary rounded-pill">
+                    <a href="{{ route('admin.themes.index') }}" class="btn btn-outline-secondary rounded-pill" id="backButton">
                         <i class="bi bi-arrow-left me-2"></i>Back to Themes
                     </a>
                 </div>
@@ -64,7 +64,6 @@
                                         <div class="col-md-4">
                                             <div class="color-picker-container">
                                                 <label for="primary_color" class="form-label">Primary Color</label>
-                                                <div class="color-preview" id="primary_color_preview"></div>
                                                 <input type="color" class="form-control form-control-color w-100 @error('primary_color') is-invalid @enderror"
                                                     id="primary_color" name="primary_color" value="{{ old('primary_color', $theme->primary_color) }}">
                                                 @error('primary_color')
@@ -77,7 +76,6 @@
                                         <div class="col-md-4">
                                             <div class="color-picker-container">
                                                 <label for="secondary_color" class="form-label">Secondary Color</label>
-                                                <div class="color-preview" id="secondary_color_preview"></div>
                                                 <input type="color" class="form-control form-control-color w-100 @error('secondary_color') is-invalid @enderror"
                                                     id="secondary_color" name="secondary_color" value="{{ old('secondary_color', $theme->secondary_color) }}">
                                                 @error('secondary_color')
@@ -90,7 +88,6 @@
                                         <div class="col-md-4">
                                             <div class="color-picker-container">
                                                 <label for="accent_color" class="form-label">Accent Color</label>
-                                                <div class="color-preview" id="accent_color_preview"></div>
                                                 <input type="color" class="form-control form-control-color w-100 @error('accent_color') is-invalid @enderror"
                                                     id="accent_color" name="accent_color" value="{{ old('accent_color', $theme->accent_color) }}">
                                                 @error('accent_color')
@@ -103,7 +100,6 @@
                                         <div class="col-md-6">
                                             <div class="color-picker-container">
                                                 <label for="background_color" class="form-label">Background Color</label>
-                                                <div class="color-preview" id="background_color_preview"></div>
                                                 <input type="color" class="form-control form-control-color w-100 @error('background_color') is-invalid @enderror"
                                                     id="background_color" name="background_color" value="{{ old('background_color', $theme->background_color) }}">
                                                 @error('background_color')
@@ -116,7 +112,6 @@
                                         <div class="col-md-6">
                                             <div class="color-picker-container">
                                                 <label for="text_color" class="form-label">Text Color</label>
-                                                <div class="color-preview" id="text_color_preview"></div>
                                                 <input type="color" class="form-control form-control-color w-100 @error('text_color') is-invalid @enderror"
                                                     id="text_color" name="text_color" value="{{ old('text_color', $theme->text_color) }}">
                                                 @error('text_color')
@@ -165,9 +160,9 @@
                                     </div>
                                 </div>
                                 
-                                <div class="d-flex flex-column flex-sm-row justify-content-sm-end gap-3 mt-5">
-                                    <a href="{{ route('admin.themes.index') }}" class="btn btn-outline-secondary btn-lg px-4 order-1 order-sm-0 w-100 w-sm-auto">Cancel</a>
-                                    <button type="submit" class="btn btn-primary btn-lg px-5 w-100 w-sm-auto"><i class="bi bi-check-circle me-2"></i>Save Changes</button>
+                                <div class="text-end mt-5">
+                                    <a href="{{ route('admin.themes.index') }}" class="btn btn-outline-secondary btn-lg me-2 px-4" id="cancelButton">Cancel</a>
+                                    <button type="button" class="btn btn-primary btn-lg px-5" id="saveChangesButton"><i class="bi bi-check-circle me-2"></i>Save Changes</button>
                                 </div>
                             </form>
                         </div>
@@ -267,6 +262,7 @@
 
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // Load Google Fonts
     WebFont.load({
@@ -294,35 +290,17 @@
         document.getElementById('accent_color_preview').style.backgroundColor = accentColor;
         document.getElementById('background_color_preview').style.backgroundColor = backgroundColor;
         document.getElementById('text_color_preview').style.backgroundColor = textColor;
-    } button
-        document.querySelector('.preview-button').style.backgroundColor = primaryColor;
-        document.querySelector('.preview-button').style.borderColor = primaryColor;
-        
-        // Update form elements in preview
-        document.querySelectorAll('.preview-container .form-check-input').forEach(el => {
-            el.style.borderColor = secondaryColor;
-        });
-        
-        // Update preview header
-        document.querySelector('.preview-header').style.borderBottom = `2px solid ${accentColor}`;
     }
 
     // Initialize when DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize color previews
         updateColorPreviews();
-        
-        // Initialize font previews
-        updateFontPreviews();
 
         // Set up event listeners for colors
         document.querySelectorAll('input[type="color"]').forEach(input => {
             input.addEventListener('input', updateColorPreviews);
         });
-        
-        // Set up event listeners for fonts
-        document.getElementById('heading_font').addEventListener('change', updateFontPreviews);
-        document.getElementById('body_font').addEventListener('change', updateFontPreviews);
         
         // Initialize Select2
         if (typeof $.fn.select2 !== 'undefined') {
@@ -338,6 +316,67 @@
         if (!option.id) return option.text;
         return $('<span>').text(option.text).css('font-family', `'${option.id}', sans-serif`);
     }
+
+    // SweetAlert2 Configuration
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+            confirmButton: "btn btn-success me-3",
+            cancelButton: "btn btn-outline-danger",
+            actions: 'gap-2 justify-content-center'
+        },
+        buttonsStyling: false
+    });
+
+    // Handle buttons when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Save Changes Button
+        const saveChangesButton = document.getElementById('saveChangesButton');
+        if (saveChangesButton) {
+            saveChangesButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = document.getElementById('themeForm');
+                
+                swalWithBootstrapButtons.fire({
+                    title: "Save Theme Changes?",
+                    text: "This will update the theme with your modifications",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, save changes!",
+                    cancelButtonText: "Cancel",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        }
+
+        // Navigation Buttons (Back and Cancel)
+        const navigationButtons = document.querySelectorAll('#cancelButton, #backButton');
+        navigationButtons.forEach(button => {
+            if (button) {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const href = this.getAttribute('href');
+                    
+                    swalWithBootstrapButtons.fire({
+                        title: "Discard changes?",
+                        text: "Any unsaved changes will be lost",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Yes, discard changes",
+                        cancelButtonText: "No, continue editing",
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = href;
+                        }
+                    });
+                });
+            }
+        });
+    });
 </script>
 @endsection
 @endsection
