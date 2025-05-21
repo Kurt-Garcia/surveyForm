@@ -48,6 +48,7 @@ https://cssgridgenerator.io/
 
 
 
-
-
-IN print and pdf only class="card" is the reason
+Libraries Used
+DATATABLES - For tables and data.
+SELECT2 - For Searchables Dropdown
+SWEETALERT2 - For modals alert.

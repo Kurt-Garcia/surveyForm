@@ -1,13 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-sm border-0 rounded-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span class="fw-bold">{{ __('Add New User') }}</span>
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm">
+                    <a href="javascript:void(0)" onclick="confirmClose()" class="btn btn-outline-secondary btn-sm">
                         <i class="bi bi-x-lg"></i>
                     </a>
                 </div>
@@ -24,7 +26,7 @@
                             </ul>
                         </div>
                     @endif
-                    <form action="{{ route('admin.users.store') }}" method="POST">
+                    <form action="{{ route('admin.users.store') }}" method="POST" id="userForm" onsubmit="return confirmSubmit(event)">
                         @csrf
                         <div class="mb-3">
                             <label for="name" class="form-label">Name</label>
@@ -91,4 +93,50 @@
         color: var(--text-color);
     }
 </style>
+<script>
+const swalWithBootstrapButtons = Swal.mixin({
+    customClass: {
+        confirmButton: "btn btn-success me-3",
+        cancelButton: "btn btn-outline-danger",
+        actions: 'gap-2 justify-content-center'
+    },
+    buttonsStyling: false
+});
+
+function confirmClose() {
+    swalWithBootstrapButtons.fire({
+        title: "Are you sure?",
+        text: "Any unsaved changes will be lost!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, leave page!",
+        cancelButtonText: "No, stay here!",
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "{{ route('admin.dashboard') }}";
+        }
+    });
+}
+
+function confirmSubmit(event) {
+    event.preventDefault();
+    
+    swalWithBootstrapButtons.fire({
+        title: "Create New User?",
+        text: "Please confirm to create a new user!",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes, create it!",
+        cancelButtonText: "No, cancel!",
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('userForm').submit();
+        }
+    });
+    
+    return false;
+}
+</script>
 @endsection

@@ -39,15 +39,54 @@
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
                     <h4 class="mb-0 fw-bold">{{ strtoupper($survey->title) }} - RESPONSE DETAILS</h4>
-                    <form action="{{ route('admin.surveys.responses.toggle-resubmission', ['survey' => $survey, 'account_name' => $header->account_name]) }}" 
+                    
+                    <!-- SweetAlert2 CSS -->
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+                    <!-- SweetAlert2 JS -->
+                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+                    <form id="resubmissionForm" action="{{ route('admin.surveys.responses.toggle-resubmission', ['survey' => $survey, 'account_name' => $header->account_name]) }}" 
                           method="POST" class="d-inline">
                         @csrf
                         @method('PATCH')
-                        <button type="submit" class="btn {{ $header->allow_resubmit ? 'btn-warning' : 'btn-success' }} btn-sm">
+                        <button type="button" onclick="confirmResubmission()" class="btn {{ $header->allow_resubmit ? 'btn-warning' : 'btn-success' }} btn-sm">
                             <i class="bi {{ $header->allow_resubmit ? 'bi-lock' : 'bi-unlock' }} me-2"></i>
                             {{ $header->allow_resubmit ? 'Disable Resubmission' : 'Allow Resubmission' }}
                         </button>
                     </form>
+
+<script>
+const swalWithBootstrapButtons = Swal.mixin({
+    customClass: {
+        confirmButton: 'btn btn-success ms-2',
+        cancelButton: 'btn btn-danger'
+    },
+    buttonsStyling: false
+});
+
+function confirmResubmission() {
+    const isCurrentlyAllowed = {{ $header->allow_resubmit ? 'true' : 'false' }};
+    const actionText = isCurrentlyAllowed ? 'disable' : 'enable';
+    const actionTitle = `Are you sure you want to ${actionText} resubmission?`;
+    const actionDesc = isCurrentlyAllowed ? 
+        'This will prevent the user from submitting another response.' : 
+        'This will allow the user to submit another response.';
+
+    swalWithBootstrapButtons.fire({
+        title: actionTitle,
+        text: actionDesc,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: `Yes, ${actionText} it!`,
+        cancelButtonText: 'No, cancel!',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('resubmissionForm').submit();
+        }
+    });
+}
+</script>
                 </div>
 
                 <div class="card-body p-4">

@@ -8,7 +8,7 @@
                 <div class="card-header bg-white py-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <h3 class="mb-0 fw-bold">Edit Question</h3>
-                        <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-outline-secondary btn-sm">
+                        <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-outline-secondary btn-sm" id="closeButton">
                             <i class="bi bi-x-lg"></i>
                         </a>
                     </div>
@@ -16,7 +16,7 @@
                 </div>
 
                 <div class="card-body p-4">
-                    <form action="{{ route('admin.surveys.questions.update', [$survey, $question]) }}" method="POST">
+                    <form id="updateQuestionForm" action="{{ route('admin.surveys.questions.update', [$survey, $question]) }}" method="POST">
                         @csrf
                         @method('PUT')
 
@@ -71,14 +71,45 @@
     </div>
 </div>
 
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const typeSelect = document.getElementById('type');
-    const optionsContainer = document.getElementById('optionsContainer');
-    const form = document.querySelector('form');
-    const textInput = document.getElementById('text');
+    // Close button confirmation
+    document.getElementById('closeButton').addEventListener('click', function(event) {
+        event.preventDefault();
+        
+        swalWithBootstrapButtons.fire({
+            title: "Are you sure?",
+            text: "Any unsaved changes will be lost!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, leave page",
+            cancelButtonText: "No, stay here",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = this.getAttribute('href');
+            }
+        });
+    });
 
-    // Add form submission handler to check for punctuation
+    const typeSelect = document.getElementById('type');
+    const form = document.getElementById('updateQuestionForm');
+    const textInput = document.getElementById('text');
+    
+    // SweetAlert2 configuration
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+            confirmButton: "btn btn-success me-3",
+            cancelButton: "btn btn-outline-danger",
+            actions: 'gap-2 justify-content-center'
+        },
+        buttonsStyling: false
+    });
+
+    // Add form submission handler to check for punctuation and show confirmation
     form.addEventListener('submit', function(event) {
         // Prevent the default submission temporarily
         event.preventDefault();
@@ -93,10 +124,28 @@ document.addEventListener('DOMContentLoaded', function() {
             textInput.value = textInput.value.charAt(0).toUpperCase() + textInput.value.slice(1);
         }
         
-        console.log('Form submitted with text: ' + textInput.value);
-        
-        // Continue with form submission
-        form.submit();
+        // Show confirmation dialog
+        swalWithBootstrapButtons.fire({
+            title: "Are you sure?",
+            text: "Do you want to update this question?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, update it!",
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Submit the form if confirmed
+                console.log('Form submitted with text: ' + textInput.value);
+                form.submit();
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                swalWithBootstrapButtons.fire({
+                    title: "Cancelled",
+                    text: "Your question remains unchanged",
+                    icon: "error"
+                });
+            }
+        });
     });
 
     function toggleOptionsContainer() {
@@ -104,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
             optionsContainer.style.display = 'block';
             // Add at least two options if none exist
             const optionsList = document.getElementById('optionsList');
-            if (optionsList.children.length === 0) {
+            if (optionsList && optionsList.children.length === 0) {
                 addOption();
                 addOption();
             }

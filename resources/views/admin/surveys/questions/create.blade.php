@@ -16,7 +16,7 @@
                 </div>
 
                 <div class="card-body p-4">
-                    <form action="{{ route('admin.surveys.questions.store', $survey) }}" method="POST">
+                    <form action="{{ route('admin.surveys.questions.store', $survey) }}" method="POST" id="questionForm">
                         @csrf
 
                         <div class="mb-4">
@@ -64,16 +64,46 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const typeSelect = document.getElementById('type');
     const optionsContainer = document.getElementById('optionsContainer');
-    const form = document.querySelector('form');
+    const form = document.getElementById('questionForm');
     const textInput = document.getElementById('text');
+    const closeButton = document.querySelector('.btn-outline-secondary');
 
-    // Add form submission handler to check for punctuation
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+            confirmButton: "btn btn-success me-3",
+            cancelButton: "btn btn-outline-danger",
+            actions: 'gap-2 justify-content-center'
+        },
+        buttonsStyling: false
+    });
+
+    // Add close button confirmation
+    closeButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        
+        swalWithBootstrapButtons.fire({
+            title: 'Leave Page',
+            text: 'Are you sure you want to leave? Any unsaved changes will be lost.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, leave page',
+            cancelButtonText: 'No, stay here',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = closeButton.href;
+            }
+        });
+    });
+
+    // Add form submission handler
     form.addEventListener('submit', function(event) {
-        // Prevent the default submission temporarily
         event.preventDefault();
         
         // Add period if question doesn't end with punctuation
@@ -85,11 +115,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if (textInput.value) {
             textInput.value = textInput.value.charAt(0).toUpperCase() + textInput.value.slice(1);
         }
-        
-        console.log('Form submitted with text: ' + textInput.value);
-        
-        // Continue with form submission
-        form.submit();
+
+        swalWithBootstrapButtons.fire({
+            title: 'Save Question',
+            text: 'Are you sure you want to save this question?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, save it!',
+            cancelButtonText: 'No, cancel',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
     });
 
     typeSelect.addEventListener('change', function() {

@@ -2,6 +2,7 @@
 
 @section('content')
 <script src="{{ asset('js/lib/smooth-pagination.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <div class="container-fluid py-4 px-4" style="background-color: var(--background-color)">
     <div class="row justify-content-center">
         <div class="col-12">
@@ -623,6 +624,16 @@
             });
         }
         
+        // SweetAlert2 configuration
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success me-3",
+                cancelButton: "btn btn-outline-danger",
+                actions: 'gap-2 justify-content-center'
+            },
+            buttonsStyling: false
+        });
+        
         // Send broadcast functionality
         const sendBroadcastBtn = document.querySelector('.send-broadcast-btn');
         if (sendBroadcastBtn) {
@@ -632,44 +643,70 @@
                     .map(checkbox => checkbox.value);
                 
                 if (selectedCustomers.length === 0) {
-                    alert('Please select at least one customer');
+                    Swal.fire({
+                        title: "No customers selected",
+                        text: "Please select at least one customer",
+                        icon: "warning"
+                    });
                     return;
                 }
                 
-                // Show loading state
-                this.disabled = true;
-                this.querySelector('.spinner-border').classList.remove('d-none');
-                
-                // Send broadcast request
-                fetch(`/admin/surveys/${surveyId}/broadcast`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        customer_ids: selectedCustomers
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Hide modal
-                    bootstrap.Modal.getInstance(document.getElementById('broadcastModal')).hide();
-                    
-                    // Show success notification
-                    showBroadcastSuccess(data.message);
-                    
-                    // Reset button state
-                    sendBroadcastBtn.disabled = false;
-                    sendBroadcastBtn.querySelector('.spinner-border').classList.add('d-none');
-                })
-                .catch(error => {
-                    console.error('Error sending broadcast:', error);
-                    alert('Failed to send broadcast. Please try again.');
-                    
-                    // Reset button state
-                    sendBroadcastBtn.disabled = false;
-                    sendBroadcastBtn.querySelector('.spinner-border').classList.add('d-none');
+                // Show confirmation dialog
+                swalWithBootstrapButtons.fire({
+                    title: "Send Survey Invitations?",
+                    text: `You are about to send invitations to ${selectedCustomers.length} customers. Continue?`,
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, send invitations!",
+                    cancelButtonText: "No, cancel!",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Show loading state
+                        sendBroadcastBtn.disabled = true;
+                        sendBroadcastBtn.querySelector('.spinner-border').classList.remove('d-none');
+                        
+                        // Send broadcast request
+                        fetch(`/admin/surveys/${surveyId}/broadcast`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                customer_ids: selectedCustomers
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            // Hide modal
+                            bootstrap.Modal.getInstance(document.getElementById('broadcastModal')).hide();
+                            
+                            // Show success notification
+                            swalWithBootstrapButtons.fire({
+                                title: "Sent!",
+                                text: data.message,
+                                icon: "success"
+                            });
+                            
+                            // Reset button state
+                            sendBroadcastBtn.disabled = false;
+                            sendBroadcastBtn.querySelector('.spinner-border').classList.add('d-none');
+                        })
+                        .catch(error => {
+                            console.error('Error sending broadcast:', error);
+                            
+                            swalWithBootstrapButtons.fire({
+                                title: "Error!",
+                                text: "Failed to send broadcast. Please try again.",
+                                icon: "error"
+                            });
+                            
+                            // Reset button state
+                            sendBroadcastBtn.disabled = false;
+                            sendBroadcastBtn.querySelector('.spinner-border').classList.add('d-none');
+                        });
+                    }
                 });
             });
         }
@@ -779,6 +816,44 @@
                 }, 300);
             }, 5000);
         }
+        
+        // Add event listeners for cancel and close buttons
+        document.getElementById('cancelBroadcastBtn').addEventListener('click', function() {
+            swalWithBootstrapButtons.fire({
+                title: "Cancel broadcast?",
+                text: "Are you sure you want to cancel this broadcast?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, cancel it!",
+                cancelButtonText: "No, continue!",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    bootstrap.Modal.getInstance(document.getElementById('broadcastModal')).hide();
+                    swalWithBootstrapButtons.fire({
+                        title: "Cancelled",
+                        text: "Broadcast has been cancelled.",
+                        icon: "info"
+                    });
+                }
+            });
+        });
+        
+        document.getElementById('closeBroadcastBtn').addEventListener('click', function() {
+            swalWithBootstrapButtons.fire({
+                title: "Close broadcast?",
+                text: "Are you sure you want to close this broadcast window?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, close it!",
+                cancelButtonText: "No, stay here!",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    bootstrap.Modal.getInstance(document.getElementById('broadcastModal')).hide();
+                }
+            });
+        });
     });
 </script>
 
@@ -788,7 +863,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="broadcastModalLabel">Broadcast Survey</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" id="closeBroadcastBtn" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
@@ -816,7 +891,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" id="cancelBroadcastBtn">Cancel</button>
                 <button type="button" class="btn btn-primary send-broadcast-btn" disabled>
                     <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
                     <i class="fas fa-paper-plane me-1"></i> Send Invitations

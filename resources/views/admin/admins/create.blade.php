@@ -1,13 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <span class="fw-bold">{{ __('Add New Admin') }}</span>
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-light btn-sm">
+                    <a href="javascript:void(0)" id="closeFormBtn" class="btn btn-outline-light btn-sm">
                         <i class="bi bi-x-lg"></i>
                     </a>
                 </div>
@@ -19,7 +21,7 @@
                         </div>
                     @endif
                     
-                    <form method="POST" action="{{ route('admin.admins.store') }}">
+                    <form method="POST" action="{{ route('admin.admins.store') }}" id="adminForm">
                         @csrf
 
                         <div class="row mb-3">
@@ -67,7 +69,7 @@
 
                         <div class="row mb-0">
                             <div class="col-md-6 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="button" id="submitBtn" class="btn btn-primary">
                                     {{ __('Add Admin') }}
                                 </button>
                             </div>
@@ -112,4 +114,60 @@
         color: var(--text-color);
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // SweetAlert2 configuration
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success me-3",
+                cancelButton: "btn btn-outline-danger",
+                actions: 'gap-2 justify-content-center'
+            },
+            buttonsStyling: false
+        });
+
+        // Handle form submission with confirmation
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            swalWithBootstrapButtons.fire({
+                title: "Confirm Admin Creation",
+                text: "Are you sure you want to add this admin?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Yes, add admin!",
+                cancelButtonText: "No, cancel!",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Submit the form
+                    document.getElementById('adminForm').submit();
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    swalWithBootstrapButtons.fire({
+                        title: "Cancelled",
+                        text: "Admin creation was cancelled",
+                        icon: "error"
+                    });
+                }
+            });
+        });
+
+        // Handle close button with confirmation
+        document.getElementById('closeFormBtn').addEventListener('click', function() {
+            swalWithBootstrapButtons.fire({
+                title: "Discard Changes?",
+                text: "Any unsaved changes will be lost!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, leave page!",
+                cancelButtonText: "No, stay here!",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Redirect to dashboard
+                    window.location.href = "{{ route('admin.dashboard') }}";
+                }
+            });
+        });
+    });
+</script>
 @endsection

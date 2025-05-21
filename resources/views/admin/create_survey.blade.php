@@ -80,7 +80,17 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+            confirmButton: "btn btn-success me-3",
+            cancelButton: "btn btn-outline-danger",
+            actions: 'gap-2 justify-content-center'
+        },
+        buttonsStyling: false
+    });
+
     // Logo preview functionality
     document.getElementById('logo').addEventListener('change', function(e) {
         const file = e.target.files[0];
@@ -159,15 +169,29 @@
     }
     
     function removeQuestion(button) {
-        if (!confirm('Are you sure you want to remove this question?')) {
-            return;
-        }
-        const card = button.closest('.question-card');
-        card.style.opacity = '0';
-        setTimeout(() => {
-            card.remove();
-            updateQuestionNumbers();
-        }, 300);
+        swalWithBootstrapButtons.fire({
+            title: "Remove Question?",
+            text: "Are you sure you want to remove this question? This cannot be undone!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, remove it!",
+            cancelButtonText: "No, keep it!",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const card = button.closest('.question-card');
+                card.style.opacity = '0';
+                setTimeout(() => {
+                    card.remove();
+                    updateQuestionNumbers();
+                    swalWithBootstrapButtons.fire({
+                        title: "Removed!",
+                        text: "The question has been removed.",
+                        icon: "success"
+                    });
+                }, 300);
+            }
+        });
     }
 
     function updateQuestionNumbers() {
@@ -196,13 +220,21 @@
         
         const logo = document.getElementById('logo');
         if (!logo.files || logo.files.length === 0) {
-            alert('Please upload a survey logo.');
+            swalWithBootstrapButtons.fire({
+                title: "Error!",
+                text: "Please upload a survey logo.",
+                icon: "error"
+            });
             logo.focus();
             return false;
         }
 
         if (document.getElementById('questions-container').children.length === 0) {
-            alert('Please add at least one question to the survey.');
+            swalWithBootstrapButtons.fire({
+                title: "Error!",
+                text: "Please add at least one question to the survey.",
+                icon: "error"
+            });
             return false;
         }
 
@@ -216,19 +248,37 @@
             console.log('Question updated: ' + input.value);
         });
         
-        if (!confirm('Are you sure you want to submit the survey?')) {
-            return;
-        }
-
-        // Continue with form submission
-        this.submit();
+        swalWithBootstrapButtons.fire({
+            title: "Create Survey?",
+            text: "Are you sure you want to create this survey?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Yes, create it!",
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Continue with form submission
+                this.submit();
+            }
+        });
     });
 
     document.getElementById('closeFormBtn').addEventListener('click', function(e) {
         e.preventDefault();
-        if (confirm('Are you sure you want to close the form? Any unsaved changes will be lost.')) {
-            window.location.href = this.href;
-        }
+        swalWithBootstrapButtons.fire({
+            title: "Close Form?",
+            text: "Are you sure you want to close the form? Any unsaved changes will be lost!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, close it!",
+            cancelButtonText: "No, keep editing!",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = this.href;
+            }
+        });
     });
     
     // Add first question by default

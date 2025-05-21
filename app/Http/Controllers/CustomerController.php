@@ -57,12 +57,47 @@ class CustomerController extends Controller
     public function update(Request $request, $id)
     {
         // Validate the request data
-        $request->validate([
+        $validator = validator([
+            'phone' => $request->phone,
+            'email' => $request->email,
+        ], [
             'phone' => 'required|string|max:20',
             'email' => 'nullable|email|max:255',
         ]);
         
-        // Update the customer record
+        // Check if phone number already exists for another customer
+        $existingPhone = DB::table('TBLCUSTOMER')
+            ->where('CONTACTCELLNUMBER', $request->phone)
+            ->where('id', '!=', $id)
+            ->first(['id', 'CUSTNAME']);
+            
+        if ($existingPhone) {
+            return response()->json([
+                'success' => false,
+                'errors' => [
+                    'phone' => ['This phone number is already used by customer: ' . $existingPhone->CUSTNAME]
+                ]
+            ], 422);
+        }
+        
+        // Check if email already exists for another customer (if provided)
+        if ($request->email) {
+            $existingEmail = DB::table('TBLCUSTOMER')
+                ->where('EMAIL', $request->email)
+                ->where('id', '!=', $id)
+                ->first(['id', 'CUSTNAME']);
+                
+            if ($existingEmail) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => [
+                        'email' => ['This email is already used by customer: ' . $existingEmail->CUSTNAME]
+                    ]
+                ], 422);
+            }
+        }
+        
+        // If validation passes, update the customer record
         DB::table('TBLCUSTOMER')
             ->where('id', $id)
             ->update([
@@ -76,4 +111,5 @@ class CustomerController extends Controller
             'message' => 'Customer contact information updated successfully!'
         ]);
     }
-}
+    }
+

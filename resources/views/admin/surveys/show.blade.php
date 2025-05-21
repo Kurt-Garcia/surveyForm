@@ -19,20 +19,19 @@
                             </p>
                         </div>
                         <div class="d-flex flex-wrap gap-2">
-                            <form action="{{ route('admin.surveys.toggle-status', $survey) }}" method="POST" class="d-inline">
+                            <form action="{{ route('admin.surveys.toggle-status', $survey) }}" method="POST" class="d-inline" id="toggleSurveyForm">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" class="btn {{ $survey->is_active ? 'btn-soft-danger' : 'btn-soft-success' }} btn-sm btn-md">
+                                <button type="submit" class="btn {{ $survey->is_active ? 'btn-soft-danger' : 'btn-soft-success' }} btn-sm btn-md" id="toggleSurveyBtn">
                                     <i class="bi {{ $survey->is_active ? 'bi-pause-circle' : 'bi-play-circle' }} me-2"></i>
                                     <span class="d-none d-md-inline">{{ $survey->is_active ? 'Pause' : 'Activate' }} Survey</span>
                                     <span class="d-md-none">{{ $survey->is_active ? 'Pause' : 'Activate' }}</span>
                                 </button>
                             </form>
-                            <form action="{{ route('admin.surveys.destroy', $survey) }}" method="POST" class="d-inline">
+                            <form action="{{ route('admin.surveys.destroy', $survey) }}" method="POST" class="d-inline" id="deleteSurveyForm">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-outline-danger btn-sm btn-md"
-                                    onclick="return confirm('Are you sure you want to delete this survey? This action cannot be undone.')">
+                                <button type="submit" class="btn btn-outline-danger btn-sm btn-md" id="deleteSurveyBtn">
                                     <i class="bi bi-trash me-2"></i>
                                     <span class="d-none d-md-inline">Delete Survey</span>
                                     <span class="d-md-none">Delete</span>
@@ -80,7 +79,7 @@
                                         <i class="bi bi-cloud-upload me-2"></i>Update Logo
                                     </button>
                                     @if($survey->logo)
-                                        <button type="submit" name="remove_logo" value="1" class="btn btn-outline-danger ms-0 ms-sm-2 mt-2 mt-sm-0" onclick="return confirm('Are you sure you want to remove the logo?')">
+                                        <button type="submit" name="remove_logo" value="1" class="btn btn-outline-danger ms-0 ms-sm-2 mt-2 mt-sm-0">
                                             <i class="bi bi-trash me-2"></i>Remove Logo
                                         </button>
                                     @endif
@@ -147,15 +146,14 @@
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
                                                 <form action="{{ route('admin.surveys.questions.destroy', [$survey, $question]) }}" 
-                                                      method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-light btn-sm text-danger" 
-                                                            onclick="return confirm('Are you sure you want to delete this question?')"
-                                                            title="Delete Question">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </form>
+                                      method="POST" class="d-inline delete-question-form" id="deleteQuestionForm{{ $question->id }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-light btn-sm text-danger delete-question-btn" 
+                                            title="Delete Question" id="deleteQuestionBtn{{ $question->id }}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
                                             </div>
                                         </div>
                                     </div>
@@ -289,13 +287,181 @@
 }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
+// SweetAlert2 configuration
+const swalWithBootstrapButtons = Swal.mixin({
+    customClass: {
+        confirmButton: "btn btn-success me-3",
+        cancelButton: "btn btn-outline-danger",
+        actions: 'gap-2 justify-content-center'
+    },
+    buttonsStyling: false
+});
+
+// Delete Survey confirmation
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle Toggle Survey Status button
+    const toggleSurveyForm = document.getElementById('toggleSurveyForm');
+    if (toggleSurveyForm) {
+        toggleSurveyForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const isCurrentlyActive = toggleSurveyForm.querySelector('.btn-soft-danger') !== null;
+            const actionText = isCurrentlyActive ? 'pause' : 'activate';
+            
+            swalWithBootstrapButtons.fire({
+                title: `Are you sure?`,
+                text: `Do you want to ${actionText} this survey?`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: `Yes, ${actionText} it!`,
+                cancelButtonText: "No, cancel!",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    swalWithBootstrapButtons.fire({
+                        title: `${actionText.charAt(0).toUpperCase() + actionText.slice(1)}d!`,
+                        text: `Survey has been ${actionText}d successfully.`,
+                        icon: "success"
+                    });
+                    toggleSurveyForm.submit();
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    swalWithBootstrapButtons.fire({
+                        title: "Cancelled",
+                        text: "No changes were made to the survey status.",
+                        icon: "error"
+                    });
+                }
+            });
+        });
+    }
+
+    // Handle Delete Survey button
+    const deleteSurveyForm = document.getElementById('deleteSurveyForm');
+    if (deleteSurveyForm) {
+        deleteSurveyForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            swalWithBootstrapButtons.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this! This will permanently delete the survey and all associated data.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "No, cancel!",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    swalWithBootstrapButtons.fire({
+                        title: "Deleted!",
+                        text: "Your file has been deleted.",
+                        icon: "success"
+                    });
+                    deleteSurveyForm.submit();
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    swalWithBootstrapButtons.fire({
+                        title: "Cancelled",
+                        text: "Your survey is safe :)",
+                        icon: "error"
+                    });
+                }
+            });
+        });
+    }
+    
+    // Handle Delete Question buttons
+    const deleteQuestionForms = document.querySelectorAll('.delete-question-form');
+    deleteQuestionForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            swalWithBootstrapButtons.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this! This will permanently delete this question.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "No, cancel!",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    swalWithBootstrapButtons.fire({
+                        title: "Deleted!",
+                        text: "Your file has been deleted.",
+                        icon: "success"
+                    });
+                    form.submit();
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    swalWithBootstrapButtons.fire({
+                        title: "Cancelled",
+                        text: "Your question is safe :)",
+                        icon: "error"
+                    });
+                }
+            });
+        });
+    });
+    
+    // Handle Remove Logo button
+    const removeLogoButton = document.querySelector('button[name="remove_logo"]');
+    if (removeLogoButton) {
+        removeLogoButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const form = e.target.closest('form');
+            
+            swalWithBootstrapButtons.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this! This will remove the survey logo.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, remove it!",
+                cancelButtonText: "No, cancel!",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Create a hidden input for remove_logo
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'remove_logo';
+                    hiddenInput.value = '1';
+                    form.appendChild(hiddenInput);
+                    
+                    // Clear the file input
+                    document.getElementById('logo').value = '';
+                    
+                    // Submit the form
+                    form.submit();
+                    
+                    // Show success message
+                    swalWithBootstrapButtons.fire({
+                        title: "Removed!",
+                        text: "Your logo has been removed.",
+                        icon: "success"
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    swalWithBootstrapButtons.fire({
+                        title: "Cancelled",
+                        text: "Your logo is safe :)",
+                        icon: "error"
+                    });
+                }
+            });
+        });
+    }
+});
+
 // Logo preview functionality
 document.getElementById('logo').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
         if (file.size > 2 * 1024 * 1024) { // 2MB limit
-            alert('File size must be less than 2MB');
+            Swal.fire({
+                title: "File too large",
+                text: "File size must be less than 2MB",
+                icon: "error"
+            });
             this.value = '';
             return;
         }
