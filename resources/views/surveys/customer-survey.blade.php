@@ -60,6 +60,7 @@
             <input type="hidden" name="survey_id" value="{{ $survey->id }}">
             <input type="hidden" name="start_time" id="start_time">
             <input type="hidden" name="end_time" id="end_time">
+            <input type="hidden" name="duration" id="duration">
             
             <!-- Validation Alert Container -->
             <div id="validationAlertContainer font-theme" class="alert alert-danger mb-4 d-none">
@@ -222,7 +223,7 @@ $(document).ready(function() {
         
         // Initialize start time when the form is first loaded
         const startTime = new Date();
-        $('#start_time').val(startTime.toISOString());
+        $('#start_time').val(startTime.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
     }
     
     // Function to close notification
@@ -424,7 +425,13 @@ $(document).ready(function() {
         event.preventDefault();
         // Set end time
         const endTime = new Date();
-        $('#end_time').val(endTime.toISOString());
+        $('#end_time').val(endTime.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
+        
+        // Calculate duration in minutes
+        const startTime = new Date($('#start_time').val());
+        const durationInMinutes = Math.round((endTime - startTime) / (1000 * 60));
+        $('#duration').val(durationInMinutes);
+
         // Client-side validation
         if (!validateForm()) {
             return;
