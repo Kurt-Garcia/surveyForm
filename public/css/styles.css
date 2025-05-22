@@ -292,8 +292,14 @@ body {
 .modern-rating-group-display {
     display: flex;
     justify-content: center;
-    gap: 5vw;
-    flex-wrap: wrap;
+    gap: 6vw;
+    flex-wrap: nowrap;
+}
+
+@media (max-width: 480px) {
+    .modern-rating-group-display {
+        gap: 5px;
+    }
 }
 
 .modern-radio input {
