@@ -6,6 +6,8 @@
 <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <style>
     :root {
         --primary-color: {{ $activeTheme->primary_color ?? '#E53935' }};
@@ -47,17 +49,9 @@
 
     <div class="survey-container">
         <div class="survey-header">
-            <a href="#" class="close-button" onclick="confirmClose(event)">
+            <a href="javascript:void(0);" class="close-button" id="closeFormButton" data-bs-toggle="tooltip" data-bs-placement="top" title="Go Back To Home">
                 <i class="fas fa-times"></i>
             </a>
-            <script>
-            function confirmClose(event) {
-                event.preventDefault();
-                if (confirm('Are you sure you want to close this form? Any unsaved changes will be lost.')) {
-                    window.location.href = '{{ route("index") }}';
-                }
-            }
-            </script>
             @if($survey->logo)
             <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="survey-logo">
             @else
@@ -289,6 +283,10 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 $(document).ready(function() {
     // Auto-hide notification after 2 seconds
@@ -531,8 +529,29 @@ $(document).ready(function() {
             return false;
         }
         
-        // Record end time
-        $('#end_time').val(new Date().toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
+        // Show SweetAlert2 confirmation before submission
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success me-3",
+                cancelButton: "btn btn-outline-danger",
+                actions: 'gap-2 justify-content-center'
+            },
+            buttonsStyling: false
+        });
+        
+        swalWithBootstrapButtons.fire({
+            title: "Submit Survey?",
+            text: "Please confirm if you want to submit this survey. You won't be able to modify your answers after submission!",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Yes, submit it!",
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Continue with form submission
+                // Record end time
+                $('#end_time').val(new Date().toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
         
         // Collect form data
         const formData = new FormData(this);
@@ -564,6 +583,13 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
+                    // Show SweetAlert2 success message
+                    swalWithBootstrapButtons.fire({
+                        title: "Thank You!",
+                        text: "Your survey has been successfully submitted.",
+                        icon: "success"
+                    });
+                    
                     $('#successMessage').removeClass('d-none');
                     $('#errorMessage').addClass('d-none');
                     
@@ -635,6 +661,13 @@ $(document).ready(function() {
             error: function(xhr) {
                 console.log('Error response:', xhr.responseJSON);
                 
+                // Show SweetAlert2 error message
+                swalWithBootstrapButtons.fire({
+                    title: "Error!",
+                    text: "There was a problem submitting your survey. Please check your inputs and try again.",
+                    icon: "error"
+                });
+                
                 // Clear previous success message and show error message
                 $('#successMessage').addClass('d-none');
                 $('#errorMessage').removeClass('d-none');
@@ -695,6 +728,15 @@ $(document).ready(function() {
                     `);
                 }
                 thankYouModal.show();
+            }
+        });
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                // User cancelled the submission
+                swalWithBootstrapButtons.fire({
+                    title: "Cancelled",
+                    text: "Your survey has not been submitted. You can continue editing your responses.",
+                    icon: "info"
+                });
             }
         });
     });
@@ -787,6 +829,37 @@ function showResponseSummaryModal() {
 function closeNotification(id) {
     document.getElementById(id).style.display = 'none';
 }
+
+// Close form button with SweetAlert2 confirmation
+$(document).ready(function() {
+    $('#closeFormButton').on('click', function(e) {
+        e.preventDefault();
+        
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success me-3",
+                cancelButton: "btn btn-outline-danger",
+                actions: 'gap-2 justify-content-center'
+            },
+            buttonsStyling: false
+        });
+        
+        swalWithBootstrapButtons.fire({
+            title: "Exit Survey?",
+            text: "Are you sure you want to leave? Any unsaved responses will be lost.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, exit!",
+            cancelButtonText: "No, stay!",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to the index page
+                window.location.href = "{{ route('index', $survey) }}";
+            }
+        });
+    });
+});
 </script>
 
 <style>

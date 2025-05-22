@@ -9,7 +9,7 @@
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <span class="fw-bold">{{ __('Add New Admin') }}</span>
-                    <a href="javascript:void(0)" id="closeFormBtn" class="btn btn-outline-light btn-sm">
+                    <a href="javascript:void(0)" id="closeFormBtn" class="btn btn-outline-light btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Go Back To Home">
                         <i class="bi bi-x-lg"></i>
                     </a>
                 </div>

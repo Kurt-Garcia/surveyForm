@@ -8,7 +8,7 @@
                 <div class="card-header bg-white py-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <h3 class="mb-0 fw-bold">Add Question</h3>
-                        <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-outline-secondary btn-sm">
+                        <a href="{{ route('admin.surveys.show', $survey) }}" class="btn btn-outline-secondary btn-sm"  data-bs-toggle="tooltip" data-bs-placement="top" title="Go Back To Home">
                             <i class="bi bi-x-lg"></i>
                         </a>
                     </div>

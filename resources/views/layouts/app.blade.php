@@ -115,9 +115,9 @@
                         $activeLogo = \App\Models\Logo::where('is_active', true)->first();
                     @endphp
                     @if($activeLogo)
-                        <img src="{{ asset('storage/' . $activeLogo->file_path) }}" alt="Logo" class="logo" style="min-width: 50px; max-width: 150px; min-height: 30px; max-height: 60px; object-fit: contain;">
+                        <img src="{{ asset('storage/' . $activeLogo->file_path) }}" alt="Logo" class="logo" style="min-width: 50px; max-width: 150px; min-height: 30px; max-height: 35px; object-fit: contain;">
                     @else
-                        <img src="{{ asset('img/logo.png') }}" alt="Logo" class="logo" style="min-width: 50px; max-width: 150px; min-height: 30px; max-height: 60px; object-fit: contain;">
+                        <img src="{{ asset('img/logo.png') }}" alt="Logo" class="logo" style="min-width: 50px; max-width: 150px; min-height: 30px; max-height: 35px; object-fit: contain;">
                     @endif
                 </a>
                 <button class="navbar-toggler" type="button" aria-label="Toggle navigation" id="offcanvasToggle">

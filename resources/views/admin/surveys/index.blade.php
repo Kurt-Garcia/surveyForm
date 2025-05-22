@@ -662,49 +662,77 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Show loading state
-                        sendBroadcastBtn.disabled = true;
-                        sendBroadcastBtn.querySelector('.spinner-border').classList.remove('d-none');
-                        
-                        // Send broadcast request
-                        fetch(`/admin/surveys/${surveyId}/broadcast`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            },
-                            body: JSON.stringify({
-                                customer_ids: selectedCustomers
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            // Hide modal
-                            bootstrap.Modal.getInstance(document.getElementById('broadcastModal')).hide();
-                            
-                            // Show success notification
-                            swalWithBootstrapButtons.fire({
-                                title: "Sent!",
-                                text: data.message,
-                                icon: "success"
-                            });
-                            
-                            // Reset button state
-                            sendBroadcastBtn.disabled = false;
-                            sendBroadcastBtn.querySelector('.spinner-border').classList.add('d-none');
-                        })
-                        .catch(error => {
-                            console.error('Error sending broadcast:', error);
-                            
-                            swalWithBootstrapButtons.fire({
-                                title: "Error!",
-                                text: "Failed to send broadcast. Please try again.",
-                                icon: "error"
-                            });
-                            
-                            // Reset button state
-                            sendBroadcastBtn.disabled = false;
-                            sendBroadcastBtn.querySelector('.spinner-border').classList.add('d-none');
+                        // Show progress dialog
+                        let timerInterval;
+                        const totalCustomers = selectedCustomers.length;
+                        let currentProgress = 0;
+
+                        const progressSwal = Swal.fire({
+                            title: 'Sending Invitations',
+                            html: `
+                                <div class="text-center mb-3">
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+                                             role="progressbar" 
+                                             style="width: 0%" 
+                                             aria-valuenow="0" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <span class="sent-count">0</span> of <span class="total-count">${totalCustomers}</span> invitations sent
+                                    </div>
+                                </div>
+                            `,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                const progressBar = Swal.getHtmlContainer().querySelector('.progress-bar');
+                                const sentCount = Swal.getHtmlContainer().querySelector('.sent-count');
+                                
+                                // Send broadcast request
+                                fetch(`/admin/surveys/${surveyId}/broadcast`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                    },
+                                    body: JSON.stringify({
+                                        customer_ids: selectedCustomers
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    // Simulate progress (since we don't have real-time progress)
+                                    const interval = setInterval(() => {
+                                        currentProgress += 5;
+                                        if (currentProgress <= 100) {
+                                            progressBar.style.width = `${currentProgress}%`;
+                                            progressBar.setAttribute('aria-valuenow', currentProgress);
+                                            sentCount.textContent = Math.floor((currentProgress / 100) * totalCustomers);
+                                        } else {
+                                            clearInterval(interval);
+                                            // Hide modal and show success
+                                            bootstrap.Modal.getInstance(document.getElementById('broadcastModal')).hide();
+                                            Swal.fire({
+                                                title: 'Success!',
+                                                text: data.message,
+                                                icon: 'success'
+                                            });
+                                        }
+                                    }, 100);
+                                })
+                                .catch(error => {
+                                    console.error('Error sending broadcast:', error);
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: 'Failed to send broadcast. Please try again.',
+                                        icon: 'error'
+                                    });
+                                });
+                            }
                         });
                     }
                 });

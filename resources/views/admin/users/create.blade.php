@@ -9,7 +9,7 @@
             <div class="card shadow-sm border-0 rounded-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span class="fw-bold">{{ __('Add New User') }}</span>
-                    <a href="javascript:void(0)" onclick="confirmClose()" class="btn btn-outline-secondary btn-sm">
+                    <a href="javascript:void(0)" onclick="confirmClose()" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Go Back To Home">
                         <i class="bi bi-x-lg"></i>
                     </a>
                 </div>

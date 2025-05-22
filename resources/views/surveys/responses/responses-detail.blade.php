@@ -64,7 +64,22 @@
                         </form>
                     </div>
 
+                    <!-- SweetAlert2 CSS -->
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+                    <!-- SweetAlert2 JS -->
+                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                    
                     <script>
+                    // SweetAlert2 configuration
+                    const swalWithBootstrapButtons = Swal.mixin({
+                        customClass: {
+                            confirmButton: "btn btn-success me-3",
+                            cancelButton: "btn btn-outline-danger",
+                            actions: 'gap-2 justify-content-center'
+                        },
+                        buttonsStyling: false
+                    });
+                    
                     // Copy Link button functionality
                     function setupCopyLinkButton() {
                         const copyLinkBtn = document.getElementById('copyLinkBtn');
@@ -98,80 +113,96 @@
                     // Initial setup of copy link button
                     setupCopyLinkButton();
 
+                    // Function to confirm resubmission status change
+                    function confirmResubmissionChange() {
+                        const isCurrentlyAllowed = {{ $response->allow_resubmit ? 'true' : 'false' }};
+                        const title = isCurrentlyAllowed ? "Disable Resubmission?" : "Allow Resubmission?";
+                        const text = isCurrentlyAllowed 
+                            ? "This will prevent the customer from submitting new responses. Are you sure?" 
+                            : "This will allow the customer to submit new responses. Are you sure?";
+                        const confirmButtonText = isCurrentlyAllowed ? "Yes, disable it" : "Yes, allow it";
+                        
+                        return swalWithBootstrapButtons.fire({
+                            title: title,
+                            text: text,
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: confirmButtonText,
+                            cancelButtonText: "No, cancel",
+                            reverseButtons: true
+                        });
+                    }
+
                     document.getElementById('resubmissionForm').addEventListener('submit', function(e) {
                         e.preventDefault();
                         
-                        fetch(this.action, {
-                            method: 'PATCH',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({})
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                const button = document.getElementById('resubmissionButton');
-                                const icon = document.getElementById('resubmissionIcon');
-                                const text = document.getElementById('resubmissionText');
-                                const copyLinkSection = document.getElementById('copyLinkSection');
-                                
-                                if (data.allow_resubmission) {
-                                    button.classList.remove('btn-success');
-                                    button.classList.add('btn-warning');
-                                    icon.classList.remove('fa-unlock');
-                                    icon.classList.add('fa-lock');
-                                    text.textContent = 'Disable Resubmission';
-                                    
-                                    // Create and show copy link section
-                                    if (!copyLinkSection) {
-                                        const newCopyLinkSection = document.createElement('div');
-                                        newCopyLinkSection.id = 'copyLinkSection';
-                                        newCopyLinkSection.className = 'd-inline me-2';
-                                        newCopyLinkSection.innerHTML = `
-                                            <button type="button" id="copyLinkBtn" class="btn btn-outline-primary btn-sm">
-                                                <i class="fas fa-link me-2"></i>Copy Link for Customer
-                                            </button>
-                                            <span id="copySuccess" class="text-success ms-2 d-none"><i class="fas fa-check-circle"></i> Link copied!</span>
-                                        `;
-                                        button.parentElement.insertBefore(newCopyLinkSection, button);
-                                        setupCopyLinkButton();
+                        confirmResubmissionChange().then((result) => {
+                            if (result.isConfirmed) {
+                                fetch(this.action, {
+                                    method: 'PATCH',
+                                    headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({})
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        const button = document.getElementById('resubmissionButton');
+                                        const icon = document.getElementById('resubmissionIcon');
+                                        const text = document.getElementById('resubmissionText');
+                                        const copyLinkSection = document.getElementById('copyLinkSection');
+                                        
+                                        if (data.allow_resubmission) {
+                                            button.classList.remove('btn-success');
+                                            button.classList.add('btn-warning');
+                                            icon.classList.remove('fa-unlock');
+                                            icon.classList.add('fa-lock');
+                                            text.textContent = 'Disable Resubmission';
+                                            
+                                            // Create and show copy link section
+                                            if (!copyLinkSection) {
+                                                const newCopyLinkSection = document.createElement('div');
+                                                newCopyLinkSection.id = 'copyLinkSection';
+                                                newCopyLinkSection.className = 'd-inline me-2';
+                                                newCopyLinkSection.innerHTML = `
+                                                    <button type="button" id="copyLinkBtn" class="btn btn-outline-primary btn-sm">
+                                                        <i class="fas fa-link me-2"></i>Copy Link for Customer
+                                                    </button>
+                                                    <span id="copySuccess" class="text-success ms-2 d-none"><i class="fas fa-check-circle"></i> Link copied!</span>
+                                                `;
+                                                button.parentElement.insertBefore(newCopyLinkSection, button);
+                                                setupCopyLinkButton();
+                                            }
+                                        } else {
+                                            button.classList.remove('btn-warning');
+                                            button.classList.add('btn-success');
+                                            icon.classList.remove('fa-lock');
+                                            icon.classList.add('fa-unlock');
+                                            text.textContent = 'Allow Resubmission';
+                                            
+                                            // Remove copy link section if it exists
+                                            if (copyLinkSection) {
+                                                copyLinkSection.remove();
+                                            }
+                                        }
+                                        
+                                        // Show success message with SweetAlert2
+                                        swalWithBootstrapButtons.fire({
+                                            title: "Success!",
+                                            text: data.message,
+                                            icon: "success"
+                                        });
+                                        
+                                        // No need for the traditional alert as we're using SweetAlert2
                                     }
-                                } else {
-                                    button.classList.remove('btn-warning');
-                                    button.classList.add('btn-success');
-                                    icon.classList.remove('fa-lock');
-                                    icon.classList.add('fa-unlock');
-                                    text.textContent = 'Allow Resubmission';
-                                    
-                                    // Remove copy link section if it exists
-                                    if (copyLinkSection) {
-                                        copyLinkSection.remove();
-                                    }
-                                }
-                                
-                                // Show success message
-                                const alertDiv = document.createElement('div');
-                                alertDiv.className = 'alert alert-success alert-dismissible fade show';
-                                alertDiv.innerHTML = `
-                                    <i class="fas fa-check-circle me-2"></i>${data.message}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                `;
-                                
-                                // Insert alert at the top of the card
-                                const cardHeader = document.querySelector('.card-header');
-                                cardHeader.parentNode.insertBefore(alertDiv, cardHeader);
-                                
-                                // Auto dismiss after 3 seconds
-                                setTimeout(() => {
-                                    alertDiv.remove();
-                                }, 3000);
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                });
                             }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
                         });
                     });
                     </script>

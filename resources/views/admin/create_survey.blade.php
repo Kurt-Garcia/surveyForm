@@ -7,7 +7,7 @@
             <div class="card shadow-lg border-0 rounded-lg">
                 <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
                     <h4 class="mb-0"><i class="fas fa-poll-h me-2"></i>{{ __('Create New Survey') }}</h4>
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-light btn-sm" id="closeFormBtn">
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-light btn-sm" id="closeFormBtn"  data-bs-toggle="tooltip" data-bs-placement="top" title="Go Back To Home">
                         <i class="bi bi-x-lg"></i>
                     </a>
                 </div>

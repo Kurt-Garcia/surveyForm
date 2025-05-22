@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="{{ asset('js/lib/smooth-pagination.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @if(session('warning'))
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -507,6 +508,16 @@
             });
         }
         
+        // SweetAlert2 configuration
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success me-3",
+                cancelButton: "btn btn-outline-danger",
+                actions: 'gap-2 justify-content-center'
+            },
+            buttonsStyling: false
+        });
+        
         // Send broadcast functionality
         const sendBroadcastBtn = document.querySelector('.send-broadcast-btn');
         if (sendBroadcastBtn) {
@@ -516,44 +527,117 @@
                     .map(checkbox => checkbox.value);
                 
                 if (selectedCustomers.length === 0) {
-                    alert('Please select at least one customer');
+                    swalWithBootstrapButtons.fire({
+                        title: "No customers selected",
+                        text: "Please select at least one customer to send invitations.",
+                        icon: "warning"
+                    });
                     return;
                 }
                 
-                // Show loading state
-                this.disabled = true;
-                this.querySelector('.spinner-border').classList.remove('d-none');
-                
-                // Send broadcast request
-                fetch(`/surveys/${surveyId}/broadcast`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        customer_ids: selectedCustomers
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Hide modal
-                    bootstrap.Modal.getInstance(document.getElementById('broadcastModal')).hide();
-                    
-                    // Show success notification
-                    showBroadcastSuccess(data.message);
-                    
-                    // Reset button state
-                    sendBroadcastBtn.disabled = false;
-                    sendBroadcastBtn.querySelector('.spinner-border').classList.add('d-none');
-                })
-                .catch(error => {
-                    console.error('Error sending broadcast:', error);
-                    alert('Failed to send broadcast. Please try again.');
-                    
-                    // Reset button state
-                    sendBroadcastBtn.disabled = false;
-                    sendBroadcastBtn.querySelector('.spinner-border').classList.add('d-none');
+                // Show confirmation dialog
+                swalWithBootstrapButtons.fire({
+                    title: "Send Invitations?",
+                    text: `You are about to send invitations to ${selectedCustomers.length} customers. Continue?`,
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, send invitations!",
+                    cancelButtonText: "No, cancel!",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Create and show progress modal
+                        Swal.fire({
+                            title: 'Sending Invitations',
+                            html: `
+                                <div class="progress mb-3" style="height: 20px;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                         role="progressbar" 
+                                         style="width: 0%" 
+                                         aria-valuenow="0" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        0%
+                                    </div>
+                                </div>
+                                <div class="text-muted">
+                                    <span class="sent-count">0</span> of ${selectedCustomers.length} invitations sent
+                                </div>
+                            `,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            showConfirmButton: false
+                        });
+
+                        // Send broadcast request
+                        fetch(`/surveys/${surveyId}/broadcast`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                customer_ids: selectedCustomers
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            // Calculate progress per customer
+                            const progressPerCustomer = 100 / selectedCustomers.length;
+                            let currentProgress = 0;
+                            let sentCount = 0;
+
+                            // Simulate progress for each customer
+                            const progressInterval = setInterval(() => {
+                                if (sentCount < selectedCustomers.length) {
+                                    sentCount++;
+                                    currentProgress = Math.min(progressPerCustomer * sentCount, 100);
+
+                                    // Update progress bar and count
+                                    const progressBar = document.querySelector('.progress-bar');
+                                    const sentCountElement = document.querySelector('.sent-count');
+                                    
+                                    if (progressBar && sentCountElement) {
+                                        progressBar.style.width = `${currentProgress}%`;
+                                        progressBar.setAttribute('aria-valuenow', currentProgress);
+                                        progressBar.textContent = `${Math.round(currentProgress)}%`;
+                                        sentCountElement.textContent = sentCount;
+                                    }
+
+                                    if (sentCount === selectedCustomers.length) {
+                                        clearInterval(progressInterval);
+                                        
+                                        // Close modals and show success message
+                                        setTimeout(() => {
+                                            Swal.close();
+                                            bootstrap.Modal.getInstance(document.getElementById('broadcastModal')).hide();
+                                            
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Success!',
+                                                text: 'All invitations have been sent successfully!',
+                                                timer: 3000,
+                                                showConfirmButton: false
+                                            });
+                                        }, 500);
+                                    }
+                                }
+                            }, 100); // Update every 100ms
+                        })
+                        .catch(error => {
+                            console.error('Error sending broadcast:', error);
+                            
+                            swalWithBootstrapButtons.fire({
+                                title: "Error!",
+                                text: "Failed to send invitations. Please try again.",
+                                icon: "error"
+                            });
+                            
+                            // Reset button state
+                            sendBroadcastBtn.disabled = false;
+                            sendBroadcastBtn.querySelector('.spinner-border').classList.add('d-none');
+                        });
+                    }
                 });
             });
         }
@@ -638,6 +722,46 @@
             }
         }
         
+        // Add event listeners for modal close and cancel buttons
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        
+        if (modalCloseBtn) {
+            modalCloseBtn.addEventListener('click', function() {
+                swalWithBootstrapButtons.fire({
+                    title: "Close broadcast?",
+                    text: "Are you sure you want to close without sending invitations?",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, close it!",
+                    cancelButtonText: "No, stay here!",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        bootstrap.Modal.getInstance(document.getElementById('broadcastModal')).hide();
+                    }
+                });
+            });
+        }
+        
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function() {
+                swalWithBootstrapButtons.fire({
+                    title: "Cancel broadcast?",
+                    text: "Are you sure you want to cancel sending invitations?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, cancel it!",
+                    cancelButtonText: "No, continue!",
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        bootstrap.Modal.getInstance(document.getElementById('broadcastModal')).hide();
+                    }
+                });
+            });
+        }
+        
         function showBroadcastSuccess(message) {
             // Create success notification
             const notification = document.createElement('div');
@@ -672,7 +796,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="broadcastModalLabel">Broadcast Survey</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" id="modalCloseBtn" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
@@ -700,7 +824,7 @@
                     </div>
                 </div>
                 <div class="modal-footer font-theme">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
                     <button type="button" class="btn btn-primary send-broadcast-btn" disabled>
                         <span class="spinner-border spinner-border-sm d-none me-2" role="status" aria-hidden="true"></span>
                         <i class="fas fa-paper-plane me-1"></i> Send Invitations

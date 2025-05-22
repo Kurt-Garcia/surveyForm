@@ -7,7 +7,7 @@
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h2 class="mb-0">{{ $survey->title }} - Responses</h2>
-                    <a href="{{ route('index', $survey) }}" class="notification-close" onclick="confirmClose(event)">
+                    <a href="{{ route('index', $survey) }}" class="notification-close" data-bs-toggle="tooltip" data-bs-placement="top" title="Go Back To Home">
                         <i class="fas fa-times"></i>
                     </a>
                 </div>

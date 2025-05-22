@@ -2,6 +2,8 @@
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
 <style>
     :root {
@@ -184,6 +186,8 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(document).ready(function() {
     // Check if the survey was already submitted
@@ -425,7 +429,30 @@ $(document).ready(function() {
         if (!validateForm()) {
             return;
         }
-        const formData = $(this).serialize();
+        
+        // Initialize SweetAlert2 with custom styling
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success me-3",
+                cancelButton: "btn btn-outline-danger",
+                actions: 'gap-2 justify-content-center'
+            },
+            buttonsStyling: false
+        });
+        
+        // Show confirmation dialog
+        swalWithBootstrapButtons.fire({
+            title: "Are you sure?",
+            text: "Please confirm if you want to submit this survey. You won't be able to modify your answers after submission!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, submit it!",
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // User confirmed, proceed with submission
+                const formData = $(this).serialize();
         $.ajax({
             url: $(this).attr('action'),
             type: 'POST',
@@ -433,6 +460,13 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
+                    // Show success message with SweetAlert2
+                    swalWithBootstrapButtons.fire({
+                        title: "Thank You!",
+                        text: "Your survey has been successfully submitted.",
+                        icon: "success"
+                    });
+                    
                     // Save form data for response summary
                     const surveyData = {
                         account_name: $('#account_name').val(),
@@ -464,6 +498,13 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
+                // Show error message with SweetAlert2
+                swalWithBootstrapButtons.fire({
+                    title: "Error!",
+                    text: "There was a problem submitting your survey. Please check your inputs and try again.",
+                    icon: "error"
+                });
+                
                 // Try to parse validation errors from server response
                 let errors = {};
                 if (xhr.responseJSON && xhr.responseJSON.errors) {
@@ -497,7 +538,20 @@ $(document).ready(function() {
                 $('#validationErrorsList ul').html(errorListHtml);
             },
             error: function() {
-                alert('There was an error submitting the form. Please try again.');
+                swalWithBootstrapButtons.fire({
+                    title: "Error!",
+                    text: "There was an error submitting the form. Please try again.",
+                    icon: "error"
+                });
+            }
+        });
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                // User cancelled the submission
+                swalWithBootstrapButtons.fire({
+                    title: "Cancelled",
+                    text: "Your survey has not been submitted. You can continue editing your responses.",
+                    icon: "info"
+                });
             }
         });
     });
