@@ -103,6 +103,52 @@ const swalWithBootstrapButtons = Swal.mixin({
     buttonsStyling: false
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    // Name field validation
+    const nameField = document.getElementById('name');
+    let nameIsValid = true;
+    
+    nameField.addEventListener('blur', function() {
+        const name = nameField.value.trim();
+        if (name) {
+            // Remove any existing feedback
+            const existingFeedback = document.getElementById('name-validation-feedback');
+            if (existingFeedback) {
+                existingFeedback.remove();
+            }
+            
+            // Check if name exists in admin_users or users table via AJAX
+            fetch(`/admin/check-name-availability?name=${encodeURIComponent(name)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        // Name already exists
+                        nameIsValid = false;
+                        const errorFeedback = document.createElement('div');
+                        errorFeedback.className = 'text-danger mt-1';
+                        errorFeedback.id = 'name-validation-feedback';
+                        errorFeedback.innerHTML = `<small><i class="bi bi-exclamation-triangle-fill me-1"></i>${data.message}</small>`;
+                        nameField.parentNode.appendChild(errorFeedback);
+                        nameField.classList.add('is-invalid');
+                    } else {
+                        // Name is available
+                        nameIsValid = true;
+                        const successFeedback = document.createElement('div');
+                        successFeedback.className = 'text-success mt-1';
+                        successFeedback.id = 'name-validation-feedback';
+                        successFeedback.innerHTML = '<small><i class="bi bi-check-circle-fill me-1"></i>Name is available</small>';
+                        nameField.parentNode.appendChild(successFeedback);
+                        nameField.classList.remove('is-invalid');
+                        nameField.classList.add('is-valid');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking name:', error);
+                });
+        }
+    });
+});
+
 function confirmClose() {
     swalWithBootstrapButtons.fire({
         title: "Are you sure?",
@@ -121,6 +167,21 @@ function confirmClose() {
 
 function confirmSubmit(event) {
     event.preventDefault();
+    
+    // Check if name is valid before submitting
+    const nameField = document.getElementById('name');
+    
+    // Only check for invalid class if the validation has been performed (feedback exists)
+    const nameValidationFeedback = document.getElementById('name-validation-feedback');
+    if (nameValidationFeedback && nameField.classList.contains('is-invalid')) {
+        swalWithBootstrapButtons.fire({
+            title: "Invalid Name",
+            text: "Please choose a different name that is not already in use.",
+            icon: "error",
+            confirmButtonText: "OK"
+        });
+        return false;
+    }
     
     swalWithBootstrapButtons.fire({
         title: "Create New User?",

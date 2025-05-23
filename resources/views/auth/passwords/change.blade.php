@@ -24,7 +24,7 @@ function confirmClose(event) {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = "{{ route('index') }}";
+            window.history.back();
         }
     });
 }
@@ -52,7 +52,7 @@ function confirmPasswordChange(event) {
             <div class="card shadow-lg border-0 rounded-lg">
                 <div class="card-header text-white text-center py-3 position-relative">
                     <h3 class="mb-0 text-white">{{ __('Change Password') }}</h3>
-                    <a href="{{ route('index') }}" onclick="confirmClose(event)" class="position-absolute top-0 end-0 p-3 text-white">
+                    <a href="#" onclick="confirmClose(event)" class="position-absolute top-0 end-0 p-3 text-white">
                         <i class="bi bi-x fs-4"></i>
                     </a>
                 </div>

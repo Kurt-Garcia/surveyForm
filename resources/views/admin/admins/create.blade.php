@@ -126,9 +126,117 @@
             },
             buttonsStyling: false
         });
+        
+        // Name field validation
+        const nameField = document.getElementById('name');
+        let nameIsValid = true;
+        
+        nameField.addEventListener('blur', function() {
+            const name = nameField.value.trim();
+            if (name) {
+                // Remove any existing feedback
+                const existingFeedback = document.getElementById('name-validation-feedback');
+                if (existingFeedback) {
+                    existingFeedback.remove();
+                }
+                
+                // Check if name exists in admin_users or users table via AJAX
+                fetch(`/admin/check-name-availability?name=${encodeURIComponent(name)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            // Name already exists
+                            nameIsValid = false;
+                            const errorFeedback = document.createElement('div');
+                            errorFeedback.className = 'text-danger mt-1';
+                            errorFeedback.id = 'name-validation-feedback';
+                            errorFeedback.innerHTML = `<small><i class="bi bi-exclamation-triangle-fill me-1"></i>${data.message}</small>`;
+                            nameField.parentNode.appendChild(errorFeedback);
+                            nameField.classList.add('is-invalid');
+                        } else {
+                            // Name is available
+                            nameIsValid = true;
+                            const successFeedback = document.createElement('div');
+                            successFeedback.className = 'text-success mt-1';
+                            successFeedback.id = 'name-validation-feedback';
+                            successFeedback.innerHTML = '<small><i class="bi bi-check-circle-fill me-1"></i>Name is available</small>';
+                            nameField.parentNode.appendChild(successFeedback);
+                            nameField.classList.remove('is-invalid');
+                            nameField.classList.add('is-valid');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking name:', error);
+                    });
+            }
+        });
+        
+        // Email field validation
+        const emailField = document.getElementById('email');
+        let emailIsValid = true;
+        
+        emailField.addEventListener('blur', function() {
+            const email = emailField.value.trim();
+            if (email) {
+                // Remove any existing feedback
+                const existingFeedback = document.getElementById('email-validation-feedback');
+                if (existingFeedback) {
+                    existingFeedback.remove();
+                }
+                
+                // Check if email exists in admin_users or users table via AJAX
+                fetch(`/admin/check-email-availability?email=${encodeURIComponent(email)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            // Email already exists
+                            emailIsValid = false;
+                            const errorFeedback = document.createElement('div');
+                            errorFeedback.className = 'text-danger mt-1';
+                            errorFeedback.id = 'email-validation-feedback';
+                            errorFeedback.innerHTML = `<small><i class="bi bi-exclamation-triangle-fill me-1"></i>${data.message}</small>`;
+                            emailField.parentNode.appendChild(errorFeedback);
+                            emailField.classList.add('is-invalid');
+                        } else {
+                            // Email is available
+                            emailIsValid = true;
+                            const successFeedback = document.createElement('div');
+                            successFeedback.className = 'text-success mt-1';
+                            successFeedback.id = 'email-validation-feedback';
+                            successFeedback.innerHTML = '<small><i class="bi bi-check-circle-fill me-1"></i>Email is available</small>';
+                            emailField.parentNode.appendChild(successFeedback);
+                            emailField.classList.remove('is-invalid');
+                            emailField.classList.add('is-valid');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking email:', error);
+                    });
+            }
+        });
 
         // Handle form submission with confirmation
         document.getElementById('submitBtn').addEventListener('click', function() {
+            // Check if name is valid before proceeding
+            if (!nameIsValid) {
+                swalWithBootstrapButtons.fire({
+                    title: "Name Already Exists",
+                    text: "Please use a different name.",
+                    icon: "error"
+                });
+                return;
+            }
+            
+            // Check if email is valid before proceeding
+            if (!emailIsValid) {
+                swalWithBootstrapButtons.fire({
+                    title: "Email Already Exists",
+                    text: "Please use a different email address.",
+                    icon: "error"
+                });
+                return;
+            }
+            
             swalWithBootstrapButtons.fire({
                 title: "Confirm Admin Creation",
                 text: "Are you sure you want to add this admin?",

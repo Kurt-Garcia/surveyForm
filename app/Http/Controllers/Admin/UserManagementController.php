@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Admin;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class UserManagementController extends Controller
 {
@@ -20,8 +22,21 @@ class UserManagementController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('users', 'name'),
+                Rule::unique('admin_users', 'name'),
+            ],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email'),
+                Rule::unique('admin_users', 'email'),
+            ],
             'password' => 'required|string|min:8|confirmed',
         ]);
 
