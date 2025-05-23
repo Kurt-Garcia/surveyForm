@@ -111,7 +111,18 @@ class AdminManagementController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255',
                 'password' => 'required|string|min:8|confirmed',
+                'contact_number' => ['required', 'string', 'max:13', 'regex:/^(\+63|09|9)\d{9,10}$/'],
             ]);
+
+            // Format contact number
+            $contactNumber = $request->contact_number;
+            if (str_starts_with($contactNumber, '+63')) {
+                // Keep as is
+            } elseif (str_starts_with($contactNumber, '09')) {
+                $contactNumber = '+63' . substr($contactNumber, 1);
+            } elseif (str_starts_with($contactNumber, '9')) {
+                $contactNumber = '+63' . $contactNumber;
+            }
             
             // Check if name exists in admin_users table
             if (Admin::where('name', $request->name)->exists()) {
@@ -151,6 +162,7 @@ class AdminManagementController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'contact_number' => $contactNumber,
         ]);
 
         return redirect()->route('admin.dashboard')
