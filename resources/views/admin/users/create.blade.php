@@ -29,6 +29,28 @@
                     <form action="{{ route('admin.users.store') }}" method="POST" id="userForm" onsubmit="return confirmSubmit(event)">
                         @csrf
                         <div class="mb-3">
+                            <label for="sbu" class="form-label">SBU</label>
+                            <select id="sbu" class="form-select @error('sbu') is-invalid @enderror" name="sbu" required>
+                                <option value="" selected disabled>Select SBU</option>
+                                <option value="FDC" {{ old('sbu') == 'FDC' ? 'selected' : '' }}>FDC</option>
+                                <option value="FUI" {{ old('sbu') == 'FUI' ? 'selected' : '' }}>FUI</option>
+                            </select>
+                            @error('sbu')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="site" class="form-label">Site</label>
+                            <select id="site" class="form-select @error('site') is-invalid @enderror" name="site" required>
+                                <option value="" selected disabled>Select SBU first</option>
+                            </select>
+                            @error('site')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div class="mb-3">
                             <label for="name" class="form-label">Name</label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" required>
                         </div>
@@ -108,6 +130,99 @@ const swalWithBootstrapButtons = Swal.mixin({
 });
 
 document.addEventListener('DOMContentLoaded', function() {
+    // SBU and Site dropdown relationship
+    const sbuSelect = document.getElementById('sbu');
+    const siteSelect = document.getElementById('site');
+    
+    // Define sites for each SBU
+    const sites = {
+        'FDC': [
+            // Camanava Region
+            'FDC Bignay - main',
+            'FDC Punturin',
+            // Bohol Region
+            'FDC Tagbilaran - main',
+            'FDC Ubay',
+            // Leyte Region
+            'FDC Tacloban - main',
+            'FDC Ormoc',
+            'FDC Sogod',
+            // Samar Region
+            'FDC Calbayog - main',
+            'FDC Bogongan',
+            'FDC Catarman',
+            // Panay Region
+            'FDC Roxas - main',
+            'FDC Kalibo',
+            // Mindanao Region
+            'FDC Gensan - main',
+            'FDC Koronadal',
+            'FDC CDO - main',
+            'FDC Valencia',
+            'FDC Iligan',
+            'FDC RX/RO',
+            'FDC Cebu - main',
+            'FDC Davao'
+        ],
+        'FUI': [
+            'NAI Cebu - main',
+            'NAI Bohol',
+            'NAI Iloilo - main',
+            'NAI Roxas',
+            'NAI Bacolod - main',
+            'NAI Dumaguete',
+            'NAI Leyte - main',
+            'NAI Samar',
+            'NAI Borongan',
+            'MNC Cebu - main',
+            'MNC Bohol',
+            'MNC Ozamiz - main',
+            'MNC Dipolog',
+            'Shell Cebu - main',
+            'Shell Bohol',
+            'Shell Leyte - main',
+            'Shell Samar',
+            'Shell Negros - main',
+            'Shell Panay'
+        ]
+    };
+    
+    // Function to update site options based on selected SBU
+    function updateSiteOptions() {
+        const selectedSBU = sbuSelect.value;
+        
+        // Clear current options
+        siteSelect.innerHTML = '';
+        
+        // Add default option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        defaultOption.textContent = selectedSBU ? `Select ${selectedSBU} Site` : 'Select SBU first';
+        siteSelect.appendChild(defaultOption);
+        
+        // If an SBU is selected, populate with corresponding sites
+        if (selectedSBU && sites[selectedSBU]) {
+            sites[selectedSBU].forEach(site => {
+                const option = document.createElement('option');
+                option.value = site;
+                option.textContent = site;
+                // Check if this option should be selected (for form validation redisplay)
+                if (site === '{{ old("site") }}') {
+                    option.selected = true;
+                }
+                siteSelect.appendChild(option);
+            });
+        }
+    }
+    
+    // Initialize site options based on initial SBU value
+    updateSiteOptions();
+    
+    // Update site options when SBU selection changes
+    sbuSelect.addEventListener('change', updateSiteOptions);
+    
     // Name field validation
     const nameField = document.getElementById('name');
     let nameIsValid = true;

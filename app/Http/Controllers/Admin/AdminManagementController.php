@@ -112,6 +112,8 @@ class AdminManagementController extends Controller
                 'email' => 'required|string|email|max:255',
                 'password' => 'required|string|min:8|confirmed',
                 'contact_number' => ['required', 'string', 'max:13', 'regex:/^(\+63|09|9)\d{9,10}$/'],
+                'sbu' => 'required|string|in:FDC,FUI',
+                'site' => 'required|string',
             ]);
 
             // Format contact number
@@ -163,6 +165,8 @@ class AdminManagementController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'contact_number' => $contactNumber,
+            'sbu' => $request->sbu,
+            'site' => $request->site,
         ]);
 
         return redirect()->route('admin.dashboard')

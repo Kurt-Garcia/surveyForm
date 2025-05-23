@@ -48,6 +48,8 @@ class UserManagementController extends Controller
                     }
                 },
             ],
+            'sbu' => 'required|string|in:FDC,FUI',
+            'site' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -69,6 +71,8 @@ class UserManagementController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'contact_number' => $contactNumber,
+            'sbu' => $request->sbu,
+            'site' => $request->site,
         ]);
 
         return redirect()->route('admin.users.create')->with('success', 'User created successfully!');
