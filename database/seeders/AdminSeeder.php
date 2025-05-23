@@ -11,6 +11,8 @@ class AdminSeeder extends Seeder
     public function run()
     {
         Admin::create([
+            'sbu' => 'FDC',
+            'site' => 'FDC Bignay - main',
             'name' => 'Admin',
             'email' => 'admin@gmail.com',
             'contact_number' => '09123456789',
