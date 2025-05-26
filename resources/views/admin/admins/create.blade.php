@@ -25,14 +25,15 @@
                         @csrf
 
                         <div class="row mb-3">
-                            <label for="sbu" class="col-md-4 col-form-label text-md-end">{{ __('SBU') }}</label>
+                            <label for="sbu_id" class="col-md-4 col-form-label text-md-end">{{ __('SBU') }}</label>
                             <div class="col-md-6">
-                                <select id="sbu" class="form-select @error('sbu') is-invalid @enderror" name="sbu" required>
+                                <select id="sbu_id" class="form-select @error('sbu_id') is-invalid @enderror" name="sbu_id" required>
                                     <option value="" selected disabled>Select SBU</option>
-                                    <option value="FDC" {{ old('sbu') == 'FDC' ? 'selected' : '' }}>FDC</option>
-                                    <option value="FUI" {{ old('sbu') == 'FUI' ? 'selected' : '' }}>FUI</option>
+                                    @foreach($sbus as $sbu)
+                                        <option value="{{ $sbu->id }}" {{ old('sbu_id') == $sbu->id ? 'selected' : '' }}>{{ $sbu->name }}</option>
+                                    @endforeach
                                 </select>
-                                @error('sbu')
+                                @error('sbu_id')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
@@ -41,12 +42,12 @@
                         </div>
 
                         <div class="row mb-3">
-                            <label for="site" class="col-md-4 col-form-label text-md-end">{{ __('Site') }}</label>
+                            <label for="site_id" class="col-md-4 col-form-label text-md-end">{{ __('Site') }}</label>
                             <div class="col-md-6">
-                                <select id="site" class="form-select @error('site') is-invalid @enderror" name="site" required>
+                                <select id="site_id" class="form-select @error('site_id') is-invalid @enderror" name="site_id" required>
                                     <option value="" selected disabled>Select SBU first</option>
                                 </select>
-                                @error('site')
+                                @error('site_id')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
@@ -160,61 +161,11 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // SBU and Site dropdown relationship
-        const sbuSelect = document.getElementById('sbu');
-        const siteSelect = document.getElementById('site');
+        const sbuSelect = document.getElementById('sbu_id');
+        const siteSelect = document.getElementById('site_id');
         
-        // Define sites for each SBU
-        const sites = {
-            'FDC': [
-                // Camanava Region
-                'FDC Bignay - main',
-                'FDC Punturin',
-                // Bohol Region
-                'FDC Tagbilaran - main',
-                'FDC Ubay',
-                // Leyte Region
-                'FDC Tacloban - main',
-                'FDC Ormoc',
-                'FDC Sogod',
-                // Samar Region
-                'FDC Calbayog - main',
-                'FDC Bogongan',
-                'FDC Catarman',
-                // Panay Region
-                'FDC Roxas - main',
-                'FDC Kalibo',
-                // Mindanao Region
-                'FDC Gensan - main',
-                'FDC Koronadal',
-                'FDC CDO - main',
-                'FDC Valencia',
-                'FDC Iligan',
-                'FDC RX/RO',
-                'FDC Cebu - main',
-                'FDC Davao'
-            ],
-            'FUI': [
-                'NAI Cebu - main',
-                'NAI Bohol',
-                'NAI Iloilo - main',
-                'NAI Roxas',
-                'NAI Bacolod - main',
-                'NAI Dumaguete',
-                'NAI Leyte - main',
-                'NAI Samar',
-                'NAI Borongan',
-                'MNC Cebu - main',
-                'MNC Bohol',
-                'MNC Ozamiz - main',
-                'MNC Dipolog',
-                'Shell Cebu - main',
-                'Shell Bohol',
-                'Shell Leyte - main',
-                'Shell Samar',
-                'Shell Negros - main',
-                'Shell Panay'
-            ]
-        };
+        // Store all sites data from PHP
+        const allSites = @json($sbus->pluck('sites', 'id'));
         
         // Function to update site options based on selected SBU
         function updateSiteOptions() {
@@ -228,17 +179,17 @@
             defaultOption.value = '';
             defaultOption.disabled = true;
             defaultOption.selected = true;
-            defaultOption.textContent = selectedSBU ? `Select ${selectedSBU} Site` : 'Select SBU first';
+            defaultOption.textContent = selectedSBU ? 'Select Site' : 'Select SBU first';
             siteSelect.appendChild(defaultOption);
             
             // If an SBU is selected, populate with corresponding sites
-            if (selectedSBU && sites[selectedSBU]) {
-                sites[selectedSBU].forEach(site => {
+            if (selectedSBU && allSites[selectedSBU]) {
+                allSites[selectedSBU].forEach(site => {
                     const option = document.createElement('option');
-                    option.value = site;
-                    option.textContent = site;
+                    option.value = site.id;
+                    option.textContent = site.name;
                     // Check if this option should be selected (for form validation redisplay)
-                    if (site === '{{ old("site") }}') {
+                    if (site.id == '{{ old("site_id") }}') {
                         option.selected = true;
                     }
                     siteSelect.appendChild(option);

@@ -101,7 +101,8 @@ class AdminManagementController extends Controller
 
     public function create()
     {
-        return view('admin.admins.create');
+        $sbus = \App\Models\Sbu::with('sites')->get();
+        return view('admin.admins.create', compact('sbus'));
     }
 
     public function store(Request $request)
@@ -112,8 +113,8 @@ class AdminManagementController extends Controller
                 'email' => 'required|string|email|max:255',
                 'password' => 'required|string|min:8|confirmed',
                 'contact_number' => ['required', 'string', 'max:13', 'regex:/^(\+63|09|9)\d{9,10}$/'],
-                'sbu' => 'required|string|in:FDC,FUI',
-                'site' => 'required|string',
+                'sbu_id' => 'required|exists:sbus,id',
+                'site_id' => 'required|exists:sites,id',
             ]);
 
             // Format contact number
@@ -165,8 +166,8 @@ class AdminManagementController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'contact_number' => $contactNumber,
-            'sbu' => $request->sbu,
-            'site' => $request->site,
+            'sbu_id' => $request->sbu_id,
+            'site_id' => $request->site_id,
         ]);
 
         return redirect()->route('admin.dashboard')

@@ -16,8 +16,8 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::factory()->create([
-            'sbu' => 'FDC',
-            'site' => 'FDC Bignay - main',
+            'sbu_id' => '1',
+            'site_id' => '1',
             'name' => 'Monkey D. Luffy',
             'email' => 'pirateKing@gmail.com',
             'contact_number' => '09123456789',

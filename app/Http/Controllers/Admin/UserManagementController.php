@@ -15,7 +15,8 @@ class UserManagementController extends Controller
     // Show the form to create a new user
     public function create()
     {
-        return view('admin.users.create');
+        $sbus = \App\Models\Sbu::with('sites')->get();
+        return view('admin.users.create', compact('sbus'));
     }
 
     // Store the new user
@@ -48,8 +49,8 @@ class UserManagementController extends Controller
                     }
                 },
             ],
-            'sbu' => 'required|string|in:FDC,FUI',
-            'site' => 'required|string',
+            'sbu_id' => 'required|exists:sbus,id',
+            'site_id' => 'required|exists:sites,id',
         ]);
 
         if ($validator->fails()) {
@@ -71,8 +72,8 @@ class UserManagementController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'contact_number' => $contactNumber,
-            'sbu' => $request->sbu,
-            'site' => $request->site,
+            'sbu_id' => $request->sbu_id,
+            'site_id' => $request->site_id,
         ]);
 
         return redirect()->route('admin.users.create')->with('success', 'User created successfully!');
