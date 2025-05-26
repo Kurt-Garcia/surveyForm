@@ -20,38 +20,8 @@ class ViewServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Add a global helper function to format sites list
-        if (!function_exists('formatSitesList')) {
-            function formatSitesList($sites) {
-                if ($sites->isEmpty()) {
-                    return 'No sites';
-                }
-                
-                if ($sites->count() == 1) {
-                    return 'Deployed to: ' . $sites->first()->name;
-                }
-                
-                // Group by main sites first
-                $mainSites = $sites->where('is_main', true)->pluck('name')->toArray();
-                $otherSites = $sites->where('is_main', false)->pluck('name')->toArray();
-                
-                $sitesList = [];
-                
-                if (!empty($mainSites)) {
-                    $sitesList[] = count($mainSites) == 1 ? 
-                        'Main site: ' . implode(', ', $mainSites) : 
-                        'Main sites: ' . implode(', ', $mainSites);
-                }
-                
-                if (!empty($otherSites)) {
-                    $sitesList[] = count($otherSites) == 1 ? 
-                        'Other site: ' . implode(', ', $otherSites) : 
-                        'Other sites: ' . implode(', ', $otherSites);
-                }
-                
-                return implode(' | ', $sitesList);
-            }
-        }
+        // Register the SiteHelper
+        require_once app_path('Helpers/SiteHelper.php');
         
         // Add a blade directive to format the sites list
         Blade::directive('formatSitesList', function ($expression) {
@@ -59,48 +29,10 @@ class ViewServiceProvider extends ServiceProvider
         });
         
         // Define the method to format sites list for stringable
-        Blade::stringable(function ($value) {
+        Blade::stringable(function (\Illuminate\Support\Stringable $value) {
             return $value instanceof \Illuminate\Database\Eloquent\Collection && 
                    isset($value->first()->name) ? 
                    formatSitesList($value) : null;
         });
-    }
-    
-    /**
-     * Format a collection of sites into a readable string.
-     * 
-     * @deprecated Use the global formatSitesList function instead
-     * @param \Illuminate\Database\Eloquent\Collection $sites
-     * @return string
-     */
-    protected function formatSitesList($sites)
-    {
-        if ($sites->isEmpty()) {
-            return 'No sites';
-        }
-        
-        if ($sites->count() == 1) {
-            return 'Deployed to: ' . $sites->first()->name;
-        }
-        
-        // Group by main sites first
-        $mainSites = $sites->where('is_main', true)->pluck('name')->toArray();
-        $otherSites = $sites->where('is_main', false)->pluck('name')->toArray();
-        
-        $sitesList = [];
-        
-        if (!empty($mainSites)) {
-            $sitesList[] = count($mainSites) == 1 ? 
-                'Main site: ' . implode(', ', $mainSites) : 
-                'Main sites: ' . implode(', ', $mainSites);
-        }
-        
-        if (!empty($otherSites)) {
-            $sitesList[] = count($otherSites) == 1 ? 
-                'Other site: ' . implode(', ', $otherSites) : 
-                'Other sites: ' . implode(', ', $otherSites);
-        }
-        
-        return implode(' | ', $sitesList);
     }
 }

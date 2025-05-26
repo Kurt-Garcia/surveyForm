@@ -54,10 +54,10 @@
                         <div class="form-group row mb-4">
                             <label for="site_ids" class="col-md-3 col-form-label">{{ __('Deployment Sites') }}</label>
                             <div class="col-md-9">
-                                <select id="site_ids" class="form-select form-select-lg @error('site_ids') is-invalid @enderror" name="site_ids[]" multiple required>
+                                <select id="site_ids" class="form-select select2 form-select-lg @error('site_ids') is-invalid @enderror" name="site_ids[]" multiple required>
                                     <option value="" disabled>Select SBU first</option>
                                 </select>
-                                <small class="text-muted">Hold Ctrl/Cmd to select multiple sites</small>
+                                <small class="text-muted">You can search and select multiple sites</small>
                                 @error('site_ids')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -173,10 +173,25 @@
                 sitesSelect.appendChild(option);
             });
         }
+        
+        // Destroy existing Select2 instance if it exists
+        if ($(sitesSelect).data('select2')) {
+            $(sitesSelect).select2('destroy');
+        }
+        
+        // Initialize Select2
+        $(sitesSelect).select2({
+            placeholder: selectedSBU ? 'Select Sites' : 'Select SBU first',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $(sitesSelect).parent() // Ensure dropdown is properly positioned
+        });
     }
     
     // Initialize site options based on initial SBU value
-    updateSiteOptions();
+    $(document).ready(function() {
+        updateSiteOptions();
+    });
     
     // Update site options when SBU selection changes
     sbuSelect.addEventListener('change', updateSiteOptions);
@@ -424,22 +439,38 @@
     box-shadow: 0 0 0 0.25rem rgba(var(--accent-color-rgb), 0.25);
 }
 
-/* Multi-select styling */
-#site_ids {
+/* Select2 customization */
+.select2-container--default .select2-selection--multiple {
+    border-radius: 6px;
+    border-color: #ced4da;
     min-height: 100px;
 }
 
-#site_ids option {
-    padding: 8px;
-    margin: 2px 0;
-    border-radius: 4px;
-}
-
-#site_ids option:checked {
-    background: var(--primary-color) linear-gradient(0deg, var(--primary-color) 0%, var(--primary-color) 100%);
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
     color: white;
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin: 5px;
 }
 
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: white;
+    margin-right: 5px;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: #f8f9fa;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: var(--primary-color);
+}
+
+.select2-container--default .select2-search--inline .select2-search__field {
+    margin-top: 7px;
+}
 .card-header {
     border-bottom: none;
     border-radius: 8px 8px 0 0 !important;

@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Auth::viaRequest('admin', function ($request) {
+        Auth::viaRequest('admin', function (\Illuminate\Http\Request $request) {
             if (Auth::guard('admin')->check()) {
                 Session::name(config('session.admin_cookie'));
                 return Auth::guard('admin')->user();

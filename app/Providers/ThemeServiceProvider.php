@@ -22,7 +22,7 @@ class ThemeServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Share the active theme with all views
-        View::composer('*', function ($view) {
+        View::composer('*', function (\Illuminate\View\View $view) {
             $activeTheme = ThemeSetting::getActiveTheme();
             $view->with('activeTheme', $activeTheme);
         });
