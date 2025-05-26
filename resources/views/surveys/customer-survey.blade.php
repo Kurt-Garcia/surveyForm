@@ -20,6 +20,27 @@
         border: 2px solid #dc3545 !important;
         box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25);
     }
+    
+    /* Survey metadata styling */
+    .survey-metadata {
+        margin-top: 10px;
+        margin-bottom: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    
+    .survey-metadata .badge {
+        font-size: 0.85rem;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+    
+    .survey-metadata .text-muted {
+        font-size: 0.85rem;
+    }
 </style>
 
 <div class="survey-wrapper">
@@ -53,6 +74,21 @@
             <img src="{{ asset('img/logo.JPG') }}" alt="Default Logo" class="survey-logo">
             @endif
             <h1 class="survey-title font-theme-heading">{{ strtoupper($survey->title) }}</h1>
+            
+            @if($survey->sbu || $survey->sites->count() > 0)
+            <div class="survey-metadata">
+                @if($survey->sbu)
+                <span class="badge bg-primary me-2">{{ $survey->sbu->name }}</span>
+                @endif
+                
+                @if($survey->sites->count() > 0)
+                <small class="text-muted">
+                    <i class="fas fa-map-marker-alt me-1"></i> 
+                    @formatSitesList($survey->sites)
+                </small>
+                @endif
+            </div>
+            @endif
         </div>
 
         <form id="surveyForm" method="POST" action="{{ route('customer.survey.submit', $survey) }}" class="modern-form">

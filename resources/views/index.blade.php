@@ -15,6 +15,13 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
+    
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
     <div class="hero-section">
         <div class="pattern-overlay"></div>
@@ -55,6 +62,17 @@
                                 @endif
                             </div>
                             <h4 class="card-title">{{ strtoupper($survey->title) }}</h4>
+                            <div class="survey-meta mb-2">
+                                @if($survey->sbu)
+                                    <span class="badge bg-primary me-1">{{ $survey->sbu->name }}</span>
+                                @endif
+                                <small class="text-muted">
+                                    @if($survey->sites->count() > 0)
+                                        <i class="fas fa-map-marker-alt me-1"></i> 
+                                        @formatSitesList($survey->sites)
+                                    @endif
+                                </small>
+                            </div>
                             <div class="d-flex justify-content-between mt-3 mb-3">
                                 <div class="survey-info">
                                     <div class="text-muted mb-2">

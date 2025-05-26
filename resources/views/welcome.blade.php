@@ -4,6 +4,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="{{ asset('css/welcome.css') }}">
 <div class="min-vh-100 d-flex flex-column">
+    <!-- Flash Messages -->
+    @if(session('warning'))
+        <div class="alert alert-warning alert-dismissible fade show m-3" role="alert">
+            {{ session('warning') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    
     <!-- Hero Section -->
     <div class="hero-section position-relative overflow-hidden py-5" style="background: url('{{ asset('img/background.jpg') }}') center/cover no-repeat;">
         <div class="overlay"></div>

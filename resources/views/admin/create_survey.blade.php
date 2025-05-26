@@ -35,6 +35,38 @@
                         </div>
 
                         <div class="form-group row mb-4">
+                            <label for="sbu_id" class="col-md-3 col-form-label">{{ __('SBU') }}</label>
+                            <div class="col-md-9">
+                                <select id="sbu_id" class="form-select form-select-lg @error('sbu_id') is-invalid @enderror" name="sbu_id" required>
+                                    <option value="" selected disabled>Select SBU</option>
+                                    @foreach($sbus as $sbu)
+                                        <option value="{{ $sbu->id }}" {{ old('sbu_id') == $sbu->id ? 'selected' : '' }}>{{ $sbu->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('sbu_id')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-4">
+                            <label for="site_ids" class="col-md-3 col-form-label">{{ __('Deployment Sites') }}</label>
+                            <div class="col-md-9">
+                                <select id="site_ids" class="form-select form-select-lg @error('site_ids') is-invalid @enderror" name="site_ids[]" multiple required>
+                                    <option value="" disabled>Select SBU first</option>
+                                </select>
+                                <small class="text-muted">Hold Ctrl/Cmd to select multiple sites</small>
+                                @error('site_ids')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-4">
                             <label for="logo" class="col-md-3 col-form-label">{{ __('Survey Logo') }}</label>
                             <div class="col-md-9">
                                 <div class="d-flex align-items-center gap-3">
@@ -90,6 +122,64 @@
         },
         buttonsStyling: false
     });
+
+    // SBU and Site dropdown relationship
+    const sbuSelect = document.getElementById('sbu_id');
+    const sitesSelect = document.getElementById('site_ids');
+    
+    // Store all sites organized by SBU for client-side filtering
+    const sbuSites = {
+        @foreach($sbus as $sbu)
+            {{ $sbu->id }}: [
+                @foreach($sbu->sites as $site)
+                    {
+                        id: {{ $site->id }},
+                        name: "{{ $site->name }}",
+                        is_main: {{ $site->is_main ? 'true' : 'false' }}
+                    },
+                @endforeach
+            ],
+        @endforeach
+    };
+    
+    // Function to update site options based on selected SBU
+    function updateSiteOptions() {
+        const selectedSBU = sbuSelect.value;
+        
+        // Clear current options
+        sitesSelect.innerHTML = '';
+        
+        // Add default option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.disabled = true;
+        defaultOption.textContent = selectedSBU ? `Select Sites` : 'Select SBU first';
+        sitesSelect.appendChild(defaultOption);
+        
+        // If an SBU is selected, populate with corresponding sites
+        if (selectedSBU && sbuSites[selectedSBU]) {
+            // Sort sites with main sites first, then alphabetically
+            const sites = [...sbuSites[selectedSBU]].sort((a, b) => {
+                if (a.is_main !== b.is_main) {
+                    return a.is_main ? -1 : 1;
+                }
+                return a.name.localeCompare(b.name);
+            });
+            
+            sites.forEach(site => {
+                const option = document.createElement('option');
+                option.value = site.id;
+                option.textContent = site.name + (site.is_main ? ' (Main)' : '');
+                sitesSelect.appendChild(option);
+            });
+        }
+    }
+    
+    // Initialize site options based on initial SBU value
+    updateSiteOptions();
+    
+    // Update site options when SBU selection changes
+    sbuSelect.addEventListener('change', updateSiteOptions);
 
     // Logo preview functionality
     document.getElementById('logo').addEventListener('change', function(e) {
@@ -229,6 +319,31 @@
             return false;
         }
 
+        // Check if SBU is selected
+        const sbu = document.getElementById('sbu_id');
+        if (!sbu.value) {
+            swalWithBootstrapButtons.fire({
+                title: "Error!",
+                text: "Please select an SBU.",
+                icon: "error"
+            });
+            sbu.focus();
+            return false;
+        }
+
+        // Check if at least one deployment site is selected
+        const sites = document.getElementById('site_ids');
+        const selectedSites = Array.from(sites.selectedOptions);
+        if (selectedSites.length === 0) {
+            swalWithBootstrapButtons.fire({
+                title: "Error!",
+                text: "Please select at least one deployment site.",
+                icon: "error"
+            });
+            sites.focus();
+            return false;
+        }
+
         if (document.getElementById('questions-container').children.length === 0) {
             swalWithBootstrapButtons.fire({
                 title: "Error!",
@@ -307,6 +422,22 @@
 .form-control:focus, .form-select:focus {
     border-color: var(--accent-color);
     box-shadow: 0 0 0 0.25rem rgba(var(--accent-color-rgb), 0.25);
+}
+
+/* Multi-select styling */
+#site_ids {
+    min-height: 100px;
+}
+
+#site_ids option {
+    padding: 8px;
+    margin: 2px 0;
+    border-radius: 4px;
+}
+
+#site_ids option:checked {
+    background: var(--primary-color) linear-gradient(0deg, var(--primary-color) 0%, var(--primary-color) 100%);
+    color: white;
 }
 
 .card-header {

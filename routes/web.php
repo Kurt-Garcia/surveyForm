@@ -13,8 +13,10 @@ Route::get('/', function () {
 })->name('welcome');
 
 // Direct access survey route for customers (no login required)
-Route::get('/survey/{survey}', [UserSurveyController::class, 'customerSurvey'])->name('customer.survey');
-Route::post('/survey/{survey}/submit', [UserSurveyController::class, 'customerStore'])->name('customer.survey.submit');
+Route::middleware(['site.access'])->group(function () {
+    Route::get('/survey/{survey}', [UserSurveyController::class, 'customerSurvey'])->name('customer.survey');
+    Route::post('/survey/{survey}/submit', [UserSurveyController::class, 'customerStore'])->name('customer.survey.submit');
+});
 
 // Autocomplete route for customer names
 Route::get('/customers/autocomplete', [CustomerController::class, 'autocomplete'])->name('customers.autocomplete');
@@ -32,14 +34,17 @@ Route::middleware(['auth:web,admin'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', [UserSurveyController::class, 'index'])->name('home');
     Route::get('/index', [UserSurveyController::class, 'index'])->name('index');
-    Route::get('/surveys/{survey}', [UserSurveyController::class, 'show'])->name('surveys.show');
-    Route::post('/surveys/{survey}', [UserSurveyController::class, 'store'])->name('surveys.store');
+    
+    // Apply site access middleware to survey routes
+    Route::middleware(['site.access'])->group(function () {
+        Route::get('/surveys/{survey}', [UserSurveyController::class, 'show'])->name('surveys.show');
+        Route::post('/surveys/{survey}', [UserSurveyController::class, 'store'])->name('surveys.store');
+        Route::get('/surveys/{survey}/customers', [UserSurveyController::class, 'getCustomers'])->name('surveys.customers');
+        Route::post('/surveys/{survey}/broadcast', [UserSurveyController::class, 'broadcastSurvey'])->name('surveys.broadcast');
+    });
+    
     Route::post('/check-account-exists', [UserSurveyController::class, 'checkAccountExists'])->name('check.account.exists');
     Route::get('/surveys/thankyou', [UserSurveyController::class, 'thankyou'])->name('surveys.thankyou');
-    
-    // Survey broadcast routes
-    Route::get('/surveys/{survey}/customers', [UserSurveyController::class, 'getCustomers'])->name('surveys.customers');
-    Route::post('/surveys/{survey}/broadcast', [UserSurveyController::class, 'broadcastSurvey'])->name('surveys.broadcast');
     
     // Survey response routes for surveyors
     Route::get('/surveys/{survey}/responses', [\App\Http\Controllers\SurveyResponseController::class, 'index'])->name('surveys.responses.index');

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Survey;
+use App\Models\Sbu;
+use App\Models\Site;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,13 +15,17 @@ class SurveyController extends Controller
 {
     public function create()
     {
-        return view('admin.create_survey');
+        $sbus = Sbu::with('sites')->get();
+        return view('admin.create_survey', compact('sbus'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'sbu_id' => 'required|exists:sbus,id',
+            'site_ids' => 'required|array|min:1',
+            'site_ids.*' => 'exists:sites,id',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'questions' => 'required|array|min:1',
             'questions.*.text' => 'required|string|max:255',
@@ -38,8 +44,12 @@ class SurveyController extends Controller
                 'title' => ucfirst($request->title),
                 'admin_id' => Auth::guard('admin')->id(),
                 'is_active' => true,
-                'logo' => $logoPath
+                'logo' => $logoPath,
+                'sbu_id' => $request->sbu_id
             ]);
+            
+            // Attach sites to the survey
+            $survey->sites()->attach($request->site_ids);
 
             foreach ($request->questions as $index => $questionData) {
                 $survey->questions()->create([

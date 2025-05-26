@@ -10,13 +10,27 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class UserSurveyController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Survey::where('is_active', true);
+        $query = Survey::with(['questions', 'sites', 'sbu'])->where('is_active', true);
         
+        if (Auth::check()) {
+            $userSiteId = Auth::user()->site_id;
+            session(['site_id' => $userSiteId]); // Ensure site_id is always in session
+            
+            $query->whereHas('sites', function($q) use ($userSiteId) {
+                $q->where('sites.id', $userSiteId);
+            });
+        } elseif ($userSiteId = session('site_id')) {
+            // Fallback to session if available (for session persistence)
+            $query->whereHas('sites', function($q) use ($userSiteId) {
+                $q->where('sites.id', $userSiteId);
+            });
+        }
         // Handle search functionality
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
@@ -39,6 +53,14 @@ class UserSurveyController extends Controller
         if (!$survey->is_active) {
             return redirect()->route('index')
                 ->with('warning', 'This survey is currently not active.');
+        }
+        
+        // Verify the user's site_id matches one of the survey's sites
+        $userSiteId = Auth::check() ? Auth::user()->site_id : session('site_id');
+        
+        if (!$survey->isAvailableForSite($userSiteId)) {
+            return redirect()->route('index')
+                ->with('error', 'You do not have access to this survey.');
         }
 
         $hasResponded = false;
@@ -72,6 +94,15 @@ class UserSurveyController extends Controller
 
     public function store(Request $request, Survey $survey)
     {
+        // Verify the user's site_id matches one of the survey's sites
+        $userSiteId = Auth::check() ? Auth::user()->site_id : session('site_id');
+        
+        if (!$survey->isAvailableForSite($userSiteId)) {
+            return response()->json([
+                'error' => 'You do not have access to submit this survey.'
+            ], 403);
+        }
+        
         // Check if user has already responded
         $existingResponse = SurveyResponseHeader::where('survey_id', $survey->id)
             ->where('account_name', $request->account_name)
@@ -171,6 +202,20 @@ class UserSurveyController extends Controller
                 ->with('warning', 'This survey is currently not active.');
         }
 
+        // For customer surveys, we should check if a site_id is provided in the query string
+        // This allows public surveys to be filtered by site as well
+        $siteId = $request->query('site_id');
+        
+        if ($siteId) {
+            // If a specific site_id is provided, check if the survey is deployed to that site
+            if (!$survey->isAvailableForSite($siteId)) {
+                return redirect()->route('welcome')
+                    ->with('error', 'This survey is not available for your site.');
+            }
+            // Store site_id in session for future requests
+            session(['site_id' => $siteId]);
+        }
+
         // Get prefilled data from URL parameters
         $prefillAccountName = $request->query('account_name');
         $prefillAccountType = $request->query('account_type');
@@ -222,6 +267,17 @@ class UserSurveyController extends Controller
             return response()->json([
                 'error' => 'This survey is currently not active.'
             ], 422);
+        }
+        
+        // Check if a site_id is available in the session
+        $siteId = session('site_id');
+        if ($siteId) {
+            // If a site_id is stored, check if the survey is deployed to that site
+            if (!$survey->isAvailableForSite($siteId)) {
+                return response()->json([
+                    'error' => 'This survey is not available for your site.'
+                ], 403);
+            }
         }
         
         // Check if user has already responded

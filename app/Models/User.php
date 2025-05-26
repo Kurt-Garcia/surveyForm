@@ -38,6 +38,16 @@ class User extends Authenticatable
     ];
     
     /**
+     * Get the site that the user belongs to.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function site(): BelongsTo
+    {
+        return $this->belongsTo(Site::class);
+    }
+    
+    /**
      * Get the SBU that the user belongs to.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -45,16 +55,6 @@ class User extends Authenticatable
     public function sbu(): BelongsTo
     {
         return $this->belongsTo(Sbu::class);
-    }
-    
-    /**
-     * Get the Site that the user belongs to.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function site(): BelongsTo
-    {
-        return $this->belongsTo(Site::class);
     }
 
     /**
