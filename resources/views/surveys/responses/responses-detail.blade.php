@@ -456,8 +456,10 @@
     }
 
     .print-logo {
-        max-width: 200px;
+        max-width: 170px !important;
+        max-height: 80px !important;
         height: auto;
+        margin-bottom: 1px !important;
         margin: 0 auto;
         display: block;
     }
@@ -752,7 +754,7 @@ function generatePDF() {
     pdfContainer.style.fontFamily = 'Arial, sans-serif';
     pdfContainer.style.color = '#222';
     pdfContainer.style.fontSize = '8pt'; // Smaller base font size
-    pdfContainer.style.lineHeight = '1.5'; // Tighter line height
+    pdfContainer.style.lineHeight = '1.4'; // Tighter line height
 
     // Clone the print header with logo for PDF
     const logoHeader = document.querySelector('.print-only-header').cloneNode(true);
@@ -762,7 +764,8 @@ function generatePDF() {
     
     const logoImage = logoHeader.querySelector('img.print-logo');
     if (logoImage) {
-        logoImage.style.maxWidth = '170px'; // Even smaller logo for PDF
+        logoImage.style.maxWidth = '170px';
+        logoImage.style.maxHeight = '80px';
         logoImage.style.height = 'auto';
         logoImage.style.margin = '0 auto';
         logoImage.style.display = 'block';

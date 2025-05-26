@@ -8,6 +8,8 @@ composer install
 
 npm run dev
 
+php artisan storage:link
+
 composer run dev
 
 php artisan migrate
