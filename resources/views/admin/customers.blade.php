@@ -667,10 +667,23 @@
                         },
                         error: function(xhr) {
                             const response = xhr.responseJSON;
+                            console.log('Error response:', response); // Add debugging
                             if (response && response.errors) {
+                                // Clear previous errors
+                                $('.invalid-feedback').text('');
+                                $('.is-invalid').removeClass('is-invalid');
+                                
+                                // Display new errors
                                 Object.keys(response.errors).forEach(field => {
                                     $(`#${field}-error`).text(response.errors[field][0]).show();
                                     $(`#${field}`).addClass('is-invalid');
+                                });
+                                
+                                // Prevent modal from closing when there are errors
+                                swalWithBootstrapButtons.fire({
+                                    title: "Validation Error",
+                                    text: "Please fix the errors and try again.",
+                                    icon: "error"
                                 });
                             } else {
                                 swalWithBootstrapButtons.fire({

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class CustomerController extends Controller
 {
@@ -56,14 +58,29 @@ class CustomerController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Log the request data for debugging
+        Log::info('Customer update request', [
+            'id' => $id,
+            'phone' => $request->phone,
+            'email' => $request->email
+        ]);
+        
         // Validate the request data
-        $validator = validator([
+        $validator = Validator::make([
             'phone' => $request->phone,
             'email' => $request->email,
         ], [
             'phone' => 'required|string|max:20',
             'email' => 'nullable|email|max:255',
         ]);
+        
+        if ($validator->fails()) {
+            Log::warning('Customer update validation failed', ['errors' => $validator->errors()]);
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
         
         // Check if phone number already exists for another customer
         $existingPhone = DB::table('TBLCUSTOMER')
@@ -72,6 +89,7 @@ class CustomerController extends Controller
             ->first(['id', 'CUSTNAME']);
             
         if ($existingPhone) {
+            Log::warning('Phone number already exists', ['customer' => $existingPhone->CUSTNAME]);
             return response()->json([
                 'success' => false,
                 'errors' => [
@@ -80,36 +98,44 @@ class CustomerController extends Controller
             ], 422);
         }
         
-        // Check if email already exists for another customer (if provided)
-        if ($request->email) {
-            $existingEmail = DB::table('TBLCUSTOMER')
-                ->where('EMAIL', $request->email)
-                ->where('id', '!=', $id)
-                ->first(['id', 'CUSTNAME']);
-                
-            if ($existingEmail) {
-                return response()->json([
-                    'success' => false,
-                    'errors' => [
-                        'email' => ['This email is already used by customer: ' . $existingEmail->CUSTNAME]
-                    ]
-                ], 422);
-            }
+        // Check if email already exists for another customer (always check, even if empty)
+        $existingEmail = DB::table('TBLCUSTOMER')
+            ->where('EMAIL', $request->email)
+            ->where('id', '!=', $id)
+            ->first(['id', 'CUSTNAME']);
+            
+        if ($existingEmail) {
+            Log::warning('Email already exists', ['customer' => $existingEmail->CUSTNAME]);
+            return response()->json([
+                'success' => false,
+                'errors' => [
+                    'email' => ['This email is already used by customer: ' . $existingEmail->CUSTNAME]
+                ]
+            ], 422);
         }
         
         // If validation passes, update the customer record
-        DB::table('TBLCUSTOMER')
-            ->where('id', $id)
-            ->update([
-                'CONTACTCELLNUMBER' => $request->phone,
-                'EMAIL' => $request->email,
-                'updated_at' => now()
+        try {
+            DB::table('TBLCUSTOMER')
+                ->where('id', $id)
+                ->update([
+                    'CONTACTCELLNUMBER' => $request->phone,
+                    'EMAIL' => $request->email,
+                    'updated_at' => now()
+                ]);
+            
+            Log::info('Customer updated successfully', ['id' => $id]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Customer contact information updated successfully!'
             ]);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Customer contact information updated successfully!'
-        ]);
+        } catch (\Exception $e) {
+            Log::error('Error updating customer', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'errors' => ['general' => ['An error occurred while updating the customer.']]
+            ], 500);
+        }
     }
-    }
+}
 
