@@ -227,4 +227,48 @@ class SurveyController extends Controller
         return redirect()->route('admin.surveys.show', $survey)
             ->with('success', "Survey has been {$status} successfully!");
     }
+    
+    /**
+     * Get all SBUs with their associated sites for the dropdown
+     */
+    public function getSbusWithSites()
+    {
+        $sbus = Sbu::with('sites')->get();
+        return response()->json($sbus);
+    }
+    
+    /**
+     * Update the survey's SBU and deployment sites
+     */
+    public function updateDeployment(Request $request, Survey $survey)
+    {
+        // Ensure the authenticated admin owns this survey
+        if ($survey->admin_id !== Auth::guard('admin')->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $request->validate([
+            'sbu_id' => 'required|exists:sbus,id',
+            'site_ids' => 'required|array|min:1',
+            'site_ids.*' => 'exists:sites,id',
+        ]);
+        
+        DB::beginTransaction();
+        try {
+            // Update SBU
+            $survey->update([
+                'sbu_id' => $request->sbu_id
+            ]);
+            
+            // Sync sites (detach old ones and attach new ones)
+            $survey->sites()->sync($request->site_ids);
+            
+            DB::commit();
+            return redirect()->route('admin.surveys.show', $survey)
+                ->with('success', 'Deployment settings updated successfully!');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Failed to update deployment settings. Please try again.');
+        }
+    }
 }

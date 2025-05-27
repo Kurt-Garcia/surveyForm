@@ -88,6 +88,47 @@
                         </form>
                     </div>
 
+                    <!-- SBU and Site Edit Section -->
+                    <div class="mb-4 pb-4 border-bottom">
+                        <h4 class="fw-bold mb-3">Deployment Settings</h4>
+                        <form action="{{ route('admin.surveys.update-deployment', $survey) }}" method="POST" class="d-flex flex-column gap-3">
+                            @csrf
+                            @method('PATCH')
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="sbu_id" class="form-label fw-bold">SBU</label>
+                                    <select id="sbu_id" class="form-select @error('sbu_id') is-invalid @enderror" name="sbu_id" required>
+                                        <option value="" disabled>Select SBU</option>
+                                        @foreach(\App\Models\Sbu::all() as $sbu)
+                                            <option value="{{ $sbu->id }}" {{ $survey->sbu_id == $sbu->id ? 'selected' : '' }}>{{ $sbu->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('sbu_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="site_ids" class="form-label fw-bold">Deployment Sites</label>
+                                    <select id="site_ids" class="form-select select2 @error('site_ids') is-invalid @enderror" name="site_ids[]" multiple required>
+                                        <!-- Sites will be populated via JavaScript -->
+                                    </select>
+                                    <small class="text-muted d-block mt-1">You can select multiple deployment sites</small>
+                                    @error('site_ids')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save me-2"></i>Update Deployment Settings
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div class="d-flex align-items-center gap-2">
                             <h3 class="fw-bold mb-0">Questions</h3>
@@ -287,7 +328,10 @@
 }
 </style>
 
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
 // SweetAlert2 configuration
@@ -491,6 +535,74 @@ document.getElementById('logo').addEventListener('change', function(e) {
         }
         reader.readAsDataURL(file);
     }
+});
+
+// SBU and Site dropdown relationship
+document.addEventListener('DOMContentLoaded', function() {
+    const sbuSelect = document.getElementById('sbu_id');
+    const sitesSelect = document.getElementById('site_ids');
+    
+    // Get current survey sites
+    const currentSites = @json($survey->sites->pluck('id'));
+    
+    // Fetch all SBUs and their sites
+    fetch('/admin/api/sbus-with-sites')
+        .then(response => response.json())
+        .then(data => {
+            // Transform the data into a structure organized by SBU ID
+            const sbuSites = data.reduce((acc, sbu) => {
+                acc[sbu.id] = sbu.sites;
+                return acc;
+            }, {});
+            
+            // Function to update site options based on selected SBU
+            function updateSiteOptions() {
+                const selectedSBU = sbuSelect.value;
+                
+                // Clear current options
+                sitesSelect.innerHTML = '';
+                
+                // If an SBU is selected, populate with corresponding sites
+                if (selectedSBU && sbuSites[selectedSBU]) {
+                    // Sort sites with main sites first, then alphabetically
+                    const sites = [...sbuSites[selectedSBU]].sort((a, b) => {
+                        if (a.is_main !== b.is_main) {
+                            return a.is_main ? -1 : 1;
+                        }
+                        return a.name.localeCompare(b.name);
+                    });
+                    
+                    sites.forEach(site => {
+                        const option = document.createElement('option');
+                        option.value = site.id;
+                        option.textContent = site.name + (site.is_main ? ' (Main)' : '');
+                        // Check if this site is currently selected
+                        if (currentSites.includes(parseInt(site.id))) {
+                            option.selected = true;
+                        }
+                        sitesSelect.appendChild(option);
+                    });
+                }
+                
+                // Initialize Select2 if it's available
+                if (typeof $.fn.select2 !== 'undefined') {
+                    $(sitesSelect).select2({
+                        placeholder: 'Select deployment sites',
+                        allowClear: true,
+                        width: '100%'
+                    });
+                }
+            }
+            
+            // Update site options when SBU selection changes
+            sbuSelect.addEventListener('change', updateSiteOptions);
+            
+            // Initialize site options based on initial SBU value
+            updateSiteOptions();
+        })
+        .catch(error => {
+            console.error('Error fetching SBUs and sites:', error);
+        });
 });
 </script>
 @endsection

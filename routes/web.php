@@ -126,6 +126,9 @@ Route::prefix('admin')->group(function () {
         // Survey logo update route
         Route::patch('surveys/{survey}/update-logo', [\App\Http\Controllers\Admin\SurveyController::class, 'updateLogo'])
             ->name('admin.surveys.update-logo');
+        // Survey deployment settings update route
+        Route::patch('surveys/{survey}/update-deployment', [\App\Http\Controllers\Admin\SurveyController::class, 'updateDeployment'])
+            ->name('admin.surveys.update-deployment');
         Route::get('/users/create', [\App\Http\Controllers\Admin\UserManagementController::class, 'create'])->name('admin.users.create');
         Route::post('/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('admin.users.store');
 
@@ -140,5 +143,8 @@ Route::prefix('admin')->group(function () {
             'destroy' => 'admin.logos.destroy'
         ]);
         Route::post('logos/{logo}/activate', [\App\Http\Controllers\Admin\LogoController::class, 'activate'])->name('admin.logos.activate');
+        
+        // API routes for SBU and Site data
+        Route::get('/api/sbus-with-sites', [\App\Http\Controllers\Admin\SurveyController::class, 'getSbusWithSites'])->name('admin.api.sbus-with-sites');
     });
 });
