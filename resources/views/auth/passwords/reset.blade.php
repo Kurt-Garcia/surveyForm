@@ -20,7 +20,7 @@
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                                 <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" 
-                                    name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" autofocus 
+                                    name="email" value="{{ $email ?? old('email') }}" required autocomplete="email" readonly 
                                     placeholder="Enter your email">
                             </div>
                             @error('email')
