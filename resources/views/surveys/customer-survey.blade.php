@@ -829,7 +829,7 @@ function showResponseSummaryModal() {
                     
                     <h5 class="border-bottom pb-2 font-theme-heading">Additional Comments</h5>
                     <div class="mb-4">
-                        <p id="summary-comments"></p>
+                        <p id="summary-comments" style="word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;"></p>
                     </div>
                 </div>
             </div>

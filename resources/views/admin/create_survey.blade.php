@@ -451,13 +451,14 @@
     border-color: var(--primary-color);
     color: white;
     border-radius: 4px;
-    padding: 5px 10px;
+    padding: 5px 25px;
     margin: 5px;
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
     color: white;
     margin-right: 5px;
+    border: none;
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
