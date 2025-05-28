@@ -383,7 +383,7 @@ class UserSurveyController extends Controller
     }
 
     /**
-     * Send survey broadcast to selected customers
+     * Send survey broadcast to selected customers using async queue processing
      */
     public function broadcastSurvey(Request $request, Survey $survey)
     {
@@ -392,46 +392,137 @@ class UserSurveyController extends Controller
             'customer_ids.*' => 'exists:TBLCUSTOMER,id',
         ]);
 
-        $successCount = 0;
-        $failCount = 0;
         $customerIds = $request->input('customer_ids');
         
-        $customers = DB::table('TBLCUSTOMER')
-            ->select('id', 'CUSTCODE', 'CUSTNAME', 'EMAIL', 'CUSTTYPE')
+        // Validate customer emails exist
+        $validCustomersCount = DB::table('TBLCUSTOMER')
             ->whereIn('id', $customerIds)
             ->whereNotNull('EMAIL')
             ->where('EMAIL', '!=', '')
-            ->get();
+            ->count();
             
-        foreach ($customers as $customer) {
-            try {
-                // Create personalized survey URL with customer name and account type pre-filled
-                $surveyUrl = route('customer.survey', $survey->id) . '?account_name=' . urlencode($customer->CUSTNAME) . '&account_type=' . urlencode($customer->CUSTTYPE ?? 'Customer');
-                
-                // Send email to customer
-                $emailData = [
-                    'customer_name' => $customer->CUSTNAME,
-                    'survey_title' => $survey->title,
-                    'survey_url' => $surveyUrl
-                ];
-                
-                Mail::send('emails.survey_invitation', $emailData, function($message) use ($customer, $survey) {
-                    $message->to($customer->EMAIL, $customer->CUSTNAME)
-                            ->subject('You\'re invited to complete a survey: ' . $survey->title)
-                            ->from('testsurvey_1@w-itsolutions.com', 'Fast Distribution Corporation');
-                });
-                
-                $successCount++;
-            } catch (\Exception $e) {
-                Log::error('Failed to send survey email to ' . $customer->EMAIL . ': ' . $e->getMessage());
-                $failCount++;
-            }
+        if ($validCustomersCount === 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No valid customer emails found for broadcast'
+            ], 400);
         }
+        
+        // Generate unique batch ID for progress tracking
+        $batchId = 'survey_' . $survey->id . '_' . uniqid();
+        
+        // Dispatch the broadcast job to queue
+        \App\Jobs\ProcessSurveyBroadcastJob::dispatch($survey, $customerIds, $batchId);
+        
+        Log::info("Survey broadcast initiated for survey {$survey->title} with batch ID {$batchId}");
         
         return response()->json([
             'success' => true,
-            'message' => "Survey invitation sent to {$successCount} customer(s)",
-            'failed' => $failCount
+            'message' => "Survey broadcast has been queued for {$validCustomersCount} customer(s)",
+            'batch_id' => $batchId,
+            'total_customers' => $validCustomersCount
         ]);
+    }
+
+    /**
+     * Get broadcast progress for real-time updates
+     */
+    public function getBroadcastProgress($batchId)
+    {
+        $cacheKey = "broadcast_progress_{$batchId}";
+        $progress = \Illuminate\Support\Facades\Cache::get($cacheKey, [
+            'sent' => 0,
+            'failed' => 0,
+            'total' => 0,
+            'status' => 'not_found'
+        ]);
+        
+        // Calculate completion percentage
+        $total = $progress['total'] ?? 0;
+        $processed = ($progress['sent'] ?? 0) + ($progress['failed'] ?? 0);
+        $percentage = $total > 0 ? round(($processed / $total) * 100, 2) : 0;
+        
+        // Determine status
+        if ($progress['status'] === 'not_found') {
+            $status = 'not_found';
+        } elseif ($processed >= $total && $total > 0) {
+            $status = 'completed';
+        } else {
+            $status = 'processing';
+        }
+        
+        return response()->json([
+            'batch_id' => $batchId,
+            'sent' => $progress['sent'] ?? 0,
+            'failed' => $progress['failed'] ?? 0,
+            'total' => $total,
+            'processed' => $processed,
+            'percentage' => $percentage,
+            'status' => $status,
+            'started_at' => $progress['started_at'] ?? null
+        ]);
+    }
+
+    /**
+     * Health check endpoint for monitoring broadcast system
+     */
+    public function healthCheck()
+    {
+        try {
+            // Check database connection
+            $dbStatus = DB::select('SELECT 1 as test');
+            
+            // Check if jobs table exists and is accessible
+            $jobsTableExists = DB::getSchemaBuilder()->hasTable('jobs');
+            
+            // Check recent queue activity (last 10 minutes)
+            $recentJobs = DB::table('jobs')
+                ->where('created_at', '>', now()->subMinutes(10))
+                ->count();
+            
+            // Check failed jobs count
+            $failedJobs = DB::table('failed_jobs')
+                ->where('failed_at', '>', now()->subHour())
+                ->count();
+            
+            // Check email configuration
+            $emailConfigured = config('mail.mailers.smtp.host') !== null;
+            
+            $status = [
+                'status' => 'healthy',
+                'timestamp' => now()->toISOString(),
+                'checks' => [
+                    'database' => !empty($dbStatus),
+                    'jobs_table' => $jobsTableExists,
+                    'email_config' => $emailConfigured,
+                    'recent_job_activity' => $recentJobs,
+                    'failed_jobs_last_hour' => $failedJobs
+                ],
+                'queue_stats' => [
+                    'pending_jobs' => DB::table('jobs')->count(),
+                    'failed_jobs' => DB::table('failed_jobs')->count(),
+                    'recent_activity' => $recentJobs > 0
+                ]
+            ];
+            
+            // Determine overall health
+            $isHealthy = $status['checks']['database'] && 
+                        $status['checks']['jobs_table'] && 
+                        $status['checks']['email_config'] &&
+                        $status['checks']['failed_jobs_last_hour'] < 10; // Less than 10 failures per hour
+            
+            if (!$isHealthy) {
+                $status['status'] = 'degraded';
+            }
+            
+            return response()->json($status, $isHealthy ? 200 : 503);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'unhealthy',
+                'timestamp' => now()->toISOString(),
+                'error' => $e->getMessage()
+            ], 503);
+        }
     }
 }

@@ -686,10 +686,11 @@
                                     <div class="progress" style="height: 20px;">
                                         <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
                                              role="progressbar" 
-                                             style="width: 0%" 
+                                             style="width: 0%; transition: width 0.3s ease;" 
                                              aria-valuenow="0" 
                                              aria-valuemin="0" 
                                              aria-valuemax="100">
+                                            0%
                                         </div>
                                     </div>
                                     <div class="mt-2">
@@ -717,24 +718,70 @@
                                 })
                                 .then(response => response.json())
                                 .then(data => {
-                                    // Simulate progress (since we don't have real-time progress)
-                                    const interval = setInterval(() => {
-                                        currentProgress += 5;
-                                        if (currentProgress <= 100) {
-                                            progressBar.style.width = `${currentProgress}%`;
-                                            progressBar.setAttribute('aria-valuenow', currentProgress);
-                                            sentCount.textContent = Math.floor((currentProgress / 100) * totalCustomers);
-                                        } else {
+                                    if (data.success && data.batch_id) {
+                                        // Start real-time progress tracking
+                                        const batchId = data.batch_id;
+                                        const interval = setInterval(() => {
+                                            fetch(`/admin/broadcast/progress/${batchId}`)
+                                                .then(response => response.json())
+                                                .then(progressData => {
+                                                    const percentage = progressData.percentage || 0;
+                                                    const sent = progressData.sent || 0;
+                                                    const failed = progressData.failed || 0;
+                                                    const total = progressData.total || totalCustomers;
+                                                    const status = progressData.status;
+                                                    
+                                                    // Update progress bar
+                                                    progressBar.style.width = `${percentage}%`;
+                                                    progressBar.setAttribute('aria-valuenow', percentage);
+                                                    progressBar.textContent = `${Math.round(percentage)}%`;
+                                                    
+                                                    // Update sent count
+                                                    sentCount.textContent = sent;
+                                                    
+                                                    // Update total if it changed
+                                                    const totalCountEl = Swal.getHtmlContainer().querySelector('.total-count');
+                                                    if (totalCountEl) {
+                                                        totalCountEl.textContent = total;
+                                                    }
+                                                    
+                                                    // Add failure info if any
+                                                    if (failed > 0) {
+                                                        const failedText = `, ${failed} failed`;
+                                                        if (!sentCount.textContent.includes('failed')) {
+                                                            sentCount.textContent += failedText;
+                                                        }
+                                                    }
+                                                    
+                                                    // Check if completed
+                                                    if (status === 'completed' || percentage >= 100) {
+                                                        clearInterval(interval);
+                                                        
+                                                        // Show success immediately for better UX
+                                                        setTimeout(() => {
+                                                            Swal.fire({
+                                                                title: 'Success!',
+                                                                text: `Survey invitations sent successfully! ${sent} sent${failed > 0 ? `, ${failed} failed` : ''}`,
+                                                                icon: 'success',
+                                                                timer: 5000
+                                                            });
+                                                        }, 200);
+                                                    }
+                                                })
+                                                .catch(error => {
+                                                    console.error('Error fetching progress:', error);
+                                                    // Continue polling even if one request fails
+                                                });
+                                        }, 300); // Poll every 300ms for faster updates
+                                        
+                                        // Set a timeout to stop polling after 10 minutes
+                                        setTimeout(() => {
                                             clearInterval(interval);
-                                            // Hide modal and show success
-                                            bootstrap.Modal.getInstance(document.getElementById('broadcastModal')).hide();
-                                            Swal.fire({
-                                                title: 'Success!',
-                                                text: data.message,
-                                                icon: 'success'
-                                            });
-                                        }
-                                    }, 100);
+                                            console.log('Progress polling stopped after timeout');
+                                        }, 600000);
+                                    } else {
+                                        throw new Error(data.message || 'Failed to start broadcast');
+                                    }
                                 })
                                 .catch(error => {
                                     console.error('Error sending broadcast:', error);
@@ -751,7 +798,7 @@
                         broadcastModal.show();
                     }
                 });
-                }, 300);
+                }, 150);
             });
         }
         
@@ -850,14 +897,14 @@
             // Show with animation
             setTimeout(() => {
                 notification.classList.add('show');
-            }, 100);
+            }, 50);
             
             // Remove after delay
             setTimeout(() => {
                 notification.classList.remove('show');
                 setTimeout(() => {
                     document.body.removeChild(notification);
-                }, 300);
+                }, 200);
             }, 5000);
         }
         
@@ -894,7 +941,7 @@
                         broadcastModal.show();
                     }
                 });
-            }, 300);
+            }, 150);
         });
         
         document.getElementById('closeBroadcastBtn').addEventListener('click', function() {
@@ -921,7 +968,7 @@
                         broadcastModal.show();
                     }
                 });
-            }, 300);
+            }, 150);
         });
     });
 </script>

@@ -40,6 +40,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/surveys/{survey}', [UserSurveyController::class, 'store'])->name('surveys.store');
         Route::get('/surveys/{survey}/customers', [UserSurveyController::class, 'getCustomers'])->name('surveys.customers');
         Route::post('/surveys/{survey}/broadcast', [UserSurveyController::class, 'broadcastSurvey'])->name('surveys.broadcast');
+        Route::get('/broadcast/progress/{batchId}', [UserSurveyController::class, 'getBroadcastProgress'])->name('broadcast.progress');
     });
     
     Route::post('/check-account-exists', [UserSurveyController::class, 'checkAccountExists'])->name('check.account.exists');
@@ -105,6 +106,8 @@ Route::prefix('admin')->group(function () {
             ->name('admin.surveys.customers');
         Route::post('surveys/{survey}/broadcast', [\App\Http\Controllers\UserSurveyController::class, 'broadcastSurvey'])
             ->name('admin.surveys.broadcast');
+        Route::get('broadcast/progress/{batchId}', [\App\Http\Controllers\UserSurveyController::class, 'getBroadcastProgress'])
+            ->name('admin.broadcast.progress');
             
         // Survey response routes
         Route::get('surveys/{survey}/responses', [\App\Http\Controllers\Admin\SurveyResponseController::class, 'index'])
@@ -147,3 +150,6 @@ Route::prefix('admin')->group(function () {
         Route::get('/api/sbus-with-sites', [\App\Http\Controllers\Admin\SurveyController::class, 'getSbusWithSites'])->name('admin.api.sbus-with-sites');
     });
 });
+
+// Health check route (publicly accessible)
+Route::get('/health', [\App\Http\Controllers\UserSurveyController::class, 'healthCheck'])->name('health.check');
