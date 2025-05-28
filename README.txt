@@ -34,6 +34,26 @@ php artisan serve --host=192.168.1.130 --port=8000
 
 
 
+
+
+-------Run these in terminal to push on Github-------
+
+git add .
+
+git branch -m Version-16
+
+git commit -m "New Version 16, Broadcast is Queing-based System"
+
+git push -u origin Version-16
+
+
+
+
+
+
+
+
+
 nefegix327@bocapies.com
 Admin12359?!$
 
