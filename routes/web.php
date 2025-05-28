@@ -13,10 +13,9 @@ Route::get('/', function () {
 })->name('welcome');
 
 // Direct access survey route for customers (no login required)
-Route::middleware(['site.access'])->group(function () {
-    Route::get('/survey/{survey}', [UserSurveyController::class, 'customerSurvey'])->name('customer.survey');
-    Route::post('/survey/{survey}/submit', [UserSurveyController::class, 'customerStore'])->name('customer.survey.submit');
-});
+// These routes don't use site.access middleware to allow public access via email links
+Route::get('/survey/{survey}', [UserSurveyController::class, 'customerSurvey'])->name('customer.survey');
+Route::post('/survey/{survey}/submit', [UserSurveyController::class, 'customerStore'])->name('customer.survey.submit');
 
 // Autocomplete route for customer names
 Route::get('/customers/autocomplete', [CustomerController::class, 'autocomplete'])->name('customers.autocomplete');

@@ -643,28 +643,40 @@
                     .map(checkbox => checkbox.value);
                 
                 if (selectedCustomers.length === 0) {
+                    // Remove focus before showing SweetAlert2
+                    this.blur();
                     Swal.fire({
                         title: "No customers selected",
                         text: "Please select at least one customer",
-                        icon: "warning"
+                        icon: "warning",
+                        allowOutsideClick: false,
+                        allowEscapeKey: false
                     });
                     return;
                 }
                 
-                // Show confirmation dialog
-                swalWithBootstrapButtons.fire({
-                    title: "Send Survey Invitations?",
-                    text: `You are about to send invitations to ${selectedCustomers.length} customers. Continue?`,
-                    icon: "question",
-                    showCancelButton: true,
-                    confirmButtonText: "Yes, send invitations!",
-                    cancelButtonText: "No, cancel!",
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Show progress dialog
-                        let timerInterval;
-                        const totalCustomers = selectedCustomers.length;
+                // Remove focus and hide modal before showing confirmation
+                this.blur();
+                const broadcastModal = bootstrap.Modal.getInstance(document.getElementById('broadcastModal'));
+                broadcastModal.hide();
+                
+                // Show confirmation dialog after modal is hidden
+                setTimeout(() => {
+                    swalWithBootstrapButtons.fire({
+                        title: "Send Survey Invitations?",
+                        text: `You are about to send invitations to ${selectedCustomers.length} customers. Continue?`,
+                        icon: "question",
+                        showCancelButton: true,
+                        confirmButtonText: "Yes, send invitations!",
+                        cancelButtonText: "No, cancel!",
+                        reverseButtons: true,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Show progress dialog
+                            let timerInterval;
+                            const totalCustomers = selectedCustomers.length;
                         let currentProgress = 0;
 
                         const progressSwal = Swal.fire({
@@ -734,8 +746,12 @@
                                 });
                             }
                         });
+                    } else if (result.isDismissed && result.dismiss === Swal.DismissReason.cancel) {
+                        // If user cancels, show the broadcast modal again
+                        broadcastModal.show();
                     }
                 });
+                }, 300);
             });
         }
         
@@ -847,40 +863,65 @@
         
         // Add event listeners for cancel and close buttons
         document.getElementById('cancelBroadcastBtn').addEventListener('click', function() {
-            swalWithBootstrapButtons.fire({
-                title: "Cancel broadcast?",
-                text: "Are you sure you want to cancel this broadcast?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Yes, cancel it!",
-                cancelButtonText: "No, continue!",
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    bootstrap.Modal.getInstance(document.getElementById('broadcastModal')).hide();
-                    swalWithBootstrapButtons.fire({
-                        title: "Cancelled",
-                        text: "Broadcast has been cancelled.",
-                        icon: "info"
-                    });
-                }
-            });
+            // Remove focus and hide modal before showing SweetAlert2
+            this.blur();
+            const broadcastModal = bootstrap.Modal.getInstance(document.getElementById('broadcastModal'));
+            broadcastModal.hide();
+            
+            // Show SweetAlert2 after modal is hidden
+            setTimeout(() => {
+                swalWithBootstrapButtons.fire({
+                    title: "Cancel broadcast?",
+                    text: "Are you sure you want to cancel this broadcast?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, cancel it!",
+                    cancelButtonText: "No, continue!",
+                    reverseButtons: true,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        swalWithBootstrapButtons.fire({
+                            title: "Cancelled",
+                            text: "Broadcast has been cancelled.",
+                            icon: "info",
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        // If user cancels, show the modal again
+                        broadcastModal.show();
+                    }
+                });
+            }, 300);
         });
         
         document.getElementById('closeBroadcastBtn').addEventListener('click', function() {
-            swalWithBootstrapButtons.fire({
-                title: "Close broadcast?",
-                text: "Are you sure you want to close this broadcast window?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Yes, close it!",
-                cancelButtonText: "No, stay here!",
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    bootstrap.Modal.getInstance(document.getElementById('broadcastModal')).hide();
-                }
-            });
+            // Remove focus and hide modal before showing SweetAlert2
+            this.blur();
+            const broadcastModal = bootstrap.Modal.getInstance(document.getElementById('broadcastModal'));
+            broadcastModal.hide();
+            
+            // Show SweetAlert2 after modal is hidden
+            setTimeout(() => {
+                swalWithBootstrapButtons.fire({
+                    title: "Close broadcast?",
+                    text: "Are you sure you want to close this broadcast window?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, close it!",
+                    cancelButtonText: "No, stay here!",
+                    reverseButtons: true,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then((result) => {
+                    if (result.isDismissed && result.dismiss === Swal.DismissReason.cancel) {
+                        // If user cancels, show the modal again
+                        broadcastModal.show();
+                    }
+                });
+            }, 300);
         });
     });
 </script>
