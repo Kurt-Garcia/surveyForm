@@ -148,47 +148,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    function toggleOptionsContainer() {
-        if (typeSelect.value === 'radio' || typeSelect.value === 'select') {
-            optionsContainer.style.display = 'block';
-            // Add at least two options if none exist
-            const optionsList = document.getElementById('optionsList');
-            if (optionsList && optionsList.children.length === 0) {
-                addOption();
-                addOption();
-            }
-        } else {
-            optionsContainer.style.display = 'none';
-        }
-    }
-
-    typeSelect.addEventListener('change', toggleOptionsContainer);
-
-    // Show options container on load if type is radio/select
-    toggleOptionsContainer();
+    // Note: Options functionality removed as it's not implemented in this edit form
 });
 
-function addOption() {
-    const optionsList = document.getElementById('optionsList');
-    const optionDiv = document.createElement('div');
-    optionDiv.className = 'input-group mb-2';
-    optionDiv.innerHTML = `
-        <input type="text" class="form-control" name="options[]" placeholder="Enter option">
-        <button type="button" class="btn btn-outline-danger" onclick="removeOption(this)">
-            <i class="bi bi-trash"></i>
-        </button>
-    `;
-    optionsList.appendChild(optionDiv);
-}
-
-function removeOption(button) {
-    const optionsList = document.getElementById('optionsList');
-    if (optionsList.children.length > 2) {
-        button.closest('.input-group').remove();
-    } else {
-        alert('A minimum of 2 options is required.');
-    }
-}
+// Note: Option management functions not needed for this edit form
 </script>
 
 <style>

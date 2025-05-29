@@ -36,7 +36,8 @@
                                                 <i class="bi bi-palette2"></i>
                                             </span>
                                             <input type="text" class="form-control form-control-lg border-start-0 @error('name') is-invalid @enderror" 
-                                                id="name" name="name" value="{{ old('name') }}" required placeholder="Enter a unique theme name">
+                                                id="name" name="name" value="{{ old('name') }}" required 
+                                                placeholder="Enter a unique theme name" autocomplete="off">
                                         </div>
                                         @error('name')
                                             <div class="invalid-feedback d-block">{{ $message }}</div>

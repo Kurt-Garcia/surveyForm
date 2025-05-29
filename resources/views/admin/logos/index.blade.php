@@ -29,7 +29,8 @@
                         </div>
                         <div class="mb-4">
                             <label for="name" class="form-label fw-semibold">Logo Name <span class="text-muted">(optional)</span></label>
-                            <input type="text" class="form-control form-control-lg @error('name') is-invalid @enderror" id="name" name="name">
+                            <input type="text" class="form-control form-control-lg @error('name') is-invalid @enderror" 
+                                   id="name" name="name" autocomplete="off">
                             @error('name')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

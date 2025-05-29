@@ -85,7 +85,8 @@
                                     <i class="bi bi-person me-1 text-info"></i>Full Name
                                 </label>
                                 <input type="text" class="form-control form-control-lg border-0 shadow-sm @error('name') is-invalid @enderror" 
-                                       id="name" name="name" value="{{ old('name') }}" placeholder="Enter full name..." required>
+                                       id="name" name="name" value="{{ old('name') }}" placeholder="Enter full name..." 
+                                       autocomplete="name" required>
                                 @error('name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -99,7 +100,8 @@
                                     <i class="bi bi-envelope me-1 text-warning"></i>Email Address
                                 </label>
                                 <input type="email" class="form-control form-control-lg border-0 shadow-sm @error('email') is-invalid @enderror" 
-                                       id="email" name="email" value="{{ old('email') }}" placeholder="admin@example.com" required>
+                                       id="email" name="email" value="{{ old('email') }}" placeholder="admin@example.com" 
+                                       autocomplete="email" required>
                                 @error('email')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -109,7 +111,8 @@
                                     <i class="bi bi-telephone me-1 text-danger"></i>Contact Number
                                 </label>
                                 <input type="tel" class="form-control form-control-lg border-0 shadow-sm @error('contact_number') is-invalid @enderror" 
-                                       id="contact_number" name="contact_number" value="{{ old('contact_number') }}" placeholder="+63912345678" required>
+                                       id="contact_number" name="contact_number" value="{{ old('contact_number') }}" placeholder="+63912345678" 
+                                       autocomplete="tel" required>
                                 @error('contact_number')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -123,7 +126,8 @@
                                     <i class="bi bi-shield-lock me-1 text-secondary"></i>Password
                                 </label>
                                 <input type="password" class="form-control form-control-lg border-0 shadow-sm @error('password') is-invalid @enderror" 
-                                       id="password" name="password" placeholder="Enter password..." required>
+                                       id="password" name="password" placeholder="Enter password..." 
+                                       autocomplete="new-password" required>
                                 @error('password')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     </span>
@@ -134,7 +138,8 @@
                                     <i class="bi bi-shield-check me-1 text-secondary"></i>Confirm Password
                                 </label>
                                 <input type="password" class="form-control form-control-lg border-0 shadow-sm" 
-                                       id="password_confirmation" name="password_confirmation" placeholder="Confirm password..." required>
+                                       id="password_confirmation" name="password_confirmation" placeholder="Confirm password..." 
+                                       autocomplete="new-password" required>
                             </div>
                         </div>
                         

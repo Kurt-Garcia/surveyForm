@@ -409,17 +409,19 @@
                     </div>
                     <div class="mb-3">
                         <label for="custname" class="form-label">Customer Name</label>
-                        <input type="text" class="form-control" id="custname" name="custname" readonly>
+                        <input type="text" class="form-control" id="custname" name="custname" readonly autocomplete="name">
                     </div>
                     <div class="mb-3">
                         <label for="phone" class="form-label">Contact Cell Number</label>
-                        <input type="text" class="form-control" id="phone" name="phone" required maxlength="13" placeholder="Enter contact number">
+                        <input type="text" class="form-control" id="phone" name="phone" required maxlength="13" 
+                               placeholder="Enter contact number" autocomplete="tel">
                         <div class="invalid-feedback" id="phone-error"></div>
                         <small class="form-text text-muted">Maximum 13 characters</small>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" maxlength="50" placeholder="Enter email address">
+                        <input type="email" class="form-control" id="email" name="email" maxlength="50" 
+                               placeholder="Enter email address" autocomplete="email">
                         <div class="invalid-feedback" id="email-error"></div>
                         <small class="form-text text-muted">Maximum 50 characters</small>
                     </div>
