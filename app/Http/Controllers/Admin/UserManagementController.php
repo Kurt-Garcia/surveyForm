@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Admin;
+use App\Models\Sbu;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -77,5 +78,29 @@ class UserManagementController extends Controller
         ]);
 
         return redirect()->route('admin.users.create')->with('success', 'User created successfully!');
+    }
+
+    // Get data for DataTables displaying only survey users (not admin users)
+    public function data()
+    {
+        // Get only regular users (surveyors), not admin users
+        $surveyUsers = User::with(['sbu', 'site'])
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'contact_number' => $user->contact_number,
+                    'sbu_name' => $user->sbu ? $user->sbu->name : 'N/A',
+                    'site_name' => $user->site ? $user->site->name : 'N/A',
+                    'user_type' => 'Surveyor',
+                    'created_at' => $user->created_at->format('M d, Y')
+                ];
+            });
+
+        return response()->json([
+            'data' => $surveyUsers
+        ]);
     }
 }

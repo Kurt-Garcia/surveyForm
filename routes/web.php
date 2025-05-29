@@ -133,6 +133,7 @@ Route::prefix('admin')->group(function () {
             ->name('admin.surveys.update-deployment');
         Route::get('/users/create', [\App\Http\Controllers\Admin\UserManagementController::class, 'create'])->name('admin.users.create');
         Route::post('/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('admin.users.store');
+        Route::get('/users/data', [\App\Http\Controllers\Admin\UserManagementController::class, 'data'])->name('admin.users.data');
 
         // Logo management routes
         Route::resource('logos', \App\Http\Controllers\Admin\LogoController::class)->names([
