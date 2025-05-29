@@ -1,11 +1,184 @@
 @extends('layouts.app')
 
-@section('content')
+@push('head')
+<!-- Preload critical fonts to prevent FOUC -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+<!-- Critical CSS loaded first -->
 <link href="{{ asset('css/admin.css') }}" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<div class="admin-dashboard">
+<!-- Inline critical CSS to prevent FOUC -->
+<style>
+/* Critical CSS for preventing layout shift */
+.admin-dashboard {
+    background-color: var(--background-color, #f8f9fa);
+    min-height: 100vh;
+    transition: opacity 0.2s ease-in-out;
+    contain: layout style paint;
+}
+
+/* Prevent flash of unstyled content */
+.admin-dashboard * {
+    visibility: visible;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Ensure Bootstrap grid system works properly */
+.container-fluid {
+    width: 100%;
+    padding-right: var(--bs-gutter-x, 0.75rem);
+    padding-left: var(--bs-gutter-x, 0.75rem);
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.row {
+    --bs-gutter-x: 1.5rem;
+    --bs-gutter-y: 0;
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: calc(-1 * var(--bs-gutter-y));
+    margin-right: calc(-0.5 * var(--bs-gutter-x));
+    margin-left: calc(-0.5 * var(--bs-gutter-x));
+}
+
+.col-12, .col-lg-10, .col-lg-8, .col-lg-4, .col-md-4 {
+    position: relative;
+    width: 100%;
+    padding-right: calc(var(--bs-gutter-x) * 0.5);
+    padding-left: calc(var(--bs-gutter-x) * 0.5);
+    margin-top: var(--bs-gutter-y);
+}
+
+/* Bootstrap responsive classes */
+@media (min-width: 768px) {
+    .col-md-4 {
+        flex: 0 0 auto;
+        width: 33.33333333%;
+    }
+}
+
+@media (min-width: 992px) {
+    .col-lg-4 {
+        flex: 0 0 auto;
+        width: 33.33333333%;
+    }
+    .col-lg-8 {
+        flex: 0 0 auto;
+        width: 66.66666667%;
+    }
+    .col-lg-10 {
+        flex: 0 0 auto;
+        width: 83.33333333%;
+    }
+}
+
+.welcome-card {
+    border-radius: 16px;
+    border: none;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    position: relative;
+    min-height: 200px;
+}
+
+.welcome-card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--primary-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+    z-index: 0;
+}
+
+.feature-card, .stats-card {
+    background: white;
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    min-height: 300px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1.5rem;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s ease;
+    height: 100%;
+    border-radius: 12px;
+    margin: 0.5rem;
+    min-height: 150px;
+}
+
+/* Performance optimizations */
+.action-icon {
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+.welcome-title {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+/* Animation classes for intersection observer */
+.animate-in {
+    animation: fadeInUp 0.3s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ensure Bootstrap spacing utilities work */
+.mb-5 { margin-bottom: 3rem !important; }
+.mb-4 { margin-bottom: 1.5rem !important; }
+.mb-3 { margin-bottom: 1rem !important; }
+.mb-2 { margin-bottom: 0.5rem !important; }
+.mb-0 { margin-bottom: 0 !important; }
+.px-4 { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
+.py-5 { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+.p-5 { padding: 3rem !important; }
+.p-4 { padding: 1.5rem !important; }
+.g-4 { --bs-gutter-x: 1.5rem; --bs-gutter-y: 1.5rem; }
+.g-0 { --bs-gutter-x: 0; --bs-gutter-y: 0; }
+
+/* Hide scrollbars during transition to prevent jumping */
+html {
+    overflow-x: hidden;
+}
+</style>
+@endpush
+
+@section('content')
+<!-- Add a subtle loading overlay that will be hidden once everything is loaded -->
+<div id="dashboard-loader" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--background-color, #f8f9fa); z-index: 9999; opacity: 1; transition: opacity 0.2s ease-out; pointer-events: none;"></div>
+
+<div class="admin-dashboard" style="opacity: 0; transition: opacity 0.2s ease-in-out;" id="dashboard-content">
     <div class="container-fluid px-4 py-5">
         <div class="row justify-content-center">
             <div class="col-12 col-lg-10">
@@ -155,9 +328,29 @@
 </div>
 
 <script>
-// Add subtle animation for dashboard elements
+// Prevent FOUC and add smooth loading animation
 document.addEventListener('DOMContentLoaded', function() {
-    // Add hover effect to action cards
+    // Hide the loader and show the dashboard smoothly
+    const loader = document.getElementById('dashboard-loader');
+    const dashboard = document.getElementById('dashboard-content');
+    
+    // Use requestAnimationFrame to ensure smooth animation
+    requestAnimationFrame(function() {
+        // Hide loader
+        if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.display = 'none';
+            }, 200);
+        }
+        
+        // Show dashboard content
+        if (dashboard) {
+            dashboard.style.opacity = '1';
+        }
+    });
+    
+    // Add hover effect to action cards with better performance
     const actionCards = document.querySelectorAll('.action-card');
     actionCards.forEach(card => {
         card.addEventListener('mouseenter', function() {
@@ -167,6 +360,36 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.transform = 'translateY(0)';
         });
     });
+    
+    // Add intersection observer for better animation performance
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        // Observe all animatable elements
+        document.querySelectorAll('.feature-card, .stats-card, .action-card').forEach(el => {
+            observer.observe(el);
+        });
+    }
+});
+
+// Prevent page flicker on back/forward navigation
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted) {
+        const dashboard = document.getElementById('dashboard-content');
+        const loader = document.getElementById('dashboard-loader');
+        
+        if (dashboard) dashboard.style.opacity = '1';
+        if (loader) {
+            loader.style.opacity = '0';
+            loader.style.display = 'none';
+        }
+    }
 });
 </script>
 
@@ -177,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function() {
     --info-gradient: linear-gradient(135deg, #0093E9, #80D0C7);
     --warning-gradient: linear-gradient(135deg, #FF9966, #FF5E62);
     --card-radius: 16px;
-    --transition-speed: 0.3s;
+    --transition-speed: 0.2s;
 }
 
 body {
@@ -213,7 +436,7 @@ body {
     font-weight: 800;
     letter-spacing: -0.5px;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    animation: fadeInUp 0.8s ease-out;
+    animation: fadeInUp 0.4s ease-out;
     color: #fff;
     background: none;
     -webkit-background-clip: initial;
@@ -366,7 +589,7 @@ body {
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(10px);
     }
     to {
         opacity: 1;
@@ -375,15 +598,15 @@ body {
 }
 
 .feature-card, .stats-card {
-    animation: fadeInUp 0.6s ease-out forwards;
+    animation: fadeInUp 0.3s ease-out forwards;
 }
 
 .feature-card {
-    animation-delay: 0.2s;
+    animation-delay: 0.1s;
 }
 
 .stats-card {
-    animation-delay: 0.4s;
+    animation-delay: 0.15s;
 }
 
 /* Responsive Styles */
@@ -422,23 +645,23 @@ body {
     .action-icon {
         margin-bottom: 1rem;
     }
-    
-    /* Background Pattern */
-    .background-pattern {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: radial-gradient(rgba(0, 0, 0, 0.03) 2px, transparent 2px);
-        background-size: 30px 30px;
-        pointer-events: none;
-        z-index: -1;
-    }
+}
+
+/* Background Pattern */
+.background-pattern {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(rgba(0, 0, 0, 0.03) 2px, transparent 2px);
+    background-size: 30px 30px;
+    pointer-events: none;
+    z-index: -1;
 }
 
 .font-theme{
-         font-family: var(--body-font);
+    font-family: var(--body-font);
 }
 
 </style>

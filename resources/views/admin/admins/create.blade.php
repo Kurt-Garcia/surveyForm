@@ -6,7 +6,7 @@
 
 <div class="container-fluid py-4 px-4" style="background: var(--background-color); min-height: 100vh;">
     <!-- Hero Section with Gradient Background -->
-    
+
     <div class="row justify-content-center">
         <!-- Create New Admin Form - Centered -->
         <div class="col-lg-6 col-xl-5">
@@ -405,61 +405,105 @@
                     });
             }
         });
+        
+        // Password field validation
+        const passwordField = document.getElementById('password');
+        let passwordIsValid = true;
+        
+        passwordField.addEventListener('blur', function() {
+            const password = passwordField.value.trim();
+            if (password) {
+                // Remove any existing feedback
+                const existingFeedback = document.getElementById('password-validation-feedback');
+                if (existingFeedback) {
+                    existingFeedback.remove();
+                }
+                
+                // Check if password exists in admin_users or users table via AJAX
+                fetch(`/admin/check-password-availability?password=${encodeURIComponent(password)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            // Password already exists
+                            passwordIsValid = false;
+                            const errorFeedback = document.createElement('div');
+                            errorFeedback.className = 'text-danger mt-1';
+                            errorFeedback.id = 'password-validation-feedback';
+                            errorFeedback.innerHTML = `<small><i class="bi bi-exclamation-triangle-fill me-1"></i>${data.message}</small>`;
+                            passwordField.parentNode.appendChild(errorFeedback);
+                            passwordField.classList.add('is-invalid');
+                        } else {
+                            // Password is available
+                            passwordIsValid = true;
+                            const successFeedback = document.createElement('div');
+                            successFeedback.className = 'text-success mt-1';
+                            successFeedback.id = 'password-validation-feedback';
+                            successFeedback.innerHTML = '<small><i class="bi bi-check-circle-fill me-1"></i>Password is available</small>';
+                            passwordField.parentNode.appendChild(successFeedback);
+                            passwordField.classList.remove('is-invalid');
+                            passwordField.classList.add('is-valid');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking password:', error);
+                    });
+            }
+        });
     });
 
     // Function to handle form submission confirmation
     function confirmSubmit(event) {
         event.preventDefault();
         
-        // Get name and email validation states
+        // Get name, email, and password validation states
         const nameField = document.getElementById('name');
         const emailField = document.getElementById('email');
+        const passwordField = document.getElementById('password');
         
-        // Check if name field has validation feedback
+        // Check if fields have validation feedback
         const nameValidationFeedback = document.getElementById('name-validation-feedback');
         const emailValidationFeedback = document.getElementById('email-validation-feedback');
+        const passwordValidationFeedback = document.getElementById('password-validation-feedback');
         
         const nameIsValid = !nameField.classList.contains('is-invalid');
         const emailIsValid = !emailField.classList.contains('is-invalid');
+        const passwordIsValid = !passwordField.classList.contains('is-invalid');
         
         if (!nameIsValid) {
-            Swal.fire({
+            swalWithBootstrapButtons.fire({
                 title: "Name Already Exists",
                 text: "Please use a different name.",
-                icon: "error",
-                customClass: {
-                    confirmButton: "btn btn-primary"
-                },
-                buttonsStyling: false
+                icon: "error"
             });
             return false;
         }
         
         if (!emailIsValid) {
-            Swal.fire({
+            swalWithBootstrapButtons.fire({
                 title: "Email Already Exists", 
                 text: "Please use a different email address.",
-                icon: "error",
-                customClass: {
-                    confirmButton: "btn btn-primary"
-                },
-                buttonsStyling: false
+                icon: "error"
             });
             return false;
         }
         
-        Swal.fire({
+        if (!passwordIsValid) {
+            swalWithBootstrapButtons.fire({
+                title: "Password Already in Use",
+                text: "Please choose a different password.",
+                icon: "error"
+            });
+            return false;
+        }
+        
+        swalWithBootstrapButtons.fire({
             title: "Confirm Admin Creation",
             text: "Are you sure you want to add this administrator?",
             icon: "question",
             showCancelButton: true,
             confirmButtonText: "Yes, create admin!",
             cancelButtonText: "Cancel",
-            customClass: {
-                confirmButton: "btn btn-success me-3",
-                cancelButton: "btn btn-outline-danger"
-            },
-            buttonsStyling: false
+            reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
                 // Submit the form

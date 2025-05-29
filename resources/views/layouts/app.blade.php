@@ -3,6 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#667eea">
+    <meta name="color-scheme" content="light">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -14,7 +16,9 @@
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link href="https://fonts.bunny.net/css?family=Nunito:400,500,600,700&display=swap" rel="stylesheet">
     <link href="{{ asset('css/styles.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
@@ -42,6 +46,9 @@
     
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    
+    <!-- Additional head content from child views -->
+    @stack('head')
 </head>
 <body>
     <!-- Theme CSS Variables -->
@@ -166,7 +173,7 @@
                     </ul>
                   </div>
                 </div>
-                <div class="collapse navbar-collapse d-none d-md-block" id="navbarSupportedContent">
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.dashboard') }}">Home</a>
@@ -278,13 +285,27 @@
         box-shadow: 0 2px 4px var(--shadow-color);
       }
       
+      /* Proper responsive navbar handling */
       @media (max-width: 767.98px) {
-        .navbar-collapse.d-none.d-md-block { display: none !important; }
-        .offcanvas { width: 25vw; min-width: 120px; max-width: 50vw; }
+        .navbar-nav {
+          text-align: center;
+        }
+        .offcanvas { 
+          width: 280px; 
+          max-width: 80vw; 
+        }
       }
+      
       @media (min-width: 768px) {
-        .offcanvas { display: none !important; }
-        .navbar-collapse.d-none.d-md-block { display: flex !important; }
+        .navbar-toggler { 
+          display: none !important; 
+        }
+        .navbar-collapse { 
+          display: flex !important; 
+        }
+        .offcanvas { 
+          display: none !important; 
+        }
       }
     </style>
     
