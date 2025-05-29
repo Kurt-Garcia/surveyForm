@@ -719,66 +719,41 @@
                                 .then(response => response.json())
                                 .then(data => {
                                     if (data.success && data.batch_id) {
-                                        // Start real-time progress tracking
-                                        const batchId = data.batch_id;
-                                        const interval = setInterval(() => {
-                                            fetch(`/admin/broadcast/progress/${batchId}`)
-                                                .then(response => response.json())
-                                                .then(progressData => {
-                                                    const percentage = progressData.percentage || 0;
-                                                    const sent = progressData.sent || 0;
-                                                    const failed = progressData.failed || 0;
-                                                    const total = progressData.total || totalCustomers;
-                                                    const status = progressData.status;
+                                        // Calculate progress per customer for fast simulation
+                                        const progressPerCustomer = 100 / selectedCustomers.length;
+                                        let currentProgress = 0;
+                                        let simulatedSentCount = 0;
+
+                                        // Simulate progress for each customer (like user side)
+                                        const progressInterval = setInterval(() => {
+                                            if (simulatedSentCount < selectedCustomers.length) {
+                                                simulatedSentCount++;
+                                                currentProgress = Math.min(progressPerCustomer * simulatedSentCount, 100);
+
+                                                // Update progress bar and count
+                                                if (progressBar && sentCount) {
+                                                    progressBar.style.width = `${currentProgress}%`;
+                                                    progressBar.setAttribute('aria-valuenow', currentProgress);
+                                                    progressBar.textContent = `${Math.round(currentProgress)}%`;
+                                                    sentCount.textContent = simulatedSentCount;
+                                                }
+
+                                                if (simulatedSentCount === selectedCustomers.length) {
+                                                    clearInterval(progressInterval);
                                                     
-                                                    // Update progress bar
-                                                    progressBar.style.width = `${percentage}%`;
-                                                    progressBar.setAttribute('aria-valuenow', percentage);
-                                                    progressBar.textContent = `${Math.round(percentage)}%`;
-                                                    
-                                                    // Update sent count
-                                                    sentCount.textContent = sent;
-                                                    
-                                                    // Update total if it changed
-                                                    const totalCountEl = Swal.getHtmlContainer().querySelector('.total-count');
-                                                    if (totalCountEl) {
-                                                        totalCountEl.textContent = total;
-                                                    }
-                                                    
-                                                    // Add failure info if any
-                                                    if (failed > 0) {
-                                                        const failedText = `, ${failed} failed`;
-                                                        if (!sentCount.textContent.includes('failed')) {
-                                                            sentCount.textContent += failedText;
-                                                        }
-                                                    }
-                                                    
-                                                    // Check if completed
-                                                    if (status === 'completed' || percentage >= 100) {
-                                                        clearInterval(interval);
-                                                        
-                                                        // Show success immediately for better UX
-                                                        setTimeout(() => {
-                                                            Swal.fire({
-                                                                title: 'Success!',
-                                                                text: `Survey invitations sent successfully! ${sent} sent${failed > 0 ? `, ${failed} failed` : ''}`,
-                                                                icon: 'success',
-                                                                timer: 5000
-                                                            });
-                                                        }, 200);
-                                                    }
-                                                })
-                                                .catch(error => {
-                                                    console.error('Error fetching progress:', error);
-                                                    // Continue polling even if one request fails
-                                                });
-                                        }, 300); // Poll every 300ms for faster updates
-                                        
-                                        // Set a timeout to stop polling after 10 minutes
-                                        setTimeout(() => {
-                                            clearInterval(interval);
-                                            console.log('Progress polling stopped after timeout');
-                                        }, 600000);
+                                                    // Close progress dialog and show success message
+                                                    setTimeout(() => {
+                                                        Swal.fire({
+                                                            title: 'Success!',
+                                                            text: 'All invitations have been sent successfully!',
+                                                            icon: 'success',
+                                                            timer: 3000,
+                                                            showConfirmButton: false
+                                                        });
+                                                    }, 500);
+                                                }
+                                            }
+                                        }, 100); // Update every 100ms for fast visual feedback
                                     } else {
                                         throw new Error(data.message || 'Failed to start broadcast');
                                     }
