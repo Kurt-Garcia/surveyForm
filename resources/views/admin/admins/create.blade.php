@@ -658,18 +658,7 @@
         // Show SweetAlert2 confirmation
         Swal.fire({
             title: 'Create Administrator Account?',
-            html: `
-                <div class="text-start">
-                    <p class="mb-2"><strong>Are you sure you want to create this admin account?</strong></p>
-                    <ul class="list-unstyled mt-3">
-                        <li><i class="bi bi-person text-info me-2"></i><strong>Name:</strong> ${document.getElementById('name').value}</li>
-                        <li><i class="bi bi-envelope text-warning me-2"></i><strong>Email:</strong> ${document.getElementById('email').value}</li>
-                        <li><i class="bi bi-telephone text-danger me-2"></i><strong>Contact:</strong> ${document.getElementById('contact_number').value}</li>
-                        <li><i class="bi bi-building text-primary me-2"></i><strong>SBU:</strong> ${document.querySelector('#sbu_id option:checked').textContent}</li>
-                        <li><i class="bi bi-geo-alt text-success me-2"></i><strong>Site:</strong> ${document.querySelector('#site_id option:checked').textContent}</li>
-                    </ul>
-                </div>
-            `,
+            text: "Please confirm to create a new admin account!",
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: '<i class="bi bi-check-circle me-2"></i>Yes, Create Account',
@@ -677,7 +666,8 @@
             reverseButtons: true,
             customClass: {
                 confirmButton: "btn btn-success me-3",
-                cancelButton: "btn btn-outline-secondary"
+                cancelButton: "btn btn-outline-danger",
+                actions: "gap-2 justify-content-center",
             },
             buttonsStyling: false,
             focusConfirm: false
@@ -728,11 +718,13 @@
             text: "Any unsaved changes will be lost!",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonText: "Yes, leave page!",
             cancelButtonText: "Stay here",
+            confirmButtonText: "Yes, leave page!",
+            reverseButtons: true,
             customClass: {
-                confirmButton: "btn btn-danger me-3",
-                cancelButton: "btn btn-outline-secondary"
+                confirmButton: "btn btn-success me-3",
+                cancelButton: "btn btn-outline-danger",
+                actions: "gap-2 justify-content-center",
             },
             buttonsStyling: false
         }).then((result) => {
