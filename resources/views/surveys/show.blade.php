@@ -80,10 +80,12 @@
             @endif
             <h1 class="survey-title">{{ strtoupper($survey->title) }}</h1>
             
-            @if($survey->sbu || $survey->sites->count() > 0)
+            @if($survey->sbus->count() > 0 || $survey->sites->count() > 0)
             <div class="survey-metadata">
-                @if($survey->sbu)
-                <span class="badge bg-primary me-2">{{ $survey->sbu->name }}</span>
+                @if($survey->sbus->count() > 0)
+                    @foreach($survey->sbus as $sbu)
+                        <span class="badge bg-primary me-2">{{ $sbu->name }}</span>
+                    @endforeach
                 @endif
                 
                 @if($survey->sites->count() > 0)

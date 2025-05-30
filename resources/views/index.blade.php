@@ -63,8 +63,10 @@
                             </div>
                             <h4 class="card-title">{{ strtoupper($survey->title) }}</h4>
                             <div class="survey-meta mb-2">
-                                @if($survey->sbu)
-                                    <span class="badge bg-primary me-1">{{ $survey->sbu->name }}</span>
+                                @if($survey->sbus->count() > 0)
+                                    @foreach($survey->sbus as $sbu)
+                                        <span class="badge bg-primary me-1">{{ $sbu->name }}</span>
+                                    @endforeach
                                 @endif
                                 <small class="text-muted">
                                     @if($survey->sites->count() > 0)

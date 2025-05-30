@@ -95,30 +95,44 @@
                             @csrf
                             @method('PATCH')
                             
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="sbu_id" class="form-label fw-bold">SBU</label>
-                                    <select id="sbu_id" class="form-select @error('sbu_id') is-invalid @enderror" name="sbu_id" required>
-                                        <option value="" disabled>Select SBU</option>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">SBU</label>
+                                <div class="sbu-selection-container p-3 border rounded bg-light">
+                                    <p class="text-muted mb-3 small">Select one or both SBUs where you want to deploy this survey:</p>
+                                    <div class="row">
                                         @foreach(\App\Models\Sbu::all() as $sbu)
-                                            <option value="{{ $sbu->id }}" {{ $survey->sbu_id == $sbu->id ? 'selected' : '' }}>{{ $sbu->name }}</option>
+                                            <div class="col-md-6 mb-3">
+                                                <div class="form-check form-check-modern">
+                                                    <input class="form-check-input sbu-checkbox" type="checkbox" 
+                                                           id="sbu_{{ $sbu->id }}" 
+                                                           name="sbu_ids[]" 
+                                                           value="{{ $sbu->id }}"
+                                                           {{ $survey->sbus->contains($sbu->id) ? 'checked' : '' }}>
+                                                    <label class="form-check-label fw-bold" for="sbu_{{ $sbu->id }}">
+                                                        <span class="sbu-name">{{ $sbu->name }}</span>
+                                                        <small class="d-block text-muted">{{ $sbu->sites->count() }} sites available</small>
+                                                    </label>
+                                                </div>
+                                            </div>
                                         @endforeach
-                                    </select>
-                                    @error('sbu_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    </div>
+                                    @error('sbu_ids')
+                                        <span class="text-danger small" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
                                     @enderror
                                 </div>
-                                
-                                <div class="col-md-6 mb-3">
-                                    <label for="site_ids" class="form-label fw-bold">Deployment Sites</label>
-                                    <select id="site_ids" class="form-select select2 @error('site_ids') is-invalid @enderror" name="site_ids[]" multiple required>
-                                        <!-- Sites will be populated via JavaScript -->
-                                    </select>
-                                    <small class="text-muted d-block mt-1">You can select multiple deployment sites</small>
-                                    @error('site_ids')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="site_ids" class="form-label fw-bold">Deployment Sites</label>
+                                <select id="site_ids" class="form-select select2 @error('site_ids') is-invalid @enderror" name="site_ids[]" multiple required>
+                                    <!-- Sites will be populated via JavaScript -->
+                                </select>
+                                <small class="text-muted d-block mt-1">You can select multiple deployment sites</small>
+                                @error('site_ids')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             
                             <div>
@@ -325,6 +339,89 @@
 .form-control:focus {
     border-color: var(--accent-color);
     box-shadow: 0 0 0 0.25rem rgba(var(--accent-color-rgb), 0.25);
+}
+
+/* Modern SBU Checkbox Styling */
+.sbu-selection-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #e9ecef !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease;
+}
+
+.sbu-selection-container:hover {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.form-check-modern {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 15px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.form-check-modern:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.form-check-modern .form-check-input {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    margin-right: 10px;
+    border: 2px solid #ced4da;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.form-check-modern .form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.form-check-modern .form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.25);
+}
+
+.form-check-modern .form-check-label {
+    cursor: pointer;
+    user-select: none;
+    flex-grow: 1;
+}
+
+.form-check-modern .sbu-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.form-check-modern:hover .sbu-name {
+    color: var(--primary-color);
+}
+
+.form-check-modern .form-check-input:checked ~ .form-check-label .sbu-name {
+    color: var(--primary-color);
+}
+
+/* Responsive design for checkboxes */
+@media (max-width: 768px) {
+    .sbu-selection-container .row {
+        flex-direction: column;
+    }
+    
+    .form-check-modern {
+        margin-bottom: 10px;
+    }
 }
 </style>
 
@@ -537,72 +634,155 @@ document.getElementById('logo').addEventListener('change', function(e) {
     }
 });
 
+// Deployment form validation
+document.addEventListener('DOMContentLoaded', function() {
+    const deploymentForm = document.querySelector('form[action*="update-deployment"]');
+    if (deploymentForm) {
+        deploymentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Check if at least one SBU is selected
+            const selectedSBUs = Array.from(document.querySelectorAll('.sbu-checkbox')).filter(checkbox => checkbox.checked);
+            if (selectedSBUs.length === 0) {
+                swalWithBootstrapButtons.fire({
+                    title: "Error!",
+                    text: "Please select at least one SBU.",
+                    icon: "error"
+                });
+                return false;
+            }
+
+            // Check if at least one deployment site is selected
+            const sitesSelect = document.getElementById('site_ids');
+            const selectedSites = Array.from(sitesSelect.selectedOptions);
+            if (selectedSites.length === 0) {
+                swalWithBootstrapButtons.fire({
+                    title: "Error!",
+                    text: "Please select at least one deployment site.",
+                    icon: "error"
+                });
+                sitesSelect.focus();
+                return false;
+            }
+            
+            // Show confirmation dialog
+            swalWithBootstrapButtons.fire({
+                title: "Update Deployment Settings?",
+                text: "Are you sure you want to update the deployment settings for this survey?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Yes, update it!",
+                cancelButtonText: "No, cancel!",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Continue with form submission
+                    deploymentForm.submit();
+                }
+            });
+        });
+    }
+});
+
 // SBU and Site dropdown relationship
 document.addEventListener('DOMContentLoaded', function() {
-    const sbuSelect = document.getElementById('sbu_id');
+    const sbuCheckboxes = document.querySelectorAll('.sbu-checkbox');
     const sitesSelect = document.getElementById('site_ids');
     
     // Get current survey sites
     const currentSites = @json($survey->sites->pluck('id'));
     
-    // Fetch all SBUs and their sites
-    fetch('/admin/api/sbus-with-sites')
-        .then(response => response.json())
-        .then(data => {
-            // Transform the data into a structure organized by SBU ID
-            const sbuSites = data.reduce((acc, sbu) => {
-                acc[sbu.id] = sbu.sites;
-                return acc;
-            }, {});
+    // Store all sites organized by SBU for client-side filtering
+    const sbuSites = {
+        @foreach(\App\Models\Sbu::all() as $sbu)
+            {{ $sbu->id }}: [
+                @foreach($sbu->sites as $site)
+                    {
+                        id: {{ $site->id }},
+                        name: "{{ $site->name }}",
+                        sbu_name: "{{ $sbu->name }}",
+                        is_main: {{ $site->is_main ? 'true' : 'false' }}
+                    },
+                @endforeach
+            ],
+        @endforeach
+    };
+    
+    // Function to update site options based on selected SBUs
+    function updateSiteOptions() {
+        const selectedSBUs = Array.from(sbuCheckboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => parseInt(checkbox.value));
+        
+        // Clear current options
+        sitesSelect.innerHTML = '';
+        
+        if (selectedSBUs.length === 0) {
+            // No SBUs selected
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.disabled = true;
+            defaultOption.textContent = 'Select SBU first';
+            sitesSelect.appendChild(defaultOption);
+        } else {
+            // Collect all sites from selected SBUs
+            let allSites = [];
+            selectedSBUs.forEach(sbuId => {
+                if (sbuSites[sbuId]) {
+                    allSites = allSites.concat(sbuSites[sbuId]);
+                }
+            });
             
-            // Function to update site options based on selected SBU
-            function updateSiteOptions() {
-                const selectedSBU = sbuSelect.value;
+            // Sort sites: main sites first, then alphabetically, with SBU prefix when multiple SBUs selected
+            allSites.sort((a, b) => {
+                if (a.is_main !== b.is_main) {
+                    return a.is_main ? -1 : 1;
+                }
+                return a.name.localeCompare(b.name);
+            });
+            
+            // Add sites to dropdown
+            allSites.forEach(site => {
+                const option = document.createElement('option');
+                option.value = site.id;
                 
-                // Clear current options
-                sitesSelect.innerHTML = '';
+                // Add SBU prefix if multiple SBUs are selected
+                const siteLabel = selectedSBUs.length > 1 
+                    ? `${site.sbu_name} - ${site.name}${site.is_main ? ' (Main)' : ''}` 
+                    : `${site.name}${site.is_main ? ' (Main)' : ''}`;
                 
-                // If an SBU is selected, populate with corresponding sites
-                if (selectedSBU && sbuSites[selectedSBU]) {
-                    // Sort sites with main sites first, then alphabetically
-                    const sites = [...sbuSites[selectedSBU]].sort((a, b) => {
-                        if (a.is_main !== b.is_main) {
-                            return a.is_main ? -1 : 1;
-                        }
-                        return a.name.localeCompare(b.name);
-                    });
-                    
-                    sites.forEach(site => {
-                        const option = document.createElement('option');
-                        option.value = site.id;
-                        option.textContent = site.name + (site.is_main ? ' (Main)' : '');
-                        // Check if this site is currently selected
-                        if (currentSites.includes(parseInt(site.id))) {
-                            option.selected = true;
-                        }
-                        sitesSelect.appendChild(option);
-                    });
+                option.textContent = siteLabel;
+                
+                // Check if this site is currently selected
+                if (currentSites.includes(parseInt(site.id))) {
+                    option.selected = true;
                 }
                 
-                // Initialize Select2 if it's available
-                if (typeof $.fn.select2 !== 'undefined') {
-                    $(sitesSelect).select2({
-                        placeholder: 'Select deployment sites',
-                        allowClear: true,
-                        width: '100%'
-                    });
-                }
-            }
-            
-            // Update site options when SBU selection changes
-            sbuSelect.addEventListener('change', updateSiteOptions);
-            
-            // Initialize site options based on initial SBU value
-            updateSiteOptions();
-        })
-        .catch(error => {
-            console.error('Error fetching SBUs and sites:', error);
+                sitesSelect.appendChild(option);
+            });
+        }
+        
+        // Destroy existing Select2 instance if it exists
+        if ($(sitesSelect).data('select2')) {
+            $(sitesSelect).select2('destroy');
+        }
+        
+        // Initialize Select2
+        $(sitesSelect).select2({
+            placeholder: selectedSBUs.length > 0 ? 'Select Sites' : 'Select SBU first',
+            allowClear: true,
+            width: '100%',
+            dropdownParent: $(sitesSelect).parent() // Ensure dropdown is properly positioned
         });
+    }
+    
+    // Initialize site options based on initial checkbox values
+    updateSiteOptions();
+    
+    // Update site options when SBU checkboxes change
+    sbuCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSiteOptions);
+    });
 });
 </script>
 @endsection

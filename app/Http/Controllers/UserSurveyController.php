@@ -16,7 +16,7 @@ class UserSurveyController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Survey::with(['questions', 'sites', 'sbu'])->where('is_active', true);
+        $query = Survey::with(['questions', 'sites', 'sbus'])->where('is_active', true);
         
         if (Auth::check()) {
             $userSiteId = Auth::user()->site_id;

@@ -23,7 +23,8 @@ class SurveyController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'sbu_id' => 'required|exists:sbus,id',
+            'sbu_ids' => 'required|array|min:1',
+            'sbu_ids.*' => 'exists:sbus,id',
             'site_ids' => 'required|array|min:1',
             'site_ids.*' => 'exists:sites,id',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -44,9 +45,11 @@ class SurveyController extends Controller
                 'title' => ucfirst($request->title),
                 'admin_id' => Auth::guard('admin')->id(),
                 'is_active' => true,
-                'logo' => $logoPath,
-                'sbu_id' => $request->sbu_id
+                'logo' => $logoPath
             ]);
+            
+            // Attach SBUs to the survey
+            $survey->sbus()->attach($request->sbu_ids);
             
             // Attach sites to the survey
             $survey->sites()->attach($request->site_ids);
@@ -248,17 +251,16 @@ class SurveyController extends Controller
         }
         
         $request->validate([
-            'sbu_id' => 'required|exists:sbus,id',
+            'sbu_ids' => 'required|array|min:1',
+            'sbu_ids.*' => 'exists:sbus,id',
             'site_ids' => 'required|array|min:1',
             'site_ids.*' => 'exists:sites,id',
         ]);
         
         DB::beginTransaction();
         try {
-            // Update SBU
-            $survey->update([
-                'sbu_id' => $request->sbu_id
-            ]);
+            // Sync SBUs (detach old ones and attach new ones)
+            $survey->sbus()->sync($request->sbu_ids);
             
             // Sync sites (detach old ones and attach new ones)
             $survey->sites()->sync($request->site_ids);

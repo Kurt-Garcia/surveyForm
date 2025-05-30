@@ -35,19 +35,33 @@
                         </div>
 
                         <div class="form-group row mb-4">
-                            <label for="sbu_id" class="col-md-3 col-form-label">{{ __('SBU') }}</label>
+                            <label class="col-md-3 col-form-label">{{ __('SBU') }}</label>
                             <div class="col-md-9">
-                                <select id="sbu_id" class="form-select form-select-lg @error('sbu_id') is-invalid @enderror" name="sbu_id" required>
-                                    <option value="" selected disabled>Select SBU</option>
-                                    @foreach($sbus as $sbu)
-                                        <option value="{{ $sbu->id }}" {{ old('sbu_id') == $sbu->id ? 'selected' : '' }}>{{ $sbu->name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('sbu_id')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
+                                <div class="sbu-selection-container p-3 border rounded bg-light">
+                                    <p class="text-muted mb-3 small">Select one or both SBUs where you want to deploy this survey:</p>
+                                    <div class="row">
+                                        @foreach($sbus as $sbu)
+                                            <div class="col-md-6 mb-3">
+                                                <div class="form-check form-check-modern">
+                                                    <input class="form-check-input sbu-checkbox" type="checkbox" 
+                                                           id="sbu_{{ $sbu->id }}" 
+                                                           name="sbu_ids[]" 
+                                                           value="{{ $sbu->id }}"
+                                                           {{ in_array($sbu->id, old('sbu_ids', [])) ? 'checked' : '' }}>
+                                                    <label class="form-check-label fw-bold" for="sbu_{{ $sbu->id }}">
+                                                        <span class="sbu-name">{{ $sbu->name }}</span>
+                                                        <small class="d-block text-muted">{{ $sbu->sites->count() }} sites available</small>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    @error('sbu_ids')
+                                        <span class="text-danger small" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
 
@@ -123,8 +137,8 @@
         buttonsStyling: false
     });
 
-    // SBU and Site dropdown relationship
-    const sbuSelect = document.getElementById('sbu_id');
+    // SBU checkboxes and Site dropdown relationship
+    const sbuCheckboxes = document.querySelectorAll('.sbu-checkbox');
     const sitesSelect = document.getElementById('site_ids');
     
     // Store all sites organized by SBU for client-side filtering
@@ -135,6 +149,7 @@
                     {
                         id: {{ $site->id }},
                         name: "{{ $site->name }}",
+                        sbu_name: "{{ $sbu->name }}",
                         is_main: {{ $site->is_main ? 'true' : 'false' }}
                     },
                 @endforeach
@@ -142,34 +157,50 @@
         @endforeach
     };
     
-    // Function to update site options based on selected SBU
+    // Function to update site options based on selected SBUs
     function updateSiteOptions() {
-        const selectedSBU = sbuSelect.value;
+        const selectedSBUs = Array.from(sbuCheckboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => parseInt(checkbox.value));
         
         // Clear current options
         sitesSelect.innerHTML = '';
         
-        // Add default option
-        const defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.disabled = true;
-        defaultOption.textContent = selectedSBU ? `Select Sites` : 'Select SBU first';
-        sitesSelect.appendChild(defaultOption);
-        
-        // If an SBU is selected, populate with corresponding sites
-        if (selectedSBU && sbuSites[selectedSBU]) {
-            // Sort sites with main sites first, then alphabetically
-            const sites = [...sbuSites[selectedSBU]].sort((a, b) => {
+        if (selectedSBUs.length === 0) {
+            // No SBUs selected
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.disabled = true;
+            defaultOption.textContent = 'Select SBU first';
+            sitesSelect.appendChild(defaultOption);
+        } else {
+            // Collect all sites from selected SBUs
+            let allSites = [];
+            selectedSBUs.forEach(sbuId => {
+                if (sbuSites[sbuId]) {
+                    allSites = allSites.concat(sbuSites[sbuId]);
+                }
+            });
+            
+            // Sort sites: main sites first, then alphabetically, with SBU prefix when multiple SBUs selected
+            allSites.sort((a, b) => {
                 if (a.is_main !== b.is_main) {
                     return a.is_main ? -1 : 1;
                 }
                 return a.name.localeCompare(b.name);
             });
             
-            sites.forEach(site => {
+            // Add sites to dropdown
+            allSites.forEach(site => {
                 const option = document.createElement('option');
                 option.value = site.id;
-                option.textContent = site.name + (site.is_main ? ' (Main)' : '');
+                
+                // Add SBU prefix if multiple SBUs are selected
+                const siteLabel = selectedSBUs.length > 1 
+                    ? `${site.sbu_name} - ${site.name}${site.is_main ? ' (Main)' : ''}` 
+                    : `${site.name}${site.is_main ? ' (Main)' : ''}`;
+                
+                option.textContent = siteLabel;
                 sitesSelect.appendChild(option);
             });
         }
@@ -181,20 +212,22 @@
         
         // Initialize Select2
         $(sitesSelect).select2({
-            placeholder: selectedSBU ? 'Select Sites' : 'Select SBU first',
+            placeholder: selectedSBUs.length > 0 ? 'Select Sites' : 'Select SBU first',
             allowClear: true,
             width: '100%',
             dropdownParent: $(sitesSelect).parent() // Ensure dropdown is properly positioned
         });
     }
     
-    // Initialize site options based on initial SBU value
+    // Initialize site options based on initial checkbox values
     $(document).ready(function() {
         updateSiteOptions();
     });
     
-    // Update site options when SBU selection changes
-    sbuSelect.addEventListener('change', updateSiteOptions);
+    // Update site options when SBU checkboxes change
+    sbuCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSiteOptions);
+    });
 
     // Logo preview functionality
     document.getElementById('logo').addEventListener('change', function(e) {
@@ -334,15 +367,18 @@
             return false;
         }
 
-        // Check if SBU is selected
-        const sbu = document.getElementById('sbu_id');
-        if (!sbu.value) {
+        // Check if at least one SBU is selected
+        const selectedSBUs = Array.from(sbuCheckboxes).filter(checkbox => checkbox.checked);
+        if (selectedSBUs.length === 0) {
             swalWithBootstrapButtons.fire({
                 title: "Error!",
-                text: "Please select an SBU.",
+                text: "Please select at least one SBU.",
                 icon: "error"
             });
-            sbu.focus();
+            // Focus on the first SBU checkbox
+            if (sbuCheckboxes.length > 0) {
+                sbuCheckboxes[0].focus();
+            }
             return false;
         }
 
@@ -475,6 +511,89 @@
 .card-header {
     border-bottom: none;
     border-radius: 8px 8px 0 0 !important;
+}
+
+/* Modern SBU Checkbox Styling */
+.sbu-selection-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #e9ecef !important;
+    border-radius: 12px !important;
+    transition: all 0.3s ease;
+}
+
+.sbu-selection-container:hover {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.form-check-modern {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 15px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.form-check-modern:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.form-check-modern .form-check-input {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    margin-right: 10px;
+    border: 2px solid #ced4da;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.form-check-modern .form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.form-check-modern .form-check-input:focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.25);
+}
+
+.form-check-modern .form-check-label {
+    cursor: pointer;
+    user-select: none;
+    flex-grow: 1;
+}
+
+.form-check-modern .sbu-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.form-check-modern:hover .sbu-name {
+    color: var(--primary-color);
+}
+
+.form-check-modern .form-check-input:checked ~ .form-check-label .sbu-name {
+    color: var(--primary-color);
+}
+
+/* Responsive design for checkboxes */
+@media (max-width: 768px) {
+    .sbu-selection-container .row {
+        flex-direction: column;
+    }
+    
+    .form-check-modern {
+        margin-bottom: 10px;
+    }
 }
 </style>
 @endsection

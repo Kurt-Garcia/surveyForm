@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Survey extends Model
 {
-    protected $fillable = ['title', 'admin_id', 'is_active', 'total_questions', 'logo', 'sbu_id'];
+    protected $fillable = ['title', 'admin_id', 'is_active', 'total_questions', 'logo'];
 
     protected $casts = [
         'is_active' => 'boolean'
@@ -19,9 +19,9 @@ class Survey extends Model
         return $this->belongsTo(Admin::class);
     }
     
-    public function sbu(): BelongsTo
+    public function sbus()
     {
-        return $this->belongsTo(Sbu::class);
+        return $this->belongsToMany(Sbu::class, 'survey_sbu');
     }
     
     public function sites()
