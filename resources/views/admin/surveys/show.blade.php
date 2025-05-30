@@ -97,29 +97,38 @@
                             
                             <div class="mb-3">
                                 <label class="form-label fw-bold">SBU</label>
-                                <div class="sbu-selection-container p-3 border rounded bg-light">
-                                    <p class="text-muted mb-3 small">Select one or both SBUs where you want to deploy this survey:</p>
-                                    <div class="row">
+                                <div class="sbu-selection-container">
+                                    <p class="text-muted mb-4 fs-6">Select one or both SBUs where you want to deploy this survey:</p>
+                                    <div class="row g-3">
                                         @foreach(\App\Models\Sbu::all() as $sbu)
-                                            <div class="col-md-6 mb-3">
-                                                <div class="form-check form-check-modern">
-                                                    <input class="form-check-input sbu-checkbox" type="checkbox" 
+                                            <div class="col-md-6">
+                                                <div class="sbu-card" data-sbu-id="{{ $sbu->id }}">
+                                                    <input class="sbu-checkbox d-none" type="checkbox" 
                                                            id="sbu_{{ $sbu->id }}" 
                                                            name="sbu_ids[]" 
                                                            value="{{ $sbu->id }}"
                                                            {{ $survey->sbus->contains($sbu->id) ? 'checked' : '' }}>
-                                                    <label class="form-check-label fw-bold" for="sbu_{{ $sbu->id }}">
-                                                        <span class="sbu-name">{{ $sbu->name }}</span>
-                                                        <small class="d-block text-muted">{{ $sbu->sites->count() }} sites available</small>
-                                                    </label>
+                                                    
+                                                    <div class="sbu-card-content">
+                                                        <div class="sbu-card-header">
+                                                            <div class="sbu-check-indicator">
+                                                                <i class="fas fa-check"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="sbu-card-body">
+                                                            <h5 class="sbu-name">{{ $sbu->name }}</h5>
+                                                            <p class="sbu-sites-count">{{ $sbu->sites->count() }} sites available</p>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         @endforeach
                                     </div>
                                     @error('sbu_ids')
-                                        <span class="text-danger small" role="alert">
+                                        <div class="text-danger mt-3" role="alert">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
                                             <strong>{{ $message }}</strong>
-                                        </span>
+                                        </div>
                                     @enderror
                                 </div>
                             </div>
@@ -341,86 +350,165 @@
     box-shadow: 0 0 0 0.25rem rgba(var(--accent-color-rgb), 0.25);
 }
 
-/* Modern SBU Checkbox Styling */
+/* Modern SBU Card Styling */
 .sbu-selection-container {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border: 2px solid #e9ecef !important;
-    border-radius: 12px !important;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8f9fc 0%, #f1f3f8 100%);
+    border-radius: 12px;
+    border: 2px solid #e9ecf3;
     transition: all 0.3s ease;
 }
 
-.sbu-selection-container:hover {
-    border-color: var(--primary-color) !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.form-check-modern {
+.sbu-card {
     background: white;
-    border: 2px solid #e9ecef;
+    border: 2px solid #e9ecf3;
     border-radius: 10px;
-    padding: 15px;
-    transition: all 0.3s ease;
     cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.form-check-modern:hover {
+.sbu-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.5s;
+}
+
+.sbu-card:hover::before {
+    left: 100%;
+}
+
+.sbu-card:hover {
     border-color: var(--primary-color);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
 }
 
-.form-check-modern .form-check-input {
+.sbu-card.selected {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(var(--primary-color-rgb), 0.4);
+}
+
+.sbu-card.selected:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 10px 30px rgba(var(--primary-color-rgb), 0.5);
+}
+
+.sbu-card-content {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    padding: 0.75rem;
+}
+
+.sbu-card-header {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.sbu-check-indicator {
+    position: absolute;
+    top: -6px;
+    right: -6px;
     width: 20px;
     height: 20px;
-    margin-top: 2px;
-    margin-right: 10px;
-    border: 2px solid #ced4da;
-    border-radius: 4px;
+    background: var(--secondary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.7rem;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(var(--secondary-color-rgb), 0.3);
+}
+
+.sbu-card.selected .sbu-check-indicator {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.sbu-card-body {
+    text-align: center;
+}
+
+.sbu-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.125rem;
     transition: all 0.3s ease;
 }
 
-.form-check-modern .form-check-input:checked {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    transform: scale(1.1);
+.sbu-card.selected .sbu-name {
+    color: white;
 }
 
-.form-check-modern .form-check-input:focus {
-    box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.25);
+.sbu-sites-count {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin: 0;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
-.form-check-modern .form-check-label {
-    cursor: pointer;
-    user-select: none;
-    flex-grow: 1;
+.sbu-card.selected .sbu-sites-count {
+    color: rgba(255,255,255,0.9);
 }
 
-.form-check-modern .sbu-name {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #2c3e50;
-    display: block;
-    margin-bottom: 2px;
-}
-
-.form-check-modern:hover .sbu-name {
+/* Hover effects for unselected cards */
+.sbu-card:not(.selected):hover .sbu-name {
     color: var(--primary-color);
 }
 
-.form-check-modern .form-check-input:checked ~ .form-check-label .sbu-name {
-    color: var(--primary-color);
+.sbu-card:not(.selected):hover .sbu-sites-count {
+    color: #4b5563;
 }
 
-/* Responsive design for checkboxes */
+/* Animation for selection */
+@keyframes pulse-select {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.sbu-card.selecting {
+    animation: pulse-select 0.3s ease-in-out;
+}
+
+/* Responsive design */
 @media (max-width: 768px) {
-    .sbu-selection-container .row {
-        flex-direction: column;
+    .sbu-selection-container {
+        padding: 1rem;
     }
     
-    .form-check-modern {
-        margin-bottom: 10px;
+    .sbu-card {
+        height: 90px;
+    }
+    
+    .sbu-name {
+        font-size: 0.95rem;
+    }
+    
+    .sbu-sites-count {
+        font-size: 0.75rem;
     }
 }
 </style>
@@ -632,6 +720,59 @@ document.getElementById('logo').addEventListener('change', function(e) {
         }
         reader.readAsDataURL(file);
     }
+});
+
+// SBU Card Click Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const sbuCards = document.querySelectorAll('.sbu-card');
+    
+    // Initialize card states based on checked checkboxes
+    sbuCards.forEach(card => {
+        const checkbox = card.querySelector('.sbu-checkbox');
+        if (checkbox && checkbox.checked) {
+            card.classList.add('selected');
+        }
+    });
+    
+    // Add click handlers to SBU cards
+    sbuCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const checkbox = this.querySelector('.sbu-checkbox');
+            if (checkbox) {
+                // Toggle checkbox state
+                checkbox.checked = !checkbox.checked;
+                
+                // Toggle visual state
+                if (checkbox.checked) {
+                    this.classList.add('selected', 'selecting');
+                    // Remove selecting class after animation
+                    setTimeout(() => {
+                        this.classList.remove('selecting');
+                    }, 300);
+                } else {
+                    this.classList.remove('selected');
+                }
+                
+                // Trigger change event to update site options
+                checkbox.dispatchEvent(new Event('change'));
+            }
+        });
+        
+        // Add hover effects
+        card.addEventListener('mouseenter', function() {
+            if (!this.classList.contains('selected')) {
+                this.style.transform = 'translateY(-2px) scale(1.01)';
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            if (!this.classList.contains('selected')) {
+                this.style.transform = '';
+            }
+        });
+    });
 });
 
 // Deployment form validation
