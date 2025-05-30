@@ -66,8 +66,9 @@ Route::prefix('admin')->group(function () {
         // Admin management routes
         Route::get('/admins/create', [App\Http\Controllers\Admin\AdminManagementController::class, 'create'])->name('admin.admins.create');
         Route::post('/admins', [App\Http\Controllers\Admin\AdminManagementController::class, 'store'])->name('admin.admins.store');
-        Route::get('/admin/check-email-availability', [App\Http\Controllers\Admin\AdminManagementController::class, 'checkEmailAvailability'])->name('admin.check-email-availability');
-        Route::get('/admin/check-name-availability', [App\Http\Controllers\Admin\AdminManagementController::class, 'checkNameAvailability'])->name('admin.check-name-availability');
+        Route::get('/check-email-availability', [App\Http\Controllers\Admin\AdminManagementController::class, 'checkEmailAvailability'])->name('admin.check-email-availability');
+        Route::get('/check-name-availability', [App\Http\Controllers\Admin\AdminManagementController::class, 'checkNameAvailability'])->name('admin.check-name-availability');
+        Route::get('/check-contact-number-availability', [App\Http\Controllers\Admin\AdminManagementController::class, 'checkContactNumberAvailability'])->name('admin.check-contact-number-availability');
 
         // Theme management routes
         Route::get('/themes', [ThemeController::class, 'index'])->name('admin.themes.index');

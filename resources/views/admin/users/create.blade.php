@@ -40,16 +40,6 @@
                             <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
                         </div>
                     @endif
-                    @if($errors->any())
-                        <div class="alert alert-danger border-0 rounded-3 shadow-sm">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                            <ul class="mb-0 ms-3">
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
 
                     <form action="{{ route('admin.users.store') }}" method="POST" id="userForm" onsubmit="return confirmSubmit(event)">
                         @csrf
@@ -527,6 +517,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Email field validation
     const emailField = document.getElementById('email');
+    let emailIsValid = true;
+    
     emailField.addEventListener('blur', function() {
         const email = emailField.value.trim();
         if (email) {
@@ -542,6 +534,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     if (data.exists) {
                         // Email already exists
+                        emailIsValid = false;
                         const errorFeedback = document.createElement('div');
                         errorFeedback.className = 'text-danger mt-1';
                         errorFeedback.id = 'email-validation-feedback';
@@ -550,6 +543,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         emailField.classList.add('is-invalid');
                     } else {
                         // Email is available
+                        emailIsValid = true;
                         const successFeedback = document.createElement('div');
                         successFeedback.className = 'text-success mt-1';
                         successFeedback.id = 'email-validation-feedback';
@@ -561,6 +555,67 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .catch(error => {
                     console.error('Error checking email:', error);
+                });
+        }
+    });
+
+    // Contact number field validation
+    const contactNumberField = document.getElementById('contact_number');
+    let contactNumberIsValid = true;
+    
+    // Debug: Check if contact number field exists
+    if (!contactNumberField) {
+        console.error('Contact number field not found!');
+        return;
+    }
+    
+    contactNumberField.addEventListener('blur', function() {
+        console.log('Contact number blur event triggered');
+        const contactNumber = contactNumberField.value.trim();
+        console.log('Contact number value:', contactNumber);
+        
+        if (contactNumber) {
+            // Remove any existing feedback
+            const existingFeedback = document.getElementById('contact-number-validation-feedback');
+            if (existingFeedback) {
+                existingFeedback.remove();
+            }
+            
+            console.log('Making AJAX call for contact number validation...');
+            
+            // Check if contact number exists via AJAX
+            fetch(`/admin/check-contact-number-availability?contact_number=${encodeURIComponent(contactNumber)}`)
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    if (data.exists) {
+                        // Contact number already exists
+                        contactNumberIsValid = false;
+                        const errorFeedback = document.createElement('div');
+                        errorFeedback.className = 'text-danger mt-1';
+                        errorFeedback.id = 'contact-number-validation-feedback';
+                        errorFeedback.innerHTML = `<small><i class="bi bi-exclamation-triangle-fill me-1"></i>${data.message}</small>`;
+                        contactNumberField.parentNode.appendChild(errorFeedback);
+                        contactNumberField.classList.add('is-invalid');
+                        console.log('Error feedback added');
+                    } else {
+                        // Contact number is available
+                        contactNumberIsValid = true;
+                        const successFeedback = document.createElement('div');
+                        successFeedback.className = 'text-success mt-1';
+                        successFeedback.id = 'contact-number-validation-feedback';
+                        successFeedback.innerHTML = '<small><i class="bi bi-check-circle-fill me-1"></i>Contact number is available</small>';
+                        contactNumberField.parentNode.appendChild(successFeedback);
+                        contactNumberField.classList.remove('is-invalid');
+                        contactNumberField.classList.add('is-valid');
+                        console.log('Success feedback added');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking contact number:', error);
                 });
         }
     });
@@ -709,16 +764,19 @@ function confirmClose() {
 function confirmSubmit(event) {
     event.preventDefault();
     
-    // Check if name is valid before submitting
+    // Check if name and email are valid before submitting
     const nameField = document.getElementById('name');
     const emailField = document.getElementById('email');
+    const contactNumberField = document.getElementById('contact_number');
     
     // Only check for invalid class if the validation has been performed (feedback exists)
     const nameValidationFeedback = document.getElementById('name-validation-feedback');
     const emailValidationFeedback = document.getElementById('email-validation-feedback');
+    const contactNumberValidationFeedback = document.getElementById('contact-number-validation-feedback');
     
     if ((nameValidationFeedback && nameField.classList.contains('is-invalid')) ||
-        (emailValidationFeedback && emailField.classList.contains('is-invalid'))) {
+        (emailValidationFeedback && emailField.classList.contains('is-invalid')) ||
+        (contactNumberValidationFeedback && contactNumberField.classList.contains('is-invalid'))) {
         swalWithBootstrapButtons.fire({
             title: "Invalid Input",
             text: "Please fix the validation errors before submitting.",

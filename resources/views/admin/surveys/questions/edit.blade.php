@@ -148,10 +148,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Note: Options functionality removed as it's not implemented in this edit form
+    
 });
 
-// Note: Option management functions not needed for this edit form
 </script>
 
 <style>

@@ -14,7 +14,7 @@ class AdminManagementController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:admin')->except(['checkEmailAvailability', 'checkNameAvailability']);
+        $this->middleware('auth:admin')->except(['checkEmailAvailability', 'checkNameAvailability', 'checkContactNumberAvailability']);
     }
     
     /**
@@ -99,6 +99,64 @@ class AdminManagementController extends Controller
         ]);
     }
 
+    /**
+     * Check if a contact number is available (not used by any admin or user)
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function checkContactNumberAvailability(Request $request): JsonResponse
+    {
+        $contactNumber = $request->query('contact_number');
+        
+        if (!$contactNumber) {
+            return response()->json([
+                'exists' => false,
+                'message' => 'Contact number is required'
+            ]);
+        }
+        
+        // Generate all possible formats to check
+        $formatsToCheck = [];
+        
+        if (str_starts_with($contactNumber, '+63')) {
+            $formatsToCheck[] = $contactNumber; // +639123456789
+            $formatsToCheck[] = '0' . substr($contactNumber, 3); // 09123456789
+            $formatsToCheck[] = substr($contactNumber, 3); // 9123456789
+        } elseif (str_starts_with($contactNumber, '09')) {
+            $formatsToCheck[] = $contactNumber; // 09123456789
+            $formatsToCheck[] = '+63' . substr($contactNumber, 1); // +639123456789
+            $formatsToCheck[] = substr($contactNumber, 1); // 9123456789
+        } elseif (str_starts_with($contactNumber, '9')) {
+            $formatsToCheck[] = $contactNumber; // 9123456789
+            $formatsToCheck[] = '+63' . $contactNumber; // +639123456789
+            $formatsToCheck[] = '0' . $contactNumber; // 09123456789
+        }
+        
+        // Check if any format exists in admin_users table
+        $adminExists = Admin::whereIn('contact_number', $formatsToCheck)->exists();
+        if ($adminExists) {
+            return response()->json([
+                'exists' => true,
+                'message' => 'This contact number is already registered as an admin user.'
+            ]);
+        }
+        
+        // Check if any format exists in users table
+        $userExists = User::whereIn('contact_number', $formatsToCheck)->exists();
+        if ($userExists) {
+            return response()->json([
+                'exists' => true,
+                'message' => 'This contact number is already registered as a regular user.'
+            ]);
+        }
+        
+        return response()->json([
+            'exists' => false,
+            'message' => 'Contact number is available'
+        ]);
+    }
+
     public function create()
     {
         $sbus = \App\Models\Sbu::with('sites')->get();
@@ -149,6 +207,33 @@ class AdminManagementController extends Controller
             if (User::where('email', $request->email)->exists()) {
                 return redirect()->back()->withInput($request->except('password', 'password_confirmation'))
                     ->with('error', 'This email is already registered as a regular user.');
+            }
+            
+            // Check if contact number exists in any format in admin_users table
+            $formatsToCheck = [];
+            if (str_starts_with($contactNumber, '+63')) {
+                $formatsToCheck[] = $contactNumber; // +639123456789
+                $formatsToCheck[] = '0' . substr($contactNumber, 3); // 09123456789
+                $formatsToCheck[] = substr($contactNumber, 3); // 9123456789
+            } elseif (str_starts_with($contactNumber, '09')) {
+                $formatsToCheck[] = $contactNumber; // 09123456789
+                $formatsToCheck[] = '+63' . substr($contactNumber, 1); // +639123456789
+                $formatsToCheck[] = substr($contactNumber, 1); // 9123456789
+            } elseif (str_starts_with($contactNumber, '9')) {
+                $formatsToCheck[] = $contactNumber; // 9123456789
+                $formatsToCheck[] = '+63' . $contactNumber; // +639123456789
+                $formatsToCheck[] = '0' . $contactNumber; // 09123456789
+            }
+            
+            if (Admin::whereIn('contact_number', $formatsToCheck)->exists()) {
+                return redirect()->back()->withInput($request->except('password', 'password_confirmation'))
+                    ->with('error', 'This contact number is already registered as an admin user.');
+            }
+            
+            // Check if contact number exists in any format in users table
+            if (User::whereIn('contact_number', $formatsToCheck)->exists()) {
+                return redirect()->back()->withInput($request->except('password', 'password_confirmation'))
+                    ->with('error', 'This contact number is already registered as a regular user.');
             }
 
         // Check if the admin creation details match a user account

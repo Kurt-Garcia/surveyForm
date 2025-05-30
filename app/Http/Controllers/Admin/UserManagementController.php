@@ -68,6 +68,31 @@ class UserManagementController extends Controller
             $contactNumber = '+63' . $contactNumber;
         }
 
+        // Check if contact number already exists in any format in either users or admin_users table
+        $formatsToCheck = [];
+        if (str_starts_with($contactNumber, '+63')) {
+            $formatsToCheck[] = $contactNumber; // +639123456789
+            $formatsToCheck[] = '0' . substr($contactNumber, 3); // 09123456789
+            $formatsToCheck[] = substr($contactNumber, 3); // 9123456789
+        } elseif (str_starts_with($contactNumber, '09')) {
+            $formatsToCheck[] = $contactNumber; // 09123456789
+            $formatsToCheck[] = '+63' . substr($contactNumber, 1); // +639123456789
+            $formatsToCheck[] = substr($contactNumber, 1); // 9123456789
+        } elseif (str_starts_with($contactNumber, '9')) {
+            $formatsToCheck[] = $contactNumber; // 9123456789
+            $formatsToCheck[] = '+63' . $contactNumber; // +639123456789
+            $formatsToCheck[] = '0' . $contactNumber; // 09123456789
+        }
+
+        $existingUserContact = User::whereIn('contact_number', $formatsToCheck)->exists();
+        $existingAdminContact = Admin::whereIn('contact_number', $formatsToCheck)->exists();
+
+        if ($existingUserContact || $existingAdminContact) {
+            return redirect()->back()->withErrors([
+                'contact_number' => 'The contact number has already been taken.'
+            ])->withInput();
+        }
+
         User::create([
             'name' => $request->name,
             'email' => $request->email,

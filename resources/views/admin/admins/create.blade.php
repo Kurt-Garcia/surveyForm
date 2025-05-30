@@ -35,16 +35,7 @@
                             <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('error') }}
                         </div>
                     @endif
-                    @if($errors->any())
-                        <div class="alert alert-danger border-0 rounded-3 shadow-sm">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                            <ul class="mb-0 ms-3">
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+
 
                     <form action="{{ route('admin.admins.store') }}" method="POST" id="adminForm" onsubmit="return confirmSubmit(event)">
                         @csrf
@@ -145,7 +136,7 @@
                         
                         <!-- Submit Button -->
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg rounded-pill shadow-sm py-3">
+                            <button type="submit" id="submitButton" class="btn btn-primary btn-lg rounded-pill shadow-sm py-3">
                                 <i class="bi bi-person-gear me-2"></i>Create Administrator Account
                             </button>
                         </div>
@@ -198,11 +189,33 @@
         border: none !important;
         font-weight: 600 !important;
         transition: all 0.3s ease;
+        cursor: pointer !important;
+        position: relative !important;
+        z-index: 999 !important;
+        pointer-events: auto !important;
     }
 
     .btn-primary:hover {
         transform: translateY(-2px) scale(1.02);
         box-shadow: 0 8px 25px rgba(var(--primary-color-rgb), 0.3) !important;
+    }
+
+    .btn-primary:active {
+        transform: translateY(0) scale(0.98);
+    }
+
+    .btn-primary:focus {
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.25) !important;
+    }
+
+    /* Ensure submit button is clickable */
+    #submitButton {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        cursor: pointer !important;
+        pointer-events: auto !important;
     }
 
     /* Alert Styling */
@@ -323,6 +336,56 @@
             buttonsStyling: false
         });
         
+        console.log('SweetAlert2 initialized:', typeof Swal !== 'undefined');
+        console.log('Form found:', document.getElementById('adminForm') !== null);
+        
+        // Add submit button click handler as fallback
+        const submitButton = document.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.addEventListener('click', function(e) {
+                console.log('Submit button clicked');
+                return confirmSubmit(e);
+            });
+        }
+        
+        // Also add form submit handler
+        const adminForm = document.getElementById('adminForm');
+        if (adminForm) {
+            adminForm.addEventListener('submit', function(e) {
+                console.log('Form submit event triggered');
+                return confirmSubmit(e);
+            });
+        }
+        
+        // Debug: Check if button is clickable
+        console.log('Submit button found:', submitButton !== null);
+        console.log('Submit button enabled:', submitButton ? !submitButton.disabled : false);
+        
+        // Test button click
+        if (submitButton) {
+            submitButton.style.cursor = 'pointer';
+            submitButton.style.pointerEvents = 'auto';
+            
+            // Add a simple test click
+            console.log('Adding test click handler');
+            submitButton.onclick = function(e) {
+                console.log('Button onclick triggered');
+                e.preventDefault();
+                return confirmSubmit(e);
+            };
+        }
+        
+        // Emergency fallback - direct form submission if SweetAlert fails
+        window.emergencySubmit = function() {
+            console.log('Emergency submit triggered');
+            const form = document.getElementById('adminForm');
+            if (form) {
+                // Remove the onsubmit handler temporarily
+                form.onsubmit = null;
+                form.submit();
+            }
+        };
+        
         // Name field validation
         const nameField = document.getElementById('name');
         let nameIsValid = true;
@@ -411,6 +474,50 @@
             }
         });
         
+        // Contact number field validation
+        const contactNumberField = document.getElementById('contact_number');
+        let contactNumberIsValid = true;
+        
+        contactNumberField.addEventListener('blur', function() {
+            const contactNumber = contactNumberField.value.trim();
+            if (contactNumber) {
+                // Remove any existing feedback
+                const existingFeedback = document.getElementById('contact-number-validation-feedback');
+                if (existingFeedback) {
+                    existingFeedback.remove();
+                }
+                
+                // Check if contact number exists in admin_users or users table via AJAX
+                fetch(`/admin/check-contact-number-availability?contact_number=${encodeURIComponent(contactNumber)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            // Contact number already exists
+                            contactNumberIsValid = false;
+                            const errorFeedback = document.createElement('div');
+                            errorFeedback.className = 'text-danger mt-1';
+                            errorFeedback.id = 'contact-number-validation-feedback';
+                            errorFeedback.innerHTML = `<small><i class="bi bi-exclamation-triangle-fill me-1"></i>${data.message}</small>`;
+                            contactNumberField.parentNode.appendChild(errorFeedback);
+                            contactNumberField.classList.add('is-invalid');
+                        } else {
+                            // Contact number is available
+                            contactNumberIsValid = true;
+                            const successFeedback = document.createElement('div');
+                            successFeedback.className = 'text-success mt-1';
+                            successFeedback.id = 'contact-number-validation-feedback';
+                            successFeedback.innerHTML = '<small><i class="bi bi-check-circle-fill me-1"></i>Contact number is available</small>';
+                            contactNumberField.parentNode.appendChild(successFeedback);
+                            contactNumberField.classList.remove('is-invalid');
+                            contactNumberField.classList.add('is-valid');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking contact number:', error);
+                    });
+            }
+        });
+        
         // Password field validation
         const passwordField = document.getElementById('password');
         let passwordIsValid = true;
@@ -456,71 +563,166 @@
         });
     });
 
-    // Function to handle form submission confirmation
-    function confirmSubmit(event) {
+    // Function to handle form submission confirmation (global scope)
+    window.confirmSubmit = function(event) {
+        console.log('confirmSubmit called', event);
         event.preventDefault();
         
-        // Get name, email, and password validation states
-        const nameField = document.getElementById('name');
-        const emailField = document.getElementById('email');
-        const passwordField = document.getElementById('password');
+        // Check if SweetAlert2 is loaded
+        if (typeof Swal === 'undefined') {
+            console.error('SweetAlert2 not loaded, submitting form directly');
+            document.getElementById('adminForm').submit();
+            return false;
+        }
+
+        // Validate required fields before showing confirmation
+        const form = document.getElementById('adminForm');
+        const requiredFields = form.querySelectorAll('[required]');
+        let allFieldsValid = true;
+        let firstInvalidField = null;
+
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                allFieldsValid = false;
+                field.classList.add('is-invalid');
+                if (!firstInvalidField) {
+                    firstInvalidField = field;
+                }
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+
+        // Check custom validation flags
+        if (typeof nameIsValid !== 'undefined' && !nameIsValid) {
+            allFieldsValid = false;
+            if (!firstInvalidField) {
+                firstInvalidField = document.getElementById('name');
+            }
+        }
+
+        if (typeof emailIsValid !== 'undefined' && !emailIsValid) {
+            allFieldsValid = false;
+            if (!firstInvalidField) {
+                firstInvalidField = document.getElementById('email');
+            }
+        }
+
+        if (typeof contactNumberIsValid !== 'undefined' && !contactNumberIsValid) {
+            allFieldsValid = false;
+            if (!firstInvalidField) {
+                firstInvalidField = document.getElementById('contact_number');
+            }
+        }
+
+        // Check password confirmation match
+        const password = document.getElementById('password').value;
+        const passwordConfirmation = document.getElementById('password_confirmation').value;
         
-        // Check if fields have validation feedback
-        const nameValidationFeedback = document.getElementById('name-validation-feedback');
-        const emailValidationFeedback = document.getElementById('email-validation-feedback');
-        const passwordValidationFeedback = document.getElementById('password-validation-feedback');
-        
-        const nameIsValid = !nameField.classList.contains('is-invalid');
-        const emailIsValid = !emailField.classList.contains('is-invalid');
-        const passwordIsValid = !passwordField.classList.contains('is-invalid');
-        
-        if (!nameIsValid) {
-            swalWithBootstrapButtons.fire({
-                title: "Name Already Exists",
-                text: "Please use a different name.",
-                icon: "error"
+        if (password !== passwordConfirmation) {
+            allFieldsValid = false;
+            document.getElementById('password_confirmation').classList.add('is-invalid');
+            if (!firstInvalidField) {
+                firstInvalidField = document.getElementById('password_confirmation');
+            }
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Password Mismatch',
+                text: 'Password and confirmation password do not match.',
+                customClass: {
+                    confirmButton: "btn btn-primary"
+                },
+                buttonsStyling: false
             });
             return false;
         }
-        
-        if (!emailIsValid) {
-            swalWithBootstrapButtons.fire({
-                title: "Email Already Exists", 
-                text: "Please use a different email address.",
-                icon: "error"
+
+        if (!allFieldsValid) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Incomplete Form',
+                text: 'Please fill in all required fields correctly.',
+                customClass: {
+                    confirmButton: "btn btn-primary"
+                },
+                buttonsStyling: false
+            }).then(() => {
+                if (firstInvalidField) {
+                    firstInvalidField.focus();
+                }
             });
             return false;
         }
-        
-        if (!passwordIsValid) {
-            swalWithBootstrapButtons.fire({
-                title: "Password Already in Use",
-                text: "Please choose a different password.",
-                icon: "error"
-            });
-            return false;
-        }
-        
-        swalWithBootstrapButtons.fire({
-            title: "Confirm Admin Creation",
-            text: "Are you sure you want to add this administrator?",
-            icon: "question",
+
+        // Show SweetAlert2 confirmation
+        Swal.fire({
+            title: 'Create Administrator Account?',
+            html: `
+                <div class="text-start">
+                    <p class="mb-2"><strong>Are you sure you want to create this admin account?</strong></p>
+                    <ul class="list-unstyled mt-3">
+                        <li><i class="bi bi-person text-info me-2"></i><strong>Name:</strong> ${document.getElementById('name').value}</li>
+                        <li><i class="bi bi-envelope text-warning me-2"></i><strong>Email:</strong> ${document.getElementById('email').value}</li>
+                        <li><i class="bi bi-telephone text-danger me-2"></i><strong>Contact:</strong> ${document.getElementById('contact_number').value}</li>
+                        <li><i class="bi bi-building text-primary me-2"></i><strong>SBU:</strong> ${document.querySelector('#sbu_id option:checked').textContent}</li>
+                        <li><i class="bi bi-geo-alt text-success me-2"></i><strong>Site:</strong> ${document.querySelector('#site_id option:checked').textContent}</li>
+                    </ul>
+                </div>
+            `,
+            icon: 'question',
             showCancelButton: true,
-            confirmButtonText: "Yes, create admin!",
-            cancelButtonText: "Cancel",
-            reverseButtons: true
+            confirmButtonText: '<i class="bi bi-check-circle me-2"></i>Yes, Create Account',
+            cancelButtonText: '<i class="bi bi-x-circle me-2"></i>Cancel',
+            reverseButtons: true,
+            customClass: {
+                confirmButton: "btn btn-success me-3",
+                cancelButton: "btn btn-outline-secondary"
+            },
+            buttonsStyling: false,
+            focusConfirm: false
         }).then((result) => {
             if (result.isConfirmed) {
+                // Show loading state
+                const submitButton = document.getElementById('submitButton');
+                const originalButtonText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span class="loading-spinner me-2"></span>Creating Account...';
+                
+                // Show loading alert
+                Swal.fire({
+                    title: 'Creating Account...',
+                    html: 'Please wait while we create the administrator account.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                console.log('User confirmed, submitting form');
+                
                 // Submit the form
-                document.getElementById('adminForm').submit();
+                if (form) {
+                    // Remove the onsubmit handler temporarily to prevent recursion
+                    form.onsubmit = null;
+                    form.submit();
+                } else {
+                    console.error('Form not found');
+                    // Restore button state
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                    Swal.close();
+                }
             }
         });
         
         return false;
-    }
+    };
 
-    // Function to handle close button confirmation
-    function confirmClose() {
+    // Function to handle close button confirmation (global scope)
+    window.confirmClose = function() {
         Swal.fire({
             title: "Discard Changes?",
             text: "Any unsaved changes will be lost!",
@@ -539,6 +741,6 @@
                 window.location.href = "{{ route('admin.dashboard') }}";
             }
         });
-    }
+    };
 </script>
 @endsection
