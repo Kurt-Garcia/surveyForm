@@ -135,10 +135,25 @@
                             
                             <div class="mb-3">
                                 <label for="site_ids" class="form-label fw-bold">Deployment Sites</label>
-                                <select id="site_ids" class="form-select select2 @error('site_ids') is-invalid @enderror" name="site_ids[]" multiple required>
-                                    <!-- Sites will be populated via JavaScript -->
-                                </select>
-                                <small class="text-muted d-block mt-1">You can select multiple deployment sites</small>
+                                <div class="sites-selection-container">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <p class="text-muted mb-0 fs-6">Select deployment sites for your survey:</p>
+                                        <div class="selection-controls">
+                                            <button type="button" id="selectAllSites" class="btn btn-outline-primary btn-sm me-2" disabled>
+                                                <i class="fas fa-check-double me-1"></i>Select All
+                                            </button>
+                                            <button type="button" id="deselectAllSites" class="btn btn-outline-secondary btn-sm" disabled>
+                                                <i class="fas fa-times me-1"></i>Deselect All
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <select id="site_ids" class="form-select select2 @error('site_ids') is-invalid @enderror" name="site_ids[]" multiple required>
+                                        <!-- Sites will be populated via JavaScript -->
+                                    </select>
+                                    <small class="text-muted mt-2 d-block">
+                                        <i class="fas fa-info-circle me-1"></i>You can search and select multiple sites. Use the buttons above for quick selection.
+                                    </small>
+                                </div>
                                 @error('site_ids')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -493,10 +508,139 @@
     animation: pulse-select 0.3s ease-in-out;
 }
 
+/* Sites Selection Container Styling */
+.sites-selection-container {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8f9fc 0%, #f1f3f8 100%);
+    border-radius: 12px;
+    border: 2px solid #e9ecf3;
+    transition: all 0.3s ease;
+}
+
+.sites-selection-container:hover {
+    border-color: #d1d9e6;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.selection-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.selection-controls .btn {
+    font-size: 0.85rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    min-width: 110px;
+}
+
+.selection-controls .btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.selection-controls .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.selection-controls .btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border-color: #28a745;
+    color: white;
+}
+
+.selection-controls .btn-outline-warning {
+    border-color: #ffc107;
+    color: #856404;
+}
+
+.selection-controls .btn-outline-warning:hover:not(:disabled) {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+/* Enhanced Select2 styling for sites */
+.sites-selection-container .select2-container--default .select2-selection--multiple {
+    border: 2px solid #e9ecf3;
+    border-radius: 8px;
+    min-height: 120px;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.sites-selection-container .select2-container--default .select2-selection--multiple:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.15);
+}
+
+.sites-selection-container .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border: none;
+    color: white;
+    border-radius: 6px;
+    padding: 6px 28px 6px 25px;
+    margin: 6px;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.sites-selection-container .select2-container--default .select2-selection--multiple .select2-selection__choice:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.sites-selection-container .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: rgba(255,255,255,0.8);
+    margin-right: 8px;
+    border: none;
+    font-size: 1.1rem;
+    transition: color 0.2s ease;
+}
+
+.sites-selection-container .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: white;
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+}
+
+.sites-selection-container .select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+}
+
+.sites-selection-container .select2-container--default .select2-search--inline .select2-search__field {
+    margin-top: 8px;
+    font-size: 0.95rem;
+}
+
+.sites-selection-container .select2-container--default .select2-search--inline .select2-search__field::placeholder {
+    color: #6c757d;
+    font-style: italic;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .sbu-selection-container {
         padding: 1rem;
+    }
+    
+    .sites-selection-container {
+        padding: 1rem;
+    }
+    
+    .selection-controls {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .selection-controls .btn {
+        width: 100%;
+        min-width: auto;
     }
     
     .sbu-card {
@@ -509,6 +653,10 @@
     
     .sbu-sites-count {
         font-size: 0.75rem;
+    }
+    
+    .sites-selection-container .select2-container--default .select2-selection--multiple {
+        min-height: 100px;
     }
 }
 </style>
@@ -915,7 +1063,90 @@ document.addEventListener('DOMContentLoaded', function() {
             width: '100%',
             dropdownParent: $(sitesSelect).parent() // Ensure dropdown is properly positioned
         });
+        
+        // Update Select All/Deselect All button states
+        updateSelectionButtons();
     }
+    
+    // Function to update Select All/Deselect All button states
+    function updateSelectionButtons() {
+        const selectAllBtn = document.getElementById('selectAllSites');
+        const deselectAllBtn = document.getElementById('deselectAllSites');
+        const hasSites = sitesSelect.options.length > 0 && !sitesSelect.options[0].disabled;
+        
+        if (hasSites) {
+            selectAllBtn.disabled = false;
+            deselectAllBtn.disabled = false;
+            selectAllBtn.classList.remove('disabled');
+            deselectAllBtn.classList.remove('disabled');
+        } else {
+            selectAllBtn.disabled = true;
+            deselectAllBtn.disabled = true;
+            selectAllBtn.classList.add('disabled');
+            deselectAllBtn.classList.add('disabled');
+        }
+    }
+    
+    // Select All Sites functionality
+    document.getElementById('selectAllSites').addEventListener('click', function() {
+        if (this.disabled) return;
+        
+        const allOptions = Array.from(sitesSelect.options).filter(option => !option.disabled);
+        const allValues = allOptions.map(option => option.value);
+        
+        $(sitesSelect).val(allValues).trigger('change');
+        
+        // Show feedback
+        if (allValues.length > 0) {
+            const siteCount = allValues.length;
+            $(this).html('<i class="fas fa-check me-1"></i>All Selected');
+            setTimeout(() => {
+                $(this).html('<i class="fas fa-check-double me-1"></i>Select All');
+            }, 2000);
+        }
+    });
+    
+    // Deselect All Sites functionality
+    document.getElementById('deselectAllSites').addEventListener('click', function() {
+        if (this.disabled) return;
+        
+        $(sitesSelect).val(null).trigger('change');
+        
+        // Show feedback
+        $(this).html('<i class="fas fa-check me-1"></i>All Deselected');
+        setTimeout(() => {
+            $(this).html('<i class="fas fa-times me-1"></i>Deselect All');
+        }, 2000);
+    });
+    
+    // Update button states when selection changes
+    $(sitesSelect).on('change', function() {
+        const selectedCount = $(this).val() ? $(this).val().length : 0;
+        const totalCount = Array.from(this.options).filter(option => !option.disabled).length;
+        
+        const selectAllBtn = document.getElementById('selectAllSites');
+        const deselectAllBtn = document.getElementById('deselectAllSites');
+        
+        // Update Select All button appearance based on selection state
+        if (selectedCount === totalCount && totalCount > 0) {
+            selectAllBtn.classList.remove('btn-outline-primary');
+            selectAllBtn.classList.add('btn-success');
+            selectAllBtn.innerHTML = '<i class="fas fa-check me-1"></i>All Selected';
+        } else {
+            selectAllBtn.classList.remove('btn-success');
+            selectAllBtn.classList.add('btn-outline-primary');
+            selectAllBtn.innerHTML = '<i class="fas fa-check-double me-1"></i>Select All';
+        }
+        
+        // Update Deselect All button appearance
+        if (selectedCount > 0) {
+            deselectAllBtn.classList.remove('btn-outline-secondary');
+            deselectAllBtn.classList.add('btn-outline-warning');
+        } else {
+            deselectAllBtn.classList.remove('btn-outline-warning');
+            deselectAllBtn.classList.add('btn-outline-secondary');
+        }
+    });
     
     // Initialize site options based on initial checkbox values
     updateSiteOptions();
