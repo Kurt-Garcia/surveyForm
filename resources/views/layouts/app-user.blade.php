@@ -14,9 +14,14 @@
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
     <link href="{{ asset('css/styles.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <!-- Bootstrap CSS loaded synchronously for critical styles -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="//cdn.datatables.net/2.3.0/css/dataTables.dataTables.min.css">
@@ -27,6 +32,115 @@
     <link href="https://fonts.googleapis.com/css2?family={{ str_replace(' ', '+', $activeTheme->heading_font) }}:wght@400;500;600;700&family={{ str_replace(' ', '+', $activeTheme->body_font) }}:wght@400;500;600&display=swap" rel="stylesheet">
     @endif
 
+    <!-- Critical CSS to prevent navbar dropdown glitch with loading overlay -->
+    <style>
+        /* Loading overlay to hide content until fully styled */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s ease-out;
+        }
+        
+        #loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Hide navbar initially */
+        .navbar {
+            visibility: hidden;
+            opacity: 0;
+        }
+        
+        /* Show navbar only when ready */
+        .navbar.ready {
+            visibility: visible;
+            opacity: 1;
+            transition: opacity 0.2s ease-in;
+        }
+        
+        /* Ensure proper navbar structure when shown */
+        .navbar.ready {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            background-color: #fff;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        
+        /* Critical dropdown positioning */
+        .navbar.ready .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            left: auto;
+            z-index: 1000;
+        }
+        
+        .navbar.ready .dropdown-menu-end {
+            right: 0;
+            left: auto;
+        }
+        
+        /* Ensure Bootstrap classes work correctly when ready */
+        .navbar.ready .ms-auto {
+            margin-left: auto !important;
+        }
+        
+        .navbar.ready .me-auto {
+            margin-right: auto !important;
+        }
+        
+        /* Hide main content until ready */
+        main {
+            visibility: hidden;
+            opacity: 0;
+        }
+        
+        main.ready {
+            visibility: visible;
+            opacity: 1;
+            transition: opacity 0.2s ease-in 0.1s;
+        }
+        
+        /* Final safety: lock dropdown positioning once ready */
+        .navbar.ready .dropdown-menu {
+            position: absolute !important;
+            top: 100% !important;
+            transform: none !important;
+            will-change: auto !important;
+        }
+        
+        .navbar.ready .dropdown-menu-end {
+            right: 0 !important;
+            left: auto !important;
+        }
+    </style>
+    
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
@@ -91,6 +205,11 @@
     </style>
     @endif
     
+    <!-- Loading overlay -->
+    <div id="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container-fluid px-4">
@@ -145,7 +264,7 @@
                   </div>
                 </div>
                 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div class="collapse navbar-collapse d-none d-md-block" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto">
 
@@ -193,7 +312,92 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Comprehensive loading solution to prevent navbar glitch -->
+    <script>
+        (function() {
+            let bootstrapReady = false;
+            let contentReady = false;
+            
+            function hideLoadingOverlay() {
+                if (bootstrapReady && contentReady) {
+                    const overlay = document.getElementById('loading-overlay');
+                    const navbar = document.querySelector('.navbar');
+                    const main = document.querySelector('main');
+                    
+                    if (overlay) {
+                        overlay.classList.add('hidden');
+                        setTimeout(() => {
+                            overlay.style.display = 'none';
+                        }, 300);
+                    }
+                    
+                    if (navbar) {
+                        navbar.classList.add('ready');
+                    }
+                    
+                    if (main) {
+                        main.classList.add('ready');
+                    }
+                }
+            }
+            
+            function checkBootstrapReady() {
+                try {
+                    // Test if Bootstrap CSS is properly loaded
+                    const testElement = document.createElement('div');
+                    testElement.className = 'dropdown-menu position-absolute';
+                    testElement.style.visibility = 'hidden';
+                    testElement.style.position = 'absolute';
+                    document.body.appendChild(testElement);
+                    
+                    const computedStyle = window.getComputedStyle(testElement);
+                    const hasBootstrapStyles = computedStyle.position === 'absolute' && 
+                                             parseFloat(computedStyle.zIndex) >= 1000;
+                    
+                    document.body.removeChild(testElement);
+                    
+                    if (hasBootstrapStyles && typeof bootstrap !== 'undefined') {
+                        bootstrapReady = true;
+                        hideLoadingOverlay();
+                    } else {
+                        setTimeout(checkBootstrapReady, 10);
+                    }
+                } catch (e) {
+                    // Fallback if test fails
+                    setTimeout(() => {
+                        bootstrapReady = true;
+                        hideLoadingOverlay();
+                    }, 100);
+                }
+            }
+            
+            function initializeContent() {
+                contentReady = true;
+                hideLoadingOverlay();
+            }
+            
+            // Start checking when DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    checkBootstrapReady();
+                    initializeContent();
+                });
+            } else {
+                checkBootstrapReady();
+                initializeContent();
+            }
+            
+            // Safety fallback: show content after 1 second even if checks fail
+            setTimeout(() => {
+                bootstrapReady = true;
+                contentReady = true;
+                hideLoadingOverlay();
+            }, 1000);
+        })();
+    </script>
     <style>
+      /* Additional navbar styles after Bootstrap loads */
       .nav-link, .dropdown-item {
         font-family: var(--body-font);
         color: var(--text-color);
@@ -208,13 +412,24 @@
         box-shadow: 0 2px 4px var(--shadow-color);
       }
       
+      /* Ensure proper responsive behavior */
       @media (max-width: 767.98px) {
-        .navbar-collapse.d-none.d-md-block { display: none !important; }
-        .offcanvas { width: 25vw; min-width: 120px; max-width: 50vw; }
+        .navbar-collapse.d-none.d-md-block { 
+          display: none !important; 
+        }
+        .offcanvas { 
+          width: 280px; 
+          max-width: 80vw; 
+        }
       }
+      
       @media (min-width: 768px) {
-        .offcanvas { display: none !important; }
-        .navbar-collapse.d-none.d-md-block { display: flex !important; }
+        .offcanvas { 
+          display: none !important; 
+        }
+        .navbar-collapse.d-none.d-md-block { 
+          display: flex !important; 
+        }
       }
     </style>
 </body>

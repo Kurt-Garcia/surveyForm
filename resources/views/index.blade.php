@@ -415,6 +415,272 @@
     .font-theme{
          font-family: var(--body-font);
     }
+    
+    /* iPad Specific Styles */
+    @media screen and (min-width: 768px) and (max-width: 1024px) {
+        /* Button container improvements for iPad */
+        .survey-card .d-flex.gap-2.mt-auto {
+            gap: 0.5rem !important;
+            margin-top: 1.25rem !important;
+            flex-wrap: nowrap !important;
+            align-items: stretch !important;
+        }
+        
+        /* View Survey Button (Primary) */
+        .survey-card .btn-start.btn-primary {
+            padding: 0.75rem 0.75rem !important;
+            font-size: 0.85rem !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            min-height: 42px !important;
+            flex: 1 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            white-space: nowrap !important;
+            text-decoration: none !important;
+            line-height: 1.2 !important;
+        }
+        
+        /* Responses/Chart Button (Secondary) */
+        .survey-card .btn-outline-secondary {
+            padding: 0.75rem 0.75rem !important;
+            font-size: 1rem !important;
+            border-radius: 8px !important;
+            min-height: 42px !important;
+            min-width: 42px !important;
+            max-width: 42px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-width: 1.5px !important;
+            flex-shrink: 0 !important;
+            text-decoration: none !important;
+        }
+        
+        /* Broadcast Button (Primary Outline) */
+        .survey-card .btn-outline-primary.broadcast-btn {
+            width: 42px !important;
+            height: 42px !important;
+            min-width: 42px !important;
+            padding: 0 !important;
+            border-radius: 8px !important;
+            border-width: 1.5px !important;
+            font-size: 1rem !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+        }
+        
+        /* Icon adjustments for better visibility */
+        .survey-card .btn-start i {
+            font-size: 0.85rem !important;
+            margin-right: 0.4rem !important;
+        }
+        
+        .survey-card .btn-outline-secondary i {
+            font-size: 1rem !important;
+            margin: 0 !important;
+        }
+        
+        .survey-card .broadcast-btn i {
+            font-size: 0.95rem !important;
+            margin: 0 !important;
+        }
+        
+        /* Hover effects optimized for iPad */
+        .survey-card .btn-start:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 8px rgba(var(--bs-primary-rgb), 0.25) !important;
+        }
+        
+        .survey-card .btn-outline-secondary:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15) !important;
+            background-color: var(--bs-secondary) !important;
+            color: white !important;
+        }
+        
+        .survey-card .btn-outline-primary.broadcast-btn:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 3px 6px rgba(var(--bs-primary-rgb), 0.2) !important;
+            background-color: var(--bs-primary) !important;
+            color: white !important;
+        }
+        
+        /* Card body adjustments for better spacing */
+        .survey-card .card-body {
+            padding: 1.25rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        /* Better touch targets and accessibility */
+        .survey-card .btn {
+            transition: all 0.2s ease !important;
+            user-select: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+            cursor: pointer !important;
+            pointer-events: auto !important;
+            position: relative !important;
+            z-index: 10 !important;
+        }
+        
+        /* Ensure buttons don't break on smaller iPad screens */
+        .survey-card .btn-start {
+            min-width: 0 !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        
+        /* Fix for flex-grow-1 on iPad */
+        .survey-card .flex-grow-1 {
+            flex-grow: 1 !important;
+            flex-shrink: 1 !important;
+            flex-basis: 0 !important;
+        }
+    }
+    
+    /* iPad Pro Specific (larger iPad screens) */
+    @media screen and (min-width: 1025px) and (max-width: 1366px) {
+        /* Button container for iPad Pro */
+        .survey-card .d-flex.gap-2.mt-auto {
+            gap: 0.6rem !important;
+            margin-top: 1.5rem !important;
+        }
+        
+        /* View Survey Button for iPad Pro - Fixed text cutoff */
+        .survey-card .btn-start.btn-primary {
+            padding: 0.875rem 0.75rem !important;
+            font-size: 0.85rem !important;
+            min-height: 46px !important;
+            border-radius: 9px !important;
+            min-width: 120px !important;
+            max-width: none !important;
+            flex: 1 1 auto !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        /* Responses Button for iPad Pro */
+        .survey-card .btn-outline-secondary {
+            padding: 0.875rem 0.5rem !important;
+            min-width: 46px !important;
+            min-height: 46px !important;
+            max-width: 46px !important;
+            border-radius: 9px !important;
+            flex-shrink: 0 !important;
+        }
+        
+        /* Broadcast Button for iPad Pro */
+        .survey-card .btn-outline-primary.broadcast-btn {
+            width: 46px !important;
+            height: 46px !important;
+            min-width: 46px !important;
+            border-radius: 9px !important;
+            flex-shrink: 0 !important;
+        }
+        
+        /* Icon sizes for iPad Pro - Reduced to save space */
+        .survey-card .btn-start i {
+            font-size: 0.8rem !important;
+            margin-right: 0.4rem !important;
+        }
+        
+        .survey-card .btn-outline-secondary i,
+        .survey-card .broadcast-btn i {
+            font-size: 1.1rem !important;
+        }
+        
+        /* Card body padding for iPad Pro */
+        .survey-card .card-body {
+            padding: 1.5rem !important;
+        }
+        
+        /* Ensure proper flex behavior */
+        .survey-card .flex-grow-1 {
+            flex-grow: 1 !important;
+            flex-shrink: 1 !important;
+            flex-basis: 0 !important;
+            min-width: 0 !important;
+        }
+    }
+    
+    /* iPad Pro 12.9" and similar large tablet screens */
+    @media screen and (min-width: 1200px) and (max-width: 1366px) {
+        .survey-card .btn-start.btn-primary {
+            font-size: 0.9rem !important;
+            padding: 0.875rem 1rem !important;
+            min-width: 140px !important;
+        }
+        
+        .survey-card .btn-start i {
+            font-size: 0.85rem !important;
+            margin-right: 0.5rem !important;
+        }
+        
+        .survey-card .d-flex.gap-2.mt-auto {
+            gap: 0.75rem !important;
+        }
+    }
+    
+    /* iPad Portrait Orientation Specific */
+    @media screen and (min-width: 768px) and (max-width: 834px) and (orientation: portrait) {
+        .survey-card .btn-start.btn-primary {
+            font-size: 0.8rem !important;
+            padding: 0.7rem 0.6rem !important;
+        }
+        
+        .survey-card .btn-start i {
+            font-size: 0.8rem !important;
+            margin-right: 0.3rem !important;
+        }
+        
+        .survey-card .d-flex.gap-2.mt-auto {
+            gap: 0.4rem !important;
+        }
+        
+        .survey-card .btn-outline-secondary,
+        .survey-card .broadcast-btn {
+            min-width: 40px !important;
+            width: 40px !important;
+            height: 40px !important;
+        }
+    }
+    
+    /* Fix for any remaining button issues */
+    @media screen and (min-width: 768px) and (max-width: 1366px) {
+        .survey-card .btn:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 2px rgba(var(--bs-primary-rgb), 0.25) !important;
+        }
+        
+        .survey-card .btn:active {
+            transform: translateY(0) !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+        }
+        
+        /* Ensure proper link behavior */
+        .survey-card .btn[href] {
+            text-decoration: none !important;
+            color: inherit !important;
+        }
+        
+        .survey-card .btn[href]:hover {
+            text-decoration: none !important;
+        }
+        
+        /* Fix for button text wrapping */
+        .survey-card .btn-start {
+            word-break: keep-all !important;
+            hyphens: none !important;
+        }
+    }
     </style>
 
     <script>
