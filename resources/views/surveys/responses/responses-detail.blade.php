@@ -724,6 +724,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<!-- Add FontAwesome for star icons in print -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <script>
 function printWithPrintJS() {
@@ -808,12 +810,12 @@ function printWithPrintJS() {
             
             /* Last page layout structure */
             .last-page-container {
-                min-height: calc(100vh - 210px);
-                max-height: calc(100vh - 210px);
+                min-height: calc(100vh - 300px);
+                max-height: calc(100vh - 300px);
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-start;
-                overflow: hidden;
+                overflow: visible;
             }
             
             .last-page-content {
@@ -821,24 +823,26 @@ function printWithPrintJS() {
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
+                max-height: 100%;
             }
             
             .last-page-questions {
-                flex-shrink: 0;
-                margin-bottom: 10px;
+                flex: 1;
+                margin-bottom: 20px;
+                overflow: visible;
             }
             
             .last-page-footer {
                 flex-shrink: 0;
-                margin-top: auto;
-                padding-top: 20px;
+                margin-top: 0;
+                padding-top: 15px;
             }
             
             /* Compact question items on last page */
             .last-page-questions .question-item {
                 margin-bottom: 12px !important;
                 padding: 8px !important;
-                min-height: 50px !important;
+                min-height: 55px !important;
             }
             
             .last-page-questions .question-text {
@@ -857,23 +861,23 @@ function printWithPrintJS() {
             .print-footer {
                 background: white;
                 border-top: 2px solid #ddd;
-                padding: 12px;
+                padding: 8px;
                 page-break-inside: avoid;
-                margin-top: 20px;
+                margin-top: 0;
             }
             
             .recommendation-section, .comments-section {
-                margin-bottom: 10px;
+                margin-bottom: 8px;
             }
             
             .recommendation-section label, .comments-section label {
-                font-size: 8pt !important;
-                margin-bottom: 2px !important;
+                font-size: 10pt !important;
+                margin-bottom: 3px !important;
             }
             
             .comments-text {
-                font-size: 8pt !important;
-                line-height: 1.3 !important;
+                font-size: 10pt !important;
+                line-height: 1.4 !important;
             }
             
             
@@ -885,11 +889,15 @@ function printWithPrintJS() {
                 width: 120px;
                 display: inline-block;
                 margin-right: 10px;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
             
             .recommendation-fill {
                 height: 100%;
                 background-color: #4ECDC4;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
             
             .response-score {
@@ -898,8 +906,8 @@ function printWithPrintJS() {
             }
             
             .comments-text {
-                font-size: 9pt;
-                line-height: 1.4;
+                font-size: 11pt;
+                line-height: 1.5;
                 margin: 0;
             }
             
@@ -961,9 +969,32 @@ function printWithPrintJS() {
                 margin-right: 5px;
             }
             
+            /* Star rating styles */
+            .star-rating {
+                font-size: 16px;
+                margin-right: 2px;
+                display: inline-block;
+                font-family: serif;
+            }
+            
+            /* FontAwesome star icon support */
+            .fas {
+                font-family: "Font Awesome 6 Free";
+                font-weight: 900;
+                font-style: normal;
+                font-variant: normal;
+                text-rendering: auto;
+                line-height: 1;
+            }
+            
+            .fa-star:before {
+                content: "\\f005";
+            }
+            
             .fa-star {
                 font-size: 16px;
                 margin-right: 2px;
+                display: inline-block;
             }
             
             .text-warning {
@@ -1107,7 +1138,8 @@ function createPrintContent() {
             html += '<div class="rating-display">';
             for (let i = 1; i <= 5; i++) {
                 const starClass = i <= question.response ? 'text-warning' : 'text-muted';
-                html += `<i class="fas fa-star ${starClass}"></i>`;
+                // Use Unicode star character as fallback for better print compatibility
+                html += `<span class="star-rating ${starClass}">★</span>`;
             }
             html += `</div><span class="response-score">${question.response} / 5</span>`;
         } else {
@@ -1125,8 +1157,8 @@ function createPrintContent() {
                         <div class="recommendation-section">
                             <label>Recommendation Score</label>
                             <div style="display: flex; align-items: center;">
-                                <div class="recommendation-meter">
-                                    <div class="recommendation-fill" style="width: ${(recommendation / 10) * 100}%;"></div>
+                                <div class="recommendation-meter" style="border: 1px solid #ccc;">
+                                    <div class="recommendation-fill" style="width: ${(recommendation / 10) * 100}%; background-color: #4ECDC4 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;"></div>
                                 </div>
                                 <span class="response-score">${recommendation} / 10</span>
                             </div>
