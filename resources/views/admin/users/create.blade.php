@@ -106,8 +106,9 @@
                                     <i class="bi bi-telephone me-1 text-danger"></i>Contact Number
                                 </label>
                                 <input type="tel" class="form-control form-control-lg border-0 shadow-sm @error('contact_number') is-invalid @enderror" 
-                                       id="contact_number" name="contact_number" value="{{ old('contact_number') }}" placeholder="+63912345678" 
-                                       autocomplete="tel" required>
+                                       id="contact_number" name="contact_number" value="{{ old('contact_number') }}" placeholder="09123456789" 
+                                       autocomplete="tel" required maxlength="11" pattern="[0-9]{1,11}" 
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)">
                                 @error('contact_number')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -569,12 +570,48 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
+    // Add real-time input validation for contact number
+    contactNumberField.addEventListener('input', function() {
+        // Remove any non-numeric characters and limit to 11 digits
+        let value = this.value.replace(/[^0-9]/g, '');
+        if (value.length > 11) {
+            value = value.slice(0, 11);
+        }
+        this.value = value;
+        
+        // Update validation feedback based on length
+        const existingFeedback = document.getElementById('contact-number-validation-feedback');
+        if (existingFeedback) {
+            existingFeedback.remove();
+        }
+        
+        if (value.length > 0 && value.length < 10) {
+            contactNumberIsValid = false;
+            const warningFeedback = document.createElement('div');
+            warningFeedback.className = 'text-warning mt-1';
+            warningFeedback.id = 'contact-number-validation-feedback';
+            warningFeedback.innerHTML = `<small><i class="bi bi-exclamation-triangle me-1"></i>Contact number should be at least 10 digits (${value.length}/11)</small>`;
+            contactNumberField.parentNode.appendChild(warningFeedback);
+            contactNumberField.classList.remove('is-valid');
+            contactNumberField.classList.add('is-invalid');
+        } else if (value.length >= 10 && value.length <= 11) {
+            contactNumberIsValid = true;
+            const successFeedback = document.createElement('div');
+            successFeedback.className = 'text-success mt-1';
+            successFeedback.id = 'contact-number-validation-feedback';
+            successFeedback.innerHTML = `<small><i class="bi bi-check-circle-fill me-1"></i>Valid contact number (${value.length}/11)</small>`;
+            contactNumberField.parentNode.appendChild(successFeedback);
+            contactNumberField.classList.remove('is-invalid');
+            contactNumberField.classList.add('is-valid');
+        }
+    });
+    
     contactNumberField.addEventListener('blur', function() {
         console.log('Contact number blur event triggered');
         const contactNumber = contactNumberField.value.trim();
         console.log('Contact number value:', contactNumber);
         
-        if (contactNumber) {
+        if (contactNumber && contactNumber.length >= 10) {
             // Remove any existing feedback
             const existingFeedback = document.getElementById('contact-number-validation-feedback');
             if (existingFeedback) {
@@ -774,9 +811,13 @@ function confirmSubmit(event) {
     const emailValidationFeedback = document.getElementById('email-validation-feedback');
     const contactNumberValidationFeedback = document.getElementById('contact-number-validation-feedback');
     
+    // Also check the validation flags
     if ((nameValidationFeedback && nameField.classList.contains('is-invalid')) ||
         (emailValidationFeedback && emailField.classList.contains('is-invalid')) ||
-        (contactNumberValidationFeedback && contactNumberField.classList.contains('is-invalid'))) {
+        (contactNumberValidationFeedback && contactNumberField.classList.contains('is-invalid')) ||
+        (typeof nameIsValid !== 'undefined' && !nameIsValid) ||
+        (typeof emailIsValid !== 'undefined' && !emailIsValid) ||
+        (typeof contactNumberIsValid !== 'undefined' && !contactNumberIsValid)) {
         swalWithBootstrapButtons.fire({
             title: "Invalid Input",
             text: "Please fix the validation errors before submitting.",
@@ -807,6 +848,24 @@ function confirmSubmit(event) {
     });
     
     return false;
+}
+
+// Function to handle close button confirmation (global scope)
+function confirmClose() {
+    swalWithBootstrapButtons.fire({
+        title: "Discard Changes?",
+        text: "Any unsaved changes will be lost!",
+        icon: "warning",
+        showCancelButton: true,
+        cancelButtonText: "Stay here",
+        confirmButtonText: "Yes, leave page!",
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Redirect to dashboard
+            window.location.href = "{{ route('admin.dashboard') }}";
+        }
+    });
 }
 
 // Add CSS animations

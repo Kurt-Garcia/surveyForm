@@ -25,6 +25,7 @@ class User extends Authenticatable
         'contact_number',
         'sbu_id',
         'site_id',
+        'created_by',
     ];
 
     /**
@@ -55,6 +56,16 @@ class User extends Authenticatable
     public function sbu(): BelongsTo
     {
         return $this->belongsTo(Sbu::class);
+    }
+
+    /**
+     * Get the admin who created this user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(Admin::class, 'created_by');
     }
 
     /**

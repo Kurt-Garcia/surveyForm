@@ -170,7 +170,7 @@ class AdminManagementController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255',
                 'password' => 'required|string|min:8|confirmed',
-                'contact_number' => ['required', 'string', 'max:13', 'regex:/^(\+63|09|9)\d{9,10}$/'],
+                'contact_number' => ['required', 'string', 'max:11', 'regex:/^(\+63|09|9)\d{9,10}$/'],
                 'sbu_id' => 'required|exists:sbus,id',
                 'site_id' => 'required|exists:sites,id',
             ]);

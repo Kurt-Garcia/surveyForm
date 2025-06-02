@@ -43,10 +43,10 @@ class UserManagementController extends Controller
             'contact_number' => [
                 'required',
                 'string',
-                'max:13',
+                'max:11',
                 function ($attribute, $value, $fail) {
-                    if (!preg_match('/^(\+63|09|9)\d+$/', $value)) {
-                        $fail('The contact number must start with +63, 09, or 9.');
+                    if (!preg_match('/^(\+63|09|9)\d{9,10}$/', $value)) {
+                        $fail('The contact number must be 10-11 digits and start with +63, 09, or 9.');
                     }
                 },
             ],
@@ -100,16 +100,18 @@ class UserManagementController extends Controller
             'contact_number' => $contactNumber,
             'sbu_id' => $request->sbu_id,
             'site_id' => $request->site_id,
+            'created_by' => auth('admin')->id(), // Set the current admin as creator
         ]);
 
         return redirect()->route('admin.users.create')->with('success', 'User created successfully!');
     }
 
-    // Get data for DataTables displaying only survey users (not admin users)
+    // Get data for DataTables displaying only survey users created by current admin
     public function data()
     {
-        // Get only regular users (surveyors), not admin users
-        $surveyUsers = User::with(['sbu', 'site'])
+        // Get only regular users (surveyors) created by the current admin
+        $surveyUsers = User::with(['sbu', 'site', 'createdBy'])
+            ->where('created_by', auth('admin')->id()) // Filter by current admin
             ->get()
             ->map(function ($user) {
                 return [
@@ -120,6 +122,7 @@ class UserManagementController extends Controller
                     'sbu_name' => $user->sbu ? $user->sbu->name : 'N/A',
                     'site_name' => $user->site ? $user->site->name : 'N/A',
                     'user_type' => 'Surveyor',
+                    'created_by' => $user->createdBy ? $user->createdBy->name : 'Unknown',
                     'created_at' => $user->created_at->format('M d, Y')
                 ];
             });
