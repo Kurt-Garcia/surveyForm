@@ -16,7 +16,7 @@
     <!-- Action Buttons Section -->
     <div class="mb-3 d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 gap-sm-0">
         <div class="d-flex flex-column flex-sm-row gap-2 mb-2 mb-sm-0">
-            <button onclick="window.print()" class="btn btn-outline-secondary">
+            <button onclick="printWithPrintJS()" class="btn btn-outline-secondary">
                 <i class="fas fa-print me-2"></i>Print
             </button>
             <button onclick="generatePDF()" class="btn btn-outline-secondary">
@@ -718,12 +718,436 @@
 }
 </style>
 
-<!-- Add jsPDF, html2canvas, and html2pdf.js libraries -->
+<!-- Add Print.js, jsPDF, html2canvas, and html2pdf.js libraries -->
+<script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://printjs-4de6.kxcdn.com/print.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
+function printWithPrintJS() {
+    // Create print content with proper structure for Print.js
+    const printContent = createPrintContent();
+    
+    printJS({
+        printable: printContent,
+        type: 'raw-html',
+        style: `
+            @page {
+                size: A4;
+                margin: 5mm 15mm 20mm 15mm;
+            }
+            
+            /* Print Header */
+            .print-header {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 180px;
+                background: white;
+                border-bottom: 2px solid #ddd;
+                padding: 5px 15px 10px 15px;
+                z-index: 1000;
+            }
+            
+            .print-logo {
+                max-width: 120px;
+                max-height: 50px;
+                height: auto;
+                display: block;
+                margin: 0 auto 3px auto;
+            }
+            
+            .survey-title {
+                text-align: center;
+                font-size: 12pt;
+                font-weight: bold;
+                margin: 5px 0 10px 0;
+                color: #333;
+            }
+            
+            .customer-info {
+                font-size: 10pt;
+                line-height: 1.3;
+            }
+            
+            .customer-info .row {
+                display: flex;
+                margin: 0;
+            }
+            
+            .customer-info .col {
+                flex: 1;
+                padding: 0 5px;
+            }
+            
+            .customer-info label {
+                font-weight: bold;
+                color: #666;
+                font-size: 9pt;
+                margin-bottom: 2px;
+                display: block;
+            }
+            
+            .customer-info p {
+                margin: 0 0 8px 0;
+                font-size: 10pt;
+            }
+
+            
+            /* Print Footer - Only on last page */
+            .print-footer {
+                background: white;
+                border-top: 2px solid #ddd;
+                padding: 15px;
+                page-break-inside: avoid;
+                margin-top: 30px;
+            }
+            
+            /* Last page layout structure */
+            .last-page-container {
+                min-height: calc(100vh - 210px);
+                max-height: calc(100vh - 210px);
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                overflow: hidden;
+            }
+            
+            .last-page-content {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+            
+            .last-page-questions {
+                flex-shrink: 0;
+                margin-bottom: 10px;
+            }
+            
+            .last-page-footer {
+                flex-shrink: 0;
+                margin-top: auto;
+                padding-top: 20px;
+            }
+            
+            /* Compact question items on last page */
+            .last-page-questions .question-item {
+                margin-bottom: 12px !important;
+                padding: 8px !important;
+                min-height: 50px !important;
+            }
+            
+            .last-page-questions .question-text {
+                font-size: 10pt !important;
+                line-height: 1.2 !important;
+                margin-bottom: 6px !important;
+            }
+            
+            .last-page-questions .question-label,
+            .last-page-questions .response-label {
+                font-size: 8pt !important;
+                margin-bottom: 2px !important;
+            }
+            
+            /* Compact footer */
+            .print-footer {
+                background: white;
+                border-top: 2px solid #ddd;
+                padding: 12px;
+                page-break-inside: avoid;
+                margin-top: 20px;
+            }
+            
+            .recommendation-section, .comments-section {
+                margin-bottom: 10px;
+            }
+            
+            .recommendation-section label, .comments-section label {
+                font-size: 8pt !important;
+                margin-bottom: 2px !important;
+            }
+            
+            .comments-text {
+                font-size: 8pt !important;
+                line-height: 1.3 !important;
+            }
+            
+            
+            .recommendation-meter {
+                height: 8px;
+                background-color: #f1f1f1;
+                border-radius: 4px;
+                overflow: hidden;
+                width: 120px;
+                display: inline-block;
+                margin-right: 10px;
+            }
+            
+            .recommendation-fill {
+                height: 100%;
+                background-color: #4ECDC4;
+            }
+            
+            .response-score {
+                font-weight: bold;
+                font-size: 11pt;
+            }
+            
+            .comments-text {
+                font-size: 9pt;
+                line-height: 1.4;
+                margin: 0;
+            }
+            
+            /* Print Content */
+            .print-content {
+                margin-top: 210px;
+                margin-bottom: 20px;
+                padding: 0 15px;
+            }
+            
+            .page-break {
+                page-break-before: always;
+                margin-top: 210px;
+            }
+            
+            .question-item {
+                margin-bottom: 20px;
+                padding: 12px;
+                border: 1px solid #eee;
+                border-radius: 8px;
+                background: #fafafa;
+                page-break-inside: avoid;
+                min-height: 70px;
+            }
+            
+            .question-label {
+                font-weight: bold;
+                color: #666;
+                font-size: 9pt;
+                margin-bottom: 3px;
+                display: block;
+            }
+            
+            .question-text {
+                font-weight: bold;
+                font-size: 11pt;
+                margin-bottom: 8px;
+                line-height: 1.3;
+            }
+            
+            .response-label {
+                font-weight: bold;
+                color: #666;
+                font-size: 9pt;
+                margin-bottom: 3px;
+                display: block;
+            }
+            
+            .radio-display, .rating-display {
+                margin: 5px 0;
+            }
+            
+            .form-check-inline {
+                display: inline-block;
+                margin-right: 15px;
+            }
+            
+            .form-check-input {
+                margin-right: 5px;
+            }
+            
+            .fa-star {
+                font-size: 16px;
+                margin-right: 2px;
+            }
+            
+            .text-warning {
+                color: #ffc107 !important;
+            }
+            
+            .text-muted {
+                color: #6c757d !important;
+            }
+            
+            .response-text {
+                font-size: 10pt;
+                line-height: 1.4;
+                margin: 0;
+            }
+            
+            .survey-title {
+                text-align: center;
+                font-size: 14pt;
+                font-weight: bold;
+                margin-bottom: 20px;
+                color: #333;
+            }
+        `,
+        scanStyles: false
+    });
+}
+
+function createPrintContent() {
+    // Get survey data
+    const surveyTitle = "{{ $survey->title }}";
+    const accountName = "{{ $response->account_name }}";
+    const accountType = "{{ $response->account_type }}";
+    const responseDate = "{{ $response->date->format('M d, Y') }}";
+    const startTime = "{{ $response->start_time ? $response->start_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}";
+    const endTime = "{{ $response->end_time ? $response->end_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}";
+    const duration = "@if($response->start_time && $response->end_time){{ $response->end_time->diffForHumans($response->start_time, ['parts' => 2]) }}@else N/A @endif";
+    const recommendation = "{{ $response->recommendation }}";
+    const comments = "{{ $response->comments ?: 'No additional comments provided.' }}";
+    
+    // Get logo
+    const logoSrc = @if($survey->logo)"{{ asset('storage/' . $survey->logo) }}"@else"{{ asset('img/logo.png') }}"@endif;
+    
+    // Get questions
+    const questions = [
+        @foreach($response->details as $detail)
+        {
+            text: `{{ addslashes($detail->question->text) }}`,
+            type: '{{ $detail->question->type }}',
+            response: `{{ addslashes($detail->response) }}`
+        },
+        @endforeach
+    ];
+    
+    let html = `
+        <!-- Print Header -->
+        <div class="print-header">
+            <img src="${logoSrc}" alt="Logo" class="print-logo">
+            <div class="survey-title">${surveyTitle.toUpperCase()} - RESPONSE DETAILS</div>
+            <div class="customer-info">
+                <div class="row">
+                    <div class="col">
+                        <label>Account Name</label>
+                        <p>${accountName}</p>
+                    </div>
+                    <div class="col">
+                        <label>Account Type</label>
+                        <p>${accountType}</p>
+                    </div>
+                    <div class="col">
+                        <label>Date</label>
+                        <p>${responseDate}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Start Time</label>
+                        <p>${startTime}</p>
+                    </div>
+                    <div class="col">
+                        <label>End Time</label>
+                        <p>${endTime}</p>
+                    </div>
+                    <div class="col">
+                        <label>Duration</label>
+                        <p>${duration}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Print Content -->
+        <div class="print-content">
+    `;
+    
+    // Add questions (5 per page)
+    let pageCount = 0;
+    let questionsOnCurrentPage = 0;
+    const totalQuestions = questions.length;
+    const questionsPerPage = 5;
+    const totalPages = Math.ceil(totalQuestions / questionsPerPage);
+    
+    questions.forEach((question, index) => {
+        if (index > 0 && index % questionsPerPage === 0) {
+            html += '</div>'; // Close current page content
+            pageCount++;
+            questionsOnCurrentPage = 0;
+            html += '<div class="page-break"></div>';
+            html += '<div class="print-content">';
+        }
+        
+        questionsOnCurrentPage++;
+        const isLastQuestion = index === totalQuestions - 1;
+        const isStartOfLastPage = Math.floor(index / questionsPerPage) === totalPages - 1 && index % questionsPerPage === 0;
+        
+        // Start last page container if this is the beginning of the last page
+        if (isStartOfLastPage) {
+            html += '<div class="last-page-container"><div class="last-page-content"><div class="last-page-questions">';
+        }
+        
+        html += `
+            <div class="question-item">
+                <label class="question-label">Question</label>
+                <div class="question-text">${question.text}</div>
+                <label class="response-label">Response</label>
+        `;
+        
+        if (question.type === 'radio') {
+            html += '<div class="radio-display">';
+            for (let i = 1; i <= 5; i++) {
+                const checked = i == question.response ? 'checked' : '';
+                html += `
+                    <div class="form-check-inline">
+                        <input class="form-check-input" type="radio" ${checked} disabled>
+                        <label class="form-check-label">${i}</label>
+                    </div>
+                `;
+            }
+            html += `</div><span class="response-score">${question.response} / 5</span>`;
+        } else if (question.type === 'star') {
+            html += '<div class="rating-display">';
+            for (let i = 1; i <= 5; i++) {
+                const starClass = i <= question.response ? 'text-warning' : 'text-muted';
+                html += `<i class="fas fa-star ${starClass}"></i>`;
+            }
+            html += `</div><span class="response-score">${question.response} / 5</span>`;
+        } else {
+            html += `<p class="response-text">${question.response}</p>`;
+        }
+        
+        html += '</div>';
+        
+        // Add footer only after the last question
+        if (isLastQuestion) {
+            html += '</div></div>'; // Close last-page-questions and last-page-content
+            html += `
+                <div class="last-page-footer">
+                    <div class="print-footer">
+                        <div class="recommendation-section">
+                            <label>Recommendation Score</label>
+                            <div style="display: flex; align-items: center;">
+                                <div class="recommendation-meter">
+                                    <div class="recommendation-fill" style="width: ${(recommendation / 10) * 100}%;"></div>
+                                </div>
+                                <span class="response-score">${recommendation} / 10</span>
+                            </div>
+                        </div>
+                        <div class="comments-section">
+                            <label>Additional Comments</label>
+                            <p class="comments-text">${comments}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            html += '</div>'; // Close last-page-container
+        }
+    });
+    
+    // Close the final page content
+    html += '</div>';
+    
+    return html;
+}
+
 function generatePDF() {
     // Get survey title and account name for filename
     const surveyTitle = "{{ $survey->title }}".replace(/[^a-z0-9]/gi, '_');
