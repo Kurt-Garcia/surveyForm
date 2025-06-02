@@ -417,22 +417,63 @@ function printWithPrintJS() {
             // Check if it's radio type
             const radioDisplay = responseDiv.querySelector('.radio-display');
             if (radioDisplay) {
-                const radioButtons = radioDisplay.querySelectorAll('.form-check-inline');
-                const selectedValue = responseDiv.querySelector('span').textContent;
+                // First try to get the selected value from the checked radio input
+                const checkedRadio = radioDisplay.querySelector('input[type="radio"]:checked');
+                let selectedNumber = 0;
+                
+                if (checkedRadio) {
+                    // Use the checked radio button's adjacent label text or find which position it is
+                    const radioInputs = radioDisplay.querySelectorAll('input[type="radio"]');
+                    radioInputs.forEach((radio, index) => {
+                        if (radio.checked) {
+                            selectedNumber = index + 1; // Radio buttons are 1-indexed
+                        }
+                    });
+                } else {
+                    // Fallback: Find the span with the actual selected value (format: "X / 5")
+                    const selectedValueSpan = responseDiv.querySelector('span.ms-2.fw-bold');
+                    let selectedValue = '';
+                    if (selectedValueSpan) {
+                        selectedValue = selectedValueSpan.textContent.trim();
+                    } else {
+                        // Second fallback: look for any span in the responseDiv
+                        const anySpan = responseDiv.querySelector('span');
+                        selectedValue = anySpan ? anySpan.textContent.trim() : '';
+                    }
+                    
+                    // Extract the number from "X / 5" format or just use the number if it's only a number
+                    if (selectedValue.includes('/')) {
+                        selectedNumber = parseInt(selectedValue.split('/')[0].trim()) || 0;
+                    } else {
+                        selectedNumber = parseInt(selectedValue) || 0;
+                    }
+                }
+                
+                // Get the display value for the print
+                const displaySpan = responseDiv.querySelector('span.ms-2.fw-bold');
+                const displayValue = displaySpan ? displaySpan.textContent.trim() : `${selectedNumber} / 5`;
+                
+                console.log('Radio Debug Info:', {
+                    selectedNumber: selectedNumber,
+                    displayValue: displayValue,
+                    checkedRadio: checkedRadio,
+                    radioDisplay: radioDisplay
+                });
                 
                 responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
                 responseHTML += '<div style="display: flex; gap: 10px; margin-right: 15px;">';
                 
-                radioButtons.forEach((radio, index) => {
-                    const isChecked = radio.querySelector('input').checked;
+                // Generate 5 radio buttons (1-5) using actual input elements like the working version
+                for (let i = 1; i <= 5; i++) {
+                    const checked = (i === selectedNumber) ? 'checked' : '';
                     responseHTML += `<div style="display: flex; align-items: center; gap: 3px;">
-                        <div style="width: 12px; height: 12px; border: 1px solid #666; border-radius: 50%; ${isChecked ? 'background-color: #666;' : ''}"></div>
-                        <span style="font-size: 8pt;">${index + 1}</span>
+                        <input type="radio" style="margin-right: 3px;" ${checked} disabled>
+                        <label style="font-size: 8pt;">${i}</label>
                     </div>`;
-                });
+                }
                 
                 responseHTML += '</div>';
-                responseHTML += `<span style="font-weight: bold; font-size: 10pt;">${selectedValue}</span>`;
+                responseHTML += `<span style="font-weight: bold; font-size: 10pt;">${displayValue}</span>`;
                 responseHTML += '</div>';
             }
             
