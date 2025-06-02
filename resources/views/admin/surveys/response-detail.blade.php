@@ -364,18 +364,16 @@ function printWithPrintJS() {
         </div>
     `;
     
-    // Create footer content (Recommendation Score + Comments)
+    // Create footer content (Recommendation Score + Comments) - More compact version
     const footerContent = `
-        <div class="print-footer" style="margin-top: 30px; page-break-inside: avoid;">
-            <div style="border: 1px solid #ddd; padding: 12px; background-color: #f9f9f9;">
-                <div style="margin-bottom: 15px;">
-                    <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Recommendation Score</div>
-                    <div style="font-size: 10pt; font-weight: bold;">${recommendation} / 10</div>
-                </div>
-                <div>
-                    <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Additional Comments</div>
-                    <div style="font-size: 10pt; font-weight: bold;">${comments}</div>
-                </div>
+        <div style="border: 1px solid #ddd; padding: 8px; background-color: #f9f9f9; margin-top: 10px;">
+            <div style="margin-bottom: 8px;">
+                <div style="font-size: 8pt; color: #666; margin-bottom: 2px;">Recommendation Score</div>
+                <div style="font-size: 10pt; font-weight: bold;">${recommendation} / 10</div>
+            </div>
+            <div>
+                <div style="font-size: 8pt; color: #666; margin-bottom: 2px;">Additional Comments</div>
+                <div style="font-size: 10pt; font-weight: bold; word-wrap: break-word;">${comments}</div>
             </div>
         </div>
     `;
@@ -390,15 +388,20 @@ function printWithPrintJS() {
         const startIndex = page * questionsPerPage;
         const endIndex = Math.min(startIndex + questionsPerPage, questionsArray.length);
         const pageQuestions = questionsArray.slice(startIndex, endIndex);
+        const isLastPage = (page === totalPages - 1);
         
-        // Start page
-        printHTML += `<div class="print-page" style="${page > 0 ? 'page-break-before: always;' : ''} min-height: 100vh;">`;
+        // Start page - use flexbox on last page to stick footer to bottom
+        const pageStyle = page > 0 ? 'page-break-before: always;' : '';
+        const heightStyle = isLastPage ? 'min-height: 100vh; display: flex; flex-direction: column;' : 'min-height: 100vh;';
+        
+        printHTML += `<div class="print-page" style="${pageStyle} ${heightStyle}">`;
         
         // Add header to every page
         printHTML += headerContent;
         
-        // Add questions for this page
-        printHTML += '<div class="questions-content" style="margin: 20px 0;">';
+        // Add questions for this page - flex-shrink for last page to allow footer positioning
+        const contentStyle = isLastPage ? 'margin: 10px 0; flex-shrink: 0;' : 'margin: 20px 0;';
+        printHTML += `<div class="questions-content" style="${contentStyle}">`;
         
         pageQuestions.forEach((question) => {
             const questionClone = question.cloneNode(true);
@@ -458,15 +461,21 @@ function printWithPrintJS() {
                 responseHTML = `<div style="font-weight: bold; font-size: 10pt; margin-top: 8px;">${textResponse.textContent}</div>`;
             }
             
+            // Adjust spacing - smaller on last page to fit footer perfectly
+            const questionMargin = isLastPage ? '10px' : '22px';
+            const questionPadding = isLastPage ? '10px' : '18px';
+            const labelMargin = isLastPage ? '3px' : '6px';
+            const textMargin = isLastPage ? '6px' : '12px';
+            
             // Build question HTML
             printHTML += `
-                <div style="border: 1px solid #eee; margin-bottom: 15px; padding: 12px; background-color: #f9f9f9; page-break-inside: avoid;">
-                    <div style="margin-bottom: 8px;">
-                        <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">${questionLabel}</div>
-                        <div style="font-size: 10pt; font-weight: bold; margin-bottom: 8px;">${questionText}</div>
+                <div style="border: 1px solid #eee; margin-bottom: ${questionMargin}; padding: ${questionPadding}; background-color: #f9f9f9; page-break-inside: avoid;">
+                    <div style="margin-bottom: ${labelMargin};">
+                        <div style="font-size: 8pt; color: #666; margin-bottom: ${labelMargin};">${questionLabel}</div>
+                        <div style="font-size: 10pt; font-weight: bold; margin-bottom: ${textMargin};">${questionText}</div>
                     </div>
                     <div>
-                        <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Response</div>
+                        <div style="font-size: 8pt; color: #666; margin-bottom: ${labelMargin};">Response</div>
                         ${responseHTML}
                     </div>
                 </div>
@@ -475,8 +484,10 @@ function printWithPrintJS() {
         
         printHTML += '</div>'; // Close questions-content
         
-        // Add footer only on the last page
-        if (page === totalPages - 1) {
+        // Add footer only on the last page - stick to bottom with flexbox
+        if (isLastPage) {
+            // Add flexible spacer to push footer to bottom
+            printHTML += '<div style="flex-grow: 1; min-height: 20px;"></div>';
             printHTML += footerContent;
         }
         
@@ -512,10 +523,7 @@ function printWithPrintJS() {
             }
             .questions-content {
                 margin: 20px 0;
-            }
-            .print-footer {
-                margin-top: 30px;
-                page-break-inside: avoid;
+                flex-shrink: 0;
             }
         `,
         onLoadingStart: function () {
