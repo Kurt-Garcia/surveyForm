@@ -263,7 +263,7 @@
                             <div class="response-item mb-4 shadow-sm hover-lift">
                                 <div class="p-4">
                                     <div class="mb-3">
-                                        <label class="text-muted small mb-1">Question</label>
+                                        <span class="badge bg-primary text-white mb-2">Question {{ $loop->iteration }}</span>
                                         <h5 class="fw-bold mb-0">{{ $detail->question->text }}</h5>
                                     </div>
                                     <div>
@@ -810,32 +810,34 @@ function printWithPrintJS() {
             
             /* Last page layout structure */
             .last-page-container {
-                min-height: calc(100vh - 300px);
-                max-height: calc(100vh - 300px);
+                min-height: calc(100vh - 250px);
                 display: flex;
                 flex-direction: column;
-                justify-content: flex-start;
+                justify-content: space-between;
                 overflow: visible;
+                page-break-inside: avoid;
             }
             
             .last-page-content {
                 flex: 1;
                 display: flex;
                 flex-direction: column;
-                justify-content: space-between;
-                max-height: 100%;
+                justify-content: flex-start;
             }
             
             .last-page-questions {
-                flex: 1;
-                margin-bottom: 20px;
+                flex: 0 0 auto;
+                margin-top: 11px;
+                margin-bottom: 30px;
                 overflow: visible;
             }
             
             .last-page-footer {
-                flex-shrink: 0;
-                margin-top: 0;
-                padding-top: 15px;
+                flex: 0 0 auto;
+                margin-top: auto;
+                padding-top: 0;
+                position: relative;
+                bottom: 0;
             }
             
             /* Compact question items on last page */
@@ -861,9 +863,9 @@ function printWithPrintJS() {
             .print-footer {
                 background: white;
                 border-top: 2px solid #ddd;
-                padding: 8px;
+                padding: 12px;
                 page-break-inside: avoid;
-                margin-top: 0;
+                margin-top: 20px;
             }
             
             .recommendation-section, .comments-section {
@@ -880,6 +882,11 @@ function printWithPrintJS() {
                 line-height: 1.4 !important;
             }
             
+            .comments-text {
+                font-size: 10pt;
+                line-height: 1.4;
+                margin: 0;
+            }
             
             .recommendation-meter {
                 height: 8px;
@@ -903,12 +910,6 @@ function printWithPrintJS() {
             .response-score {
                 font-weight: bold;
                 font-size: 11pt;
-            }
-            
-            .comments-text {
-                font-size: 11pt;
-                line-height: 1.5;
-                margin: 0;
             }
             
             /* Print Content */
@@ -1117,7 +1118,7 @@ function createPrintContent() {
         
         html += `
             <div class="question-item">
-                <label class="question-label">Question</label>
+                <label class="question-label">Question ${index + 1}</label>
                 <div class="question-text">${question.text}</div>
                 <label class="response-label">Response</label>
         `;
@@ -1271,6 +1272,16 @@ function generatePDF() {
         labels.forEach(label => {
             label.style.fontSize = '7pt';
             label.style.marginBottom = '0';
+        });
+        
+        // Handle both badge and label formats for question numbers
+        const badges = item.querySelectorAll('.badge');
+        badges.forEach(badge => {
+            badge.style.fontSize = '7pt';
+            badge.style.padding = '2px 6px';
+            badge.style.marginBottom = '2px';
+            badge.style.backgroundColor = '#007bff !important';
+            badge.style.color = 'white !important';
         });
     });
     

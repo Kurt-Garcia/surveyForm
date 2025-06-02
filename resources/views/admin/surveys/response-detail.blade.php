@@ -390,9 +390,9 @@ function printWithPrintJS() {
         const pageQuestions = questionsArray.slice(startIndex, endIndex);
         const isLastPage = (page === totalPages - 1);
         
-        // Start page - use flexbox on last page to stick footer to bottom
+        // Start page - use flexbox only on last page for footer positioning
         const pageStyle = page > 0 ? 'page-break-before: always;' : '';
-        const heightStyle = isLastPage ? 'min-height: 100vh; display: flex; flex-direction: column;' : 'min-height: 100vh;';
+        const heightStyle = isLastPage ? 'display: flex; flex-direction: column; min-height: 95vh;' : '';
         
         printHTML += `<div class="print-page" style="${pageStyle} ${heightStyle}">`;
         
@@ -400,7 +400,7 @@ function printWithPrintJS() {
         printHTML += headerContent;
         
         // Add questions for this page - flex-shrink for last page to allow footer positioning
-        const contentStyle = isLastPage ? 'margin: 10px 0; flex-shrink: 0;' : 'margin: 20px 0;';
+        const contentStyle = isLastPage ? 'margin: 5px 0; flex-shrink: 0;' : 'margin: 20px 0;';
         printHTML += `<div class="questions-content" style="${contentStyle}">`;
         
         pageQuestions.forEach((question) => {
@@ -503,10 +503,10 @@ function printWithPrintJS() {
             }
             
             // Adjust spacing - smaller on last page to fit footer perfectly
-            const questionMargin = isLastPage ? '10px' : '22px';
-            const questionPadding = isLastPage ? '10px' : '18px';
-            const labelMargin = isLastPage ? '3px' : '6px';
-            const textMargin = isLastPage ? '6px' : '12px';
+            const questionMargin = isLastPage ? '6px' : '22px';
+            const questionPadding = isLastPage ? '8px' : '18px';
+            const labelMargin = isLastPage ? '2px' : '6px';
+            const textMargin = isLastPage ? '4px' : '12px';
             
             // Build question HTML
             printHTML += `
@@ -527,8 +527,8 @@ function printWithPrintJS() {
         
         // Add footer only on the last page - stick to bottom with flexbox
         if (isLastPage) {
-            // Add flexible spacer to push footer to bottom
-            printHTML += '<div style="flex-grow: 1; min-height: 20px;"></div>';
+            // Add flexible spacer to push footer to bottom - ensure proper spacing
+            printHTML += '<div style="flex: 1 1 auto;"></div>';
             printHTML += footerContent;
         }
         
@@ -557,13 +557,18 @@ function printWithPrintJS() {
             .print-page {
                 width: 100%;
                 position: relative;
+                box-sizing: border-box;
+                page-break-after: always;
+            }
+            .print-page:last-child {
+                page-break-after: avoid;
             }
             .print-header {
-                margin-bottom: 20px;
+                margin-bottom: 15px;
                 page-break-after: avoid;
             }
             .questions-content {
-                margin: 20px 0;
+                margin: 15px 0;
                 flex-shrink: 0;
             }
         `,
