@@ -15,7 +15,7 @@
     <!-- Action Buttons Section -->
     <div class="mb-3 d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 gap-sm-0">
         <div class="d-flex flex-column flex-sm-row gap-2 mb-2 mb-sm-0">
-            <button onclick="window.print()" class="btn btn-outline-secondary">
+            <button onclick="printWithPrintJS()" class="btn btn-outline-secondary">
                 <i class="bi bi-printer me-2"></i>Print
             </button>
             <button onclick="generatePDF()" class="btn btn-outline-secondary">
@@ -293,8 +293,241 @@ function confirmResubmission() {
 
 
 
+<!-- Include Print.js library -->
+<script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://printjs-4de6.kxcdn.com/print.min.css">
+
 <!-- Include html2pdf library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+// Print.js function
+function printWithPrintJS() {
+    // Get the survey responses
+    const responses = document.querySelectorAll('.response-item');
+    const questionsArray = Array.from(responses).filter(item => 
+        !item.querySelector('label').textContent.includes('Recommendation Score') && 
+        !item.querySelector('label').textContent.includes('Additional Comments')
+    );
+    
+    // Get actual values from the page
+    const surveyTitle = "{{ strtoupper($survey->title) }}";
+    const accountName = "{{ $header->account_name }}";
+    const accountType = "{{ $header->account_type }}";
+    const responseDate = "{{ $header->date->format('M d, Y') }}";
+    const startTime = "{{ $header->start_time ? $header->start_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}";
+    const endTime = "{{ $header->end_time ? $header->end_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}";
+    const duration = "@if($header->start_time && $header->end_time){{ $header->end_time->diffForHumans($header->start_time, ['parts' => 2]) }}@else N/A @endif";
+    const recommendation = "{{ $header->recommendation }}";
+    const comments = "{{ $header->comments }}";
+    const logoPath = "@if($survey->logo){{ asset('storage/' . $survey->logo) }}@else{{ asset('img/logo.png') }}@endif";
+    
+    // Create header content (Logo + Customer Info)
+    const headerContent = `
+        <div class="print-header" style="margin-bottom: 20px; page-break-after: avoid;">
+            <div class="header-logo" style="text-align: center; margin-bottom: 10px;">
+                <img src="${logoPath}" alt="${surveyTitle} Logo" style="max-width: 150px; max-height: 60px; height: auto;">
+            </div>
+            <div class="header-title" style="text-align: center; margin-bottom: 15px;">
+                <h4 style="margin: 0; font-size: 14pt; font-weight: bold;">${surveyTitle} - RESPONSE DETAILS</h4>
+            </div>
+            <div class="customer-info" style="border: 1px solid #ddd; padding: 12px; background-color: #f9f9f9; margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <div style="flex: 1; margin-right: 15px;">
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Account Name</div>
+                        <div style="font-size: 10pt; font-weight: bold;">${accountName}</div>
+                    </div>
+                    <div style="flex: 1; margin-right: 15px;">
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Account Type</div>
+                        <div style="font-size: 10pt; font-weight: bold;">${accountType}</div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Date</div>
+                        <div style="font-size: 10pt; font-weight: bold;">${responseDate}</div>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <div style="flex: 1; margin-right: 15px;">
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Start Time</div>
+                        <div style="font-size: 10pt; font-weight: bold;">${startTime}</div>
+                    </div>
+                    <div style="flex: 1; margin-right: 15px;">
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">End Time</div>
+                        <div style="font-size: 10pt; font-weight: bold;">${endTime}</div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Duration</div>
+                        <div style="font-size: 10pt; font-weight: bold;">${duration}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Create footer content (Recommendation Score + Comments)
+    const footerContent = `
+        <div class="print-footer" style="margin-top: 30px; page-break-inside: avoid;">
+            <div style="border: 1px solid #ddd; padding: 12px; background-color: #f9f9f9;">
+                <div style="margin-bottom: 15px;">
+                    <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Recommendation Score</div>
+                    <div style="font-size: 10pt; font-weight: bold;">${recommendation} / 10</div>
+                </div>
+                <div>
+                    <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Additional Comments</div>
+                    <div style="font-size: 10pt; font-weight: bold;">${comments}</div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Create pages with 5 questions each
+    const questionsPerPage = 5;
+    const totalPages = Math.ceil(questionsArray.length / questionsPerPage);
+    
+    let printHTML = '<div style="font-family: Arial, sans-serif; font-size: 9pt; line-height: 1.4;">';
+    
+    for (let page = 0; page < totalPages; page++) {
+        const startIndex = page * questionsPerPage;
+        const endIndex = Math.min(startIndex + questionsPerPage, questionsArray.length);
+        const pageQuestions = questionsArray.slice(startIndex, endIndex);
+        
+        // Start page
+        printHTML += `<div class="print-page" style="${page > 0 ? 'page-break-before: always;' : ''} min-height: 100vh;">`;
+        
+        // Add header to every page
+        printHTML += headerContent;
+        
+        // Add questions for this page
+        printHTML += '<div class="questions-content" style="margin: 20px 0;">';
+        
+        pageQuestions.forEach((question) => {
+            const questionClone = question.cloneNode(true);
+            
+            // Get question content
+            const questionLabel = questionClone.querySelector('label').textContent;
+            const questionText = questionClone.querySelector('h5').textContent;
+            
+            // Get response content based on type
+            let responseHTML = '';
+            const responseDiv = questionClone.querySelector('div:last-child');
+            
+            // Check if it's radio type
+            const radioDisplay = responseDiv.querySelector('.radio-display');
+            if (radioDisplay) {
+                const radioButtons = radioDisplay.querySelectorAll('.form-check-inline');
+                const selectedValue = responseDiv.querySelector('span').textContent;
+                
+                responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
+                responseHTML += '<div style="display: flex; gap: 10px; margin-right: 15px;">';
+                
+                radioButtons.forEach((radio, index) => {
+                    const isChecked = radio.querySelector('input').checked;
+                    responseHTML += `<div style="display: flex; align-items: center; gap: 3px;">
+                        <div style="width: 12px; height: 12px; border: 1px solid #666; border-radius: 50%; ${isChecked ? 'background-color: #666;' : ''}"></div>
+                        <span style="font-size: 8pt;">${index + 1}</span>
+                    </div>`;
+                });
+                
+                responseHTML += '</div>';
+                responseHTML += `<span style="font-weight: bold; font-size: 10pt;">${selectedValue}</span>`;
+                responseHTML += '</div>';
+            }
+            
+            // Check if it's star type
+            const ratingDisplay = responseDiv.querySelector('.rating-display');
+            if (ratingDisplay) {
+                const stars = ratingDisplay.querySelectorAll('.bi-star-fill');
+                const selectedValue = responseDiv.querySelector('span').textContent;
+                
+                responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
+                responseHTML += '<div style="display: flex; gap: 2px; margin-right: 15px;">';
+                
+                stars.forEach((star) => {
+                    const isSelected = star.classList.contains('text-warning');
+                    responseHTML += `<span style="font-size: 12pt; color: ${isSelected ? '#ffc107' : '#6c757d'};">★</span>`;
+                });
+                
+                responseHTML += '</div>';
+                responseHTML += `<span style="font-weight: bold; font-size: 10pt;">${selectedValue}</span>`;
+                responseHTML += '</div>';
+            }
+            
+            // Check if it's text/textarea
+            const textResponse = responseDiv.querySelector('p');
+            if (textResponse && !radioDisplay && !ratingDisplay) {
+                responseHTML = `<div style="font-weight: bold; font-size: 10pt; margin-top: 8px;">${textResponse.textContent}</div>`;
+            }
+            
+            // Build question HTML
+            printHTML += `
+                <div style="border: 1px solid #eee; margin-bottom: 15px; padding: 12px; background-color: #f9f9f9; page-break-inside: avoid;">
+                    <div style="margin-bottom: 8px;">
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">${questionLabel}</div>
+                        <div style="font-size: 10pt; font-weight: bold; margin-bottom: 8px;">${questionText}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Response</div>
+                        ${responseHTML}
+                    </div>
+                </div>
+            `;
+        });
+        
+        printHTML += '</div>'; // Close questions-content
+        
+        // Add footer only on the last page
+        if (page === totalPages - 1) {
+            printHTML += footerContent;
+        }
+        
+        printHTML += '</div>'; // Close print-page
+    }
+    
+    printHTML += '</div>'; // Close main container
+    
+    // Use Print.js to print
+    printJS({
+        printable: printHTML,
+        type: 'raw-html',
+        style: `
+            @page {
+                size: A4;
+                margin: 15mm;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: Arial, sans-serif;
+                font-size: 9pt;
+                line-height: 1.4;
+                color: #000;
+            }
+            .print-page {
+                width: 100%;
+                position: relative;
+            }
+            .print-header {
+                margin-bottom: 20px;
+                page-break-after: avoid;
+            }
+            .questions-content {
+                margin: 20px 0;
+            }
+            .print-footer {
+                margin-top: 30px;
+                page-break-inside: avoid;
+            }
+        `,
+        onLoadingStart: function () {
+            console.log('Print loading started');
+        },
+        onLoadingEnd: function () {
+            console.log('Print loading ended');
+        }
+    });
+}
+</script>
+
 <script>
 function generatePDF() {
     // Get survey title and account name for filename
