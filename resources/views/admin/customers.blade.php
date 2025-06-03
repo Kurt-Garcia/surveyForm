@@ -597,8 +597,14 @@
                     $('#email').addClass('is-invalid');
                     hasErrors = true;
                 } else {
-                    $('#email-error').text('');
-                    $('#email').removeClass('is-invalid');
+                    // Check if there's an email uniqueness error in the main error div
+                    const emailErrorText = $('#email-error').text();
+                    if (emailErrorText && emailErrorText.includes('already used by customer')) {
+                        hasErrors = true;
+                    } else {
+                        $('#email-error').text('');
+                        $('#email').removeClass('is-invalid');
+                    }
                 }
             } else {
                 $('#email-error').text('');
@@ -730,6 +736,16 @@
             const email = $(this).val().trim();
             const maxLength = 50;
             
+            // Remove any existing uniqueness feedback when user starts typing
+            const existingUniqueFeedback = $('#email-unique-feedback');
+            if (existingUniqueFeedback.length) {
+                existingUniqueFeedback.remove();
+            }
+            
+            // Clear any existing error and reset validation state
+            $('#email-error').text('').hide();
+            $(this).removeClass('is-invalid is-valid');
+            
             if (email.length > maxLength) {
                 $(this).val(email.substring(0, maxLength));
                 $('#email-error').text(`Email cannot exceed ${maxLength} characters`).show();
@@ -737,9 +753,6 @@
             } else if (email && !isValidEmail(email)) {
                 $('#email-error').text('Please enter a valid email address').show();
                 $(this).addClass('is-invalid');
-            } else {
-                $('#email-error').text('');
-                $(this).removeClass('is-invalid');
             }
         });
         
@@ -749,6 +762,40 @@
             const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
             return email && emailRegex.test(email) && email.length <= 50;
         }
+
+        // Real-time email uniqueness validation on blur
+        $('#email').on('blur', function() {
+            const email = $(this).val().trim();
+            const customerId = $('#customer_id').val();
+            
+            if (email && isValidEmail(email)) {
+                // Remove any existing validation feedback (both format and uniqueness)
+                $('#email-error').text('').hide();
+                const existingUniqueFeedback = $('#email-unique-feedback');
+                if (existingUniqueFeedback.length) {
+                    existingUniqueFeedback.remove();
+                }
+                
+                // Check if email is unique via AJAX
+                fetch(`/admin/customers/check-email-availability?email=${encodeURIComponent(email)}&customer_id=${encodeURIComponent(customerId)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            // Email already exists - show only uniqueness error
+                            $('#email-error').text(data.message).show();
+                            $('#email').addClass('is-invalid').removeClass('is-valid');
+                        } else {
+                            // Email is available
+                            const successFeedback = $('<div class="text-success mt-1" id="email-unique-feedback"><small><i class="bi bi-check-circle-fill me-1"></i>' + data.message + '</small></div>');
+                            $('#email').parent().append(successFeedback);
+                            $('#email').removeClass('is-invalid').addClass('is-valid');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking email uniqueness:', error);
+                    });
+            }
+        });
         
         // Handle cancel button click
         $('#cancelChanges').click(function() {

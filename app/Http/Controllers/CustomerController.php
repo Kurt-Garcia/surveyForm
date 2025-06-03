@@ -98,20 +98,24 @@ class CustomerController extends Controller
             ], 422);
         }
         
-        // Check if email already exists for another customer (always check, even if empty)
-        $existingEmail = DB::table('TBLCUSTOMER')
-            ->where('EMAIL', $request->email)
-            ->where('id', '!=', $id)
-            ->first(['id', 'CUSTNAME']);
-            
-        if ($existingEmail) {
-            Log::warning('Email already exists', ['customer' => $existingEmail->CUSTNAME]);
-            return response()->json([
-                'success' => false,
-                'errors' => [
-                    'email' => ['This email is already used by customer: ' . $existingEmail->CUSTNAME]
-                ]
-            ], 422);
+        // Check if email already exists for another customer (only if email is not empty)
+        if (!empty(trim($request->email))) {
+            $existingEmail = DB::table('TBLCUSTOMER')
+                ->whereRaw('LOWER(TRIM(EMAIL)) = LOWER(TRIM(?))', [$request->email])
+                ->where('id', '!=', $id)
+                ->whereNotNull('EMAIL')
+                ->where('EMAIL', '!=', '')
+                ->first(['id', 'CUSTNAME']);
+                
+            if ($existingEmail) {
+                Log::warning('Email already exists', ['customer' => $existingEmail->CUSTNAME]);
+                return response()->json([
+                    'success' => false,
+                    'errors' => [
+                        'email' => ['This email is already used by customer: ' . $existingEmail->CUSTNAME]
+                    ]
+                ], 422);
+            }
         }
         
         // If validation passes, update the customer record
@@ -136,6 +140,50 @@ class CustomerController extends Controller
                 'errors' => ['general' => ['An error occurred while updating the customer.']]
             ], 500);
         }
+    }
+
+    /**
+     * Check if an email is available (not used by another customer)
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function checkEmailAvailability(Request $request)
+    {
+        $email = trim($request->query('email'));
+        $customerId = $request->query('customer_id'); // Current customer ID being edited
+        
+        if (!$email) {
+            return response()->json([
+                'exists' => false,
+                'message' => 'Email is required'
+            ]);
+        }
+        
+        // Check if email exists in TBLCUSTOMER for another customer (case-insensitive and whitespace-trimmed)
+        $query = DB::table('TBLCUSTOMER')
+            ->whereRaw('LOWER(TRIM(EMAIL)) = LOWER(TRIM(?))', [$email])
+            ->whereNotNull('EMAIL')
+            ->where('EMAIL', '!=', '');
+            
+        // If editing existing customer, exclude their current record
+        if ($customerId) {
+            $query->where('id', '!=', $customerId);
+        }
+        
+        $existingCustomer = $query->first(['id', 'CUSTNAME']);
+        
+        if ($existingCustomer) {
+            return response()->json([
+                'exists' => true,
+                'message' => 'This email is already used by customer: ' . $existingCustomer->CUSTNAME
+            ]);
+        }
+        
+        return response()->json([
+            'exists' => false,
+            'message' => 'Email is available'
+        ]);
     }
 }
 
