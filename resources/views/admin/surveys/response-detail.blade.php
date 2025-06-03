@@ -674,13 +674,13 @@ function generatePDF() {
     
     // Create footer content (Recommendation Score + Comments)
     const footerContent = `
-        <div style="border: 1px solid #ddd; padding: 6px; background-color: #f9f9f9; margin-top: auto; font-size: 8pt;">
-            <div style="margin-bottom: 4px;">
-                <div style="font-size: 7pt; color: #666; margin-bottom: 1px;">Recommendation Score</div>
+        <div style="border: 1px solid #ddd; padding: 8px; background-color: #f9f9f9; margin-top: auto; font-size: 8pt; page-break-inside: avoid;">
+            <div style="margin-bottom: 6px;">
+                <div style="font-size: 7pt; color: #666; margin-bottom: 2px;">Recommendation Score</div>
                 <div style="font-size: 9pt; font-weight: bold;">${recommendation} / 10</div>
             </div>
             <div>
-                <div style="font-size: 7pt; color: #666; margin-bottom: 1px;">Additional Comments</div>
+                <div style="font-size: 7pt; color: #666; margin-bottom: 2px;">Additional Comments</div>
                 <div style="font-size: 9pt; font-weight: bold; word-wrap: break-word;">${comments}</div>
             </div>
         </div>
@@ -711,7 +711,7 @@ function generatePDF() {
         
         // Start page with page break for subsequent pages
         const pageStyle = page > 0 ? 'page-break-before: always; ' : '';
-        const heightStyle = isLastPage ? 'display: flex; flex-direction: column; height: 280mm; box-sizing: border-box;' : '';
+        const heightStyle = isLastPage ? 'display: flex; flex-direction: column; height: 270mm; box-sizing: border-box;' : '';
         
         pdfHTML += `<div class="pdf-page" style="${pageStyle}${heightStyle}">`;
         
@@ -808,8 +808,8 @@ function generatePDF() {
             }
             
             // Adjust spacing for last page to ensure footer fits
-            const questionMargin = isLastPage ? '10px' : '15px';
-            const questionPadding = isLastPage ? '12px' : '15px';
+            const questionMargin = isLastPage ? '8px' : '15px';
+            const questionPadding = isLastPage ? '10px' : '15px';
             
             // Build question HTML
             pdfHTML += `
@@ -830,7 +830,7 @@ function generatePDF() {
         
         // Add footer only on the last page
         if (isLastPage) {
-            pdfHTML += '<div style="flex: 1; min-height: 20px;"></div>';
+            pdfHTML += '<div style="flex: 1; min-height: 30px;"></div>';
             pdfHTML += footerContent;
         }
         
