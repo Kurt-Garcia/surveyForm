@@ -545,6 +545,12 @@ function printWithPrintJS() {
             @page {
                 size: A4;
                 margin: 15mm;
+                @bottom-right {
+                    content: "Page " counter(page) " of " counter(pages);
+                    font-size: 10pt;
+                    color: #666;
+                    margin: 5px;
+                }
             }
             body {
                 margin: 0;
@@ -836,7 +842,7 @@ function generatePDF() {
     
     // Configure PDF options
     const opt = {
-        margin: 0.2,
+        margin: [0.3, 0.3, 0.5, 0.3], // top, right, bottom, left - extra bottom margin for page numbers
         filename: `${surveyTitle}_${accountName}_Response.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { 
@@ -852,8 +858,18 @@ function generatePDF() {
         }
     };
     
-    // Generate PDF
-    html2pdf().set(opt).from(pdfContainer).save().then(() => {
+    // Generate PDF with page numbering
+    html2pdf().set(opt).from(pdfContainer).toPdf().get('pdf').then(function (pdf) {
+        const totalPages = pdf.internal.getNumberOfPages();
+        
+        for (let i = 1; i <= totalPages; i++) {
+            pdf.setPage(i);
+            pdf.setFontSize(10);
+            pdf.setTextColor(102, 102, 102); // #666666
+            // Position page numbers in lower right corner
+            pdf.text(`Page ${i} of ${totalPages}`, pdf.internal.pageSize.width - 1.2, pdf.internal.pageSize.height - 0.2);
+        }
+    }).save().then(() => {
         // Remove loading toast and PDF container
         document.body.removeChild(loadingToast);
         document.body.removeChild(pdfContainer);
@@ -871,6 +887,12 @@ function generatePDF() {
 @page {
     size: auto;
     margin: 3mm 5mm 5mm 5mm; /* Reduced margins */
+    @bottom-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font-size: 10pt;
+        color: #666;
+        margin: 5px;
+    }
 }
 body {
     margin: 0;

@@ -417,6 +417,12 @@
     @page {
         size: A4;
         margin: 1cm;
+        @bottom-right {
+            content: "Page " counter(page) " of " counter(pages);
+            font-size: 10pt;
+            color: #666;
+            margin: 5px;
+        }
     }
 
     body {
@@ -538,6 +544,12 @@
     @page {
         size: auto;
         margin: 3mm 5mm 5mm 5mm; /* Further reduced margins */
+        @bottom-right {
+            content: "Page " counter(page) " of " counter(pages);
+            font-size: 9pt;
+            color: #666;
+            margin: 3px;
+        }
     }
     
     body {
@@ -739,6 +751,12 @@ function printWithPrintJS() {
             @page {
                 size: A4;
                 margin: 5mm 15mm 20mm 15mm;
+                @bottom-right {
+                    content: "Page " counter(page) " of " counter(pages);
+                    font-size: 10pt;
+                    color: #666;
+                    margin: 5px;
+                }
             }
             
             /* Print Header */
@@ -1330,34 +1348,69 @@ function generatePDF() {
         for (let i = startQuestionIndex; i < endQuestionIndex; i++) {
             const question = questions[i];
             
+            // Different styling for last page vs other pages
+            const questionItemStyle = isLastPage 
+                ? "margin-bottom: 8px; padding: 8px; border: 1px solid #eee; border-radius: 4px; background: #fafafa; page-break-inside: avoid;"
+                : "margin-bottom: 14px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background: #fafafa; page-break-inside: avoid; box-shadow: 0 1px 2px rgba(0,0,0,0.08);";
+            
+            const questionLabelStyle = isLastPage 
+                ? "font-weight: bold; color: #666; font-size: 8pt; margin-bottom: 2px;"
+                : "font-weight: bold; color: #666; font-size: 8pt; margin-bottom: 2px;";
+            
+            const questionTextStyle = isLastPage 
+                ? "font-weight: bold; font-size: 9pt; margin-bottom: 5px; line-height: 1.2;"
+                : "font-weight: bold; font-size: 9.5pt; margin-bottom: 6px; line-height: 1.2; color: #333;";
+            
+            const responseLabelStyle = isLastPage 
+                ? "font-weight: bold; color: #666; font-size: 8pt; margin-bottom: 2px;"
+                : "font-weight: bold; color: #666; font-size: 8pt; margin-bottom: 2px;";
+            
             pdfContent += `
-                <div class="question-item" style="margin-bottom: 12px; padding: 8px; border: 1px solid #eee; border-radius: 6px; background: #fafafa; page-break-inside: avoid;">
-                    <div style="font-weight: bold; color: #666; font-size: 7pt; margin-bottom: 1px;">Question ${i + 1}</div>
-                    <div style="font-weight: bold; font-size: 8pt; margin-bottom: 4px; line-height: 1.1;">${question.text}</div>
-                    <div style="font-weight: bold; color: #666; font-size: 7pt; margin-bottom: 1px;">Response</div>
+                <div class="question-item" style="${questionItemStyle}">
+                    <div style="${questionLabelStyle}">Question ${i + 1}</div>
+                    <div style="${questionTextStyle}">${question.text}</div>
+                    <div style="${responseLabelStyle}">Response</div>
             `;
 
             if (question.type === 'radio') {
-                pdfContent += '<div style="margin: 5px 0;">';
+                const radioContainerStyle = isLastPage ? "margin: 5px 0;" : "margin: 6px 0;";
+                const radioSpanStyle = isLastPage 
+                    ? "display: inline-block; margin-right: 14px; font-size: 8.5pt;"
+                    : "display: inline-block; margin-right: 18px; font-size: 9pt;";
+                const scoreStyle = isLastPage 
+                    ? "font-weight: bold; font-size: 8.5pt;"
+                    : "font-weight: bold; font-size: 10pt; color: #333; margin-top: 3px;";
+                
+                pdfContent += `<div style="${radioContainerStyle}">`;
                 for (let j = 1; j <= 5; j++) {
                     const checked = j == question.response ? 'checked' : '';
                     pdfContent += `
-                        <span style="display: inline-block; margin-right: 15px;">
-                            <input type="radio" ${checked} disabled style="margin-right: 5px;">
+                        <span style="${radioSpanStyle}">
+                            <input type="radio" ${checked} disabled style="margin-right: 5px; transform: scale(${isLastPage ? '1' : '1.1'});">
                             <span>${j}</span>
                         </span>
                     `;
                 }
-                pdfContent += `</div><div style="font-weight: bold; font-size: 9pt;">${question.response} / 5</div>`;
+                pdfContent += `</div><div style="${scoreStyle}">${question.response} / 5</div>`;
             } else if (question.type === 'star') {
-                pdfContent += '<div style="margin: 5px 0;">';
+                const starContainerStyle = isLastPage ? "margin: 5px 0;" : "margin: 6px 0;";
+                const starSize = isLastPage ? "14px" : "16px";
+                const scoreStyle = isLastPage 
+                    ? "font-weight: bold; font-size: 8.5pt;"
+                    : "font-weight: bold; font-size: 10pt; color: #333; margin-top: 3px;";
+                
+                pdfContent += `<div style="${starContainerStyle}">`;
                 for (let j = 1; j <= 5; j++) {
                     const starColor = j <= question.response ? '#ffc107' : '#6c757d';
-                    pdfContent += `<span style="font-size: 14px; margin-right: 2px; color: ${starColor};">★</span>`;
+                    pdfContent += `<span style="font-size: ${starSize}; margin-right: 3px; color: ${starColor};">★</span>`;
                 }
-                pdfContent += `</div><div style="font-weight: bold; font-size: 9pt;">${question.response} / 5</div>`;
+                pdfContent += `</div><div style="${scoreStyle}">${question.response} / 5</div>`;
             } else {
-                pdfContent += `<p style="font-size: 9pt; line-height: 1.3; margin: 0;">${question.response}</p>`;
+                const textStyle = isLastPage 
+                    ? "font-size: 8.5pt; line-height: 1.25; margin: 0;"
+                    : "font-size: 9.5pt; line-height: 1.3; margin: 3px 0; color: #333; background: #f8f9fa; padding: 5px; border-radius: 3px; border-left: 2px solid #4ECDC4;";
+                
+                pdfContent += `<p style="${textStyle}">${question.response}</p>`;
             }
 
             pdfContent += '</div>';
@@ -1407,6 +1460,29 @@ function generatePDF() {
             min-height: 80px;
             box-sizing: border-box;
         }
+        
+        /* Page numbering styles */
+        @page {
+            @bottom-right {
+                content: "Page " counter(page) " of " counter(pages);
+                font-size: 10pt;
+                color: #666;
+                margin: 5px;
+            }
+        }
+        
+        .page-number {
+            position: fixed;
+            bottom: 5px;
+            right: 10px;
+            font-size: 10pt;
+            color: #666;
+            z-index: 1000;
+            background-color: white;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
         @media print {
             .pdf-header { page-break-after: avoid; }
             .pdf-last-page { 
@@ -1440,15 +1516,33 @@ function generatePDF() {
 
     // Generate PDF using html2pdf
     const opt = {
-        margin: 0.3,
+        margin: [0.3, 0.3, 0.5, 0.3], // top, right, bottom, left - extra bottom margin for page numbers
         filename: `${surveyTitle}_Response_${accountName}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        jsPDF: { 
+            unit: 'in', 
+            format: 'letter', 
+            orientation: 'portrait',
+            putOnlyUsedFonts: true,
+            floatPrecision: 16
+        },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+        enableLinks: false,
+        footerHeight: '0.5in'
     };
 
-    html2pdf().set(opt).from(pdfContainer).save().then(() => {
+    html2pdf().set(opt).from(pdfContainer).toPdf().get('pdf').then(function (pdf) {
+        const totalPages = pdf.internal.getNumberOfPages();
+        
+        for (let i = 1; i <= totalPages; i++) {
+            pdf.setPage(i);
+            pdf.setFontSize(10);
+            pdf.setTextColor(102, 102, 102); // #666666
+            // Position page numbers in lower right corner
+            pdf.text(`Page ${i} of ${totalPages}`, pdf.internal.pageSize.width - 1.2, pdf.internal.pageSize.height - 0.2);
+        }
+    }).save().then(() => {
         document.body.removeChild(pdfContainer);
         if (document.getElementById('pdfLoadingToast')) {
             document.getElementById('pdfLoadingToast').remove();
