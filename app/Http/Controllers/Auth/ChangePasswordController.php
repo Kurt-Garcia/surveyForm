@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
 
 class ChangePasswordController extends Controller
 {
@@ -36,11 +35,18 @@ class ChangePasswordController extends Controller
             return back()->withErrors(['current_password' => 'The current password is incorrect.']);
         }
 
-        $table = $guard === 'admin' ? 'admin_users' : 'users';
-        
-        DB::table($table)
-            ->where('id', $user->id)
-            ->update(['password' => Hash::make($request->password)]);
+        // Update password using the appropriate model to ensure timestamps are properly managed
+        if ($guard === 'admin') {
+            \App\Models\Admin::where('id', $user->id)->update([
+                'password' => Hash::make($request->password),
+                'updated_at' => now()
+            ]);
+        } else {
+            \App\Models\User::where('id', $user->id)->update([
+                'password' => Hash::make($request->password),
+                'updated_at' => now()
+            ]);
+        }
 
         if ($guard === 'admin') {
             return redirect()->route('admin.dashboard')

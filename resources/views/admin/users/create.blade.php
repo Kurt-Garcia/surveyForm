@@ -656,6 +656,66 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
         }
     });
+    
+    // Password field validation and real-time matching
+    const passwordField = document.getElementById('password');
+    const passwordConfirmationField = document.getElementById('password_confirmation');
+    let passwordsMatch = false;
+    
+    // Function to check password match in real-time
+    function checkPasswordMatch() {
+        const password = passwordField.value;
+        const confirmation = passwordConfirmationField.value;
+        
+        // Remove existing match feedback
+        const existingMatchFeedback = document.getElementById('password-match-feedback');
+        if (existingMatchFeedback) {
+            existingMatchFeedback.remove();
+        }
+        
+        // Only show feedback if both fields have values
+        if (password && confirmation) {
+            if (password === confirmation) {
+                // Passwords match
+                passwordsMatch = true;
+                const successFeedback = document.createElement('div');
+                successFeedback.className = 'text-success mt-1';
+                successFeedback.id = 'password-match-feedback';
+                successFeedback.innerHTML = '<small><i class="bi bi-check-circle-fill me-1"></i>Passwords match</small>';
+                passwordConfirmationField.parentNode.appendChild(successFeedback);
+                passwordConfirmationField.classList.remove('is-invalid');
+                passwordConfirmationField.classList.add('is-valid');
+            } else {
+                // Passwords don't match
+                passwordsMatch = false;
+                const errorFeedback = document.createElement('div');
+                errorFeedback.className = 'text-danger mt-1';
+                errorFeedback.id = 'password-match-feedback';
+                errorFeedback.innerHTML = '<small><i class="bi bi-exclamation-triangle-fill me-1"></i>Passwords do not match</small>';
+                passwordConfirmationField.parentNode.appendChild(errorFeedback);
+                passwordConfirmationField.classList.remove('is-valid');
+                passwordConfirmationField.classList.add('is-invalid');
+            }
+        } else if (confirmation && !password) {
+            // Confirmation field has value but password field is empty
+            passwordsMatch = false;
+            const warningFeedback = document.createElement('div');
+            warningFeedback.className = 'text-warning mt-1';
+            warningFeedback.id = 'password-match-feedback';
+            warningFeedback.innerHTML = '<small><i class="bi bi-exclamation-triangle me-1"></i>Please enter password first</small>';
+            passwordConfirmationField.parentNode.appendChild(warningFeedback);
+            passwordConfirmationField.classList.remove('is-valid');
+            passwordConfirmationField.classList.add('is-invalid');
+        } else {
+            // Reset validation classes if fields are empty
+            passwordConfirmationField.classList.remove('is-valid', 'is-invalid');
+            passwordsMatch = false;
+        }
+    }
+    
+    // Add real-time password matching validation
+    passwordField.addEventListener('input', checkPasswordMatch);
+    passwordConfirmationField.addEventListener('input', checkPasswordMatch);
 });
 
 function initializeUsersTable() {
@@ -825,6 +885,32 @@ function confirmSubmit(event) {
             confirmButtonText: "OK"
         });
         return false;
+    }
+    
+    // Check password confirmation match using the real-time validation flag
+    const password = document.getElementById('password').value;
+    const passwordConfirmation = document.getElementById('password_confirmation').value;
+    
+    if (password && passwordConfirmation) {
+        if (typeof passwordsMatch !== 'undefined' && !passwordsMatch) {
+            swalWithBootstrapButtons.fire({
+                title: "Password Mismatch",
+                text: "Password and confirmation password do not match.",
+                icon: "error",
+                confirmButtonText: "OK"
+            });
+            return false;
+        }
+        
+        if (password !== passwordConfirmation) {
+            swalWithBootstrapButtons.fire({
+                title: "Password Mismatch",
+                text: "Password and confirmation password do not match.",
+                icon: "error",
+                confirmButtonText: "OK"
+            });
+            return false;
+        }
     }
     
     swalWithBootstrapButtons.fire({
