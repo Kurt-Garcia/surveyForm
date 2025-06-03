@@ -45,6 +45,38 @@ function confirmPasswordChange(event) {
         }
     });
 }
+
+function checkPasswordMatch() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('password-confirm').value;
+    const messageElement = document.getElementById('password-match-message');
+    const submitButton = document.querySelector('button[type="submit"]');
+    
+    if (confirmPassword === '') {
+        messageElement.innerHTML = '';
+        messageElement.className = '';
+        return;
+    }
+    
+    if (password === confirmPassword) {
+        messageElement.innerHTML = '<i class="bi bi-check-circle me-2"></i>Passwords match';
+        messageElement.className = 'text-success small mt-2';
+        submitButton.disabled = false;
+    } else {
+        messageElement.innerHTML = '<i class="bi bi-x-circle me-2"></i>Passwords do not match';
+        messageElement.className = 'text-danger small mt-2';
+        submitButton.disabled = true;
+    }
+}
+
+// Add event listeners when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('password-confirm');
+    
+    passwordInput.addEventListener('input', checkPasswordMatch);
+    confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+});
 </script>
 <div class="container mt-5 mb-5">
     <div class="row justify-content-center align-items-center min-vh-75">
@@ -100,6 +132,7 @@ function confirmPasswordChange(event) {
                                 <input id="password-confirm" type="password" class="form-control"
                                     name="password_confirmation" required autocomplete="new-password">
                             </div>
+                            <div id="password-match-message"></div>
                         </div>
 
                         <div class="d-grid gap-2">
@@ -132,6 +165,20 @@ function confirmPasswordChange(event) {
     .input-group input:focus {
         box-shadow: none;
         border-color: var(--accent-color);
+    }
+    
+    #password-match-message {
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    #password-match-message i {
+        font-size: 0.9em;
+    }
+    
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 </style>
 @endsection
