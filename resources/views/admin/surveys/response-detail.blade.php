@@ -605,118 +605,263 @@ function generatePDF() {
     `;
     document.body.appendChild(loadingToast);
 
+    // Get the survey responses (same as print function)
+    const responses = document.querySelectorAll('.response-item');
+    const questionsArray = Array.from(responses).filter(item => 
+        !item.querySelector('label').textContent.includes('Recommendation Score') && 
+        !item.querySelector('label').textContent.includes('Additional Comments')
+    );
+    
+    // Get actual values from the page
+    const surveyTitleText = "{{ strtoupper($survey->title) }}";
+    const accountNameText = "{{ $header->account_name }}";
+    const accountTypeText = "{{ $header->account_type }}";
+    const responseDate = "{{ $header->date->format('M d, Y') }}";
+    const startTime = "{{ $header->start_time ? $header->start_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}";
+    const endTime = "{{ $header->end_time ? $header->end_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}";
+    const duration = "@if($header->start_time && $header->end_time){{ $header->end_time->diffForHumans($header->start_time, ['parts' => 2]) }}@else N/A @endif";
+    const recommendation = "{{ $header->recommendation }}";
+    const comments = "{{ $header->comments }}";
+    const logoPath = "@if($survey->logo){{ asset('storage/' . $survey->logo) }}@else{{ asset('img/logo.png') }}@endif";
+    
+    // Create header content (Logo + Customer Info)
+    const headerContent = `
+        <div class="pdf-header" style="margin-bottom: 20px;">
+            <div class="header-logo" style="text-align: center; margin-bottom: 10px;">
+                <img src="${logoPath}" alt="${surveyTitleText} Logo" style="max-width: 150px; max-height: 60px; height: auto;">
+            </div>
+            <div class="header-title" style="text-align: center; margin-bottom: 15px;">
+                <h4 style="margin: 0; font-size: 14pt; font-weight: bold;">${surveyTitleText} - RESPONSE DETAILS</h4>
+            </div>
+            <div class="customer-info" style="border: 1px solid #ddd; padding: 12px; background-color: #f9f9f9; margin-bottom: 15px;">
+                <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+                    <div style="flex: 1;">
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Account Name</div>
+                        <div style="font-size: 10pt; font-weight: bold;">${accountNameText}</div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Account Type</div>
+                        <div style="font-size: 10pt; font-weight: bold;">${accountTypeText}</div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Date</div>
+                        <div style="font-size: 10pt; font-weight: bold;">${responseDate}</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <div style="flex: 1;">
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Start Time</div>
+                        <div style="font-size: 10pt; font-weight: bold;">${startTime}</div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">End Time</div>
+                        <div style="font-size: 10pt; font-weight: bold;">${endTime}</div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Duration</div>
+                        <div style="font-size: 10pt; font-weight: bold;">${duration}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Create footer content (Recommendation Score + Comments)
+    const footerContent = `
+        <div style="border: 1px solid #ddd; padding: 6px; background-color: #f9f9f9; margin-top: auto; font-size: 8pt;">
+            <div style="margin-bottom: 4px;">
+                <div style="font-size: 7pt; color: #666; margin-bottom: 1px;">Recommendation Score</div>
+                <div style="font-size: 9pt; font-weight: bold;">${recommendation} / 10</div>
+            </div>
+            <div>
+                <div style="font-size: 7pt; color: #666; margin-bottom: 1px;">Additional Comments</div>
+                <div style="font-size: 9pt; font-weight: bold; word-wrap: break-word;">${comments}</div>
+            </div>
+        </div>
+    `;
+    
+    // Create pages with 5 questions each
+    const questionsPerPage = 5;
+    const totalPages = Math.ceil(questionsArray.length / questionsPerPage);
+    
     // Prepare PDF content
     const pdfContainer = document.createElement('div');
-    pdfContainer.style.width = '800px'; // Reduced width for more compact output
+    pdfContainer.style.width = '210mm';
     pdfContainer.style.maxWidth = '100%';
     pdfContainer.style.backgroundColor = 'white';
     pdfContainer.style.fontFamily = 'Arial, sans-serif';
     pdfContainer.style.color = '#222';
-    pdfContainer.style.fontSize = '8pt'; // Smaller base font size
-    pdfContainer.style.lineHeight = '1.9'; // Tighter line height
-
-    // Clone the print header with logo for PDF
-    const logoHeader = document.querySelector('.print-only-header').cloneNode(true);
-    logoHeader.classList.remove('d-none');
-    logoHeader.style.display = 'block';
-    logoHeader.style.marginBottom = '5px';
+    pdfContainer.style.fontSize = '9pt';
+    pdfContainer.style.lineHeight = '1.4';
+    pdfContainer.style.padding = '0';
     
-    const logoImage = logoHeader.querySelector('img.print-logo');
-    if (logoImage) {
-        logoImage.style.maxWidth = '140px'; // Even smaller logo for PDF
-        logoImage.style.maxHeight = '80px'; // Adjusted maximum height for PDF logo
-        logoImage.style.height = 'auto';
-        logoImage.style.margin = '0 auto';
-        logoImage.style.display = 'block';
-    }
-
-    // Clone the main card content
-    const contentClone = document.querySelector('.card.shadow-sm.border-0').cloneNode(true);
-    // Remove buttons and unnecessary elements from the clone
-    const buttonsToRemove = contentClone.querySelectorAll('.btn, form[action*="toggle-resubmission"]');
-    buttonsToRemove.forEach(btn => {
-        if (btn && btn.parentNode) {
-            btn.parentNode.removeChild(btn);
-        }
-    });
+    let pdfHTML = '';
     
-    // Make the PDF content more compact
-    const cardHeader = contentClone.querySelector('.card-header');
-    if (cardHeader) {
-        cardHeader.style.padding = '0.25rem';
-        const headerTitle = cardHeader.querySelector('h4');
-        if (headerTitle) {
-            headerTitle.style.fontSize = '11pt';
-            headerTitle.style.margin = '0';
-        }
-    }
-    
-    const cardBody = contentClone.querySelector('.card-body');
-    if (cardBody) {
-        cardBody.style.padding = '0.25rem';
-    }
-    
-    // Make response items more compact
-    const responseItems = contentClone.querySelectorAll('.response-item');
-    responseItems.forEach(item => {
-        item.style.padding = '0.25rem';
-        item.style.marginBottom = '0.25rem';
-        item.style.border = '0.5px solid #eee';
+    for (let page = 0; page < totalPages; page++) {
+        const startIndex = page * questionsPerPage;
+        const endIndex = Math.min(startIndex + questionsPerPage, questionsArray.length);
+        const pageQuestions = questionsArray.slice(startIndex, endIndex);
+        const isLastPage = (page === totalPages - 1);
         
-        // Adjust question and response text
-        const questionText = item.querySelector('h5');
-        if (questionText) {
-            questionText.style.fontSize = '9pt';
-            questionText.style.margin = '0';
-        }
+        // Start page with page break for subsequent pages
+        const pageStyle = page > 0 ? 'page-break-before: always; ' : '';
+        const heightStyle = isLastPage ? 'display: flex; flex-direction: column; height: 280mm; box-sizing: border-box;' : '';
         
-        const labels = item.querySelectorAll('label');
-        labels.forEach(label => {
-            label.style.fontSize = '7pt';
-            label.style.marginBottom = '0';
+        pdfHTML += `<div class="pdf-page" style="${pageStyle}${heightStyle}">`;
+        
+        // Add header to every page
+        pdfHTML += headerContent;
+        
+        // Add questions for this page
+        const contentStyle = isLastPage ? 'flex-shrink: 0;' : '';
+        pdfHTML += `<div class="questions-content" style="${contentStyle}">`;
+        
+        pageQuestions.forEach((question) => {
+            const questionClone = question.cloneNode(true);
+            
+            // Get question content
+            const questionLabel = questionClone.querySelector('label').textContent;
+            const questionText = questionClone.querySelector('h5').textContent;
+            
+            // Get response content based on type
+            let responseHTML = '';
+            const responseDiv = questionClone.querySelector('div:last-child');
+            
+            // Check if it's radio type
+            const radioDisplay = responseDiv.querySelector('.radio-display');
+            if (radioDisplay) {
+                const checkedRadio = radioDisplay.querySelector('input[type="radio"]:checked');
+                let selectedNumber = 0;
+                
+                if (checkedRadio) {
+                    const radioInputs = radioDisplay.querySelectorAll('input[type="radio"]');
+                    radioInputs.forEach((radio, index) => {
+                        if (radio.checked) {
+                            selectedNumber = index + 1;
+                        }
+                    });
+                } else {
+                    const selectedValueSpan = responseDiv.querySelector('span.ms-2.fw-bold');
+                    let selectedValue = '';
+                    if (selectedValueSpan) {
+                        selectedValue = selectedValueSpan.textContent.trim();
+                    } else {
+                        const anySpan = responseDiv.querySelector('span');
+                        selectedValue = anySpan ? anySpan.textContent.trim() : '';
+                    }
+                    
+                    if (selectedValue.includes('/')) {
+                        selectedNumber = parseInt(selectedValue.split('/')[0].trim()) || 0;
+                    } else {
+                        selectedNumber = parseInt(selectedValue) || 0;
+                    }
+                }
+                
+                const displaySpan = responseDiv.querySelector('span.ms-2.fw-bold');
+                const displayValue = displaySpan ? displaySpan.textContent.trim() : `${selectedNumber} / 5`;
+                
+                responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
+                responseHTML += '<div style="display: flex; gap: 10px; margin-right: 15px;">';
+                
+                for (let i = 1; i <= 5; i++) {
+                    const checked = (i === selectedNumber) ? 'checked' : '';
+                    responseHTML += `<div style="display: flex; align-items: center; gap: 3px;">
+                        <input type="radio" style="margin-right: 3px;" ${checked} disabled>
+                        <label style="font-size: 8pt;">${i}</label>
+                    </div>`;
+                }
+                
+                responseHTML += '</div>';
+                responseHTML += `<span style="font-weight: bold; font-size: 10pt;">${displayValue}</span>`;
+                responseHTML += '</div>';
+            }
+            
+            // Check if it's star type
+            const ratingDisplay = responseDiv.querySelector('.rating-display');
+            if (ratingDisplay) {
+                const stars = ratingDisplay.querySelectorAll('.bi-star-fill');
+                const selectedValue = responseDiv.querySelector('span').textContent;
+                
+                responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
+                responseHTML += '<div style="display: flex; gap: 2px; margin-right: 15px;">';
+                
+                stars.forEach((star) => {
+                    const isSelected = star.classList.contains('text-warning');
+                    responseHTML += `<span style="font-size: 12pt; color: ${isSelected ? '#ffc107' : '#6c757d'};">★</span>`;
+                });
+                
+                responseHTML += '</div>';
+                responseHTML += `<span style="font-weight: bold; font-size: 10pt;">${selectedValue}</span>`;
+                responseHTML += '</div>';
+            }
+            
+            // Check if it's text/textarea
+            const textResponse = responseDiv.querySelector('p');
+            if (textResponse && !radioDisplay && !ratingDisplay) {
+                responseHTML = `<div style="font-weight: bold; font-size: 10pt; margin-top: 8px;">${textResponse.textContent}</div>`;
+            }
+            
+            // Adjust spacing for last page to ensure footer fits
+            const questionMargin = isLastPage ? '10px' : '15px';
+            const questionPadding = isLastPage ? '12px' : '15px';
+            
+            // Build question HTML
+            pdfHTML += `
+                <div style="border: 1px solid #eee; margin-bottom: ${questionMargin}; padding: ${questionPadding}; background-color: #f9f9f9;">
+                    <div style="margin-bottom: 8px;">
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 4px;">${questionLabel}</div>
+                        <div style="font-size: 11pt; font-weight: bold; margin-bottom: 8px;">${questionText}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 4px;">Response</div>
+                        ${responseHTML}
+                    </div>
+                </div>
+            `;
         });
-    });
-
-    pdfContainer.appendChild(logoHeader);
-    pdfContainer.appendChild(contentClone);
-
-    // Add page-break CSS for html2pdf
-    const style = document.createElement('style');
-    style.innerHTML = `
-        .response-item { page-break-inside: avoid; }
-        h1, h2, h3 { font-size: 12pt !important; margin: 0.25rem 0 !important; }
-        h4 { font-size: 11pt !important; margin: 0.25rem 0 !important; }
-        h5 { font-size: 9pt !important; margin: 0.15rem 0 !important; }
-        p, span, div { font-size: 8pt !important; margin-bottom: 0.15rem !important; }
-        .small, small, label { font-size: 7pt !important; margin-bottom: 0 !important; }
-        .mb-4, .my-4 { margin-bottom: 0.25rem !important; }
-        .mb-3, .my-3 { margin-bottom: 0.15rem !important; }
-        .p-4, .py-4, .px-4 { padding: 0.25rem !important; }
-        .p-3, .py-3, .px-3 { padding: 0.15rem !important; }
-        .card-header { page-break-after: avoid; }
-        .card-body { page-break-inside: auto; }
-        .responses-list { page-break-inside: auto; }
-        @media print {
-            .response-item { page-break-inside: avoid; }
+        
+        pdfHTML += '</div>'; // Close questions-content
+        
+        // Add footer only on the last page
+        if (isLastPage) {
+            pdfHTML += '<div style="flex: 1; min-height: 20px;"></div>';
+            pdfHTML += footerContent;
         }
-    `;
-    pdfContainer.appendChild(style);
-
+        
+        pdfHTML += '</div>'; // Close pdf-page
+    }
+    
+    pdfContainer.innerHTML = pdfHTML;
     document.body.appendChild(pdfContainer);
-
-    // Use html2pdf to generate the PDF with proper page breaks
+    
+    // Configure PDF options
     const opt = {
-        margin: 0.15, // Reduced margins
-        filename: `${surveyTitle}_Response_${accountName}.pdf`,
-        image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
-    };
-    html2pdf().set(opt).from(pdfContainer).save().then(() => {
-        document.body.removeChild(pdfContainer);
-        if (document.getElementById('pdfLoadingToast')) {
-            document.getElementById('pdfLoadingToast').remove();
+        margin: 0.2,
+        filename: `${surveyTitle}_${accountName}_Response.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            letterRendering: true
+        },
+        jsPDF: { 
+            unit: 'in', 
+            format: 'a4', 
+            orientation: 'portrait' 
         }
+    };
+    
+    // Generate PDF
+    html2pdf().set(opt).from(pdfContainer).save().then(() => {
+        // Remove loading toast and PDF container
+        document.body.removeChild(loadingToast);
+        document.body.removeChild(pdfContainer);
+    }).catch((error) => {
+        console.error('PDF generation failed:', error);
+        document.body.removeChild(loadingToast);
+        document.body.removeChild(pdfContainer);
+        alert('Failed to generate PDF. Please try again.');
     });
 }
 </script>
