@@ -90,9 +90,9 @@
                                 <i class="bi bi-geo-alt me-1" style="color: var(--primary-color);"></i>Site Locations
                             </label>
                             <div class="sites-selection-container">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <p class="text-muted mb-0 fs-6">Select sites where this user will have access:</p>
-                                    <div class="selection-controls">
+                                <div class="d-flex justify-content-between align-items-center mb-3 sites-header-container">
+                                    <p class="text-muted mb-0 fs-6 flex-grow-1 me-3">Select sites where this user will have access:</p>
+                                    <div class="selection-controls flex-shrink-0">
                                         <button type="button" id="selectAllSites" class="btn btn-sm me-2" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); color: white; border: none;" disabled>
                                             <i class="fas fa-check-double me-1"></i>Select All
                                         </button>
@@ -451,6 +451,42 @@
         
         .dataTables_wrapper {
             padding: 1rem !important;
+        }
+        
+        /* DataTables Pagination - Mobile Fix */
+        .dataTables_wrapper .dataTables_info {
+            margin-bottom: 1rem !important;
+            text-align: center !important;
+            font-size: 0.8rem !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate {
+            text-align: center !important;
+            margin-top: 1rem !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            width: 35px !important;
+            height: 35px !important;
+            padding: 6px !important;
+            font-size: 0.8rem !important;
+            margin: 0 1px !important;
+        }
+    }
+    
+    /* Very small mobile devices */
+    @media (max-width: 480px) {
+        .dataTables_wrapper .dataTables_info {
+            font-size: 0.7rem !important;
+            margin-bottom: 1.5rem !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            width: 30px !important;
+            height: 30px !important;
+            padding: 4px !important;
+            font-size: 0.7rem !important;
+            margin: 0 !important;
         }
     }
 </style>
@@ -1208,6 +1244,109 @@ style.textContent = `
         min-height: 120px;
     }
     
+    /* Sites header container responsive handling */
+    .sites-header-container {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    
+    .sites-header-container .text-muted {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+    
+    .sites-header-container .selection-controls {
+        flex: 0 0 auto;
+        min-width: 200px;
+    }
+
+    /* Enhanced Select2 styling for sites */
+    .sites-selection-container .select2-container--default .select2-selection--multiple {
+        border: 2px solid #e9ecf3;
+        border-radius: 8px;
+        min-height: 120px;
+        background: white;
+        transition: all 0.3s ease;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+    }
+
+    .sites-selection-container .select2-container--default .select2-selection--multiple:focus-within {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.15);
+    }
+
+    .sites-selection-container .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        border: none;
+        color: white;
+        border-radius: 6px;
+        padding: 6px 35px 6px 25px;
+        margin: 6px;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.2s ease;
+        max-width: calc(100% - 20px) !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        box-sizing: border-box !important;
+    }
+
+    .sites-selection-container .select2-container--default .select2-selection--multiple .select2-selection__choice:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .sites-selection-container .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: rgba(255,255,255,0.8);
+        margin-right: 8px;
+        border: none;
+        font-size: 1.1rem;
+        transition: color 0.2s ease;
+    }
+
+    .sites-selection-container .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+        color: white;
+        background: rgba(255,255,255,0.2);
+        border-radius: 3px;
+    }
+
+    .sites-selection-container .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    }
+
+    .sites-selection-container .select2-container--default .select2-search--inline .select2-search__field {
+        margin-top: 8px;
+        font-size: 0.95rem;
+    }
+
+    .sites-selection-container .select2-container--default .select2-search--inline .select2-search__field::placeholder {
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    /* Ensure Select2 dropdown doesn't overflow on smaller screens */
+    .select2-dropdown {
+        z-index: 9999 !important;
+    }
+    
+    .select2-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+        width: 100% !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
     /* Select2 custom styles for site selection */
     .select2-container--default .select2-selection--multiple {
         border: 1px solid #dee2e6;
@@ -1267,20 +1406,177 @@ style.textContent = `
         box-shadow: none;
     }
     
-    /* Responsive improvements */
-    @media (max-width: 768px) {
+    /* iPad Pro responsive fixes - prevent overflow */
+    @media screen and (min-width: 1024px) and (max-width: 1366px) {
+        .sites-selection-container {
+            padding: 1.25rem;
+        }
+        
+        .sites-selection-container .sites-header-container {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start !important;
+        }
+        
+        .sites-selection-container .selection-controls {
+            display: flex;
+            flex-direction: row;
+            gap: 0.5rem;
+            width: 100%;
+            justify-content: flex-start;
+            min-width: auto;
+        }
+        
+        .sites-selection-container .selection-controls .btn {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+            min-width: auto;
+            flex: 0 1 auto;
+            white-space: nowrap;
+        }
+        
+        .sites-selection-container .text-muted {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            flex: none;
+            width: 100%;
+        }
+        
+        .select2-container--default .select2-selection--multiple {
+            min-height: 100px;
+            max-height: 150px;
+            overflow-y: auto;
+            width: 100% !important;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .select2-container {
+            width: 100% !important;
+            max-width: 100%;
+        }
+        
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            padding: 3px 6px;
+            margin: 2px;
+            font-size: 0.85rem;
+            max-width: calc(100% - 10px);
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* SBU cards responsive adjustments for iPad Pro */
+        .sbu-selection-container {
+            padding: 1.25rem;
+        }
+        
+        .sbu-card {
+            min-height: 110px;
+        }
+        
+        .sbu-name {
+            font-size: 1rem;
+        }
+        
+        .sbu-sites-count {
+            font-size: 0.8rem;
+        }
+    }
+    
+    /* iPad Mini responsive (768px to 820px) */
+    @media (min-width: 768px) and (max-width: 820px) {
+        .sites-selection-container {
+            padding: 1rem;
+        }
+        
+        .sites-selection-container .sites-header-container {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start !important;
+        }
+        
+        .sites-selection-container .selection-controls {
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            min-width: auto;
+        }
+        
+        .sites-selection-container .selection-controls .btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sites-selection-container .text-muted {
+            width: 100%;
+            flex: none;
+            margin-bottom: 0.5rem;
+        }
+    }
+    
+    /* Standard tablet responsive (821px to 1023px) */
+    @media (min-width: 821px) and (max-width: 1023px) {
+        .sites-selection-container {
+            padding: 1.25rem;
+        }
+        
+        .sites-selection-container .sites-header-container {
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: flex-start !important;
+        }
+        
+        .sites-selection-container .selection-controls {
+            width: 100%;
+            gap: 0.75rem;
+            min-width: auto;
+        }
+        
+        .sites-selection-container .selection-controls .btn {
+            flex: 1;
+            font-size: 0.85rem;
+            padding: 0.65rem 0.85rem;
+        }
+        
+        .sites-selection-container .text-muted {
+            width: 100%;
+            flex: none;
+        }
+    }
+    
+    /* Mobile responsive improvements (below 768px) */
+    @media (max-width: 767px) {
         .sbu-selection-container,
         .sites-selection-container {
             padding: 1rem;
         }
         
+        .sites-selection-container .sites-header-container {
+            flex-direction: column;
+            gap: 1.25rem;
+            align-items: flex-start !important;
+        }
+        
         .sites-selection-container .selection-controls {
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 1rem;
+            width: 100%;
+            min-width: auto;
         }
         
         .sites-selection-container .selection-controls .btn {
             width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sites-selection-container .text-muted {
+            width: 100%;
+            flex: none;
+            margin-bottom: 0.75rem;
         }
         
         .sbu-card {
@@ -1293,6 +1589,30 @@ style.textContent = `
         
         .sbu-sites-count {
             font-size: 0.8rem;
+        }
+    }
+    
+    /* Very small mobile devices (below 480px) */
+    @media (max-width: 479px) {
+        .sites-selection-container .selection-controls {
+            gap: 1.25rem;
+        }
+        
+        .sites-selection-container .selection-controls .btn {
+            padding: 0.875rem 1rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .sites-selection-container .sites-header-container {
+            gap: 1.5rem;
+        }
+        
+        .sites-selection-container .text-muted {
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
         }
     }
 `;

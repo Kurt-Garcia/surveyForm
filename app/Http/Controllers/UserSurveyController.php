@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Survey;
 use App\Models\SurveyResponseHeader;
 use App\Models\SurveyResponseDetail;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -19,18 +20,25 @@ class UserSurveyController extends Controller
         $query = Survey::with(['questions', 'sites', 'sbus'])->where('is_active', true);
         
         if (Auth::check()) {
-            $userSiteId = Auth::user()->site_id;
-            session(['site_id' => $userSiteId]); // Ensure site_id is always in session
+            // Get all site IDs the user has access to
+            $userSiteIds = Auth::user()->sites->pluck('id')->toArray();
             
-            $query->whereHas('sites', function($q) use ($userSiteId) {
-                $q->where('sites.id', $userSiteId);
-            });
-        } elseif ($userSiteId = session('site_id')) {
+            if (!empty($userSiteIds)) {
+                // Filter surveys that are deployed to any of the user's sites
+                $query->whereHas('sites', function($q) use ($userSiteIds) {
+                    $q->whereIn('site_id', $userSiteIds);
+                });
+                
+                // Store user's site IDs in session for fallback
+                session(['user_site_ids' => $userSiteIds]);
+            }
+        } elseif ($userSiteIds = session('user_site_ids')) {
             // Fallback to session if available (for session persistence)
-            $query->whereHas('sites', function($q) use ($userSiteId) {
-                $q->where('sites.id', $userSiteId);
+            $query->whereHas('sites', function($q) use ($userSiteIds) {
+                $q->whereIn('site_id', $userSiteIds);
             });
         }
+        
         // Handle search functionality
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
@@ -55,10 +63,23 @@ class UserSurveyController extends Controller
                 ->with('warning', 'This survey is currently not active.');
         }
         
-        // Verify the user's site_id matches one of the survey's sites
-        $userSiteId = Auth::check() ? Auth::user()->site_id : session('site_id');
+        // Verify the user has access to one of the survey's sites
+        $hasAccess = false;
         
-        if (!$survey->isAvailableForSite($userSiteId)) {
+        if (Auth::check()) {
+            // Get all site IDs the user has access to
+            $userSiteIds = Auth::user()->sites->pluck('id')->toArray();
+            
+            if (!empty($userSiteIds)) {
+                // Check if survey is deployed to any of the user's sites
+                $hasAccess = $survey->isAvailableForAnySite($userSiteIds);
+            }
+        } elseif ($userSiteIds = session('user_site_ids')) {
+            // Fallback to session if available
+            $hasAccess = $survey->isAvailableForAnySite($userSiteIds);
+        }
+        
+        if (!$hasAccess) {
             return redirect()->route('index')
                 ->with('error', 'You do not have access to this survey.');
         }
@@ -94,10 +115,23 @@ class UserSurveyController extends Controller
 
     public function store(Request $request, Survey $survey)
     {
-        // Verify the user's site_id matches one of the survey's sites
-        $userSiteId = Auth::check() ? Auth::user()->site_id : session('site_id');
+        // Verify the user has access to one of the survey's sites
+        $hasAccess = false;
         
-        if (!$survey->isAvailableForSite($userSiteId)) {
+        if (Auth::check()) {
+            // Get all site IDs the user has access to
+            $userSiteIds = Auth::user()->sites->pluck('id')->toArray();
+            
+            if (!empty($userSiteIds)) {
+                // Check if survey is deployed to any of the user's sites
+                $hasAccess = $survey->isAvailableForAnySite($userSiteIds);
+            }
+        } elseif ($userSiteIds = session('user_site_ids')) {
+            // Fallback to session if available
+            $hasAccess = $survey->isAvailableForAnySite($userSiteIds);
+        }
+        
+        if (!$hasAccess) {
             return response()->json([
                 'error' => 'You do not have access to submit this survey.'
             ], 403);
@@ -269,7 +303,7 @@ class UserSurveyController extends Controller
             ], 422);
         }
         
-        // Check if a site_id is available in the session
+        // Check if a site_id is available in the session (from the URL parameter)
         $siteId = session('site_id');
         if ($siteId) {
             // If a site_id is stored, check if the survey is deployed to that site

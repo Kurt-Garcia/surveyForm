@@ -57,6 +57,21 @@ class Survey extends Model
             return false;
         }
         
-        return $this->sites()->where('sites.id', $siteId)->exists();
+        return $this->sites()->where('site_id', $siteId)->exists();
+    }
+    
+    /**
+     * Check if a survey is available for any of the provided site IDs.
+     *
+     * @param array $siteIds
+     * @return bool
+     */
+    public function isAvailableForAnySite(array $siteIds): bool
+    {
+        if (empty($siteIds)) {
+            return false;
+        }
+        
+        return $this->sites()->whereIn('site_id', $siteIds)->exists();
     }
 }

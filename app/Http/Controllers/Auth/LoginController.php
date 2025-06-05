@@ -81,8 +81,9 @@ class LoginController extends Controller
             return redirect()->intended('/admin/dashboard');
         }
 
-        // For regular users, set site_id and rating type in session
-        session(['site_id' => $user->site_id]);
+        // For regular users, set user_site_ids and rating type in session
+        $userSiteIds = $user->sites->pluck('id')->toArray();
+        session(['user_site_ids' => $userSiteIds]);
         
         // Set rating type for the user
         $ratingType = rand(0, 1) ? 'radio' : 'star';

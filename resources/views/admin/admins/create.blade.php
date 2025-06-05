@@ -87,9 +87,9 @@
                                 <i class="bi bi-geo-alt me-1 text-success"></i>Site Locations
                             </label>
                             <div class="sites-selection-container">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <p class="text-muted mb-0 fs-6">Select sites where this admin will have access:</p>
-                                    <div class="selection-controls">
+                                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+                                    <p class="text-muted mb-0 fs-6 flex-grow-1 me-3 mb-md-0 mb-2">Select sites where this admin will have access:</p>
+                                    <div class="selection-controls flex-shrink-0">
                                         <button type="button" id="selectAllSites" class="btn btn-outline-primary btn-sm me-2" disabled>
                                             <i class="fas fa-check-double me-1"></i>Select All
                                         </button>
@@ -564,40 +564,235 @@
         font-style: italic;
     }
 
-    /* Responsive design for SBU cards */
-    @media (max-width: 768px) {
-        .sbu-selection-container {
-            padding: 1rem;
+    /* Ensure Select2 dropdown doesn't overflow on smaller screens */
+    .select2-dropdown {
+        z-index: 9999 !important;
+    }
+    
+    .select2-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .select2-container--default .select2-selection--multiple {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+    }
+    
+    .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+        width: 100% !important;
+        overflow-x: hidden !important;
+        word-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+    
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        max-width: calc(100% - 20px) !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        box-sizing: border-box !important;
+    }
+
+    /* iPad Pro responsive fixes - prevent overflow */
+    @media screen and (min-width: 1024px) and (max-width: 1366px) {
+        .sites-selection-container {
+            padding: 1.25rem;
         }
         
+        .sites-selection-container .d-flex.justify-content-between.align-items-center {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start !important;
+        }
+        
+        .sites-selection-container .selection-controls {
+            display: flex;
+            flex-direction: row;
+            gap: 0.5rem;
+            width: 100%;
+            justify-content: flex-start;
+            min-width: auto;
+        }
+        
+        .sites-selection-container .selection-controls .btn {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+            min-width: auto;
+            flex: 0 1 auto;
+            white-space: nowrap;
+        }
+        
+        .sites-selection-container .text-muted {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            flex: none;
+            width: 100%;
+        }
+        
+        .select2-container--default .select2-selection--multiple {
+            min-height: 100px;
+            max-height: 150px;
+            overflow-y: auto;
+            width: 100% !important;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .select2-container {
+            width: 100% !important;
+            max-width: 100%;
+        }
+        
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            padding: 3px 6px;
+            margin: 2px;
+            font-size: 0.85rem;
+            max-width: calc(100% - 10px);
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* SBU cards responsive adjustments for iPad Pro */
+        .sbu-selection-container {
+            padding: 1.25rem;
+        }
+        
+        .sbu-card {
+            min-height: 110px;
+        }
+        
+        .sbu-name {
+            font-size: 1rem;
+        }
+        
+        .sbu-sites-count {
+            font-size: 0.8rem;
+        }
+    }
+    
+    /* Standard tablet responsive (768px to 1023px) */
+    @media (min-width: 769px) and (max-width: 1023px) {
+        .sites-selection-container {
+            padding: 1.25rem;
+        }
+        
+        .sites-selection-container .d-flex.justify-content-between.align-items-center {
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: flex-start !important;
+        }
+        
+        .sites-selection-container .selection-controls {
+            width: 100%;
+            gap: 0.5rem;
+            min-width: auto;
+        }
+        
+        .sites-selection-container .selection-controls .btn {
+            flex: 1;
+            font-size: 0.85rem;
+        }
+        
+        .sites-selection-container .text-muted {
+            width: 100%;
+            flex: none;
+        }
+    }
+    
+    /* Mobile responsive improvements */
+    @media (max-width: 768px) {
+        .sbu-selection-container,
         .sites-selection-container {
             padding: 1rem;
         }
         
-        .selection-controls {
+        .sites-selection-container .d-flex.justify-content-between.align-items-center {
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 1rem;
+            align-items: flex-start !important;
         }
         
-        .selection-controls .btn {
+        .sites-selection-container .selection-controls {
+            flex-direction: column;
+            gap: 0.75rem;
             width: 100%;
             min-width: auto;
         }
         
+        .sites-selection-container .selection-controls .btn {
+            width: 100%;
+        }
+        
+        .sites-selection-container .text-muted {
+            width: 100%;
+            flex: none;
+        }
+        
         .sbu-card {
-            height: 90px;
+            min-height: 100px;
         }
         
         .sbu-name {
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
         
         .sbu-sites-count {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
         }
         
         .sites-selection-container .select2-container--default .select2-selection--multiple {
-            min-height: 100px;
+            min-height: 120px;
+            max-height: 200px;
+        }
+        
+        .select2-container {
+            width: 100% !important;
+        }
+        
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            margin: 3px;
+        }
+    }
+    
+    /* iOS specific fixes */
+    @supports (-webkit-touch-callout: none) {
+        .sites-selection-container {
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .select2-container--default .select2-selection--multiple {
+            -webkit-overflow-scrolling: touch;
+        }
+    }
+    
+    /* Additional breakpoint for small tablets */
+    @media (min-width: 600px) and (max-width: 900px) {
+        .sites-selection-container .d-flex.justify-content-between.align-items-center {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 1rem;
+        }
+        
+        .sites-selection-container .text-muted {
+            width: 100% !important;
+            margin-bottom: 0 !important;
+        }
+        
+        .sites-selection-container .selection-controls {
+            width: 100% !important;
+            justify-content: flex-start !important;
+        }
+        
+        .sites-selection-container .selection-controls .btn {
+            flex: 1 1 auto;
+            max-width: 48%;
         }
     }
 </style>
@@ -672,7 +867,14 @@
                 $('#site_ids').select2({
                     placeholder: selectedSBUs.length > 0 ? 'Select sites...' : 'Select SBU first',
                     allowClear: true,
-                    width: '100%'
+                    width: '100%',
+                    dropdownParent: $('#site_ids').parent(),
+                    adaptContainerCssClass: function(clazz) {
+                        return clazz;
+                    },
+                    adaptDropdownCssClass: function(clazz) {
+                        return clazz;
+                    }
                 });
             }
             

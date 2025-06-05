@@ -19,10 +19,16 @@ class CheckSiteAccess
     {
         // Check if there's a survey route parameter
         if ($survey = $request->route('survey')) {
-            $userSiteId = \Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Auth::user()->site_id : session('site_id');
+            $userSiteIds = [];
             
-            // If we have a site_id restriction and the survey doesn't belong to this site, deny access
-            if (!$survey->isAvailableForSite($userSiteId)) {
+            if (\Illuminate\Support\Facades\Auth::check()) {
+                $userSiteIds = \Illuminate\Support\Facades\Auth::user()->sites->pluck('id')->toArray();
+            } elseif ($sessionSiteIds = session('user_site_ids')) {
+                $userSiteIds = $sessionSiteIds;
+            }
+            
+            // If we have site_id restrictions and the survey doesn't belong to any of the user's sites, deny access
+            if (!empty($userSiteIds) && !$survey->isAvailableForAnySite($userSiteIds)) {
                 if ($request->expectsJson()) {
                     return response()->json([
                         'error' => 'You do not have access to this survey.'
