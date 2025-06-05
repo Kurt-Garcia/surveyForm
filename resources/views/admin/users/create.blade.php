@@ -3,6 +3,8 @@
 @section('content')
 <!-- SweetAlert2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <div class="container-fluid py-4 px-4" style="background: var(--background-color); min-height: 100vh;">
     <!-- Hero Section with Gradient Background -->
@@ -29,9 +31,6 @@
                             </h4>
                             <p class="mb-0 opacity-90 small mt-1">Create a new surveyor account</p>
                         </div>
-                        <a href="javascript:void(0)" onclick="confirmClose()" class="btn btn-light btn-sm rounded-pill" data-bs-toggle="tooltip" data-bs-placement="top" title="Go Back">
-                            <i class="bi bi-x-lg"></i>
-                        </a>
                     </div>
                 </div>
                 <div class="card-body p-4">
@@ -46,31 +45,72 @@
                         
                         <!-- SBU Selection -->
                         <div class="mb-4">
-                            <label for="sbu_id" class="form-label fw-semibold text-dark">
-                                <i class="bi bi-building me-1 text-primary"></i>Strategic Business Unit
+                            <label class="form-label fw-semibold text-dark">
+                                <i class="bi bi-building me-1" style="color: var(--primary-color);"></i>Strategic Business Units
                             </label>
-                            <select id="sbu_id" class="form-select form-select-lg border-0 shadow-sm @error('sbu_id') is-invalid @enderror" name="sbu_id" required>
-                                <option value="" selected disabled>Choose SBU...</option>
-                                @foreach($sbus as $sbu)
-                                    <option value="{{ $sbu->id }}" {{ old('sbu_id') == $sbu->id ? 'selected' : '' }}>{{ $sbu->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('sbu_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="sbu-selection-container">
+                                <p class="text-muted mb-3 fs-6">Select one or more SBUs where this user will have access:</p>
+                                <div class="row g-3">
+                                    @foreach($sbus as $sbu)
+                                        <div class="col-md-6">
+                                            <div class="sbu-card" data-sbu-id="{{ $sbu->id }}">
+                                                <input class="sbu-checkbox d-none" type="checkbox" 
+                                                       id="sbu_{{ $sbu->id }}" 
+                                                       name="sbu_ids[]" 
+                                                       value="{{ $sbu->id }}"
+                                                       {{ in_array($sbu->id, old('sbu_ids', [])) ? 'checked' : '' }}>
+                                                
+                                                <div class="sbu-card-content">
+                                                    <div class="sbu-card-header">
+                                                        <div class="sbu-check-indicator">
+                                                            <i class="fas fa-check"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="sbu-card-body">
+                                                        <h5 class="sbu-name">{{ $sbu->name }}</h5>
+                                                        <p class="sbu-sites-count">{{ $sbu->sites->count() }} sites available</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                @error('sbu_ids')
+                                    <div class="text-danger mt-3" role="alert">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        <strong>{{ $message }}</strong>
+                                    </div>
+                                @enderror
+                            </div>
                         </div>
                         
                         <!-- Site Selection -->
                         <div class="mb-4">
-                            <label for="site_id" class="form-label fw-semibold text-dark">
-                                <i class="bi bi-geo-alt me-1 text-success"></i>Site Location
+                            <label for="site_ids" class="form-label fw-semibold text-dark">
+                                <i class="bi bi-geo-alt me-1" style="color: var(--primary-color);"></i>Site Locations
                             </label>
-                            <select id="site_id" class="form-select form-select-lg border-0 shadow-sm @error('site_id') is-invalid @enderror" name="site_id" required>
-                                <option value="" selected disabled>Select SBU first...</option>
-                            </select>
-                            @error('site_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="sites-selection-container">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <p class="text-muted mb-0 fs-6">Select sites where this user will have access:</p>
+                                    <div class="selection-controls">
+                                        <button type="button" id="selectAllSites" class="btn btn-sm me-2" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); color: white; border: none;" disabled>
+                                            <i class="fas fa-check-double me-1"></i>Select All
+                                        </button>
+                                        <button type="button" id="deselectAllSites" class="btn btn-outline-secondary btn-sm" disabled>
+                                            <i class="fas fa-times me-1"></i>Deselect All
+                                        </button>
+                                    </div>
+                                </div>
+                                <select id="site_ids" class="form-select select2 form-select-lg @error('site_ids') is-invalid @enderror" name="site_ids[]" multiple required>
+                                    <option disabled>Please select SBUs first...</option>
+                                </select>
+                                @error('site_ids')
+                                    <div class="text-danger mt-3" role="alert">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        <strong>{{ $message }}</strong>
+                                    </div>
+                                @enderror
+                            </div>
                         </div>
                         
                         <!-- Personal Information -->
@@ -140,7 +180,7 @@
                         
                         <!-- Submit Button -->
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg rounded-pill shadow-sm py-3">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill shadow-sm py-3" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); border: none;">
                                 <i class="bi bi-person-plus-fill me-2"></i>Create Surveyor Account
                             </button>
                         </div>
@@ -428,49 +468,6 @@ const swalWithBootstrapButtons = Swal.mixin({
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize DataTables for existing users
     initializeUsersTable();
-    
-    // SBU and Site dropdown relationship
-    const sbuSelect = document.getElementById('sbu_id');
-    const siteSelect = document.getElementById('site_id');
-    
-    // Store all sites data from PHP
-    const allSites = @json($sbus->pluck('sites', 'id'));
-    
-    // Function to update site options based on selected SBU
-    function updateSiteOptions() {
-        const selectedSBU = sbuSelect.value;
-        
-        // Clear current options
-        siteSelect.innerHTML = '';
-        
-        // Add default option
-        const defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.disabled = true;
-        defaultOption.selected = true;
-        defaultOption.textContent = selectedSBU ? 'Select Site...' : 'Select SBU first...';
-        siteSelect.appendChild(defaultOption);
-        
-        // If an SBU is selected, populate with corresponding sites
-        if (selectedSBU && allSites[selectedSBU]) {
-            allSites[selectedSBU].forEach(site => {
-                const option = document.createElement('option');
-                option.value = site.id;
-                option.textContent = site.name;
-                // Check if this option should be selected (for form validation redisplay)
-                if (site.id == '{{ old("site_id") }}') {
-                    option.selected = true;
-                }
-                siteSelect.appendChild(option);
-            });
-        }
-    }
-    
-    // Initialize site options based on initial SBU value
-    updateSiteOptions();
-    
-    // Update site options when SBU selection changes
-    sbuSelect.addEventListener('change', updateSiteOptions);
     
     // Name field validation
     const nameField = document.getElementById('name');
@@ -954,7 +951,122 @@ function confirmClose() {
     });
 }
 
-// Add CSS animations
+// SBU Card functionality
+document.querySelectorAll('.sbu-card').forEach(card => {
+    card.addEventListener('click', function() {
+        const checkbox = this.querySelector('.sbu-checkbox');
+        checkbox.checked = !checkbox.checked;
+        
+        if (checkbox.checked) {
+            this.classList.add('selected');
+        } else {
+            this.classList.remove('selected');
+        }
+        
+        // Update sites after SBU selection changes
+        updateSiteOptions();
+    });
+});
+
+// Function to update site options based on selected SBUs
+function updateSiteOptions() {
+    const selectedSbuIds = [];
+    document.querySelectorAll('.sbu-checkbox:checked').forEach(checkbox => {
+        selectedSbuIds.push(checkbox.value);
+    });
+    
+    const siteSelect = document.getElementById('site_ids');
+    const selectAllBtn = document.getElementById('selectAllSites');
+    const deselectAllBtn = document.getElementById('deselectAllSites');
+    
+    // Clear existing options
+    siteSelect.innerHTML = '';
+    
+    if (selectedSbuIds.length === 0) {
+        siteSelect.innerHTML = '<option disabled>Please select SBUs first...</option>';
+        selectAllBtn.disabled = true;
+        deselectAllBtn.disabled = true;
+        return;
+    }
+    
+    // Enable control buttons
+    selectAllBtn.disabled = false;
+    deselectAllBtn.disabled = false;
+    
+    // Get sites for selected SBUs
+    fetch(`{{ route('admin.sites.by-sbus') }}?sbu_ids=${selectedSbuIds.join(',')}`)
+        .then(response => response.json())
+        .then(sites => {
+            sites.forEach(site => {
+                const option = document.createElement('option');
+                option.value = site.id;
+                option.textContent = `${site.name} (${site.sbu.name})`;
+                siteSelect.appendChild(option);
+            });
+            
+            // Refresh Select2 if initialized
+            const $siteSelect = jQuery(siteSelect);
+            if ($siteSelect.hasClass('select2-hidden-accessible')) {
+                $siteSelect.trigger('change');
+            } else {
+                // Initialize Select2 if not already done
+                $siteSelect.select2({
+                    placeholder: 'Select sites...',
+                    allowClear: true,
+                    width: '100%'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching sites:', error);
+            siteSelect.innerHTML = '<option disabled>Error loading sites</option>';
+        });
+}
+
+// Site selection control buttons
+document.getElementById('selectAllSites').addEventListener('click', function() {
+    const siteSelect = document.getElementById('site_ids');
+    Array.from(siteSelect.options).forEach(option => {
+        option.selected = true;
+    });
+    
+    const $siteSelect = jQuery(siteSelect);
+    if ($siteSelect.hasClass('select2-hidden-accessible')) {
+        $siteSelect.trigger('change');
+    }
+});
+
+document.getElementById('deselectAllSites').addEventListener('click', function() {
+    const siteSelect = document.getElementById('site_ids');
+    Array.from(siteSelect.options).forEach(option => {
+        option.selected = false;
+    });
+    
+    const $siteSelect = jQuery(siteSelect);
+    if ($siteSelect.hasClass('select2-hidden-accessible')) {
+        $siteSelect.trigger('change');
+    }
+});
+
+// Select2 will be initialized by the global layout script
+
+// Restore selected SBUs from old input (if validation fails)
+document.addEventListener('DOMContentLoaded', function() {
+    const oldSbuIds = @json(old('sbu_ids', []));
+    if (oldSbuIds && oldSbuIds.length > 0) {
+        oldSbuIds.forEach(sbuId => {
+            const card = document.querySelector(`[data-sbu-id="${sbuId}"]`);
+            if (card) {
+                const checkbox = card.querySelector('.sbu-checkbox');
+                checkbox.checked = true;
+                card.classList.add('selected');
+            }
+        });
+        updateSiteOptions();
+    }
+});
+
+// Add CSS animations and styles
 const style = document.createElement('style');
 style.textContent = `
     @keyframes fadeInUp {
@@ -965,6 +1077,222 @@ style.textContent = `
         to {
             opacity: 1;
             transform: translateY(0);
+        }
+    }
+    
+    /* SBU Card Styles */
+    .sbu-selection-container {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f8f9fc 0%, #f1f3f8 100%);
+        border-radius: 12px;
+        border: 2px solid #e9ecf3;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+    }
+    
+    .sbu-selection-container:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.1);
+    }
+    
+    .sbu-card {
+        cursor: pointer;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        background: #ffffff;
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+        min-height: 120px;
+    }
+    
+    .sbu-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.15);
+        transform: translateY(-2px);
+    }
+    
+    .sbu-card.selected {
+        border-color: var(--primary-color);
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        box-shadow: 0 6px 20px rgba(var(--primary-color-rgb), 0.3);
+    }
+    
+    .sbu-card-content {
+        padding: 1rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .sbu-card-header {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 0.5rem;
+    }
+    
+    .sbu-check-indicator {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .sbu-card.selected .sbu-check-indicator {
+        background: #ffffff;
+        border-color: #ffffff;
+        color: var(--primary-color);
+    }
+    
+    .sbu-check-indicator i {
+        font-size: 12px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .sbu-card.selected .sbu-check-indicator i {
+        opacity: 1;
+    }
+    
+    .sbu-card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .sbu-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: inherit;
+    }
+    
+    .sbu-sites-count {
+        font-size: 0.875rem;
+        margin-bottom: 0;
+        opacity: 0.8;
+        color: inherit;
+    }
+    
+    .sbu-card:not(.selected) .sbu-sites-count {
+        color: #6c757d;
+    }
+    
+    /* Sites selection styles */
+    .sites-selection-container {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f8f9fc 0%, #f1f3f8 100%);
+        border-radius: 12px;
+        border: 2px solid #e9ecf3;
+        transition: all 0.3s ease;
+    }
+    
+    .sites-selection-container:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.1);
+    }
+    
+    .sites-selection-container .selection-controls {
+        flex-shrink: 0;
+    }
+    
+    .sites-selection-container .form-select {
+        min-height: 120px;
+    }
+    
+    /* Select2 custom styles for site selection */
+    .select2-container--default .select2-selection--multiple {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        min-height: 120px;
+        padding: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
+    }
+    
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        border: 1px solid var(--primary-color);
+        border-radius: 6px;
+        color: white;
+        padding: 4px 8px;
+        margin: 2px;
+    }
+    
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: white;
+        margin-right: 8px;
+    }
+    
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+        color: #ffcccc;
+    }
+    
+    /* Select2 dropdown styling */
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+    }
+    
+    .select2-container--default .select2-results__option[aria-selected=true] {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+    }
+    
+    /* Site selection buttons styling */
+    .sites-selection-container .selection-controls .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(var(--primary-color-rgb), 0.2);
+    }
+    
+    .sites-selection-container .selection-controls .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .sites-selection-container .selection-controls .btn:disabled:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    /* Responsive improvements */
+    @media (max-width: 768px) {
+        .sbu-selection-container,
+        .sites-selection-container {
+            padding: 1rem;
+        }
+        
+        .sites-selection-container .selection-controls {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .sites-selection-container .selection-controls .btn {
+            width: 100%;
+        }
+        
+        .sbu-card {
+            min-height: 100px;
+        }
+        
+        .sbu-name {
+            font-size: 1rem;
+        }
+        
+        .sbu-sites-count {
+            font-size: 0.8rem;
         }
     }
 `;

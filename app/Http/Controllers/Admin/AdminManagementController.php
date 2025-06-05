@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\User;
+use App\Models\Sbu;
+use App\Models\Site;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -171,8 +173,10 @@ class AdminManagementController extends Controller
                 'email' => 'required|string|email|max:255',
                 'password' => 'required|string|min:8|confirmed',
                 'contact_number' => ['required', 'string', 'max:11', 'regex:/^(\+63|09|9)\d{9,10}$/'],
-                'sbu_id' => 'required|exists:sbus,id',
-                'site_id' => 'required|exists:sites,id',
+                'sbu_ids' => 'required|array|min:1',
+                'sbu_ids.*' => 'exists:sbus,id',
+                'site_ids' => 'required|array|min:1',
+                'site_ids.*' => 'exists:sites,id',
             ]);
 
             // Format contact number
@@ -246,17 +250,22 @@ class AdminManagementController extends Controller
                 ->with('error', 'For security reasons, you cannot create an admin with these credentials as they match an existing user.');
         }
 
-        Admin::create([
+        // Create the admin
+        $admin = Admin::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'contact_number' => $contactNumber,
-            'sbu_id' => $request->sbu_id,
-            'site_id' => $request->site_id,
         ]);
 
+        // Attach all selected SBUs to the admin
+        $admin->sbus()->attach($request->sbu_ids);
+        
+        // Attach all selected sites to the admin
+        $admin->sites()->attach($request->site_ids);
+
         return redirect()->route('admin.dashboard')
-            ->with('success', 'Admin account created successfully!');
+            ->with('success', 'Admin account created successfully with access to ' . count($request->sbu_ids) . ' SBU(s) and ' . count($request->site_ids) . ' site(s)!');
         } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->validator)
                 ->withInput($request->except('password', 'password_confirmation'));

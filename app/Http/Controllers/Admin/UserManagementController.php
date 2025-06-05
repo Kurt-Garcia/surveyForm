@@ -50,8 +50,10 @@ class UserManagementController extends Controller
                     }
                 },
             ],
-            'sbu_id' => 'required|exists:sbus,id',
-            'site_id' => 'required|exists:sites,id',
+            'sbu_ids' => 'required|array|min:1',
+            'sbu_ids.*' => 'exists:sbus,id',
+            'site_ids' => 'required|array|min:1',
+            'site_ids.*' => 'exists:sites,id',
         ]);
 
         if ($validator->fails()) {
@@ -93,24 +95,48 @@ class UserManagementController extends Controller
             ])->withInput();
         }
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'contact_number' => $contactNumber,
-            'sbu_id' => $request->sbu_id,
-            'site_id' => $request->site_id,
             'created_by' => auth('admin')->id(), // Set the current admin as creator
         ]);
 
-        return redirect()->route('admin.users.create')->with('success', 'User created successfully!');
+        // Attach all selected SBUs to the user
+        $user->sbus()->attach($request->sbu_ids);
+        
+        // Attach all selected sites to the user
+        $user->sites()->attach($request->site_ids);
+
+        return redirect()->route('admin.users.create')
+            ->with('success', 'User created successfully with access to ' . count($request->sbu_ids) . ' SBU(s) and ' . count($request->site_ids) . ' site(s)!');
+    }
+
+    // Get sites by selected SBUs (for AJAX requests)
+    public function getSitesBySbus(Request $request)
+    {
+        $sbuIds = $request->query('sbu_ids');
+        
+        if (!$sbuIds) {
+            return response()->json([]);
+        }
+        
+        $sbuIdsArray = explode(',', $sbuIds);
+        
+        $sites = \App\Models\Site::with('sbu')
+            ->whereIn('sbu_id', $sbuIdsArray)
+            ->orderBy('name')
+            ->get();
+        
+        return response()->json($sites);
     }
 
     // Get data for DataTables displaying only survey users created by current admin
     public function data()
     {
         // Get only regular users (surveyors) created by the current admin
-        $surveyUsers = User::with(['sbu', 'site', 'createdBy'])
+        $surveyUsers = User::with(['sbus', 'sites', 'createdBy'])
             ->where('created_by', auth('admin')->id()) // Filter by current admin
             ->get()
             ->map(function ($user) {
@@ -119,8 +145,8 @@ class UserManagementController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'contact_number' => $user->contact_number,
-                    'sbu_name' => $user->sbu ? $user->sbu->name : 'N/A',
-                    'site_name' => $user->site ? $user->site->name : 'N/A',
+                    'sbu_name' => $user->sbus->pluck('name')->join(', ') ?: 'N/A',
+                    'site_name' => $user->sites->pluck('name')->join(', ') ?: 'N/A',
                     'user_type' => 'Surveyor',
                     'created_by' => $user->createdBy ? $user->createdBy->name : 'Unknown',
                     'created_at' => $user->created_at->format('M d, Y')

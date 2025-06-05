@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Sbu;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -13,17 +14,33 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // First, create the SBUs and Sites
+        $this->call([
+            SbuAndSiteSeeder::class,
+        ]);
 
-        User::factory()->create([
-            'sbu_id' => '1',
-            'site_id' => '1',
+        // Create the test user without sbu_id and site_id
+        $user = User::factory()->create([
             'name' => 'Monkey D. Luffy',
             'email' => 'pirateKing@gmail.com',
             'contact_number' => '09123456789',
             'password' => bcrypt('admin123'),
         ]);
 
+        // Get the first SBU and its sites to assign to the user
+        $firstSbu = \App\Models\Sbu::first();
+        if ($firstSbu) {
+            // Attach the user to the first SBU
+            $user->sbus()->attach($firstSbu->id);
+            
+            // Attach the user to the first site of that SBU
+            $firstSite = $firstSbu->sites()->first();
+            if ($firstSite) {
+                $user->sites()->attach($firstSite->id);
+            }
+        }
+
+        // Create admin users
         $this->call([
             AdminSeeder::class
         ]);

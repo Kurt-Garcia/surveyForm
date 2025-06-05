@@ -136,6 +136,9 @@ Route::prefix('admin')->group(function () {
         Route::get('/users/create', [\App\Http\Controllers\Admin\UserManagementController::class, 'create'])->name('admin.users.create');
         Route::post('/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('admin.users.store');
         Route::get('/users/data', [\App\Http\Controllers\Admin\UserManagementController::class, 'data'])->name('admin.users.data');
+        
+        // Sites by SBUs route for dynamic loading
+        Route::get('/sites/by-sbus', [\App\Http\Controllers\Admin\UserManagementController::class, 'getSitesBySbus'])->name('admin.sites.by-sbus');
 
         // Logo management routes
         Route::resource('logos', \App\Http\Controllers\Admin\LogoController::class)->names([

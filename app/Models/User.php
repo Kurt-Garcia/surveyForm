@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -23,8 +24,6 @@ class User extends Authenticatable
         'email',
         'password',
         'contact_number',
-        'sbu_id',
-        'site_id',
         'created_by',
     ];
 
@@ -39,23 +38,23 @@ class User extends Authenticatable
     ];
     
     /**
-     * Get the site that the user belongs to.
+     * Get all SBUs that the user has access to (many-to-many relationship).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function site(): BelongsTo
+    public function sbus(): BelongsToMany
     {
-        return $this->belongsTo(Site::class);
+        return $this->belongsToMany(Sbu::class, 'user_sbu', 'user_id', 'sbu_id')->withTimestamps();
     }
     
     /**
-     * Get the SBU that the user belongs to.
+     * Get all Sites that the user has access to (many-to-many relationship).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function sbu(): BelongsTo
+    public function sites(): BelongsToMany
     {
-        return $this->belongsTo(Sbu::class);
+        return $this->belongsToMany(Site::class, 'user_site', 'user_id', 'site_id')->withTimestamps();
     }
 
     /**

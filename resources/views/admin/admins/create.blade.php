@@ -42,29 +42,70 @@
                         
                         <!-- SBU Selection -->
                         <div class="mb-4">
-                            <label for="sbu_id" class="form-label fw-semibold text-dark">
-                                <i class="bi bi-building me-1 text-primary"></i>Strategic Business Unit
+                            <label class="form-label fw-semibold text-dark">
+                                <i class="bi bi-building me-1 text-primary"></i>Strategic Business Units
                             </label>
-                            <select id="sbu_id" class="form-select form-select-lg border-0 shadow-sm @error('sbu_id') is-invalid @enderror" name="sbu_id" required>
-                                <option value="" selected disabled>Choose SBU...</option>
-                                @foreach($sbus as $sbu)
-                                    <option value="{{ $sbu->id }}" {{ old('sbu_id') == $sbu->id ? 'selected' : '' }}>{{ $sbu->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('sbu_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="sbu-selection-container">
+                                <p class="text-muted mb-3 fs-6">Select one or more SBUs where this admin will have access:</p>
+                                <div class="row g-3">
+                                    @foreach($sbus as $sbu)
+                                        <div class="col-md-6">
+                                            <div class="sbu-card" data-sbu-id="{{ $sbu->id }}">
+                                                <input class="sbu-checkbox d-none" type="checkbox" 
+                                                       id="sbu_{{ $sbu->id }}" 
+                                                       name="sbu_ids[]" 
+                                                       value="{{ $sbu->id }}"
+                                                       {{ in_array($sbu->id, old('sbu_ids', [])) ? 'checked' : '' }}>
+                                                
+                                                <div class="sbu-card-content">
+                                                    <div class="sbu-card-header">
+                                                        <div class="sbu-check-indicator">
+                                                            <i class="fas fa-check"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="sbu-card-body">
+                                                        <h5 class="sbu-name">{{ $sbu->name }}</h5>
+                                                        <p class="sbu-sites-count">{{ $sbu->sites->count() }} sites available</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                @error('sbu_ids')
+                                    <div class="text-danger mt-3" role="alert">
+                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                        <strong>{{ $message }}</strong>
+                                    </div>
+                                @enderror
+                            </div>
                         </div>
                         
                         <!-- Site Selection -->
                         <div class="mb-4">
-                            <label for="site_id" class="form-label fw-semibold text-dark">
-                                <i class="bi bi-geo-alt me-1 text-success"></i>Site Location
+                            <label for="site_ids" class="form-label fw-semibold text-dark">
+                                <i class="bi bi-geo-alt me-1 text-success"></i>Site Locations
                             </label>
-                            <select id="site_id" class="form-select form-select-lg border-0 shadow-sm @error('site_id') is-invalid @enderror" name="site_id" required>
-                                <option value="" selected disabled>Select SBU first...</option>
-                            </select>
-                            @error('site_id')
+                            <div class="sites-selection-container">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <p class="text-muted mb-0 fs-6">Select sites where this admin will have access:</p>
+                                    <div class="selection-controls">
+                                        <button type="button" id="selectAllSites" class="btn btn-outline-primary btn-sm me-2" disabled>
+                                            <i class="fas fa-check-double me-1"></i>Select All
+                                        </button>
+                                        <button type="button" id="deselectAllSites" class="btn btn-outline-secondary btn-sm" disabled>
+                                            <i class="fas fa-times me-1"></i>Deselect All
+                                        </button>
+                                    </div>
+                                </div>
+                                <select id="site_ids" class="form-select select2 form-select-lg @error('site_ids') is-invalid @enderror" name="site_ids[]" multiple required>
+                                    <option value="" disabled>Select SBU first...</option>
+                                </select>
+                                <small class="text-muted mt-2 d-block">
+                                    <i class="fas fa-info-circle me-1"></i>You can search and select multiple sites. Use the buttons above for quick selection.
+                                </small>
+                            </div>
+                            @error('site_ids')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -280,52 +321,473 @@
             padding: 10px 14px !important;
         }
     }
+
+    /* Modern SBU Card Styling */
+    .sbu-selection-container {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f8f9fc 0%, #f1f3f8 100%);
+        border-radius: 12px;
+        border: 2px solid #e9ecf3;
+        transition: all 0.3s ease;
+    }
+
+    .sbu-card {
+        background: white;
+        border: 2px solid #e9ecf3;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sbu-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        transition: left 0.5s;
+    }
+
+    .sbu-card:hover::before {
+        left: 100%;
+    }
+
+    .sbu-card:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-2px) scale(1.01);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+
+    .sbu-card.selected {
+        border-color: var(--primary-color);
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 25px rgba(var(--primary-color-rgb), 0.4);
+    }
+
+    .sbu-card.selected:hover {
+        transform: translateY(-3px) scale(1.01);
+        box-shadow: 0 10px 30px rgba(var(--primary-color-rgb), 0.5);
+    }
+
+    .sbu-card-content {
+        text-align: center;
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        padding: 0.75rem;
+    }
+
+    .sbu-card-header {
+        position: relative;
+        margin-bottom: 0.5rem;
+    }
+
+    .sbu-check-indicator {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 20px;
+        height: 20px;
+        background: var(--secondary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.7rem;
+        opacity: 0;
+        transform: scale(0);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 2px solid white;
+        box-shadow: 0 2px 8px rgba(var(--secondary-color-rgb), 0.3);
+    }
+
+    .sbu-card.selected .sbu-check-indicator {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .sbu-card-body {
+        text-align: center;
+    }
+
+    .sbu-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.125rem;
+        transition: all 0.3s ease;
+    }
+
+    .sbu-card.selected .sbu-name {
+        color: white;
+    }
+
+    .sbu-sites-count {
+        font-size: 0.8rem;
+        color: #6b7280;
+        margin: 0;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .sbu-card.selected .sbu-sites-count {
+        color: rgba(255,255,255,0.9);
+    }
+
+    /* Hover effects for unselected cards */
+    .sbu-card:not(.selected):hover .sbu-name {
+        color: var(--primary-color);
+    }
+
+    .sbu-card:not(.selected):hover .sbu-sites-count {
+        color: #4b5563;
+    }
+
+    /* Animation for selection */
+    @keyframes pulse-select {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
+    .sbu-card.selecting {
+        animation: pulse-select 0.3s ease-in-out;
+    }
+
+    /* Sites Selection Container Styling */
+    .sites-selection-container {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f8f9fc 0%, #f1f3f8 100%);
+        border-radius: 12px;
+        border: 2px solid #e9ecf3;
+        transition: all 0.3s ease;
+    }
+
+    .sites-selection-container:hover {
+        border-color: #d1d9e6;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    .selection-controls {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .selection-controls .btn {
+        font-size: 0.85rem;
+        padding: 0.375rem 0.75rem;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        min-width: 110px;
+    }
+
+    .selection-controls .btn:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .selection-controls .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Enhanced Select2 styling for sites */
+    .sites-selection-container .select2-container--default .select2-selection--multiple {
+        border: 2px solid #e9ecf3;
+        border-radius: 8px;
+        min-height: 120px;
+        background: white;
+        transition: all 0.3s ease;
+    }
+
+    .sites-selection-container .select2-container--default .select2-selection--multiple:focus-within {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.15);
+    }
+
+    .sites-selection-container .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        border: none;
+        color: white;
+        border-radius: 6px;
+        padding: 6px 35px 6px 25px;
+        margin: 6px;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.2s ease;
+    }
+
+    .sites-selection-container .select2-container--default .select2-selection--multiple .select2-selection__choice:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .sites-selection-container .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: rgba(255,255,255,0.8);
+        margin-right: 8px;
+        border: none;
+        font-size: 1.1rem;
+        transition: color 0.2s ease;
+    }
+
+    .sites-selection-container .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+        color: white;
+        background: rgba(255,255,255,0.2);
+        border-radius: 3px;
+    }
+
+    .sites-selection-container .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    }
+
+    .sites-selection-container .select2-container--default .select2-search--inline .select2-search__field {
+        margin-top: 8px;
+        font-size: 0.95rem;
+    }
+
+    .sites-selection-container .select2-container--default .select2-search--inline .select2-search__field::placeholder {
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    /* Responsive design for SBU cards */
+    @media (max-width: 768px) {
+        .sbu-selection-container {
+            padding: 1rem;
+        }
+        
+        .sites-selection-container {
+            padding: 1rem;
+        }
+        
+        .selection-controls {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .selection-controls .btn {
+            width: 100%;
+            min-width: auto;
+        }
+        
+        .sbu-card {
+            height: 90px;
+        }
+        
+        .sbu-name {
+            font-size: 0.95rem;
+        }
+        
+        .sbu-sites-count {
+            font-size: 0.75rem;
+        }
+        
+        .sites-selection-container .select2-container--default .select2-selection--multiple {
+            min-height: 100px;
+        }
+    }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // SBU and Site dropdown relationship
-        const sbuSelect = document.getElementById('sbu_id');
-        const siteSelect = document.getElementById('site_id');
+        const sbuCheckboxes = document.querySelectorAll('.sbu-checkbox');
+        const sitesSelect = document.getElementById('site_ids');
+        const selectAllBtn = document.getElementById('selectAllSites');
+        const deselectAllBtn = document.getElementById('deselectAllSites');
         
         // Store all sites data from PHP
         const allSites = @json($sbus->pluck('sites', 'id'));
         
-        // Function to update site options based on selected SBU
+        // Function to update site options based on selected SBUs
         function updateSiteOptions() {
-            const selectedSBU = sbuSelect.value;
+            const selectedSBUs = Array.from(sbuCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value);
             
             // Clear current options
-            siteSelect.innerHTML = '';
+            sitesSelect.innerHTML = '';
             
-            // Add default option
-            const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.disabled = true;
-            defaultOption.selected = true;
-            defaultOption.textContent = selectedSBU ? 'Select Site' : 'Select SBU first';
-            siteSelect.appendChild(defaultOption);
-            
-            // If an SBU is selected, populate with corresponding sites
-            if (selectedSBU && allSites[selectedSBU]) {
-                allSites[selectedSBU].forEach(site => {
+            // If SBUs are selected, populate with corresponding sites
+            if (selectedSBUs.length > 0) {
+                const sitesMap = new Map();
+                
+                selectedSBUs.forEach(sbuId => {
+                    if (allSites[sbuId]) {
+                        allSites[sbuId].forEach(site => {
+                            if (!sitesMap.has(site.id)) {
+                                sitesMap.set(site.id, site);
+                            }
+                        });
+                    }
+                });
+                
+                // Sort sites by name and add to select
+                const sortedSites = Array.from(sitesMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+                sortedSites.forEach(site => {
                     const option = document.createElement('option');
                     option.value = site.id;
                     option.textContent = site.name;
+                    
                     // Check if this option should be selected (for form validation redisplay)
-                    if (site.id == '{{ old("site_id") }}') {
+                    const oldSiteIds = @json(old('site_ids', []));
+                    if (oldSiteIds.includes(site.id.toString())) {
                         option.selected = true;
                     }
-                    siteSelect.appendChild(option);
+                    sitesSelect.appendChild(option);
                 });
+                
+                // Enable control buttons
+                selectAllBtn.disabled = false;
+                deselectAllBtn.disabled = false;
+            } else {
+                // Add placeholder option
+                const option = document.createElement('option');
+                option.value = '';
+                option.disabled = true;
+                option.textContent = 'Select SBU first';
+                sitesSelect.appendChild(option);
+                
+                // Disable control buttons
+                selectAllBtn.disabled = true;
+                deselectAllBtn.disabled = true;
+            }
+            
+            // Initialize Select2 after updating options
+            if (typeof $ !== 'undefined') {
+                $('#site_ids').select2({
+                    placeholder: selectedSBUs.length > 0 ? 'Select sites...' : 'Select SBU first',
+                    allowClear: true,
+                    width: '100%'
+                });
+            }
+            
+            updateButtonStates();
+        }
+        
+        // Update button states based on selection
+        function updateButtonStates() {
+            if (!sitesSelect.options.length || sitesSelect.options[0].disabled) {
+                return;
+            }
+            
+            const totalCount = sitesSelect.options.length;
+            const selectedCount = Array.from(sitesSelect.selectedOptions).length;
+            
+            // Update Select All button appearance based on selection state
+            if (selectedCount === totalCount && totalCount > 0) {
+                selectAllBtn.classList.remove('btn-outline-primary');
+                selectAllBtn.classList.add('btn-success');
+                selectAllBtn.innerHTML = '<i class="fas fa-check me-1"></i>All Selected';
+            } else {
+                selectAllBtn.classList.remove('btn-success');
+                selectAllBtn.classList.add('btn-outline-primary');
+                selectAllBtn.innerHTML = '<i class="fas fa-check-double me-1"></i>Select All';
+            }
+            
+            // Update Deselect All button appearance
+            if (selectedCount > 0) {
+                deselectAllBtn.classList.remove('btn-outline-secondary');
+                deselectAllBtn.classList.add('btn-outline-warning');
+            } else {
+                deselectAllBtn.classList.remove('btn-outline-warning');
+                deselectAllBtn.classList.add('btn-outline-secondary');
             }
         }
         
-        // Initialize site options based on initial SBU value
-        updateSiteOptions();
+        // Select All Sites button handler
+        selectAllBtn.addEventListener('click', function() {
+            Array.from(sitesSelect.options).forEach(option => {
+                if (!option.disabled) option.selected = true;
+            });
+            
+            if (typeof $ !== 'undefined') {
+                $('#site_ids').trigger('change');
+            }
+            updateButtonStates();
+        });
         
-        // Update site options when SBU selection changes
-        sbuSelect.addEventListener('change', updateSiteOptions);
+        // Deselect All Sites button handler
+        deselectAllBtn.addEventListener('click', function() {
+            Array.from(sitesSelect.options).forEach(option => option.selected = false);
+            
+            if (typeof $ !== 'undefined') {
+                $('#site_ids').val(null).trigger('change');
+            }
+            updateButtonStates();
+        });
+        
+        // Sites select change handler
+        sitesSelect.addEventListener('change', updateButtonStates);
+        
+        // SBU card click functionality
+        document.querySelectorAll('.sbu-card').forEach(card => {
+            const checkbox = card.querySelector('.sbu-checkbox');
+            
+            // Set initial state
+            if (checkbox.checked) {
+                card.classList.add('selected');
+            }
+            
+            card.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Add selecting animation
+                card.classList.add('selecting');
+                setTimeout(() => card.classList.remove('selecting'), 300);
+                
+                // Toggle checkbox
+                checkbox.checked = !checkbox.checked;
+                
+                // Toggle visual state
+                if (checkbox.checked) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+                
+                // Update site options
+                updateSiteOptions();
+            });
+            
+            // Prevent checkbox from being clicked directly
+            checkbox.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+
+        // SBU checkboxes change handlers
+        sbuCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                // Update visual state of card if changed programmatically
+                const card = this.closest('.sbu-card');
+                if (card) {
+                    if (this.checked) {
+                        card.classList.add('selected');
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                }
+                updateSiteOptions();
+            });
+        });
+        
+        // Initialize site options based on initial checkbox values
+        updateSiteOptions();
         
         // SweetAlert2 configuration
         const swalWithBootstrapButtons = Swal.mixin({
@@ -739,6 +1201,43 @@
                 });
                 return false;
             }
+        }
+
+        // Check if at least one SBU is selected
+        const sbuCheckboxes = document.querySelectorAll('.sbu-checkbox');
+        const selectedSBUs = Array.from(sbuCheckboxes).filter(checkbox => checkbox.checked);
+        if (selectedSBUs.length === 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'SBU Selection Required',
+                text: 'Please select at least one Strategic Business Unit.',
+                customClass: {
+                    confirmButton: "btn btn-primary"
+                },
+                buttonsStyling: false
+            });
+            // Focus on the first SBU checkbox
+            if (sbuCheckboxes.length > 0) {
+                sbuCheckboxes[0].focus();
+            }
+            return false;
+        }
+
+        // Check if at least one site is selected
+        const sitesSelect = document.getElementById('site_ids');
+        const selectedSites = Array.from(sitesSelect.selectedOptions);
+        if (selectedSites.length === 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Site Selection Required',
+                text: 'Please select at least one site location.',
+                customClass: {
+                    confirmButton: "btn btn-primary"
+                },
+                buttonsStyling: false
+            });
+            sitesSelect.focus();
+            return false;
         }
 
         if (!allFieldsValid) {

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -18,8 +18,6 @@ class Admin extends Authenticatable
         'email',
         'password',
         'contact_number',
-        'sbu_id',
-        'site_id',
     ];
 
     protected $hidden = [
@@ -28,22 +26,22 @@ class Admin extends Authenticatable
     ];
     
     /**
-     * Get the SBU that the admin belongs to.
+     * Get all SBUs that the admin has access to (many-to-many relationship).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function sbu(): BelongsTo
+    public function sbus(): BelongsToMany
     {
-        return $this->belongsTo(Sbu::class);
+        return $this->belongsToMany(Sbu::class, 'admin_sbu', 'admin_id', 'sbu_id')->withTimestamps();
     }
     
     /**
-     * Get the Site that the admin belongs to.
+     * Get all Sites that the admin has access to (many-to-many relationship).
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function site(): BelongsTo
+    public function sites(): BelongsToMany
     {
-        return $this->belongsTo(Site::class);
+        return $this->belongsToMany(Site::class, 'admin_site', 'admin_id', 'site_id')->withTimestamps();
     }
 }
