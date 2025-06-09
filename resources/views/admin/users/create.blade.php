@@ -1179,17 +1179,21 @@ style.textContent = `
         justify-content: center;
         transition: all 0.3s ease;
         background: white;
+        opacity: 0;
+        transform: scale(0);
     }
     
     .sbu-card.selected .sbu-check-indicator {
         background: #ffffff;
         border-color: #ffffff;
         color: var(--primary-color);
+        opacity: 1;
+        transform: scale(1);
     }
     
     .sbu-check-indicator i {
         font-size: 12px;
-        opacity: 0;
+        opacity: 1;
         transition: opacity 0.3s ease;
     }
     
