@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends(Auth::guard('admin')->check() ? 'layouts.app' : 'layouts.app-user')
 
 @section('content')
 <div class="container-fluid px-4 mt-4">
@@ -22,7 +22,7 @@
                 <i class="bi bi-file-pdf me-2"></i>Download PDF
             </button>
         </div>
-        <a href="{{ route('admin.surveys.responses.index', $survey) }}" class="btn btn-outline-primary align-self-start align-self-sm-center">
+        <a href="{{ Auth::guard('admin')->check() ? route('admin.surveys.responses.index', $survey) : route('surveys.responses.index', $survey) }}" class="btn btn-outline-primary align-self-start align-self-sm-center">
             <i class="bi bi-arrow-left me-2"></i>Back to Responses
         </a>
     </div>
@@ -45,7 +45,7 @@
                     <!-- SweetAlert2 JS -->
                     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-                    <form id="resubmissionForm" action="{{ route('admin.surveys.responses.toggle-resubmission', ['survey' => $survey, 'account_name' => $header->account_name]) }}" 
+                    <form id="resubmissionForm" action="{{ Auth::guard('admin')->check() ? route('admin.surveys.responses.toggle-resubmission', ['survey' => $survey, 'account_name' => $header->account_name]) : route('surveys.responses.toggle-resubmission', ['survey' => $survey, 'account_name' => $header->account_name]) }}" 
                           method="POST" class="d-inline">
                         @csrf
                         @method('PATCH')
@@ -82,7 +82,44 @@ function confirmResubmission() {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
-            document.getElementById('resubmissionForm').submit();
+            @if(Auth::guard('admin')->check())
+                // Admin context - use traditional form submission
+                document.getElementById('resubmissionForm').submit();
+            @else
+                // User context - use fetch for JSON response
+                const form = document.getElementById('resubmissionForm');
+                fetch(form.action, {
+                    method: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success message
+                        swalWithBootstrapButtons.fire({
+                            title: "Success!",
+                            text: data.message,
+                            icon: "success"
+                        }).then(() => {
+                            // Reload the page to reflect changes
+                            window.location.reload();
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    swalWithBootstrapButtons.fire({
+                        title: "Error!",
+                        text: "An error occurred while updating resubmission status.",
+                        icon: "error"
+                    });
+                });
+            @endif
         }
     });
 }

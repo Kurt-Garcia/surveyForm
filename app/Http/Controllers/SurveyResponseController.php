@@ -73,10 +73,11 @@ class SurveyResponseController extends Controller
             ->with('details.question')
             ->firstOrFail();
 
-        return view('surveys.responses.responses-detail', [
-            'survey' => $survey,
-            'response' => $response
-        ]);
+        // Get the responses for compatibility with admin view
+        $header = $response;
+        $responses = $response->details;
+
+        return view('admin.surveys.response-detail', compact('survey', 'header', 'responses'));
     }
 
     public function store(Request $request)

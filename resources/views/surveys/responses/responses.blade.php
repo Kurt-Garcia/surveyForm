@@ -45,16 +45,15 @@
                                                         <i class="fas fa-calendar-alt me-1"></i> {{ \Carbon\Carbon::parse($response->date)->format('M d, Y') }}
                                                     </span>
                                                 </div>
-                                            </div>
-                                            <div class="response-actions">
-                                                <a href="{{ route('surveys.responses.show', ['survey' => $survey->id, 'account_name' => $response->account_name]) }}" 
-                                                    class="btn btn-sm" 
-                                                    style="border-color: var(--primary-color); color: var(--primary-color)"
-                                                    onmouseover="this.style.backgroundColor='var(--secondary-color)'; this.style.color='white'"
-                                                    onmouseout="this.style.borderColor='var(--primary-color)'; this.style.backgroundColor='white'; this.style.color='var(--primary-color)'">
-                                                     <i class="bi bi-eye-fill me-1"></i>View Details
-                                                </a>
-                                            </div>
+                                            </div>                            <div class="response-actions">
+                                <a href="{{ route('surveys.responses.show', ['survey' => $survey->id, 'account_name' => $response->account_name]) }}" 
+                                    class="btn btn-sm" 
+                                    style="border-color: var(--primary-color); color: var(--primary-color)"
+                                    onmouseover="this.style.backgroundColor='var(--secondary-color)'; this.style.color='white'"
+                                    onmouseout="this.style.borderColor='var(--primary-color)'; this.style.backgroundColor='white'; this.style.color='var(--primary-color)'">
+                                     <i class="bi bi-eye-fill me-1"></i>View Details
+                                </a>
+                            </div>
                                         </div>
                                     </div>
                                 </div>
