@@ -1,6 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+<!-- Prevent flash of unstyled content -->
+<script>
+    document.documentElement.style.setProperty('--transition-duration', '0ms');
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+            document.documentElement.style.removeProperty('--transition-duration');
+        }, 100);
+    });
+</script>
+
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-10">
@@ -42,7 +52,7 @@
                                     <div class="row g-3">
                                         @foreach($sbus as $sbu)
                                             <div class="col-md-6">
-                                                <div class="sbu-card" data-sbu-id="{{ $sbu->id }}">
+                                                <div class="sbu-card {{ in_array($sbu->id, old('sbu_ids', [])) ? 'selected' : '' }}" data-sbu-id="{{ $sbu->id }}">
                                                     <input class="sbu-checkbox d-none" type="checkbox" 
                                                            id="sbu_{{ $sbu->id }}" 
                                                            name="sbu_ids[]" 
@@ -78,19 +88,24 @@
                             <label for="site_ids" class="col-md-3 col-form-label">{{ __('Deployment Sites') }}</label>
                             <div class="col-md-9">
                                 <div class="sites-selection-container">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-2">
                                         <p class="text-muted mb-0 fs-6">Select deployment sites for your survey:</p>
-                                        <div class="selection-controls">
-                                            <button type="button" id="selectAllSites" class="btn btn-outline-primary btn-sm me-2" disabled>
-                                                <i class="fas fa-check-double me-1"></i>Select All
+                                        <div class="selection-controls d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
+                                            <button type="button" id="selectAllSites" class="btn btn-outline-primary btn-sm flex-fill flex-sm-grow-0 disabled" disabled>
+                                                <i class="fas fa-check-double me-1"></i><span class="d-none d-sm-inline">Select All</span><span class="d-sm-none">All</span>
                                             </button>
-                                            <button type="button" id="deselectAllSites" class="btn btn-outline-secondary btn-sm" disabled>
-                                                <i class="fas fa-times me-1"></i>Deselect All
+                                            <button type="button" id="deselectAllSites" class="btn btn-outline-secondary btn-sm flex-fill flex-sm-grow-0 disabled" disabled>
+                                                <i class="fas fa-times me-1"></i><span class="d-none d-sm-inline">Deselect All</span><span class="d-sm-none">None</span>
                                             </button>
                                         </div>
                                     </div>
                                     <select id="site_ids" class="form-select select2 form-select-lg @error('site_ids') is-invalid @enderror" name="site_ids[]" multiple required>
                                         <option value="" disabled>Select SBU first</option>
+                                        @if(old('site_ids'))
+                                            @foreach(old('site_ids') as $siteId)
+                                                <option value="{{ $siteId }}" selected>Loading...</option>
+                                            @endforeach
+                                        @endif
                                     </select>
                                     <small class="text-muted mt-2 d-block">
                                         <i class="fas fa-info-circle me-1"></i>You can search and select multiple sites. Use the buttons above for quick selection.
@@ -165,10 +180,7 @@
     document.querySelectorAll('.sbu-card').forEach(card => {
         const checkbox = card.querySelector('.sbu-checkbox');
         
-        // Set initial state
-        if (checkbox.checked) {
-            card.classList.add('selected');
-        }
+        // Note: Initial state is already set by Blade template, no need to set it here
         
         card.addEventListener('click', function(e) {
             e.preventDefault();
@@ -261,6 +273,13 @@
                     : `${site.name}${site.is_main ? ' (Main)' : ''}`;
                 
                 option.textContent = siteLabel;
+                
+                // Preserve old selected values
+                const oldSiteIds = @json(old('site_ids', []));
+                if (oldSiteIds.includes(site.id.toString()) || oldSiteIds.includes(site.id)) {
+                    option.selected = true;
+                }
+                
                 sitesSelect.appendChild(option);
             });
         }
@@ -270,13 +289,28 @@
             $(sitesSelect).select2('destroy');
         }
         
-        // Initialize Select2
+        // Initialize Select2 with minimal flashing
         $(sitesSelect).select2({
             placeholder: selectedSBUs.length > 0 ? 'Select Sites' : 'Select SBU first',
             allowClear: true,
             width: '100%',
-            dropdownParent: $(sitesSelect).parent() // Ensure dropdown is properly positioned
+            dropdownParent: $(sitesSelect).parent(), // Ensure dropdown is properly positioned
+            adaptContainerCssClass: function(clazz) {
+                return clazz; // Copy classes from original element
+            },
+            templateSelection: function(data) {
+                // Truncate long site names on mobile
+                if (window.innerWidth < 576 && data.text && data.text.length > 20) {
+                    return data.text.substring(0, 17) + '...';
+                }
+                return data.text;
+            }
         });
+        
+        // Ensure the Select2 container is visible after initialization
+        setTimeout(() => {
+            $('.sites-selection-container .select2-container').css('opacity', '1');
+        }, 50);
         
         // Update Select All/Deselect All button states
         updateSelectionButtons();
@@ -364,6 +398,9 @@
     
     // Initialize site options based on initial checkbox values
     $(document).ready(function() {
+        // Mark JavaScript as initialized to prevent visual flashes
+        document.body.classList.add('js-initialized');
+        
         updateSiteOptions();
     });
     
@@ -601,11 +638,55 @@
         });
     });
     
+    // Add responsive handling for Select2 on window resize
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            // Refresh Select2 to handle responsive changes
+            const sitesSelect = document.getElementById('site_ids');
+            if ($(sitesSelect).data('select2')) {
+                $(sitesSelect).select2('close'); // Close dropdown if open
+            }
+        }, 250);
+    });
+    
     // Add first question by default
     window.onload = addQuestion;
 </script>
 
 <style>
+/* Prevent layout shift during initialization */
+body:not(.js-initialized) .sites-selection-container .select2-container {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+body.js-initialized .sites-selection-container .select2-container {
+    opacity: 1;
+}
+
+/* Smooth initialization for the entire form */
+.card-body {
+    transition: opacity 0.3s ease;
+}
+
+body:not(.js-initialized) .sbu-card {
+    transition: none !important;
+}
+
+body.js-initialized .sbu-card {
+    transition: all var(--transition-duration, 0.3s) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ensure initial button states are properly styled */
+.selection-controls .btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
 .question-card {
     transition: opacity 0.3s ease-out;
     border: none;
@@ -927,6 +1008,68 @@
     .sites-selection-container .select2-container--default .select2-selection--multiple {
         min-height: 100px;
     }
+}
+
+/* Mobile Responsive Styles for Deployment Sites */
+@media (max-width: 575.98px) {
+    .sites-selection-container {
+        padding: 1rem;
+    }
+    
+    /* Make selection controls full width on mobile */
+    .selection-controls {
+        width: 100% !important;
+    }
+    
+    .selection-controls .btn {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    /* Reduce Select2 height on mobile */
+    .sites-selection-container .select2-container--default .select2-selection--multiple {
+        min-height: 80px;
+        font-size: 0.875rem;
+    }
+    
+    /* Reduce choice tag size on mobile */
+    .sites-selection-container .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        padding: 4px 30px 4px 20px;
+        margin: 4px;
+        font-size: 0.8rem;
+        max-width: calc(100% - 8px);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* Stack the description and controls vertically on mobile */
+    .sites-selection-container .d-flex.flex-column.flex-md-row {
+        gap: 1rem !important;
+    }
+    
+    .sites-selection-container p {
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    /* Reduce margins on tablet */
+    .sites-selection-container .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        margin: 3px;
+        padding: 5px 32px 5px 22px;
+    }
+}
+
+/* Ensure Select2 dropdown is responsive */
+.select2-dropdown {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+.select2-results__option {
+    word-wrap: break-word;
+    white-space: normal;
 }
 </style>
 @endsection

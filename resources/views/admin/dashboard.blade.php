@@ -647,19 +647,6 @@ body {
     }
 }
 
-/* Background Pattern */
-.background-pattern {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: radial-gradient(rgba(0, 0, 0, 0.03) 2px, transparent 2px);
-    background-size: 30px 30px;
-    pointer-events: none;
-    z-index: -1;
-}
-
 .font-theme{
     font-family: var(--body-font);
 }

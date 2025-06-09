@@ -269,6 +269,11 @@
         padding: 0.5rem 1rem;
         position: relative;
         z-index: 10;
+        min-width: 44px;
+        min-height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     .empty-state {
         border-radius: 12px;
@@ -376,14 +381,156 @@
         color: var(--primary-color);
     }
     
-    /* Broadcast button */
+    /* Broadcast Modal Button Spacing Responsive Fixes */
+    @media (max-width: 575.98px) {
+        /* On mobile screens, stack buttons vertically with proper spacing */
+        .customer-list-container .d-flex.justify-content-between {
+            flex-direction: column !important;
+            gap: 0.75rem;
+        }
+        
+        .customer-list-container .d-flex.justify-content-between > div:first-child {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        
+        .customer-list-container .select-all-btn,
+        .customer-list-container .deselect-all-btn {
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+        }
+        
+        .customer-list-container .selected-count {
+            text-align: center;
+            padding: 0.4rem;
+            background-color: #f8f9fa;
+            border-radius: 0.375rem;
+            border: 1px solid #dee2e6;
+            font-size: 0.85rem;
+        }
+    }
+    
+    @media (min-width: 576px) and (max-width: 767.98px) {
+        /* On small tablets, increase spacing between buttons */
+        .customer-list-container .deselect-all-btn {
+            margin-left: 0.75rem !important;
+        }
+        
+        .customer-list-container .select-all-btn,
+        .customer-list-container .deselect-all-btn {
+            padding: 0.5rem 0.875rem;
+            font-size: 0.85rem;
+        }
+    }
+    
+    /* iPad specific broadcast modal button fixes */
+    @media (min-width: 768px) and (max-width: 1024px) {
+        /* iPad - Better spacing for Select/Deselect buttons */
+        .customer-list-container .d-flex.justify-content-between > div:first-child {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .customer-list-container .select-all-btn,
+        .customer-list-container .deselect-all-btn {
+            margin: 0 !important;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            min-width: 100px;
+            flex: 1;
+            max-width: 130px;
+        }
+        
+        .customer-list-container .selected-count {
+            text-align: center;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+            background-color: #f8f9fa;
+            border-radius: 0.375rem;
+            border: 1px solid #dee2e6;
+            min-width: 100px;
+        }
+    }
+    
+    /* iPad Pro and larger tablet dimensions */
+    @media (min-width: 1025px) and (max-width: 1366px) {
+        /* iPad Pro - Improved spacing for Select/Deselect buttons */
+        .customer-list-container .d-flex.justify-content-between > div:first-child {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .customer-list-container .select-all-btn,
+        .customer-list-container .deselect-all-btn {
+            margin: 0 !important;
+            padding: 0.5rem 1.25rem;
+            font-size: 0.9rem;
+            min-width: 120px;
+        }
+        
+        .customer-list-container .selected-count {
+            text-align: center;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.95rem;
+            background-color: #f8f9fa;
+            border-radius: 0.375rem;
+            border: 1px solid #dee2e6;
+            min-width: 120px;
+        }
+    }
+    
+    /* Desktop/Web Dimensions - Broadcast Modal Button Spacing */
+    @media (min-width: 1367px) {
+        /* Desktop - Perfect spacing for Select/Deselect buttons */
+        .customer-list-container .d-flex.justify-content-between > div:first-child {
+            display: flex;
+            gap: 1.25rem;
+        }
+        
+        .customer-list-container .select-all-btn,
+        .customer-list-container .deselect-all-btn {
+            margin: 0 !important;
+            padding: 0.5rem 1.5rem;
+            font-size: 0.95rem;
+            min-width: 140px;
+            border-radius: 0.375rem;
+        }
+        
+        .customer-list-container .selected-count {
+            text-align: center;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 0.375rem;
+            border: 1px solid #dee2e6;
+            min-width: 140px;
+            font-weight: 600;
+        }
+        
+        /* Better hover effects for desktop */
+        .customer-list-container .select-all-btn:hover,
+        .customer-list-container .deselect-all-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+    }
+    
+    /* Broadcast button - Same size as View Responses button */
     .broadcast-btn {
-        width: 40px;
-        height: 38px;
-        padding: 0;
+        width: auto;
+        height: auto;
+        padding: 0.5rem 1rem;
         display: flex;
         align-items: center;
         justify-content: center;
+        border-radius: 8px;
+        min-width: 44px;
+        min-height: 38px;
     }
     
     /* Success Animation */
@@ -416,6 +563,113 @@
 
     .font-theme{
          font-family: var(--body-font);
+    }
+    
+    /* Desktop/Web Default Styles (Above 1366px) */
+    @media screen and (min-width: 1367px) {
+        /* Button container for desktop */
+        .survey-card .d-flex.gap-2.mt-auto {
+            gap: 0.5rem !important;
+            margin-top: 1.5rem !important;
+            flex-wrap: nowrap !important;
+            align-items: stretch !important;
+        }
+        
+        /* View Survey Button for desktop */
+        .survey-card .btn-start.btn-primary {
+            padding: 0.5rem 1rem !important;
+            font-size: 0.875rem !important;
+            font-weight: 500 !important;
+            border-radius: 8px !important;
+            min-height: 38px !important;
+            flex: 1 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            white-space: nowrap !important;
+            text-decoration: none !important;
+            line-height: 1.2 !important;
+        }
+        
+        /* Responses/Chart Button for desktop - Same as broadcast */
+        .survey-card .btn-outline-secondary {
+            padding: 0.5rem 1rem !important;
+            font-size: 1rem !important;
+            border-radius: 8px !important;
+            min-height: 38px !important;
+            min-width: 44px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-width: 1px !important;
+            flex-shrink: 0 !important;
+            text-decoration: none !important;
+        }
+        
+        /* Broadcast Button for desktop - Same size as responses */
+        .survey-card .btn-outline-primary.broadcast-btn {
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px !important;
+            border-width: 1px !important;
+            font-size: 1rem !important;
+            min-height: 38px !important;
+            min-width: 44px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+        }
+        
+        /* Icon adjustments for desktop */
+        .survey-card .btn-start i {
+            font-size: 0.875rem !important;
+            margin-right: 0.5rem !important;
+        }
+        
+        .survey-card .btn-outline-secondary i {
+            font-size: 1rem !important;
+            margin: 0 !important;
+        }
+        
+        .survey-card .broadcast-btn i {
+            font-size: 1rem !important;
+            margin: 0 !important;
+        }
+        
+        /* Card body adjustments for desktop */
+        .survey-card .card-body {
+            padding: 1.5rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        /* Hover effects for desktop */
+        .survey-card .btn-start:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 8px rgba(var(--bs-primary-rgb), 0.25) !important;
+        }
+        
+        .survey-card .btn-outline-secondary:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15) !important;
+            background-color: var(--bs-secondary) !important;
+            color: white !important;
+        }
+        
+        .survey-card .btn-outline-primary.broadcast-btn:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 3px 6px rgba(var(--bs-primary-rgb), 0.2) !important;
+            background-color: var(--bs-primary) !important;
+            color: white !important;
+        }
+        
+        /* Ensure proper flex behavior */
+        .survey-card .flex-grow-1 {
+            flex-grow: 1 !important;
+            flex-shrink: 1 !important;
+            flex-basis: 0 !important;
+            min-width: 0 !important;
+        }
     }
     
     /* iPad Specific Styles */
@@ -655,6 +909,240 @@
         }
     }
     
+    /* iPhone 4 and Small Mobile Devices (320px-375px) */
+    @media screen and (max-width: 375px) {
+        /* Button container for small phones */
+        .survey-card .d-flex.gap-2.mt-auto {
+            gap: 0.4rem !important;
+            margin-top: 1rem !important;
+            flex-wrap: nowrap !important;
+            align-items: stretch !important;
+        }
+        
+        /* View Survey Button for iPhone 4 */
+        .survey-card .btn-start.btn-primary {
+            padding: 0.6rem 0.5rem !important;
+            font-size: 0.75rem !important;
+            font-weight: 600 !important;
+            border-radius: 6px !important;
+            min-height: 40px !important;
+            flex: 1 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            white-space: nowrap !important;
+            text-decoration: none !important;
+            line-height: 1.2 !important;
+            min-width: 0 !important;
+        }
+        
+        /* Responses/Chart Button for iPhone 4 */
+        .survey-card .btn-outline-secondary {
+            padding: 0.6rem 0.5rem !important;
+            font-size: 0.9rem !important;
+            border-radius: 6px !important;
+            min-height: 40px !important;
+            min-width: 40px !important;
+            max-width: 40px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-width: 1.5px !important;
+            flex-shrink: 0 !important;
+            text-decoration: none !important;
+        }
+        
+        /* Broadcast Button for iPhone 4 - FIXED SIZE */
+        .survey-card .btn-outline-primary.broadcast-btn {
+            width: 40px !important;
+            height: 40px !important;
+            min-width: 40px !important;
+            max-width: 40px !important;
+            padding: 0 !important;
+            border-radius: 6px !important;
+            border-width: 1.5px !important;
+            font-size: 0.9rem !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+        }
+        
+        /* Icon adjustments for iPhone 4 */
+        .survey-card .btn-start i {
+            font-size: 0.7rem !important;
+            margin-right: 0.3rem !important;
+        }
+        
+        .survey-card .btn-outline-secondary i {
+            font-size: 0.9rem !important;
+            margin: 0 !important;
+        }
+        
+        .survey-card .broadcast-btn i {
+            font-size: 0.85rem !important;
+            margin: 0 !important;
+        }
+        
+        /* Card body adjustments for iPhone 4 */
+        .survey-card .card-body {
+            padding: 1rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        /* Ensure all buttons have same height on iPhone 4 */
+        .survey-card .btn {
+            transition: all 0.2s ease !important;
+            user-select: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+            cursor: pointer !important;
+            pointer-events: auto !important;
+            position: relative !important;
+            z-index: 10 !important;
+            height: 40px !important;
+        }
+        
+        /* Fix for flex-grow-1 on iPhone 4 */
+        .survey-card .flex-grow-1 {
+            flex-grow: 1 !important;
+            flex-shrink: 1 !important;
+            flex-basis: 0 !important;
+            min-width: 0 !important;
+        }
+    }
+    
+    /* iPhone 4s and iPhone 5/5s (320px-374px) */
+    @media screen and (max-width: 374px) {
+        .survey-card .btn-start.btn-primary {
+            font-size: 0.7rem !important;
+            padding: 0.55rem 0.4rem !important;
+        }
+        
+        .survey-card .btn-start i {
+            font-size: 0.65rem !important;
+            margin-right: 0.25rem !important;
+        }
+        
+        .survey-card .d-flex.gap-2.mt-auto {
+            gap: 0.3rem !important;
+        }
+    }
+    
+    /* General Mobile Devices (376px-767px) */
+    @media screen and (min-width: 376px) and (max-width: 767px) {
+        /* Button container for general mobile */
+        .survey-card .d-flex.gap-2.mt-auto {
+            gap: 0.5rem !important;
+            margin-top: 1.1rem !important;
+            flex-wrap: nowrap !important;
+            align-items: stretch !important;
+        }
+        
+        /* View Survey Button for general mobile */
+        .survey-card .btn-start.btn-primary {
+            padding: 0.7rem 0.6rem !important;
+            font-size: 0.8rem !important;
+            font-weight: 600 !important;
+            border-radius: 7px !important;
+            min-height: 42px !important;
+            flex: 1 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            white-space: nowrap !important;
+            text-decoration: none !important;
+            line-height: 1.2 !important;
+        }
+        
+        /* Responses/Chart Button for general mobile */
+        .survey-card .btn-outline-secondary {
+            padding: 0.7rem 0.6rem !important;
+            font-size: 1rem !important;
+            border-radius: 7px !important;
+            min-height: 42px !important;
+            min-width: 42px !important;
+            max-width: 42px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-width: 1.5px !important;
+            flex-shrink: 0 !important;
+            text-decoration: none !important;
+        }
+        
+        /* Broadcast Button for general mobile - CONSISTENT SIZE */
+        .survey-card .btn-outline-primary.broadcast-btn {
+            width: 42px !important;
+            height: 42px !important;
+            min-width: 42px !important;
+            max-width: 42px !important;
+            padding: 0 !important;
+            border-radius: 7px !important;
+            border-width: 1.5px !important;
+            font-size: 1rem !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+        }
+        
+        /* Icon adjustments for general mobile */
+        .survey-card .btn-start i {
+            font-size: 0.75rem !important;
+            margin-right: 0.35rem !important;
+        }
+        
+        .survey-card .btn-outline-secondary i {
+            font-size: 1rem !important;
+            margin: 0 !important;
+        }
+        
+        .survey-card .broadcast-btn i {
+            font-size: 0.9rem !important;
+            margin: 0 !important;
+        }
+        
+        /* Card body adjustments for general mobile */
+        .survey-card .card-body {
+            padding: 1.1rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        /* Ensure consistent button heights on general mobile */
+        .survey-card .btn {
+            transition: all 0.2s ease !important;
+            user-select: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+            cursor: pointer !important;
+            pointer-events: auto !important;
+            position: relative !important;
+            z-index: 10 !important;
+        }
+        
+        /* Hover effects for mobile devices */
+        .survey-card .btn-start:hover,
+        .survey-card .btn-start:active {
+            transform: scale(0.98) !important;
+            transition: transform 0.1s ease !important;
+        }
+        
+        .survey-card .btn-outline-secondary:hover,
+        .survey-card .btn-outline-secondary:active {
+            transform: scale(0.98) !important;
+            background-color: var(--bs-secondary) !important;
+            color: white !important;
+        }
+        
+        .survey-card .btn-outline-primary.broadcast-btn:hover,
+        .survey-card .btn-outline-primary.broadcast-btn:active {
+            transform: scale(0.98) !important;
+            background-color: var(--bs-primary) !important;
+            color: white !important;
+        }
+    }
+
     /* Fix for any remaining button issues */
     @media screen and (min-width: 768px) and (max-width: 1366px) {
         .survey-card .btn:focus {
@@ -1133,7 +1621,7 @@
                         <div class="d-flex justify-content-between mb-2">
                             <div>
                                 <button type="button" class="btn btn-sm btn-outline-secondary select-all-btn">Select All</button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary deselect-all-btn ms-2">Deselect All</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary deselect-all-btn">Deselect All</button>
                             </div>
                             <div class="selected-count">0 selected</div>
                         </div>

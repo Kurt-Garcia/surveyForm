@@ -967,7 +967,7 @@
                     <div class="d-flex justify-content-between mb-2">
                         <div>
                             <button type="button" class="btn btn-sm btn-outline-secondary select-all-btn">Select All</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary deselect-all-btn ms-2">Deselect All</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary deselect-all-btn">Deselect All</button>
                         </div>
                         <div class="selected-count">0 selected</div>
                     </div>
