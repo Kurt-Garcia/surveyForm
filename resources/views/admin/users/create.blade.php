@@ -147,8 +147,7 @@
                                 </label>
                                 <input type="tel" class="form-control form-control-lg border-0 shadow-sm @error('contact_number') is-invalid @enderror" 
                                        id="contact_number" name="contact_number" value="{{ old('contact_number') }}" placeholder="09123456789" 
-                                       autocomplete="tel" required maxlength="11" pattern="[0-9]{1,11}" 
-                                       oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)">
+                                       autocomplete="tel" required>
                                 @error('contact_number')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -605,38 +604,156 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add real-time input validation for contact number
     contactNumberField.addEventListener('input', function() {
-        // Remove any non-numeric characters and limit to 11 digits
-        let value = this.value.replace(/[^0-9]/g, '');
-        if (value.length > 11) {
-            value = value.slice(0, 11);
-        }
-        this.value = value;
+        let value = this.value;
         
-        // Update validation feedback based on length
+        // Remove any existing feedback
         const existingFeedback = document.getElementById('contact-number-validation-feedback');
         if (existingFeedback) {
             existingFeedback.remove();
         }
         
-        if (value.length > 0 && value.length < 10) {
-            contactNumberIsValid = false;
-            const warningFeedback = document.createElement('div');
-            warningFeedback.className = 'text-warning mt-1';
-            warningFeedback.id = 'contact-number-validation-feedback';
-            warningFeedback.innerHTML = `<small><i class="bi bi-exclamation-triangle me-1"></i>Contact number should be at least 10 digits (${value.length}/11)</small>`;
-            contactNumberField.parentNode.appendChild(warningFeedback);
-            contactNumberField.classList.remove('is-valid');
-            contactNumberField.classList.add('is-invalid');
-        } else if (value.length >= 10 && value.length <= 11) {
-            contactNumberIsValid = true;
-            const successFeedback = document.createElement('div');
-            successFeedback.className = 'text-success mt-1';
-            successFeedback.id = 'contact-number-validation-feedback';
-            successFeedback.innerHTML = `<small><i class="bi bi-check-circle-fill me-1"></i>Valid contact number (${value.length}/11)</small>`;
-            contactNumberField.parentNode.appendChild(successFeedback);
-            contactNumberField.classList.remove('is-invalid');
-            contactNumberField.classList.add('is-valid');
+        // Clear validation classes
+        this.classList.remove('is-invalid', 'is-valid');
+        
+        // Check if value starts with valid prefixes
+        if (value.length > 0) {
+            if (value.startsWith('+639')) {
+                // For +639 format: allow only digits after +639 and limit to 13 total characters
+                const afterPrefix = value.substring(4);
+                const filteredAfterPrefix = afterPrefix.replace(/[^0-9]/g, '');
+                
+                // Reconstruct the value
+                value = '+639' + filteredAfterPrefix;
+                
+                // Limit to 13 characters total (+639 + 9 digits)
+                if (value.length > 13) {
+                    value = value.substring(0, 13);
+                }
+                
+                this.value = value;
+                
+                // Validate length
+                if (value.length < 13) {
+                    contactNumberIsValid = false;
+                    const warningFeedback = document.createElement('div');
+                    warningFeedback.className = 'text-warning mt-1';
+                    warningFeedback.id = 'contact-number-validation-feedback';
+                    warningFeedback.innerHTML = `<small><i class="bi bi-exclamation-triangle me-1"></i>Contact number should be 13 characters for +639 format (${value.length}/13)</small>`;
+                    this.parentNode.appendChild(warningFeedback);
+                    this.classList.add('is-invalid');
+                } else {
+                    contactNumberIsValid = true;
+                    const successFeedback = document.createElement('div');
+                    successFeedback.className = 'text-success mt-1';
+                    successFeedback.id = 'contact-number-validation-feedback';
+                    successFeedback.innerHTML = `<small><i class="bi bi-check-circle-fill me-1"></i>Valid contact number (${value.length}/13)</small>`;
+                    this.parentNode.appendChild(successFeedback);
+                    this.classList.add('is-valid');
+                }
+                
+            } else if (value.startsWith('09')) {
+                // For 09 format: allow only digits and limit to 11 total characters
+                value = value.replace(/[^0-9]/g, '');
+                
+                // Ensure it still starts with 09 after filtering
+                if (!value.startsWith('09')) {
+                    value = '09';
+                }
+                
+                // Limit to 11 characters total
+                if (value.length > 11) {
+                    value = value.substring(0, 11);
+                }
+                
+                this.value = value;
+                
+                // Validate length
+                if (value.length < 11) {
+                    contactNumberIsValid = false;
+                    const warningFeedback = document.createElement('div');
+                    warningFeedback.className = 'text-warning mt-1';
+                    warningFeedback.id = 'contact-number-validation-feedback';
+                    warningFeedback.innerHTML = `<small><i class="bi bi-exclamation-triangle me-1"></i>Contact number should be 11 characters for 09 format (${value.length}/11)</small>`;
+                    this.parentNode.appendChild(warningFeedback);
+                    this.classList.add('is-invalid');
+                } else {
+                    contactNumberIsValid = true;
+                    const successFeedback = document.createElement('div');
+                    successFeedback.className = 'text-success mt-1';
+                    successFeedback.id = 'contact-number-validation-feedback';
+                    successFeedback.innerHTML = `<small><i class="bi bi-check-circle-fill me-1"></i>Valid contact number (${value.length}/11)</small>`;
+                    this.parentNode.appendChild(successFeedback);
+                    this.classList.add('is-valid');
+                }
+                
+            } else {
+                // Value doesn't start with valid prefix
+                // Check if user is typing +639
+                if ('+639'.startsWith(value)) {
+                    // User is still typing +639, allow it
+                    this.value = value;
+                    contactNumberIsValid = false;
+                    const infoFeedback = document.createElement('div');
+                    infoFeedback.className = 'text-info mt-1';
+                    infoFeedback.id = 'contact-number-validation-feedback';
+                    infoFeedback.innerHTML = `<small><i class="bi bi-info-circle me-1"></i>Continue typing +639...</small>`;
+                    this.parentNode.appendChild(infoFeedback);
+                } else if ('09'.startsWith(value)) {
+                    // User is still typing 09, allow it
+                    this.value = value;
+                    contactNumberIsValid = false;
+                    const infoFeedback = document.createElement('div');
+                    infoFeedback.className = 'text-info mt-1';
+                    infoFeedback.id = 'contact-number-validation-feedback';
+                    infoFeedback.innerHTML = `<small><i class="bi bi-info-circle me-1"></i>Continue typing 09...</small>`;
+                    this.parentNode.appendChild(infoFeedback);
+                } else {
+                    // Invalid start, clear the field or reset to valid start
+                    contactNumberIsValid = false;
+                    this.value = '';
+                    const errorFeedback = document.createElement('div');
+                    errorFeedback.className = 'text-danger mt-1';
+                    errorFeedback.id = 'contact-number-validation-feedback';
+                    errorFeedback.innerHTML = `<small><i class="bi bi-exclamation-triangle-fill me-1"></i>Contact number must start with 09 or +639</small>`;
+                    this.parentNode.appendChild(errorFeedback);
+                    this.classList.add('is-invalid');
+                }
+            }
         }
+    });
+    
+    // Handle paste events to ensure pasted content follows the same rules
+    contactNumberField.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+        
+        // Clean and validate pasted text
+        let cleanedText = pastedText.trim();
+        
+        if (cleanedText.startsWith('+639')) {
+            // Keep +639 and digits only
+            cleanedText = '+639' + cleanedText.substring(4).replace(/[^0-9]/g, '');
+            if (cleanedText.length > 13) {
+                cleanedText = cleanedText.substring(0, 13);
+            }
+        } else if (cleanedText.startsWith('09')) {
+            // Keep digits only
+            cleanedText = cleanedText.replace(/[^0-9]/g, '');
+            if (!cleanedText.startsWith('09')) {
+                cleanedText = '';
+            }
+            if (cleanedText.length > 11) {
+                cleanedText = cleanedText.substring(0, 11);
+            }
+        } else {
+            // Invalid format
+            cleanedText = '';
+        }
+        
+        this.value = cleanedText;
+        
+        // Trigger input event to run validation
+        this.dispatchEvent(new Event('input'));
     });
     
     contactNumberField.addEventListener('blur', function() {
@@ -644,7 +761,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const contactNumber = contactNumberField.value.trim();
         console.log('Contact number value:', contactNumber);
         
-        if (contactNumber && contactNumber.length >= 10) {
+        if (contactNumber && ((contactNumber.startsWith('09') && contactNumber.length === 11) || 
+                              (contactNumber.startsWith('+639') && contactNumber.length === 13))) {
             // Remove any existing feedback
             const existingFeedback = document.getElementById('contact-number-validation-feedback');
             if (existingFeedback) {

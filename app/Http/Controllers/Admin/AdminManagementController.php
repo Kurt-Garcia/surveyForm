@@ -172,7 +172,25 @@ class AdminManagementController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255',
                 'password' => 'required|string|min:8|confirmed',
-                'contact_number' => ['required', 'string', 'max:11', 'regex:/^(\+63|09|9)\d{9,10}$/'],
+                'contact_number' => [
+                    'required',
+                    'string',
+                    function ($attribute, $value, $fail) {
+                        if (str_starts_with($value, '+639')) {
+                            // For +639 format: must be exactly 13 characters
+                            if (strlen($value) !== 13 || !preg_match('/^\+639\d{9}$/', $value)) {
+                                $fail('The contact number must be exactly 13 characters and start with +639 followed by 9 digits.');
+                            }
+                        } elseif (str_starts_with($value, '09')) {
+                            // For 09 format: must be exactly 11 characters
+                            if (strlen($value) !== 11 || !preg_match('/^09\d{9}$/', $value)) {
+                                $fail('The contact number must be exactly 11 characters and start with 09 followed by 9 digits.');
+                            }
+                        } else {
+                            $fail('The contact number must start with either 09 or +639.');
+                        }
+                    }
+                ],
                 'sbu_ids' => 'required|array|min:1',
                 'sbu_ids.*' => 'exists:sbus,id',
                 'site_ids' => 'required|array|min:1',
