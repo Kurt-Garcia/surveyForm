@@ -397,7 +397,21 @@
         to { transform: rotate(360deg); }
     }
 
-    /* Validation Styling */
+    /* Validation Styling - Remove Bootstrap icons and use border-only validation */
+    .is-valid {
+        border-color: #28a745 !important;
+        border-width: 2px !important;
+        background-image: none !important;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+    }
+    
+    .is-invalid {
+        border-color: #dc3545 !important;
+        border-width: 2px !important;
+        background-image: none !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+    }
+
     .text-success {
         color: #28a745 !important;
     }
@@ -562,6 +576,45 @@ document.addEventListener('DOMContentLoaded', function() {
     const emailField = document.getElementById('email');
     let emailIsValid = true;
     
+    // Real-time email format validation as user types
+    emailField.addEventListener('input', function() {
+        const email = this.value.trim();
+        
+        // Remove any existing feedback
+        const existingFeedback = document.getElementById('email-validation-feedback');
+        if (existingFeedback) {
+            existingFeedback.remove();
+        }
+        
+        // Clear validation classes
+        this.classList.remove('is-invalid', 'is-valid');
+        
+        if (email.length > 0) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                // Invalid email format
+                emailIsValid = false;
+                const warningFeedback = document.createElement('div');
+                warningFeedback.className = 'text-warning mt-1';
+                warningFeedback.id = 'email-validation-feedback';
+                warningFeedback.innerHTML = '<small><i class="bi bi-exclamation-triangle me-1"></i>Please enter a valid email format (e.g., user@example.com)</small>';
+                this.parentNode.appendChild(warningFeedback);
+                this.classList.add('is-invalid');
+            } else {
+                // Valid email format, but don't check availability yet
+                emailIsValid = true;
+                const infoFeedback = document.createElement('div');
+                infoFeedback.className = 'text-info mt-1';
+                infoFeedback.id = 'email-validation-feedback';
+                infoFeedback.innerHTML = '<small><i class="bi bi-info-circle me-1"></i>Valid email format. Click outside to check availability.</small>';
+                this.parentNode.appendChild(infoFeedback);
+                this.classList.add('is-valid');
+            }
+        } else {
+            emailIsValid = false;
+        }
+    });
+    
     emailField.addEventListener('blur', function() {
         const email = emailField.value.trim();
         if (email) {
@@ -571,7 +624,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 existingFeedback.remove();
             }
             
-            // Check if email exists via AJAX
+            // Clear validation classes
+            emailField.classList.remove('is-invalid', 'is-valid');
+            
+            // First validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                // Invalid email format
+                emailIsValid = false;
+                const errorFeedback = document.createElement('div');
+                errorFeedback.className = 'text-danger mt-1';
+                errorFeedback.id = 'email-validation-feedback';
+                errorFeedback.innerHTML = '<small><i class="bi bi-exclamation-triangle-fill me-1"></i>Please enter a valid email address</small>';
+                emailField.parentNode.appendChild(errorFeedback);
+                emailField.classList.add('is-invalid');
+                return;
+            }
+            
+            // If email format is valid, check availability via AJAX
             fetch(`/admin/check-email-availability?email=${encodeURIComponent(email)}`)
                 .then(response => response.json())
                 .then(data => {
@@ -585,19 +655,26 @@ document.addEventListener('DOMContentLoaded', function() {
                         emailField.parentNode.appendChild(errorFeedback);
                         emailField.classList.add('is-invalid');
                     } else {
-                        // Email is available
+                        // Email is available and valid format
                         emailIsValid = true;
                         const successFeedback = document.createElement('div');
                         successFeedback.className = 'text-success mt-1';
                         successFeedback.id = 'email-validation-feedback';
-                        successFeedback.innerHTML = '<small><i class="bi bi-check-circle-fill me-1"></i>Email is available</small>';
+                        successFeedback.innerHTML = '<small><i class="bi bi-check-circle-fill me-1"></i>Valid email address and available</small>';
                         emailField.parentNode.appendChild(successFeedback);
-                        emailField.classList.remove('is-invalid');
                         emailField.classList.add('is-valid');
                     }
                 })
                 .catch(error => {
                     console.error('Error checking email:', error);
+                    // Show error message for network issues
+                    emailIsValid = false;
+                    const errorFeedback = document.createElement('div');
+                    errorFeedback.className = 'text-warning mt-1';
+                    errorFeedback.id = 'email-validation-feedback';
+                    errorFeedback.innerHTML = '<small><i class="bi bi-exclamation-triangle me-1"></i>Unable to verify email availability. Please try again.</small>';
+                    emailField.parentNode.appendChild(errorFeedback);
+                    emailField.classList.add('is-invalid');
                 });
         }
     });
@@ -1021,6 +1098,101 @@ function confirmClose() {
 
 function confirmSubmit(event) {
     event.preventDefault();
+    
+    // Helper function to get user-friendly field labels
+    function getFieldLabel(fieldName) {
+        const labels = {
+            'name': 'Name',
+            'email': 'Email',
+            'contact_number': 'Contact Number',
+            'password': 'Password',
+            'password_confirmation': 'Confirm Password'
+        };
+        return labels[fieldName] || fieldName;
+    }
+    
+    // Clear any existing validation messages first
+    document.querySelectorAll('.validation-error-message').forEach(msg => msg.remove());
+    document.querySelectorAll('.form-control, .form-select').forEach(field => {
+        field.classList.remove('is-invalid');
+    });
+    
+    // Check for required field validation
+    const requiredFields = ['name', 'email', 'contact_number', 'password', 'password_confirmation'];
+    let hasEmptyFields = false;
+    
+    requiredFields.forEach(fieldName => {
+        const field = document.getElementById(fieldName);
+        if (field && !field.value.trim()) {
+            hasEmptyFields = true;
+            
+            // Add invalid styling
+            field.classList.add('is-invalid');
+            
+            // Create and add error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'text-danger mt-1 validation-error-message';
+            errorDiv.innerHTML = `<small><i class="bi bi-exclamation-triangle-fill me-1"></i>${getFieldLabel(fieldName)} is required</small>`;
+            field.parentNode.appendChild(errorDiv);
+        }
+    });
+    
+    // Check SBU selection
+    const selectedSbus = document.querySelectorAll('input[name="sbu_ids[]"]:checked');
+    const sbuContainer = document.querySelector('.sbu-selection-container');
+    if (selectedSbus.length === 0) {
+        hasEmptyFields = true;
+        sbuContainer.style.border = '2px solid #dc3545';
+        sbuContainer.style.borderRadius = '8px';
+        sbuContainer.style.padding = '10px';
+        
+        // Add error message for SBU selection
+        const existingError = sbuContainer.querySelector('.validation-error-message');
+        if (!existingError) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'text-danger mt-2 validation-error-message';
+            errorDiv.innerHTML = '<small><i class="bi bi-exclamation-triangle-fill me-1"></i>Please select at least one Strategic Business Unit</small>';
+            sbuContainer.appendChild(errorDiv);
+        }
+    } else {
+        sbuContainer.style.border = '';
+        sbuContainer.style.borderRadius = '';
+        sbuContainer.style.padding = '';
+    }
+    
+    // Check site selection
+    const selectedSites = document.querySelectorAll('input[name="site_ids[]"]:checked');
+    const sitesContainer = document.querySelector('.sites-selection-container');
+    if (selectedSites.length === 0) {
+        hasEmptyFields = true;
+        sitesContainer.style.border = '2px solid #dc3545';
+        sitesContainer.style.borderRadius = '8px';
+        sitesContainer.style.padding = '10px';
+        
+        // Add error message for site selection
+        const existingError = sitesContainer.querySelector('.validation-error-message');
+        if (!existingError) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'text-danger mt-2 validation-error-message';
+            errorDiv.innerHTML = '<small><i class="bi bi-exclamation-triangle-fill me-1"></i>Please select at least one site location</small>';
+            sitesContainer.appendChild(errorDiv);
+        }
+    } else {
+        sitesContainer.style.border = '';
+        sitesContainer.style.borderRadius = '';
+        sitesContainer.style.padding = '';
+    }
+    
+    // If there are empty required fields, show error and return
+    if (hasEmptyFields) {
+        swalWithBootstrapButtons.fire({
+            title: "Required Fields Missing",
+            text: "Please fill in all required fields and make your selections before submitting.",
+            icon: "error",
+            confirmButtonText: "OK"
+        });
+        return false;
+    }
     
     // Check if name and email are valid before submitting
     const nameField = document.getElementById('name');

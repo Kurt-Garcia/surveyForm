@@ -286,18 +286,24 @@
 
     .is-valid {
         border-color: #28a745 !important;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='m2.3 6.73.98-.98-.03-.03L6.6 2.38A.5.5 0 0 1 7.07 3l-3.67 3.68-.03.03-.98.98a.5.5 0 0 1-.71 0l-1.48-1.48a.5.5 0 0 1 .71-.71l1.12 1.12Z'/%3e%3c/svg%3e") !important;
-        background-repeat: no-repeat !important;
-        background-position: right calc(0.375em + 0.1875rem) center !important;
-        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
+        border-width: 2px !important;
+        background-image: none !important;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
     }
 
     .is-invalid {
         border-color: #dc3545 !important;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6 2.4 2.4M8.2 4.6l-2.4 2.4'/%3e%3c/svg%3e") !important;
-        background-repeat: no-repeat !important;
-        background-position: right calc(0.375em + 0.1875rem) center !important;
-        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
+        border-width: 2px !important;
+        background-image: none !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+    }
+    
+    /* SBU container validation styling */
+    .sbu-selection-container.border-danger {
+        border: 2px solid #dc3545 !important;
+        border-radius: 0.375rem;
+        background-color: rgba(220, 53, 69, 0.05);
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
     }
 
     /* Loading Animation */
@@ -1153,6 +1159,45 @@
         const emailField = document.getElementById('email');
         let emailIsValid = true;
         
+        // Real-time email format validation as user types
+        emailField.addEventListener('input', function() {
+            const email = this.value.trim();
+            
+            // Remove any existing feedback
+            const existingFeedback = document.getElementById('email-validation-feedback');
+            if (existingFeedback) {
+                existingFeedback.remove();
+            }
+            
+            // Clear validation classes
+            this.classList.remove('is-invalid', 'is-valid');
+            
+            if (email.length > 0) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    // Invalid email format
+                    emailIsValid = false;
+                    const warningFeedback = document.createElement('div');
+                    warningFeedback.className = 'text-warning mt-1';
+                    warningFeedback.id = 'email-validation-feedback';
+                    warningFeedback.innerHTML = '<small><i class="bi bi-exclamation-triangle me-1"></i>Please enter a valid email format (e.g., admin@example.com)</small>';
+                    this.parentNode.appendChild(warningFeedback);
+                    this.classList.add('is-invalid');
+                } else {
+                    // Valid email format, but don't check availability yet
+                    emailIsValid = true;
+                    const infoFeedback = document.createElement('div');
+                    infoFeedback.className = 'text-info mt-1';
+                    infoFeedback.id = 'email-validation-feedback';
+                    infoFeedback.innerHTML = '<small><i class="bi bi-info-circle me-1"></i>Valid email format. Click outside to check availability.</small>';
+                    this.parentNode.appendChild(infoFeedback);
+                    this.classList.add('is-valid');
+                }
+            } else {
+                emailIsValid = false;
+            }
+        });
+        
         emailField.addEventListener('blur', function() {
             const email = emailField.value.trim();
             if (email) {
@@ -1162,7 +1207,24 @@
                     existingFeedback.remove();
                 }
                 
-                // Check if email exists in admin_users or users table via AJAX
+                // Clear validation classes
+                emailField.classList.remove('is-invalid', 'is-valid');
+                
+                // First validate email format
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    // Invalid email format
+                    emailIsValid = false;
+                    const errorFeedback = document.createElement('div');
+                    errorFeedback.className = 'text-danger mt-1';
+                    errorFeedback.id = 'email-validation-feedback';
+                    errorFeedback.innerHTML = '<small><i class="bi bi-exclamation-triangle-fill me-1"></i>Please enter a valid email address</small>';
+                    emailField.parentNode.appendChild(errorFeedback);
+                    emailField.classList.add('is-invalid');
+                    return;
+                }
+                
+                // If email format is valid, check availability via AJAX
                 fetch(`/admin/check-email-availability?email=${encodeURIComponent(email)}`)
                     .then(response => response.json())
                     .then(data => {
@@ -1176,19 +1238,26 @@
                             emailField.parentNode.appendChild(errorFeedback);
                             emailField.classList.add('is-invalid');
                         } else {
-                            // Email is available
+                            // Email is available and valid format
                             emailIsValid = true;
                             const successFeedback = document.createElement('div');
                             successFeedback.className = 'text-success mt-1';
                             successFeedback.id = 'email-validation-feedback';
-                            successFeedback.innerHTML = '<small><i class="bi bi-check-circle-fill me-1"></i>Email is available</small>';
+                            successFeedback.innerHTML = '<small><i class="bi bi-check-circle-fill me-1"></i>Valid email address and available</small>';
                             emailField.parentNode.appendChild(successFeedback);
-                            emailField.classList.remove('is-invalid');
                             emailField.classList.add('is-valid');
                         }
                     })
                     .catch(error => {
                         console.error('Error checking email:', error);
+                        // Show error message for network issues
+                        emailIsValid = false;
+                        const errorFeedback = document.createElement('div');
+                        errorFeedback.className = 'text-warning mt-1';
+                        errorFeedback.id = 'email-validation-feedback';
+                        errorFeedback.innerHTML = '<small><i class="bi bi-exclamation-triangle me-1"></i>Unable to verify email availability. Please try again.</small>';
+                        emailField.parentNode.appendChild(errorFeedback);
+                        emailField.classList.add('is-invalid');
                     });
             }
         });
