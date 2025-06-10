@@ -70,7 +70,12 @@ class CustomerController extends Controller
             'phone' => $request->phone,
             'email' => $request->email,
         ], [
-            'phone' => 'required|string|max:20',
+            'phone' => ['required', 'string', function ($attribute, $value, $fail) {
+                // Check for Philippine mobile number format
+                if (!preg_match('/^(\+639\d{9}|09\d{9})$/', $value)) {
+                    $fail('Contact number must be in Philippine mobile format: 09XXXXXXXXX (11 digits) or +639XXXXXXXXX (13 digits).');
+                }
+            }],
             'email' => 'nullable|email|max:255',
         ]);
         

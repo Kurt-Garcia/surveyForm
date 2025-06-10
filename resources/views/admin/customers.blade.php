@@ -413,10 +413,10 @@
                     </div>
                     <div class="mb-3">
                         <label for="phone" class="form-label">Contact Cell Number</label>
-                        <input type="text" class="form-control" id="phone" name="phone" required maxlength="13" 
-                               placeholder="Enter contact number" autocomplete="tel">
+                        <input type="text" class="form-control" id="phone" name="phone" required 
+                               placeholder="09123456789 or +639123456789" autocomplete="tel">
                         <div class="invalid-feedback" id="phone-error"></div>
-                        <small class="form-text text-muted">Maximum 13 characters</small>
+                        <small class="form-text text-muted">09 format: 11 characters | +639 format: 13 characters</small>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
@@ -570,19 +570,36 @@
             // Validate form before showing confirmation
             let hasErrors = false;
             
-            // Phone validation - limit to 13 characters
+            // Phone validation - check format and length
             const phone = $('#phone').val().trim();
             if (!phone) {
                 $('#phone-error').text('Contact number is required.').show();
                 $('#phone').addClass('is-invalid');
                 hasErrors = true;
-            } else if (phone.length > 13) {
-                $('#phone-error').text('Contact number cannot exceed 13 characters.').show();
+            } else if (phone.startsWith('+639')) {
+                // For +639 format: must be exactly 13 characters
+                if (phone.length !== 13 || !/^\+639\d{9}$/.test(phone)) {
+                    $('#phone-error').text('Contact number must be exactly 13 characters for +639 format.').show();
+                    $('#phone').addClass('is-invalid');
+                    hasErrors = true;
+                } else {
+                    $('#phone-error').text('');
+                    $('#phone').removeClass('is-invalid');
+                }
+            } else if (phone.startsWith('09')) {
+                // For 09 format: must be exactly 11 characters
+                if (phone.length !== 11 || !/^09\d{9}$/.test(phone)) {
+                    $('#phone-error').text('Contact number must be exactly 11 characters for 09 format.').show();
+                    $('#phone').addClass('is-invalid');
+                    hasErrors = true;
+                } else {
+                    $('#phone-error').text('');
+                    $('#phone').removeClass('is-invalid');
+                }
+            } else {
+                $('#phone-error').text('Contact number must start with 09 or +639.').show();
                 $('#phone').addClass('is-invalid');
                 hasErrors = true;
-            } else {
-                $('#phone-error').text('');
-                $('#phone').removeClass('is-invalid');
             }
             
             // Email validation - check format and limit to 50 characters
@@ -713,21 +730,112 @@
             });
         });
         
-        // Real-time validation for phone input
+        // Real-time phone number validation for Philippine mobile numbers
         $('#phone').on('input', function() {
-            const phone = $(this).val().trim();
-            const maxLength = 13;
+            let value = $(this).val();
+            const feedback = $('#phone-error');
+            const phoneInput = $(this);
             
-            if (phone.length > maxLength) {
-                $(this).val(phone.substring(0, maxLength));
-                $('#phone-error').text(`Contact number cannot exceed ${maxLength} characters`).show();
-                $(this).addClass('is-invalid');
-            } else if (!phone) {
-                $('#phone-error').text('Contact number is required').show();
-                $(this).addClass('is-invalid');
+            // Strict validation - only allow valid Philippine mobile number patterns
+            if (value.length === 0) {
+                // Empty is allowed
+                value = '';
+            } else if (value === '+') {
+                // Allow starting with +
+                value = '+';
+            } else if (value === '+6') {
+                // Allow +6 as partial typing of +63
+                value = '+6';
+            } else if (value === '+63') {
+                // Allow +63 as partial typing of +639
+                value = '+63';
+            } else if (value.startsWith('+639')) {
+                // For +639 format: allow only digits after +639
+                value = '+639' + value.substring(4).replace(/\D/g, '');
+                // Limit to 13 characters total
+                if (value.length > 13) {
+                    value = value.substring(0, 13);
+                }
+            } else if (value === '0') {
+                // Allow starting with 0
+                value = '0';
+            } else if (value.startsWith('09')) {
+                // For 09 format: allow only digits
+                value = value.replace(/\D/g, '');
+                // Limit to 11 characters
+                if (value.length > 11) {
+                    value = value.substring(0, 11);
+                }
+                // Ensure it still starts with 09
+                if (!value.startsWith('09')) {
+                    value = '09' + value.substring(2);
+                }
             } else {
-                $('#phone-error').text('');
-                $(this).removeClass('is-invalid');
+                // If it doesn't match any valid pattern, clear the field
+                value = '';
+            }
+            
+            // Update the input value
+            $(this).val(value);
+            
+            // Provide real-time feedback
+            if (value === '') {
+                feedback.text('').removeClass('text-danger text-warning text-success text-info');
+                phoneInput.removeClass('is-valid is-invalid');
+            } else if (value === '+' || value === '+6' || value === '+63') {
+                feedback.text('Continue typing +639...').removeClass('text-danger text-warning text-success').addClass('text-info');
+                phoneInput.removeClass('is-valid is-invalid');
+            } else if (value === '0') {
+                feedback.text('Continue typing 09...').removeClass('text-danger text-warning text-success').addClass('text-info');
+                phoneInput.removeClass('is-valid is-invalid');
+            } else if (value.startsWith('+639')) {
+                if (value.length < 13) {
+                    feedback.text(`+639 format: ${value.length}/13 characters`).removeClass('text-danger text-success text-info').addClass('text-warning');
+                    phoneInput.removeClass('is-valid is-invalid');
+                } else if (value.length === 13) {
+                    feedback.text('Valid +639 format').removeClass('text-danger text-warning text-info').addClass('text-success');
+                    phoneInput.removeClass('is-invalid').addClass('is-valid');
+                }
+            } else if (value.startsWith('09')) {
+                if (value.length < 11) {
+                    feedback.text(`09 format: ${value.length}/11 characters`).removeClass('text-danger text-success text-info').addClass('text-warning');
+                    phoneInput.removeClass('is-valid is-invalid');
+                } else if (value.length === 11) {
+                    feedback.text('Valid 09 format').removeClass('text-danger text-warning text-info').addClass('text-success');
+                    phoneInput.removeClass('is-invalid').addClass('is-valid');
+                }
+            } else {
+                feedback.text('Must start with 09 or +639').removeClass('text-warning text-success text-info').addClass('text-danger');
+                phoneInput.removeClass('is-valid').addClass('is-invalid');
+            }
+        });
+
+        // Handle paste events for phone number
+        $('#phone').on('paste', function(e) {
+            e.preventDefault();
+            const pastedText = (e.originalEvent.clipboardData || window.clipboardData).getData('text');
+            let cleanedText = '';
+            
+            if (pastedText.startsWith('+639')) {
+                // Clean +639 format
+                cleanedText = '+639' + pastedText.substring(4).replace(/\D/g, '');
+                if (cleanedText.length > 13) {
+                    cleanedText = cleanedText.substring(0, 13);
+                }
+            } else if (pastedText.startsWith('09')) {
+                // Clean 09 format
+                cleanedText = pastedText.replace(/\D/g, '');
+                if (cleanedText.length > 11) {
+                    cleanedText = cleanedText.substring(0, 11);
+                }
+                if (!cleanedText.startsWith('09')) {
+                    cleanedText = '09' + cleanedText.substring(2);
+                }
+            }
+            
+            // Only set the value if it's a valid format
+            if (cleanedText.startsWith('+639') || cleanedText.startsWith('09')) {
+                $(this).val(cleanedText).trigger('input');
             }
         });
         
