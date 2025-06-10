@@ -1161,7 +1161,8 @@ function confirmSubmit(event) {
     }
     
     // Check site selection
-    const selectedSites = document.querySelectorAll('input[name="site_ids[]"]:checked');
+    const siteSelect = document.getElementById('site_ids');
+    const selectedSites = siteSelect.selectedOptions;
     const sitesContainer = document.querySelector('.sites-selection-container');
     if (selectedSites.length === 0) {
         hasEmptyFields = true;
