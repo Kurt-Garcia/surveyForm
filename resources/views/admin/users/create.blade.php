@@ -382,6 +382,103 @@
         color: white !important;
     }
 
+    /* Site Badge Styling - Improved for better readability */
+    .site-badge {
+        border-radius: 12px !important;
+        padding: 6px 12px !important;
+        font-weight: 500 !important;
+        font-size: 0.75rem !important;
+        line-height: 1.2 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+        color: white !important;
+        border: none !important;
+        display: inline-block !important;
+        vertical-align: middle !important;
+    }
+
+    .site-badge:hover {
+        background: linear-gradient(135deg, #5a6268 0%, #495057 100%) !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+    }
+
+    /* Site Column Responsive Design */
+    .site-column {
+        max-width: 180px !important;
+        min-width: 120px !important;
+    }
+
+    /* Site Badge Styling - Improved for better readability */
+    .site-badge {
+        border-radius: 12px !important;
+        padding: 6px 12px !important;
+        font-weight: 500 !important;
+        font-size: 0.75rem !important;
+        line-height: 1.2 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+        color: white !important;
+        border: none !important;
+        display: inline-block !important;
+        vertical-align: middle !important;
+    }
+
+    .site-badge:hover {
+        background: linear-gradient(135deg, #5a6268 0%, #495057 100%) !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+    }
+
+    /* Site Column Responsive Design */
+    .site-column {
+        max-width: 180px !important;
+        min-width: 120px !important;
+    }
+
+    /* Tooltip styling for better visibility */
+    .tooltip {
+        font-size: 0.8rem !important;
+    }
+
+    .tooltip-inner {
+        max-width: 300px !important;
+        text-align: center !important;
+        word-wrap: break-word !important;
+        background: rgba(0,0,0,0.9) !important;
+        border-radius: 6px !important;
+        padding: 8px 12px !important;
+    }
+
+    /* Mobile responsiveness for site badges */
+    @media (max-width: 768px) {
+        .site-badge {
+            font-size: 0.7rem !important;
+            padding: 4px 8px !important;
+            max-width: 120px !important;
+        }
+        
+        .site-column {
+            max-width: 130px !important;
+            min-width: 100px !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .site-badge {
+            font-size: 0.65rem !important;
+            padding: 3px 6px !important;
+            max-width: 100px !important;
+        }
+        
+        .site-column {
+            max-width: 110px !important;
+            min-width: 90px !important;
+        }
+    }
+    
     /* Loading Animation */
     .loading-spinner {
         display: inline-block;
@@ -989,9 +1086,25 @@ function initializeUsersTable() {
             },
             { 
                 data: 'site_name',
-                render: function(data) {
-                    return `<span class="badge bg-secondary rounded-pill">${data}</span>`;
-                }
+                render: function(data, type, row) {
+                    if (!data) return '<span class="text-muted">No site assigned</span>';
+                    
+                    // Truncate text if it's too long
+                    const maxLength = 25;
+                    const truncated = data.length > maxLength ? data.substring(0, maxLength) + '...' : data;
+                    
+                    // Create a badge with tooltip for full text
+                    return `
+                        <span class="badge bg-secondary site-badge" 
+                              data-bs-toggle="tooltip" 
+                              data-bs-placement="top" 
+                              data-bs-title="${data}"
+                              style="max-width: 150px; display: inline-block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                            ${truncated}
+                        </span>
+                    `;
+                },
+                className: 'site-column'
             },
             { 
                 data: 'created_at',
@@ -1076,6 +1189,10 @@ function initializeUsersTable() {
                     'animation': 'fadeInUp 0.6s ease forwards'
                 });
             });
+            
+            // Initialize tooltips for site badges
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
         }
     });
 }
@@ -1817,76 +1934,7 @@ style.textContent = `
         .sites-selection-container .text-muted {
             width: 100%;
             flex: none;
-            margin-bottom: 0.5rem;
-        }
-    }
-    
-    /* Standard tablet responsive (821px to 1023px) */
-    @media (min-width: 821px) and (max-width: 1023px) {
-        .sites-selection-container {
-            padding: 1.25rem;
-        }
-        
-        .sites-selection-container .sites-header-container {
-            flex-direction: column;
-            gap: 0.75rem;
-            align-items: flex-start !important;
-        }
-        
-        .sites-selection-container .selection-controls {
-            width: 100%;
-            gap: 0.75rem;
-            min-width: auto;
-        }
-        
-        .sites-selection-container .selection-controls .btn {
-            flex: 1;
-            font-size: 0.85rem;
-            padding: 0.65rem 0.85rem;
-        }
-        
-        .sites-selection-container .text-muted {
-            width: 100%;
-            flex: none;
-        }
-    }
-    
-    /* Mobile responsive improvements (below 768px) */
-    @media (max-width: 767px) {
-        .sbu-selection-container,
-        .sites-selection-container {
-            padding: 1rem;
-        }
-        
-        .sites-selection-container .sites-header-container {
-            flex-direction: column;
-            gap: 1.25rem;
-            align-items: flex-start !important;
-        }
-        
-        .sites-selection-container .selection-controls {
-            flex-direction: column;
-            gap: 1rem;
-            width: 100%;
-            min-width: auto;
-        }
-        
-        .sites-selection-container .selection-controls .btn {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .sites-selection-container .text-muted {
-            width: 100%;
-            flex: none;
-            margin-bottom: 0.75rem;
-        }
-        
-        .sbu-card {
-            min-height: 100px;
-        }
+           
         
         .sbu-name {
             font-size: 1rem;
