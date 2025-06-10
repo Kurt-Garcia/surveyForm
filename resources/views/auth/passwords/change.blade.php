@@ -103,9 +103,14 @@ document.addEventListener('DOMContentLoaded', function() {
                             <label for="current_password" class="form-label">{{ __('Current Password') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input id="current_password" type="password" 
-                                    class="form-control @error('current_password') is-invalid @enderror" 
-                                    name="current_password" required autocomplete="current-password">
+                                <div class="password-input-group">
+                                    <input id="current_password" type="password" 
+                                        class="form-control @error('current_password') is-invalid @enderror" 
+                                        name="current_password" required autocomplete="current-password">
+                                    <button type="button" class="password-toggle-btn" data-target="current_password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                             @error('current_password')
                                 <span class="text-danger small">{{ $message }}</span>
@@ -116,9 +121,14 @@ document.addEventListener('DOMContentLoaded', function() {
                             <label for="password" class="form-label">{{ __('New Password') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input id="password" type="password" 
-                                    class="form-control @error('password') is-invalid @enderror" 
-                                    name="password" required autocomplete="new-password">
+                                <div class="password-input-group">
+                                    <input id="password" type="password" 
+                                        class="form-control @error('password') is-invalid @enderror" 
+                                        name="password" required autocomplete="new-password">
+                                    <button type="button" class="password-toggle-btn" data-target="password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                             @error('password')
                                 <span class="text-danger small">{{ $message }}</span>
@@ -129,8 +139,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             <label for="password-confirm" class="form-label">{{ __('Confirm New Password') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input id="password-confirm" type="password" class="form-control"
-                                    name="password_confirmation" required autocomplete="new-password">
+                                <div class="password-input-group">
+                                    <input id="password-confirm" type="password" class="form-control"
+                                        name="password_confirmation" required autocomplete="new-password">
+                                    <button type="button" class="password-toggle-btn" data-target="password-confirm">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div id="password-match-message"></div>
                         </div>

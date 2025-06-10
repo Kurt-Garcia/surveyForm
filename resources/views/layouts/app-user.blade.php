@@ -431,6 +431,105 @@
           display: flex !important; 
         }
       }
+
+      /* Password Toggle Button Styling - Global */
+      .password-input-group {
+        position: relative;
+      }
+
+      .password-toggle-btn {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6c757d;
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+      }
+
+      .password-toggle-btn:hover {
+        color: var(--primary-color, #007bff);
+        background-color: rgba(0, 123, 255, 0.1);
+      }
+
+      .password-toggle-btn:focus {
+        outline: none;
+        color: var(--primary-color, #007bff);
+        background-color: rgba(0, 123, 255, 0.15);
+      }
+
+      .password-toggle-btn:active {
+        transform: translateY(-50%) scale(0.95);
+      }
+
+      /* Adjust padding for password inputs to accommodate toggle button */
+      .password-input-group .form-control {
+        padding-right: 50px !important;
+      }
+
+      /* Handle input-group with icons and password toggle */
+      .input-group .password-input-group {
+        position: relative;
+        flex: 1;
+      }
+
+      .input-group .password-input-group .password-toggle-btn {
+        right: 12px;
+      }
+
+      .input-group .password-input-group .form-control {
+        padding-right: 50px !important;
+      }
     </style>
+
+    <script>
+      // Global Password Toggle Functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize password toggles
+        initializePasswordToggles();
+        
+        // Re-initialize when new content is loaded dynamically
+        if (typeof window.reinitializePasswordToggles === 'undefined') {
+          window.reinitializePasswordToggles = initializePasswordToggles;
+        }
+      });
+
+      function initializePasswordToggles() {
+        document.querySelectorAll('.password-toggle-btn').forEach(button => {
+          // Remove existing event listeners to prevent duplicates
+          button.replaceWith(button.cloneNode(true));
+        });
+
+        // Add event listeners to all password toggle buttons
+        document.querySelectorAll('.password-toggle-btn').forEach(button => {
+          button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const targetInput = document.getElementById(targetId);
+            const eyeIcon = this.querySelector('i');
+            
+            if (targetInput) {
+              if (targetInput.type === 'password') {
+                targetInput.type = 'text';
+                eyeIcon.className = 'bi bi-eye-slash';
+              } else {
+                targetInput.type = 'password';
+                eyeIcon.className = 'bi bi-eye';
+              }
+            }
+          });
+        });
+      }
+    </script>
 </body>
 </html>

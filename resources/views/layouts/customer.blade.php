@@ -30,6 +30,65 @@
         padding: 2rem;
         }
         
+        /* Password Toggle Button Styling - Global */
+        .password-input-group {
+          position: relative;
+        }
+
+        .password-toggle-btn {
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          color: #6c757d;
+          font-size: 1.1rem;
+          cursor: pointer;
+          padding: 4px;
+          border-radius: 4px;
+          transition: all 0.2s ease;
+          z-index: 10;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+        }
+
+        .password-toggle-btn:hover {
+          color: #007bff;
+          background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        .password-toggle-btn:focus {
+          outline: none;
+          color: #007bff;
+          background-color: rgba(0, 123, 255, 0.15);
+        }
+
+        .password-toggle-btn:active {
+          transform: translateY(-50%) scale(0.95);
+        }
+
+        /* Adjust padding for password inputs to accommodate toggle button */
+        .password-input-group .form-control {
+          padding-right: 50px !important;
+        }
+
+        /* Handle input-group with icons and password toggle */
+        .input-group .password-input-group {
+          position: relative;
+          flex: 1;
+        }
+
+        .input-group .password-input-group .password-toggle-btn {
+          right: 12px;
+        }
+
+        .input-group .password-input-group .form-control {
+          padding-right: 50px !important;
+        }
     </style>
 </head>
 <body>
@@ -40,5 +99,44 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    
+    <script>
+      // Global Password Toggle Functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize password toggles
+        initializePasswordToggles();
+        
+        // Re-initialize when new content is loaded dynamically
+        if (typeof window.reinitializePasswordToggles === 'undefined') {
+          window.reinitializePasswordToggles = initializePasswordToggles;
+        }
+      });
+
+      function initializePasswordToggles() {
+        document.querySelectorAll('.password-toggle-btn').forEach(button => {
+          // Remove existing event listeners to prevent duplicates
+          button.replaceWith(button.cloneNode(true));
+        });
+
+        // Add event listeners to all password toggle buttons
+        document.querySelectorAll('.password-toggle-btn').forEach(button => {
+          button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const targetInput = document.getElementById(targetId);
+            const eyeIcon = this.querySelector('i');
+            
+            if (targetInput) {
+              if (targetInput.type === 'password') {
+                targetInput.type = 'text';
+                eyeIcon.className = 'bi bi-eye-slash';
+              } else {
+                targetInput.type = 'password';
+                eyeIcon.className = 'bi bi-eye';
+              }
+            }
+          });
+        });
+      }
+    </script>
 </body>
 </html>

@@ -32,9 +32,14 @@
                             <label for="password" class="form-label">{{ __('New Password') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" 
-                                    name="password" required autocomplete="new-password" 
-                                    placeholder="Enter new password">
+                                <div class="password-input-group">
+                                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" 
+                                        name="password" required autocomplete="new-password" 
+                                        placeholder="Enter new password">
+                                    <button type="button" class="password-toggle-btn" data-target="password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                             @error('password')
                                 <span class="text-danger small">{{ $message }}</span>
@@ -45,9 +50,14 @@
                             <label for="password-confirm" class="form-label">{{ __('Confirm Password') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input id="password-confirm" type="password" class="form-control" 
-                                    name="password_confirmation" required autocomplete="new-password"
-                                    placeholder="Confirm new password">
+                                <div class="password-input-group">
+                                    <input id="password-confirm" type="password" class="form-control" 
+                                        name="password_confirmation" required autocomplete="new-password"
+                                        placeholder="Confirm new password">
+                                    <button type="button" class="password-toggle-btn" data-target="password-confirm">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 

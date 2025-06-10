@@ -30,9 +30,14 @@
                             <label for="password" class="form-label">{{ __('Password') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" 
-                                    name="password" required autocomplete="current-password" 
-                                    placeholder="Enter your password">
+                                <div class="password-input-group">
+                                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" 
+                                        name="password" required autocomplete="current-password" 
+                                        placeholder="Enter your password">
+                                    <button type="button" class="password-toggle-btn" data-target="password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                             @error('password')
                                 <span class="text-danger small">{{ $message }}</span>

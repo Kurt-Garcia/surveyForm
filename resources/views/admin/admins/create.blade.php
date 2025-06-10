@@ -157,21 +157,30 @@
                                 <label for="password" class="form-label fw-semibold text-dark">
                                     <i class="bi bi-shield-lock me-1 text-secondary"></i>Password
                                 </label>
-                                <input type="password" class="form-control form-control-lg border-0 shadow-sm @error('password') is-invalid @enderror" 
-                                       id="password" name="password" placeholder="Enter password..." 
-                                       autocomplete="new-password" required>
+                                <div class="password-input-group position-relative">
+                                    <input type="password" class="form-control form-control-lg border-0 shadow-sm @error('password') is-invalid @enderror" 
+                                           id="password" name="password" placeholder="Enter password..." 
+                                           autocomplete="new-password" required>
+                                    <button type="button" class="password-toggle-btn" data-target="password">
+                                        <i class="bi bi-eye" id="password-eye-icon"></i>
+                                    </button>
+                                </div>
                                 @error('password')
                                     <div class="invalid-feedback">{{ $message }}</div>
-                                    </span>
                                 @enderror
                             </div>
                             <div class="col-md-6">
                                 <label for="password_confirmation" class="form-label fw-semibold text-dark">
                                     <i class="bi bi-shield-check me-1 text-secondary"></i>Confirm Password
                                 </label>
-                                <input type="password" class="form-control form-control-lg border-0 shadow-sm" 
-                                       id="password_confirmation" name="password_confirmation" placeholder="Confirm password..." 
-                                       autocomplete="new-password" required>
+                                <div class="password-input-group position-relative">
+                                    <input type="password" class="form-control form-control-lg border-0 shadow-sm" 
+                                           id="password_confirmation" name="password_confirmation" placeholder="Confirm password..." 
+                                           autocomplete="new-password" required>
+                                    <button type="button" class="password-toggle-btn" data-target="password_confirmation">
+                                        <i class="bi bi-eye" id="password_confirmation-eye-icon"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
@@ -304,6 +313,52 @@
 
     @keyframes spin {
         to { transform: rotate(360deg); }
+    }
+
+    /* Password Toggle Button Styling */
+    .password-input-group {
+        position: relative;
+    }
+
+    .password-toggle-btn {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6c757d;
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+    }
+
+    .password-toggle-btn:hover {
+        color: var(--primary-color);
+        background-color: rgba(var(--primary-color-rgb), 0.1);
+    }
+
+    .password-toggle-btn:focus {
+        outline: none;
+        color: var(--primary-color);
+        background-color: rgba(var(--primary-color-rgb), 0.15);
+    }
+
+    .password-toggle-btn:active {
+        transform: translateY(-50%) scale(0.95);
+    }
+
+    /* Adjust padding for password inputs to accommodate toggle button */
+    .password-input-group .form-control {
+        padding-right: 50px !important;
     }
 
     /* Responsive Design */
