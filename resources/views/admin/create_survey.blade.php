@@ -30,11 +30,25 @@
                             <label for="title" class="col-md-3 col-form-label">{{ __('Survey Title') }}</label>
 
                             <div class="col-md-9">
-                                <input id="title" type="text" 
-                                    class="form-control form-control-lg @error('title') is-invalid @enderror" 
-                                    name="title" value="{{ old('title') }}" 
-                                    required autocomplete="title" autofocus
-                                    placeholder="Enter your survey title">
+                                <div class="position-relative">
+                                    <input id="title" type="text" 
+                                        class="form-control form-control-lg @error('title') is-invalid @enderror" 
+                                        name="title" value="{{ old('title') }}" 
+                                        required autocomplete="title" autofocus
+                                        placeholder="Enter your survey title">
+                                    
+                                    <div id="title-validation-spinner" class="position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                            <span class="visually-hidden">Checking...</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="title-validation-icon" class="position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                        <i class="fas fa-check text-success"></i>
+                                    </div>
+                                </div>
+
+                                <div id="title-validation-message" class="mt-2" style="display: none;"></div>
 
                                 @error('title')
                                     <span class="invalid-feedback" role="alert">
@@ -404,6 +418,77 @@
         updateSiteOptions();
     });
     
+    // Real-time title validation
+    let titleValidationTimeout;
+    let titleIsValid = false;
+    
+    document.getElementById('title').addEventListener('input', function() {
+        const title = this.value.trim();
+        const spinner = document.getElementById('title-validation-spinner');
+        const icon = document.getElementById('title-validation-icon');
+        const message = document.getElementById('title-validation-message');
+        
+        // Clear previous timeout
+        clearTimeout(titleValidationTimeout);
+        
+        // Reset validation state
+        titleIsValid = false;
+        this.classList.remove('is-valid', 'is-invalid');
+        spinner.style.display = 'none';
+        icon.style.display = 'none';
+        message.style.display = 'none';
+        
+        if (title.length < 2) {
+            return; // Don't validate until at least 2 characters
+        }
+        
+        // Show spinner
+        spinner.style.display = 'block';
+        
+        // Debounce the validation request
+        titleValidationTimeout = setTimeout(() => {
+            fetch('{{ route("admin.surveys.check-title-uniqueness") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    title: title
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                spinner.style.display = 'none';
+                
+                if (data.available) {
+                    // Title is available
+                    titleIsValid = true;
+                    this.classList.add('is-valid');
+                    this.classList.remove('is-invalid');
+                    icon.innerHTML = '<i class="fas fa-check text-success"></i>';
+                    icon.style.display = 'block';
+                    message.innerHTML = '<small class="text-success"><i class="fas fa-check-circle me-1"></i>' + data.message + '</small>';
+                    message.style.display = 'block';
+                } else {
+                    // Title is not available
+                    titleIsValid = false;
+                    this.classList.add('is-invalid');
+                    this.classList.remove('is-valid');
+                    icon.innerHTML = '<i class="fas fa-times text-danger"></i>';
+                    icon.style.display = 'block';
+                    message.innerHTML = '<small class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>' + data.message + '</small>';
+                    message.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error validating title:', error);
+                spinner.style.display = 'none';
+                titleIsValid = false;
+            });
+        }, 500); // Wait 500ms after user stops typing
+    });
+    
     // Update site options when SBU checkboxes change (programmatically)
     sbuCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
@@ -547,6 +632,18 @@
         // Prevent default to handle form submission manually
         e.preventDefault();
         
+        // Check if title is valid
+        const titleInput = document.getElementById('title');
+        if (!titleIsValid || titleInput.value.trim().length < 2) {
+            swalWithBootstrapButtons.fire({
+                title: "Invalid Title!",
+                text: "Please enter a valid and unique survey title.",
+                icon: "error"
+            });
+            titleInput.focus();
+            return false;
+        }
+        
         const logo = document.getElementById('logo');
         if (!logo.files || logo.files.length === 0) {
             swalWithBootstrapButtons.fire({
@@ -595,8 +692,8 @@
             return false;
         }
 
-        const titleInput = document.getElementById('title');
-        titleInput.value = capitalizeFirstLetter(titleInput.value);
+        const titleInputForm = document.getElementById('title');
+        titleInputForm.value = capitalizeFirstLetter(titleInputForm.value);
 
         const questionInputs = document.querySelectorAll('input[name^="questions"][name$="[text]"]');
         questionInputs.forEach(input => {
@@ -656,6 +753,35 @@
 </script>
 
 <style>
+/* Title validation styling */
+#title.is-valid {
+    border-color: #28a745;
+    padding-right: calc(1.5em + 1rem);
+    background-image: none;
+}
+
+#title.is-invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + 1rem);
+    background-image: none;
+}
+
+#title-validation-spinner .spinner-border {
+    width: 1.2rem;
+    height: 1.2rem;
+    border-width: 2px;
+}
+
+#title-validation-icon {
+    font-size: 1.1rem;
+    z-index: 5;
+}
+
+#title-validation-message {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
 /* Prevent layout shift during initialization */
 body:not(.js-initialized) .sites-selection-container .select2-container {
     opacity: 0;

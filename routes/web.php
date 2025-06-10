@@ -154,6 +154,9 @@ Route::prefix('admin')->group(function () {
         
         // API routes for SBU and Site data
         Route::get('/api/sbus-with-sites', [\App\Http\Controllers\Admin\SurveyController::class, 'getSbusWithSites'])->name('admin.api.sbus-with-sites');
+        
+        // Survey title uniqueness check
+        Route::post('/surveys/check-title-uniqueness', [\App\Http\Controllers\Admin\SurveyController::class, 'checkTitleUniqueness'])->name('admin.surveys.check-title-uniqueness');
     });
 });
 

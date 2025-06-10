@@ -22,7 +22,7 @@ class SurveyController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:surveys,title',
             'sbu_ids' => 'required|array|min:1',
             'sbu_ids.*' => 'exists:sbus,id',
             'site_ids' => 'required|array|min:1',
@@ -160,7 +160,7 @@ class SurveyController extends Controller
         }
 
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => "required|string|max:255|unique:surveys,title,{$survey->id}",
             'questions' => 'required|array|min:1',
             'questions.*.text' => 'required|string|max:255',
             'questions.*.type' => 'required|string|in:text,radio,star,select',
@@ -272,5 +272,35 @@ class SurveyController extends Controller
             DB::rollback();
             return back()->with('error', 'Failed to update deployment settings. Please try again.');
         }
+    }
+
+    /**
+     * Check if a survey title is unique (for real-time validation)
+     */
+    public function checkTitleUniqueness(Request $request)
+    {
+        $title = $request->input('title');
+        $surveyId = $request->input('survey_id'); // For edit mode (exclude current survey)
+        
+        if (empty($title)) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Title is required.'
+            ]);
+        }
+        
+        $query = Survey::where('title', $title);
+        
+        // If editing, exclude the current survey
+        if ($surveyId) {
+            $query->where('id', '!=', $surveyId);
+        }
+        
+        $exists = $query->exists();
+        
+        return response()->json([
+            'available' => !$exists,
+            'message' => $exists ? 'This title is already in use. Please choose a different title.' : 'Title is available.'
+        ]);
     }
 }
