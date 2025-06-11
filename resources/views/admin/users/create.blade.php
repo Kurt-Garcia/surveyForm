@@ -294,8 +294,8 @@
                     <table class="table table-hover modern-table mb-0">
                         <thead class="sticky-top">
                             <tr>
-                                <th class="fw-semibold">SBU</th>
-                                <th class="fw-semibold">SITE</th>
+                                <th class="fw-semibold" style="width: 40%; min-width: 200px;">SBU</th>
+                                <th class="fw-semibold" style="width: 60%; min-width: 250px;">SITE</th>
                             </tr>
                         </thead>
                         <tbody id="modal-sbu-sites-table">
@@ -623,11 +623,34 @@
 
     .modern-table {
         margin-bottom: 0 !important;
+        margin-top: 0 !important; /* Remove top margin */
+        margin-left: 0 !important; /* Remove left margin */
+        margin-right: 0 !important; /* Remove right margin */
         background: white;
         border-radius: 0 !important;
         overflow: visible;
         box-shadow: none;
         border: none;
+        width: 100% !important; /* Ensure full width */
+        /* Ensure table supports sticky positioning */
+        border-collapse: separate;
+        border-spacing: 0;
+        /* Prevent content from bleeding through sticky header */
+        position: relative;
+    }
+
+    /* Ensure table body doesn't interfere with sticky header */
+    .modern-table tbody {
+        position: relative;
+        z-index: 1;
+        background: white;
+    }
+
+    /* Additional layer protection for table rows */
+    .modern-table tbody tr {
+        position: relative;
+        background: white;
+        z-index: 1;
     }
 
     .modern-table thead th {
@@ -635,7 +658,7 @@
         color: white !important;
         font-weight: 600 !important;
         border: none !important;
-        padding: 1rem 1.25rem !important;
+        padding: 1rem 0.75rem !important; /* Reduce horizontal padding */
         text-transform: uppercase;
         letter-spacing: 0.5px;
         font-size: 0.85rem;
@@ -643,7 +666,7 @@
     }
 
     .modern-table tbody td {
-        padding: 1rem 1.25rem !important;
+        padding: 1rem 0.75rem !important; /* Reduce horizontal padding */
         border-bottom: 1px solid #f1f3f5 !important;
         vertical-align: middle !important;
         transition: all 0.3s ease;
@@ -673,7 +696,7 @@
     .sbu-cell::before {
         content: '';
         position: absolute;
-        left: -1.25rem;
+        left: -0.75rem; /* Adjust for reduced padding */
         top: 50%;
         transform: translateY(-50%);
         width: 4px;
@@ -710,7 +733,7 @@
         
         .modern-table thead th,
         .modern-table tbody td {
-            padding: 0.75rem 1rem !important;
+            padding: 0.75rem 0.5rem !important; /* Further reduce padding for mobile */
             font-size: 0.9rem;
         }
         
@@ -730,7 +753,7 @@
         
         .modern-table thead th,
         .modern-table tbody td {
-            padding: 0.5rem 0.75rem !important;
+            padding: 0.5rem 0.375rem !important; /* Minimal padding for very small screens */
             font-size: 0.85rem;
         }
         
@@ -748,6 +771,7 @@
     .modal-body-fixed {
         background: #f8f9fa;
         border-bottom: 2px solid #dee2e6 !important;
+        padding-bottom: 1rem !important; /* Reduce bottom padding */
     }
 
     .modal-body-scrollable {
@@ -755,6 +779,11 @@
         overflow-y: auto;
         overflow-x: hidden;
         background: white;
+        position: relative;
+        /* Ensure proper stacking context for sticky elements */
+        isolation: isolate;
+        padding: 0 !important; /* Remove all padding to maximize width */
+        margin: 0 !important; /* Remove margins */
     }
 
     .modal-body-scrollable::-webkit-scrollbar {
@@ -788,14 +817,66 @@
     .table-container {
         background: white;
         border-radius: 12px;
-        overflow: hidden;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        position: relative;
+        overflow: visible;
+        /* Ensure proper stacking context */
+        isolation: isolate;
+        margin-top: 0 !important; /* Remove top margin to bring table closer */
+        margin-left: 0 !important; /* Remove left margin */
+        margin-right: 0 !important; /* Remove right margin */
+        padding-top: 0.5rem !important; /* Minimal top padding */
+        padding-left: 0 !important; /* Remove left padding */
+        padding-right: 0 !important; /* Remove right padding */
+        width: 100% !important; /* Ensure full width */
+    }
+
+    /* Fix sticky header for modal table */
+    .modal-body-scrollable .table-container {
+        overflow: visible;
+        background: white;
+        /* Create a stacking context to prevent bleed-through */
+        transform: translateZ(0);
     }
 
     .modern-table thead th.sticky-top {
         position: sticky;
         top: 0;
-        z-index: 5;
+        z-index: 100;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+        color: white !important;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+        /* Ensure solid background coverage */
+        background-clip: padding-box !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+    }
+
+    /* Enhanced sticky header for modal table */
+    .modal-body-scrollable .modern-table thead th {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 100 !important;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+        color: white !important;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+        /* Ensure complete coverage and prevent bleed-through */
+        background-clip: padding-box !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        border-top: 1px solid transparent !important;
+        margin-top: -1px !important;
+        padding: 1rem 0.75rem !important; /* Consistent with other table header padding */
+    }
+
+    /* Additional styling to prevent content showing through */
+    .modal-body-scrollable .modern-table thead {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 100 !important;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
     }
 
     /* Validation Styling - Colored borders instead of icons */
@@ -1286,6 +1367,7 @@ document.addEventListener('DOMContentLoaded', function() {
     passwordConfirmationField.addEventListener('input', checkPasswordMatch);
 });
 
+//Modal initialization for more than five sites
 function initializeUsersTable() {
     $('#usersTable').DataTable({
         ajax: {
@@ -1447,31 +1529,28 @@ function initializeUsersTable() {
                 });
             });
             
-            // Add click event handlers for rows with more than 1 site
+            // Add click event handlers for all rows
             $('.table tbody tr').each(function() {
                 const row = $(this);
-                const moreSitesBadge = row.find('.more-sites-badge');
                 
-                if (moreSitesBadge.length > 0) {
-                    // Make the entire row clickable
-                    row.css('cursor', 'pointer');
-                    row.on('click', function(e) {
-                        // Prevent default row click if clicking on other interactive elements
-                        if ($(e.target).closest('a, button, .btn').length > 0) {
-                            return;
-                        }
-                        
-                        const rowData = $('#usersTable').DataTable().row(this).data();
-                        showUserDetailsModal(rowData);
-                    });
+                // Make the entire row clickable
+                row.css('cursor', 'pointer');
+                row.on('click', function(e) {
+                    // Prevent default row click if clicking on other interactive elements
+                    if ($(e.target).closest('a, button, .btn').length > 0) {
+                        return;
+                    }
                     
-                    // Add hover effect
-                    row.on('mouseenter', function() {
-                        $(this).addClass('table-hover-active');
-                    }).on('mouseleave', function() {
-                        $(this).removeClass('table-hover-active');
-                    });
-                }
+                    const rowData = $('#usersTable').DataTable().row(this).data();
+                    showUserDetailsModal(rowData);
+                });
+                
+                // Add hover effect
+                row.on('mouseenter', function() {
+                    $(this).addClass('table-hover-active');
+                }).on('mouseleave', function() {
+                    $(this).removeClass('table-hover-active');
+                });
             });
         }
     });
