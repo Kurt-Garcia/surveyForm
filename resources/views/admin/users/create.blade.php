@@ -240,6 +240,79 @@
     </div>
 </div>
 
+<!-- User Details Modal -->
+<div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-gradient text-white">
+                <h5 class="modal-title fw-bold" id="userDetailsModalLabel">
+                    <i class="bi bi-person-circle me-2"></i>User Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- Fixed User Information Section -->
+            <div class="modal-body-fixed p-4 border-bottom">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <div class="info-label">
+                                <i class="bi bi-person me-2 text-primary"></i>Full Name
+                            </div>
+                            <div class="info-value" id="modal-user-name">-</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <div class="info-label">
+                                <i class="bi bi-envelope me-2 text-warning"></i>Email Address
+                            </div>
+                            <div class="info-value" id="modal-user-email">-</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <div class="info-label">
+                                <i class="bi bi-telephone me-2 text-success"></i>Contact Number
+                            </div>
+                            <div class="info-value" id="modal-user-contact">-</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-card">
+                            <div class="info-label">
+                                <i class="bi bi-calendar me-2 text-info"></i>Created Date
+                            </div>
+                            <div class="info-value" id="modal-user-created">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrollable Table Section -->
+            <div class="modal-body-scrollable p-4">
+                <div class="table-container">
+                    <table class="table table-hover modern-table mb-0">
+                        <thead class="sticky-top">
+                            <tr>
+                                <th class="fw-semibold">SBU</th>
+                                <th class="fw-semibold">SITE</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modal-sbu-sites-table">
+                            <!-- Dynamic content will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
     /* Modern Card Styling with Gradient */
     .bg-gradient {
@@ -478,136 +551,296 @@
             min-width: 90px !important;
         }
     }
-    
-    /* Loading Animation */
-    .loading-spinner {
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        border: 3px solid rgba(var(--primary-color-rgb), 0.3);
-        border-radius: 50%;
-        border-top-color: var(--primary-color);
-        animation: spin 1s ease-in-out infinite;
+
+    /* Clickable row styling */
+    .table-hover-active {
+        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.08) 0%, rgba(var(--secondary-color-rgb), 0.08) 100%) !important;
+        transform: translateX(3px) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
     }
 
-    @keyframes spin {
-        to { transform: rotate(360deg); }
+    .more-sites-badge {
+        transition: all 0.3s ease !important;
     }
 
-    /* Validation Styling - Remove Bootstrap icons and use border-only validation */
+    .more-sites-badge:hover {
+        transform: scale(1.05) !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+        border-radius: 15px !important;
+        overflow: hidden;
+    }
+
+    .modal-header.bg-gradient {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    }
+
+    .info-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        border-left: 4px solid var(--primary-color);
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-value {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #212529;
+        word-break: break-word;
+    }
+
+    .table-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        border: 1px solid #dee2e6;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .table-section h6 {
+        margin-bottom: 1.5rem !important;
+        padding-bottom: 0.75rem;
+        border-bottom: 3px solid var(--primary-color);
+        color: #2c3e50;
+    }
+
+    .modern-table {
+        margin-bottom: 0 !important;
+        background: white;
+        border-radius: 0 !important;
+        overflow: visible;
+        box-shadow: none;
+        border: none;
+    }
+
+    .modern-table thead th {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+        color: white !important;
+        font-weight: 600 !important;
+        border: none !important;
+        padding: 1rem 1.25rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+        position: relative;
+    }
+
+    .modern-table tbody td {
+        padding: 1rem 1.25rem !important;
+        border-bottom: 1px solid #f1f3f5 !important;
+        vertical-align: middle !important;
+        transition: all 0.3s ease;
+    }
+
+    .modern-table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .modern-table tbody tr:hover {
+        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.05) 0%, rgba(var(--secondary-color-rgb), 0.05) 100%) !important;
+        transform: translateX(5px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .modern-table tbody tr:last-child td {
+        border-bottom: none !important;
+    }
+
+    .sbu-cell {
+        color: var(--primary-color) !important;
+        font-weight: 700 !important;
+        font-size: 1rem;
+        position: relative;
+    }
+
+    .sbu-cell::before {
+        content: '';
+        position: absolute;
+        left: -1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        border-radius: 2px;
+    }
+
+    .sites-cell {
+        color: #495057;
+        font-weight: 500;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    .sites-cell .text-muted {
+        font-style: italic;
+        color: #6c757d !important;
+    }
+
+    /* Modal responsive adjustments */
+    @media (max-width: 768px) {
+        .modal-dialog {
+            margin: 1rem;
+        }
+        
+        .modal-body-scrollable {
+            max-height: 300px;
+        }
+        
+        .info-card {
+            padding: 0.75rem;
+        }
+        
+        .modern-table thead th,
+        .modern-table tbody td {
+            padding: 0.75rem 1rem !important;
+            font-size: 0.9rem;
+        }
+        
+        .sbu-cell {
+            font-size: 0.9rem;
+        }
+        
+        .sites-cell {
+            font-size: 0.85rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .modal-body-scrollable {
+            max-height: 250px;
+        }
+        
+        .modern-table thead th,
+        .modern-table tbody td {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 0.85rem;
+        }
+        
+        .sbu-cell {
+            font-size: 0.85rem;
+        }
+        
+        .sites-cell {
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+    }
+
+    /* Modal Scrollable Sections */
+    .modal-body-fixed {
+        background: #f8f9fa;
+        border-bottom: 2px solid #dee2e6 !important;
+    }
+
+    .modal-body-scrollable {
+        max-height: 400px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: white;
+    }
+
+    .modal-body-scrollable::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .modal-body-scrollable::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .modal-body-scrollable::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        border-radius: 4px;
+    }
+
+    .modal-body-scrollable::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-color);
+    }
+
+    .table-section-header {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 10;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+        margin-bottom: 0 !important;
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .modern-table thead th.sticky-top {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+    }
+
+    /* Validation Styling - Colored borders instead of icons */
     .is-valid {
         border-color: #28a745 !important;
         border-width: 2px !important;
         background-image: none !important;
         box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+        background-color: rgba(40, 167, 69, 0.05) !important;
     }
-    
+
     .is-invalid {
         border-color: #dc3545 !important;
         border-width: 2px !important;
         background-image: none !important;
         box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        background-color: rgba(220, 53, 69, 0.05) !important;
     }
 
+    /* Success text color */
     .text-success {
         color: #28a745 !important;
     }
 
+    /* Danger text color */
     .text-danger {
         color: #dc3545 !important;
     }
 
-    /* Export Buttons */
-    .dt-buttons {
-        margin-bottom: 1rem !important;
+    /* Warning text color */
+    .text-warning {
+        color: #ffc107 !important;
     }
 
-    .dt-button {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 20px !important;
-        padding: 8px 16px !important;
-        margin-right: 8px !important;
-        font-weight: 500 !important;
-        transition: all 0.3s ease;
+    /* Info text color */
+    .text-info {
+        color: #17a2b8 !important;
     }
 
-    .dt-button:hover {
-        transform: translateY(-2px) scale(1.05);
-        box-shadow: 0 5px 15px rgba(var(--primary-color-rgb), 0.3) !important;
-    }
-
-    /* Pagination */
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-        border-radius: 50% !important;
-        width: 40px !important;
-        height: 40px !important;
-        text-align: center !important;
-        padding: 8px !important;
-        margin: 0 2px !important;
-        border: 2px solid var(--primary-color) !important;
-        color: var(--primary-color) !important;
-        background: white !important;
-        transition: all 0.3s ease;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .paginate_button:hover,
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-        background: var(--primary-color) !important;
-        color: white !important;
-        transform: scale(1.1);
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .container-fluid {
-            padding: 1rem !important;
-        }
-        
-        .card-body {
-            padding: 1.5rem !important;
-        }
-        
-        .dataTables_wrapper {
-            padding: 1rem !important;
-        }
-        
-        /* DataTables Pagination - Mobile Fix */
-        .dataTables_wrapper .dataTables_info {
-            margin-bottom: 1rem !important;
-            text-align: center !important;
-            font-size: 0.8rem !important;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate {
-            text-align: center !important;
-            margin-top: 1rem !important;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button {
-            width: 35px !important;
-            height: 35px !important;
-            padding: 6px !important;
-            font-size: 0.8rem !important;
-            margin: 0 1px !important;
-        }
-    }
-    
-    /* Very small mobile devices */
-    @media (max-width: 480px) {
-        .dataTables_wrapper .dataTables_info {
-            font-size: 0.7rem !important;
-            margin-bottom: 1.5rem !important;
-        }
-        
-        .dataTables_wrapper .dataTables_paginate .paginate_button {
-            width: 30px !important;
-            height: 30px !important;
-            padding: 4px !important;
-            font-size: 0.7rem !important;
-            margin: 0 !important;
-        }
+    /* SBU container validation styling */
+    .sbu-selection-container.border-danger {
+        border: 2px solid #dc3545 !important;
+        border-radius: 0.375rem;
+        background-color: rgba(220, 53, 69, 0.05);
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
     }
 </style>
 
@@ -1087,22 +1320,46 @@ function initializeUsersTable() {
             { 
                 data: 'site_name',
                 render: function(data, type, row) {
-                    if (!data) return '<span class="text-muted">No site assigned</span>';
+                    if (!data || data === 'N/A') return '<span class="text-muted">No site assigned</span>';
                     
-                    // Truncate text if it's too long
-                    const maxLength = 25;
-                    const truncated = data.length > maxLength ? data.substring(0, maxLength) + '...' : data;
+                    const siteCount = row.site_count || 0;
+                    const sites = row.sites || [];
                     
-                    // Create a badge with tooltip for full text
-                    return `
-                        <span class="badge bg-secondary site-badge" 
-                              data-bs-toggle="tooltip" 
-                              data-bs-placement="top" 
-                              data-bs-title="${data}"
-                              style="max-width: 150px; display: inline-block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
-                            ${truncated}
-                        </span>
-                    `;
+                    if (siteCount <= 1) {
+                        // Show all sites as badges
+                        let badgesHtml = '';
+                        sites.forEach(site => {
+                            badgesHtml += `
+                                <span class="badge bg-secondary site-badge me-1 mb-1" 
+                                      style="font-size: 0.75rem; padding: 4px 8px;">
+                                    ${site.name}
+                                </span>
+                            `;
+                        });
+                        return badgesHtml || '<span class="text-muted">No sites</span>';
+                    } else {
+                        // Show limited sites and make row clickable
+                        let limitedBadges = '';
+                        sites.slice(0, 1).forEach(site => {
+                            limitedBadges += `
+                                <span class="badge bg-secondary site-badge me-1 mb-1" 
+                                      style="font-size: 0.75rem; padding: 4px 8px;">
+                                    ${site.name}
+                                </span>
+                            `;
+                        });
+                        
+                        return `
+                            <div class="sites-display">
+                                ${limitedBadges}
+                                <span class="badge bg-primary more-sites-badge" 
+                                      style="font-size: 0.75rem; padding: 4px 8px; cursor: pointer;"
+                                      title="Click to view all ${siteCount} sites">
+                                    +${siteCount - 1} more
+                                </span>
+                            </div>
+                        `;
+                    }
                 },
                 className: 'site-column'
             },
@@ -1190,9 +1447,32 @@ function initializeUsersTable() {
                 });
             });
             
-            // Initialize tooltips for site badges
-            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+            // Add click event handlers for rows with more than 1 site
+            $('.table tbody tr').each(function() {
+                const row = $(this);
+                const moreSitesBadge = row.find('.more-sites-badge');
+                
+                if (moreSitesBadge.length > 0) {
+                    // Make the entire row clickable
+                    row.css('cursor', 'pointer');
+                    row.on('click', function(e) {
+                        // Prevent default row click if clicking on other interactive elements
+                        if ($(e.target).closest('a, button, .btn').length > 0) {
+                            return;
+                        }
+                        
+                        const rowData = $('#usersTable').DataTable().row(this).data();
+                        showUserDetailsModal(rowData);
+                    });
+                    
+                    // Add hover effect
+                    row.on('mouseenter', function() {
+                        $(this).addClass('table-hover-active');
+                    }).on('mouseleave', function() {
+                        $(this).removeClass('table-hover-active');
+                    });
+                }
+            });
         }
     });
 }
@@ -1211,6 +1491,49 @@ function confirmClose() {
             window.location.href = "{{ route('admin.dashboard') }}";
         }
     });
+}
+
+// Function to show user details modal
+function showUserDetailsModal(userData) {
+    // Populate user information
+    document.getElementById('modal-user-name').textContent = userData.name || '-';
+    document.getElementById('modal-user-email').textContent = userData.email || '-';
+    document.getElementById('modal-user-contact').textContent = userData.contact_number || '-';
+    document.getElementById('modal-user-created').textContent = userData.created_at || '-';
+    
+    // Clear and populate SBU and Sites table
+    const tableBody = document.getElementById('modal-sbu-sites-table');
+    tableBody.innerHTML = '';
+    
+    const sites = userData.sites || [];
+    
+    if (sites.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="2" class="text-center text-muted py-4">
+                    <i class="bi bi-exclamation-circle me-2"></i>No SBU or site access assigned
+                </td>
+            </tr>
+        `;
+    } else {
+        // Create one row per site
+        sites.forEach(site => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="fw-bold sbu-cell">
+                    ${site.sbu_name || 'Unknown SBU'}
+                </td>
+                <td class="sites-cell">
+                    ${site.name || 'Unknown Site'}
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+    
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
+    modal.show();
 }
 
 function confirmSubmit(event) {
@@ -1684,7 +2007,7 @@ style.textContent = `
 
     /* Enhanced Select2 styling for sites */
     .sites-selection-container .select2-container--default .select2-selection--multiple {
-        border: 2px solid #e9ecf3;
+        border: 2px solid #e9ecef;
         border-radius: 8px;
         min-height: 120px;
         background: white;
@@ -1934,7 +2257,8 @@ style.textContent = `
         .sites-selection-container .text-muted {
             width: 100%;
             flex: none;
-           
+            margin-bottom: 0.5rem;
+        }
         
         .sbu-name {
             font-size: 1rem;

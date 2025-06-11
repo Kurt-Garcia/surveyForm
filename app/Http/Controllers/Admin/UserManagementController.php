@@ -145,17 +145,34 @@ class UserManagementController extends Controller
     public function data()
     {
         // Get only regular users (surveyors) created by the current admin
-        $surveyUsers = User::with(['sbus', 'sites', 'createdBy'])
+        $surveyUsers = User::with(['sbus', 'sites.sbu', 'createdBy'])
             ->where('created_by', auth('admin')->id()) // Filter by current admin
             ->get()
             ->map(function ($user) {
+                $sites = $user->sites;
+                $sbus = $user->sbus;
+                
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
                     'contact_number' => $user->contact_number,
-                    'sbu_name' => $user->sbus->pluck('name')->join(', ') ?: 'N/A',
-                    'site_name' => $user->sites->pluck('name')->join(', ') ?: 'N/A',
+                    'sbu_name' => $sbus->pluck('name')->join(', ') ?: 'N/A',
+                    'site_name' => $sites->pluck('name')->join(', ') ?: 'N/A',
+                    'site_count' => $sites->count(),
+                    'sites' => $sites->map(function ($site) {
+                        return [
+                            'id' => $site->id,
+                            'name' => $site->name,
+                            'sbu_name' => $site->sbu->name ?? 'N/A'
+                        ];
+                    }),
+                    'sbus' => $sbus->map(function ($sbu) {
+                        return [
+                            'id' => $sbu->id,
+                            'name' => $sbu->name
+                        ];
+                    }),
                     'user_type' => 'Surveyor',
                     'created_by' => $user->createdBy ? $user->createdBy->name : 'Unknown',
                     'created_at' => $user->created_at->format('M d, Y')
