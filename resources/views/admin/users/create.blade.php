@@ -1529,6 +1529,9 @@ function initializeUsersTable() {
                 });
             });
             
+            // Remove any existing event handlers to prevent duplicate events
+            $('.table tbody tr').off('click mouseenter mouseleave');
+            
             // Add click event handlers for all rows
             $('.table tbody tr').each(function() {
                 const row = $(this);
@@ -1552,6 +1555,12 @@ function initializeUsersTable() {
                     $(this).removeClass('table-hover-active');
                 });
             });
+            
+            // Clean up any orphaned modal backdrops
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+            $('body').css('overflow', '');
+            $('body').css('padding-right', '');
         }
     });
 }
@@ -1572,8 +1581,23 @@ function confirmClose() {
     });
 }
 
+// Global variable to store modal instance
+let userDetailsModalInstance = null;
+
 // Function to show user details modal
 function showUserDetailsModal(userData) {
+    // Clean up any existing modal instances and backdrops
+    if (userDetailsModalInstance) {
+        userDetailsModalInstance.dispose();
+        userDetailsModalInstance = null;
+    }
+    
+    // Remove any orphaned modal backdrops
+    $('.modal-backdrop').remove();
+    $('body').removeClass('modal-open');
+    $('body').css('overflow', '');
+    $('body').css('padding-right', '');
+    
     // Populate user information
     document.getElementById('modal-user-name').textContent = userData.name || '-';
     document.getElementById('modal-user-email').textContent = userData.email || '-';
@@ -1610,9 +1634,31 @@ function showUserDetailsModal(userData) {
         });
     }
     
+    // Create new modal instance
+    const modalElement = document.getElementById('userDetailsModal');
+    userDetailsModalInstance = new bootstrap.Modal(modalElement, {
+        backdrop: true,
+        keyboard: true,
+        focus: true
+    });
+    
+    // Add event listeners for proper cleanup
+    modalElement.addEventListener('hidden.bs.modal', function () {
+        // Clean up when modal is hidden
+        if (userDetailsModalInstance) {
+            userDetailsModalInstance.dispose();
+            userDetailsModalInstance = null;
+        }
+        
+        // Ensure body classes and styles are cleaned up
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open');
+        $('body').css('overflow', '');
+        $('body').css('padding-right', '');
+    }, { once: true }); // Use once: true to prevent multiple listeners
+    
     // Show the modal
-    const modal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
-    modal.show();
+    userDetailsModalInstance.show();
 }
 
 function confirmSubmit(event) {
