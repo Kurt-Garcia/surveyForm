@@ -242,7 +242,7 @@
 
 <!-- User Details Modal -->
 <div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-gradient text-white">
                 <h5 class="modal-title fw-bold" id="userDetailsModalLabel">
@@ -317,6 +317,25 @@
     /* Modal Size Control */
     .modal-dialog {
         max-width: 90vw;
+    }
+    
+    /* Ensure modal centering on all devices */
+    .modal-dialog-centered {
+        display: flex;
+        align-items: center;
+        min-height: calc(100vh - 2rem);
+    }
+    
+    /* Mobile modal centering fixes */
+    @media (max-width: 768px) {
+        .modal-dialog-centered {
+            min-height: calc(100vh - 1rem);
+        }
+        
+        .modal-dialog {
+            margin: 0.5rem auto;
+            max-width: calc(100vw - 1rem);
+        }
     }
     
     .modal-content {
@@ -621,6 +640,11 @@
         margin: 0 !important;
         overflow-y: auto !important;
         position: relative !important;
+    }
+    
+    /* Add padding to table container for proper spacing */
+    .modal-body-scrollable .table-container-full-width {
+        padding: 0 1.5rem 1.5rem 1.5rem;
     }
 
     /* User Type Badges */
@@ -932,7 +956,12 @@
             flex: 1;
             overflow-y: auto;
             max-height: none;
-            padding: 1rem !important;
+            padding: 0 !important; /* Remove padding to fix sticky header */
+        }
+        
+        /* Add padding to table container instead */
+        .modal-body-scrollable .table-container-full-width {
+            padding: 0 1rem 1rem 1rem !important;
         }
         
         .modal-footer {
@@ -985,12 +1014,19 @@
 
     @media (max-width: 576px) {
         .modal-dialog {
-            margin: 0.25rem;
-            max-height: calc(100vh - 0.5rem);
+            margin: 1rem auto;
+            max-height: calc(100vh - 2rem);
+            width: calc(100vw - 2rem);
+            max-width: calc(100vw - 2rem);
+            display: flex;
+            align-items: center;
+            min-height: calc(100vh - 2rem);
         }
         
         .modal-content {
-            height: calc(100vh - 0.5rem);
+            height: auto;
+            max-height: calc(100vh - 2rem);
+            width: 100%;
         }
         
         .modal-body-fixed {
@@ -998,10 +1034,15 @@
         }
         
         .modal-body-scrollable {
-            padding: 0.75rem !important;
+            padding: 0 !important; /* Remove padding to fix sticky header */
             max-height: none !important;
             flex: 1 !important;
             overflow-y: auto !important;
+        }
+        
+        /* Add padding to table container instead */
+        .modal-body-scrollable .table-container-full-width {
+            padding: 0 0.75rem 0.75rem 0.75rem !important;
         }
         
         .modal-footer {
