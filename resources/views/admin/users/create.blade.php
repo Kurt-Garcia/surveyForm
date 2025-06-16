@@ -21,7 +21,7 @@
 
     <div class="row g-4">
         <!-- Create New User Form - Left Side -->
-        <div class="col-lg-4">
+        <div class="col-lg-3">
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100">
                 <div class="card-header bg-gradient text-white py-4">
                     <div class="d-flex justify-content-between align-items-center">
@@ -199,7 +199,7 @@
         </div>
 
         <!-- Existing Users Table - Right Side -->
-        <div class="col-lg-8">
+        <div class="col-lg-9">
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100">
                 <div class="card-header bg-gradient text-white py-4">
                     <div class="d-flex justify-content-between align-items-center">
@@ -520,6 +520,64 @@
         transform: translateX(5px);
     }
 
+    /* Main Users Table Width Optimization */
+    #usersTable {
+        width: 100% !important;
+        table-layout: auto !important;
+    }
+    
+    #usersTable th,
+    #usersTable td {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    /* Override for site column to allow wrapping */
+    #usersTable th:nth-child(5),
+    #usersTable td:nth-child(5) {
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+    }
+    
+    /* Specific column width optimizations for better space usage */
+    #usersTable th:nth-child(1), /* Name */
+    #usersTable td:nth-child(1) {
+        width: 18% !important;
+        min-width: 150px !important;
+    }
+    
+    #usersTable th:nth-child(2), /* Email */
+    #usersTable td:nth-child(2) {
+        width: 25% !important;
+        min-width: 180px !important;
+    }
+    
+    #usersTable th:nth-child(3), /* Contact */
+    #usersTable td:nth-child(3) {
+        width: 14% !important;
+        min-width: 120px !important;
+    }
+    
+    #usersTable th:nth-child(4), /* SBU */
+    #usersTable td:nth-child(4) {
+        width: 13% !important;
+        min-width: 100px !important;
+    }
+    
+    #usersTable th:nth-child(5), /* Site */
+    #usersTable td:nth-child(5) {
+        width: 20% !important;
+        min-width: 150px !important;
+    }
+    
+    #usersTable th:nth-child(6), /* Created */
+    #usersTable td:nth-child(6) {
+        width: 10% !important;
+        min-width: 100px !important;
+    }
+
     /* Full Width Table Header Styling for Modal */
     .table-container-full-width {
         margin: 0 !important;
@@ -637,8 +695,19 @@
 
     /* Site Column Responsive Design */
     .site-column {
-        max-width: 180px !important;
-        min-width: 120px !important;
+        max-width: 250px !important;
+        min-width: 150px !important;
+        word-wrap: break-word !important;
+        overflow: visible !important;
+    }
+    
+    /* Sites display container */
+    .sites-display {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+        align-items: center !important;
+        max-width: 100% !important;
     }
 
     /* Tooltip styling for better visibility */
@@ -664,8 +733,8 @@
         }
         
         .site-column {
-            max-width: 130px !important;
-            min-width: 100px !important;
+            max-width: 180px !important;
+            min-width: 120px !important;
         }
     }
 
@@ -677,8 +746,8 @@
         }
         
         .site-column {
-            max-width: 110px !important;
-            min-width: 90px !important;
+            max-width: 150px !important;
+            min-width: 100px !important;
         }
     }
 
@@ -691,6 +760,9 @@
 
     .more-sites-badge {
         transition: all 0.3s ease !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        margin-left: 2px !important;
     }
 
     .more-sites-badge:hover {
