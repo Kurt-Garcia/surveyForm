@@ -242,7 +242,7 @@
 
 <!-- User Details Modal -->
 <div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-gradient text-white">
                 <h5 class="modal-title fw-bold" id="userDetailsModalLabel">
@@ -289,16 +289,16 @@
             </div>
 
             <!-- Scrollable Table Section -->
-            <div class="modal-body-scrollable p-4">
-                <div class="table-container">
+            <div class="modal-body-scrollable">
+                <div class="table-container-full-width">
                     <table id="modalUserDetailsTable" class="table table-hover modern-table mb-0">
-                        <thead>
+                        <thead class="table-header-full-width">
                             <tr>
                                 <th class="fw-semibold">SBU</th>
                                 <th class="fw-semibold">SITE</th>
                             </tr>
                         </thead>
-                        <tbody id="modal-sbu-sites-table">
+                        <tbody id="modal-sbu-sites-table" class="table-body-padded">
                             <!-- Dynamic content will be inserted here -->
                         </tbody>
                     </table>
@@ -314,6 +314,23 @@
 </div>
 
 <style>
+    /* Modal Size Control */
+    .modal-dialog {
+        max-width: 90vw;
+    }
+    
+    .modal-content {
+        display: flex;
+        flex-direction: column;
+        max-height: 90vh;
+    }
+    
+    @media (min-width: 992px) {
+        .modal-dialog {
+            max-width: 800px;
+        }
+    }
+    
     /* Modern Card Styling with Gradient */
     .bg-gradient {
         background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
@@ -408,9 +425,22 @@
         max-width: 120px !important;
     }
 
+    /* Modal Body Layout */
+    .modal-body-fixed {
+        flex-shrink: 0;
+    }
+    
+    .modal-body-scrollable {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 200px;
+        max-height: 400px;
+    }
+    
     /* Modal DataTable Controls Alignment */
     .modal-body-scrollable .dataTables_wrapper {
-        padding: 0 !important;
+        padding: 1rem 1.5rem 0 1.5rem !important;
+        margin-top: 0 !important;
     }
     
     .modal-body-scrollable .dataTables_wrapper .row {
@@ -488,6 +518,51 @@
     .table tbody tr:hover {
         background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.05) 0%, rgba(var(--secondary-color-rgb), 0.05) 100%) !important;
         transform: translateX(5px);
+    }
+
+    /* Full Width Table Header Styling for Modal */
+    .table-container-full-width {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    .table-header-full-width th {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+        margin: 0 !important;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+        color: white !important;
+        border: none !important;
+        font-weight: 600 !important;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 10 !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+
+    .table-body-padded td {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+
+    /* Ensure the table spans full width in modal */
+    #modalUserDetailsTable {
+        margin: 0 !important;
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+
+    .modal-body-scrollable {
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow-y: auto !important;
+        position: relative !important;
     }
 
     /* User Type Badges */
@@ -717,7 +792,10 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
         font-size: 0.85rem;
-        position: relative;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 10 !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
     }
 
     .modern-table tbody td {
@@ -748,18 +826,6 @@
         position: relative;
     }
 
-    .sbu-cell::before {
-        content: '';
-        position: absolute;
-        left: -0.75rem; /* Adjust for reduced padding */
-        top: 50%;
-        transform: translateY(-50%);
-        width: 4px;
-        height: 100%;
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-        border-radius: 2px;
-    }
-
     .sites-cell {
         color: #495057;
         font-weight: 500;
@@ -775,7 +841,31 @@
     /* Modal responsive adjustments */
     @media (max-width: 768px) {
         .modal-dialog {
-            margin: 1rem;
+            margin: 0.5rem;
+            max-height: calc(100vh - 1rem);
+        }
+        
+        .modal-content {
+            height: calc(100vh - 1rem);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-body-fixed {
+            flex-shrink: 0;
+            padding: 1rem !important;
+        }
+        
+        .modal-body-scrollable {
+            flex: 1;
+            overflow-y: auto;
+            max-height: none;
+            padding: 1rem !important;
+        }
+        
+        .modal-footer {
+            flex-shrink: 0;
+            padding: 0.75rem 1rem !important;
         }
         
         .modal-body-scrollable {
@@ -822,8 +912,49 @@
     }
 
     @media (max-width: 576px) {
+        .modal-dialog {
+            margin: 0.25rem;
+            max-height: calc(100vh - 0.5rem);
+        }
+        
+        .modal-content {
+            height: calc(100vh - 0.5rem);
+        }
+        
+        .modal-body-fixed {
+            padding: 0.75rem !important;
+        }
+        
         .modal-body-scrollable {
-            max-height: 250px;
+            padding: 0.75rem !important;
+            max-height: none !important;
+            flex: 1 !important;
+            overflow-y: auto !important;
+        }
+        
+        .modal-footer {
+            padding: 0.5rem 0.75rem !important;
+        }
+        
+        .modal-header {
+            padding: 0.75rem !important;
+        }
+        
+        .modal-header h5 {
+            font-size: 1.1rem !important;
+        }
+        
+        .info-card {
+            padding: 0.5rem !important;
+            margin-bottom: 0.75rem !important;
+        }
+        
+        .info-label {
+            font-size: 0.85rem !important;
+        }
+        
+        .info-value {
+            font-size: 0.9rem !important;
         }
         
         .modern-table thead th,
@@ -851,6 +982,24 @@
         .modal-body-scrollable .dataTables_length select {
             min-width: 70px !important;
             font-size: 0.85rem !important;
+        }
+        
+        /* Ensure pagination is visible and accessible */
+        .modal-body-scrollable .dataTables_wrapper .dataTables_paginate {
+            margin-top: 0.75rem !important;
+            text-align: center !important;
+        }
+        
+        .modal-body-scrollable .dataTables_paginate .paginate_button {
+            padding: 4px 8px !important;
+            font-size: 0.8rem !important;
+            margin: 0 1px !important;
+        }
+        
+        .modal-body-scrollable .dataTables_info {
+            font-size: 0.8rem !important;
+            text-align: center !important;
+            margin-top: 0.5rem !important;
         }
     }
 
