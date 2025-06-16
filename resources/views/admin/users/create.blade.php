@@ -294,6 +294,7 @@
                     <table id="modalUserDetailsTable" class="table table-hover modern-table mb-0">
                         <thead class="table-header-full-width">
                             <tr>
+                                <th class="fw-semibold" style="width: 60px;">No.</th>
                                 <th class="fw-semibold">SBU</th>
                                 <th class="fw-semibold">SITE</th>
                             </tr>
@@ -1866,7 +1867,7 @@ function showUserDetailsModal(userData) {
     if (sites.length === 0) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="2" class="text-center text-muted py-4">
+                <td colspan="3" class="text-center text-muted py-4">
                     <i class="bi bi-exclamation-circle me-2"></i>No SBU or site access assigned
                 </td>
             </tr>
@@ -1882,9 +1883,12 @@ function showUserDetailsModal(userData) {
         }
         
         // Create one row per site
-        sites.forEach(site => {
+        sites.forEach((site, index) => {
             const row = document.createElement('tr');
             row.innerHTML = `
+                <td class="text-center fw-bold" style="color: var(--primary-color);">
+                    ${index + 1}
+                </td>
                 <td class="fw-bold sbu-cell">
                     ${getSbuFullName(site.sbu_name)}
                 </td>
@@ -1937,7 +1941,7 @@ function showUserDetailsModal(userData) {
                     pageLength: 10,
                     lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "All"]],
                     responsive: true,
-                    order: [[0, 'asc']], // Sort by SBU
+                    ordering: false, // Disable sorting for all columns
                     language: {
                         searchPlaceholder: "Search SBU or Sites...",
                         lengthMenu: "_MENU_ per page",
