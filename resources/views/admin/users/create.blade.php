@@ -291,11 +291,11 @@
             <!-- Scrollable Table Section -->
             <div class="modal-body-scrollable p-4">
                 <div class="table-container">
-                    <table class="table table-hover modern-table mb-0">
-                        <thead class="sticky-top">
+                    <table id="modalUserDetailsTable" class="table table-hover modern-table mb-0">
+                        <thead>
                             <tr>
-                                <th class="fw-semibold" style="width: 40%; min-width: 200px;">SBU</th>
-                                <th class="fw-semibold" style="width: 60%; min-width: 250px;">SITE</th>
+                                <th class="fw-semibold">SBU</th>
+                                <th class="fw-semibold">SITE</th>
                             </tr>
                         </thead>
                         <tbody id="modal-sbu-sites-table">
@@ -767,133 +767,162 @@
         }
     }
 
-    /* Modal Scrollable Sections */
-    .modal-body-fixed {
-        background: #f8f9fa;
-        border-bottom: 2px solid #dee2e6 !important;
-        padding-bottom: 1rem !important; /* Reduce bottom padding */
-    }
-
-    .modal-body-scrollable {
-        max-height: 400px;
-        overflow-y: auto;
-        overflow-x: hidden;
+    /* Modal DataTables Specific Styling */
+    .modal-body-scrollable .dataTables_wrapper {
+        padding: 1rem !important;
         background: white;
-        position: relative;
-        /* Ensure proper stacking context for sticky elements */
-        isolation: isolate;
-        padding: 0 !important; /* Remove all padding to maximize width */
-        margin: 0 !important; /* Remove margins */
     }
 
-    .modal-body-scrollable::-webkit-scrollbar {
-        width: 8px;
+    .modal-body-scrollable .dataTables_length,
+    .modal-body-scrollable .dataTables_filter {
+        margin-bottom: 1rem;
     }
 
-    .modal-body-scrollable::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 4px;
+    .modal-body-scrollable .dataTables_length {
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
-    .modal-body-scrollable::-webkit-scrollbar-thumb {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-        border-radius: 4px;
-    }
-
-    .modal-body-scrollable::-webkit-scrollbar-thumb:hover {
-        background: var(--primary-color);
-    }
-
-    .table-section-header {
-        position: sticky;
-        top: 0;
-        background: white;
-        z-index: 10;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #e9ecef;
+    .modal-body-scrollable .dataTables_length label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         margin-bottom: 0 !important;
+        font-weight: 500;
+        color: var(--text-color);
+        font-size: 0.9rem;
     }
 
-    .table-container {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    .modal-body-scrollable .dataTables_filter {
+        text-align: right;
+    }
+
+    .modal-body-scrollable .dataTables_filter label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 0 !important;
+        justify-content: flex-end;
+    }
+
+    .modal-body-scrollable .dataTables_filter input {
+        border-radius: 25px !important;
+        border: 2px solid #e9ecef !important;
+        padding: 8px 20px !important;
+        padding-left: 45px !important;
+        width: 250px !important;
+        transition: all 0.3s ease;
+    }
+
+    .modal-body-scrollable .dataTables_filter input:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25) !important;
+        outline: none;
+    }
+
+    .modal-body-scrollable .dataTables_length select {
+        border-radius: 20px !important;
+        border: 2px solid #e9ecef !important;
+        padding: 6px 12px !important;
+        width: auto !important;
+        min-width: 80px !important;
+        max-width: 120px !important;
+    }
+
+    .modal-body-scrollable .dataTables_info {
+        font-size: 0.85rem;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .modal-body-scrollable .dataTables_paginate {
+        margin-top: 0.5rem;
+    }
+
+    .modal-body-scrollable .dataTables_paginate .paginate_button {
+        padding: 6px 12px !important;
+        margin: 0 2px !important;
+        border-radius: 8px !important;
+        border: 1px solid #dee2e6 !important;
+        color: var(--primary-color) !important;
+        background: white !important;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .modal-body-scrollable .dataTables_paginate .paginate_button:hover {
+        background: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+        color: white !important;
+        transform: translateY(-1px);
+    }
+
+    .modal-body-scrollable .dataTables_paginate .paginate_button.current {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+        border-color: var(--primary-color) !important;
+        color: white !important;
+    }
+
+    .modal-body-scrollable .dataTables_paginate .paginate_button.disabled {
+        color: #6c757d !important;
+        background: #f8f9fa !important;
+        border-color: #dee2e6 !important;
+        cursor: not-allowed;
+    }
+
+    /* Modal table header styling */
+    .modal-body-scrollable #modalUserDetailsTable thead th {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+        color: white !important;
+        font-weight: 600 !important;
+        border: none !important;
+        padding: 1rem 0.75rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
         position: relative;
-        overflow: visible;
-        /* Ensure proper stacking context */
-        isolation: isolate;
-        margin-top: 0 !important; /* Remove top margin to bring table closer */
-        margin-left: 0 !important; /* Remove left margin */
-        margin-right: 0 !important; /* Remove right margin */
-        padding-top: 0.5rem !important; /* Minimal top padding */
-        padding-left: 0 !important; /* Remove left padding */
-        padding-right: 0 !important; /* Remove right padding */
-        width: 100% !important; /* Ensure full width */
     }
 
-    /* Fix sticky header for modal table */
-    .modal-body-scrollable .table-container {
-        overflow: visible;
-        background: white;
-        /* Create a stacking context to prevent bleed-through */
-        transform: translateZ(0);
+    /* Search icon positioning for modal */
+    .modal-body-scrollable .dataTables_filter .bi-search {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        z-index: 10;
+        pointer-events: none;
     }
 
-    .modern-table thead th.sticky-top {
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-        color: white !important;
-        border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
-        /* Ensure solid background coverage */
-        background-clip: padding-box !important;
-        backdrop-filter: blur(10px) !important;
-        -webkit-backdrop-filter: blur(10px) !important;
+    /* Responsive adjustments for modal DataTables */
+    @media (max-width: 768px) {
+        .modal-body-scrollable .dataTables_filter input {
+            width: 200px !important;
+        }
+        
+        .modal-body-scrollable .dataTables_wrapper {
+            padding: 0.75rem !important;
+        }
     }
 
-    /* Enhanced sticky header for modal table */
-    .modal-body-scrollable .modern-table thead th {
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 100 !important;
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-        color: white !important;
-        border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
-        /* Ensure complete coverage and prevent bleed-through */
-        background-clip: padding-box !important;
-        backdrop-filter: blur(10px) !important;
-        -webkit-backdrop-filter: blur(10px) !important;
-        border-top: 1px solid transparent !important;
-        margin-top: -1px !important;
-        padding: 1rem 0.75rem !important; /* Consistent with other table header padding */
-    }
-
-    /* Additional styling to prevent content showing through */
-    .modal-body-scrollable .modern-table thead {
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 100 !important;
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-    }
-
-    /* Validation Styling - Colored borders instead of icons */
-    .is-valid {
-        border-color: #28a745 !important;
-        border-width: 2px !important;
-        background-image: none !important;
-        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
-        background-color: rgba(40, 167, 69, 0.05) !important;
-    }
-
-    .is-invalid {
-        border-color: #dc3545 !important;
-        border-width: 2px !important;
-        background-image: none !important;
-        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
-        background-color: rgba(220, 53, 69, 0.05) !important;
+    @media (max-width: 576px) {
+        .modal-body-scrollable .dataTables_filter input {
+            width: 180px !important;
+            font-size: 0.9rem;
+        }
+        
+        .modal-body-scrollable .dataTables_length label {
+            font-size: 0.85rem;
+        }
+        
+        .modal-body-scrollable .dataTables_info {
+            font-size: 0.8rem;
+        }
+        
+        .modal-body-scrollable .dataTables_wrapper {
+            padding: 0.5rem !important;
+        }
     }
 
     /* Success text color */
@@ -1581,8 +1610,9 @@ function confirmClose() {
     });
 }
 
-// Global variable to store modal instance
+// Global variable to store modal instance and DataTable instance
 let userDetailsModalInstance = null;
+let modalDataTable = null;
 
 // Function to show user details modal
 function showUserDetailsModal(userData) {
@@ -1590,6 +1620,12 @@ function showUserDetailsModal(userData) {
     if (userDetailsModalInstance) {
         userDetailsModalInstance.dispose();
         userDetailsModalInstance = null;
+    }
+    
+    // Destroy existing DataTable if it exists
+    if (modalDataTable) {
+        modalDataTable.destroy();
+        modalDataTable = null;
     }
     
     // Remove any orphaned modal backdrops
@@ -1659,6 +1695,12 @@ function showUserDetailsModal(userData) {
             userDetailsModalInstance = null;
         }
         
+        // Destroy DataTable when modal is hidden
+        if (modalDataTable) {
+            modalDataTable.destroy();
+            modalDataTable = null;
+        }
+        
         // Ensure body classes and styles are cleaned up
         $('.modal-backdrop').remove();
         $('body').removeClass('modal-open');
@@ -1666,8 +1708,84 @@ function showUserDetailsModal(userData) {
         $('body').css('padding-right', '');
     }, { once: true }); // Use once: true to prevent multiple listeners
     
-    // Show the modal
+    // Show the modal first
     userDetailsModalInstance.show();
+    
+    // Initialize DataTable after modal is shown and content is populated
+    modalElement.addEventListener('shown.bs.modal', function () {
+        // Only initialize DataTable if there are sites to display
+        if (sites.length > 0) {
+            setTimeout(() => {
+                modalDataTable = $('#modalUserDetailsTable').DataTable({
+                    pageLength: 10,
+                    lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "All"]],
+                    responsive: true,
+                    order: [[0, 'asc']], // Sort by SBU
+                    language: {
+                        search: "<i class='bi bi-search'></i>",
+                        searchPlaceholder: "Search SBU or Sites...",
+                        lengthMenu: "_MENU_ per page",
+                        info: "Showing <span class='fw-semibold'>_START_</span> to <span class='fw-semibold'>_END_</span> of <span class='fw-semibold'>_TOTAL_</span> entries",
+                        paginate: {
+                            first: "<i class='bi bi-chevron-double-left'></i>",
+                            last: "<i class='bi bi-chevron-double-right'></i>",
+                            next: "<i class='bi bi-chevron-right'></i>",
+                            previous: "<i class='bi bi-chevron-left'></i>"
+                        },
+                        emptyTable: "<div class='text-center py-3'><i class='bi bi-building text-muted fs-4 mb-2'></i><p class='text-muted mb-0'>No SBU or site access found</p></div>",
+                        zeroRecords: "<div class='text-center py-3'><i class='bi bi-search text-muted fs-4 mb-2'></i><p class='text-muted mb-0'>No matching SBU or sites found</p></div>"
+                    },
+                    dom: '<"row mb-3"<"col-md-6"l><"col-md-6"f>>rt<"row align-items-center pt-3"<"col-md-6"i><"col-md-6"p>>',
+                    initComplete: function() {
+                        // Style the search input with modern design
+                        $('.modal-body-scrollable .dataTables_filter input')
+                            .addClass('form-control')
+                            .attr('placeholder', 'Search SBU or Sites...')
+                            .css({
+                                'border-radius': '25px',
+                                'border': '2px solid #e9ecef',
+                                'padding': '8px 20px',
+                                'width': '250px'
+                            });
+                        
+                        $('.modal-body-scrollable .dataTables_filter label')
+                            .addClass('position-relative')
+                            .css('margin-bottom', '0');
+                            
+                        $('.modal-body-scrollable .dataTables_filter input:focus').css({
+                            'border-color': 'var(--primary-color)',
+                            'box-shadow': '0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25)'
+                        });
+                        
+                        // Style the length select
+                        $('.modal-body-scrollable .dataTables_length select')
+                            .addClass('form-select')
+                            .css({
+                                'border-radius': '20px',
+                                'border': '2px solid #e9ecef',
+                                'padding': '6px 12px',
+                                'width': 'auto',
+                                'min-width': '80px'
+                            });
+                            
+                        // Add icons to search
+                        const searchContainer = $('.modal-body-scrollable .dataTables_filter');
+                        searchContainer.find('label').prepend('<i class="bi bi-search position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #6c757d; z-index: 10;"></i>');
+                        searchContainer.find('input').css('padding-left', '45px');
+                    },
+                    drawCallback: function() {
+                        // Add animation to rows
+                        $('.modal-body-scrollable table tbody tr').each(function(index) {
+                            $(this).css({
+                                'animation-delay': (index * 0.05) + 's',
+                                'animation': 'fadeInUp 0.4s ease forwards'
+                            });
+                        });
+                    }
+                });
+            }, 100); // Small delay to ensure modal is fully rendered
+        }
+    }, { once: true });
 }
 
 function confirmSubmit(event) {
