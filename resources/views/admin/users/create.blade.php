@@ -1619,12 +1619,21 @@ function showUserDetailsModal(userData) {
             </tr>
         `;
     } else {
+        // Function to convert SBU acronym to full name
+        function getSbuFullName(sbuName) {
+            const sbuMapping = {
+                'FDC': 'Fast Distribution',
+                'FUI': 'Fast Unimerchant'
+            };
+            return sbuMapping[sbuName] || sbuName || 'Unknown SBU';
+        }
+        
         // Create one row per site
         sites.forEach(site => {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td class="fw-bold sbu-cell">
-                    ${site.sbu_name || 'Unknown SBU'}
+                    ${getSbuFullName(site.sbu_name)}
                 </td>
                 <td class="sites-cell">
                     ${site.name || 'Unknown Site'}
