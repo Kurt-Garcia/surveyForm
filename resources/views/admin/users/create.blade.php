@@ -21,7 +21,7 @@
 
     <div class="row g-4">
         <!-- Create New User Form - Left Side -->
-        <div class="col-lg-3">
+        <div class="col-lg-3 col-xl-4">
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100">
                 <div class="card-header bg-gradient text-white py-4">
                     <div class="d-flex justify-content-between align-items-center">
@@ -52,7 +52,7 @@
                                 <p class="text-muted mb-3 fs-6">Select one or more SBUs where this user will have access:</p>
                                 <div class="row g-3">
                                     @foreach($sbus as $sbu)
-                                        <div class="col-md-6">
+                                        <div class="col-md-6 col-lg-12 col-xl-6">
                                             <div class="sbu-card" data-sbu-id="{{ $sbu->id }}">
                                                 <input class="sbu-checkbox d-none" type="checkbox" 
                                                        id="sbu_{{ $sbu->id }}" 
@@ -130,7 +130,7 @@
                         
                         <!-- Contact Information -->
                         <div class="row g-3 mb-4">
-                            <div class="col-md-7">
+                            <div class="col-md-7 col-lg-12 col-xl-7">
                                 <label for="email" class="form-label fw-semibold text-dark">
                                     <i class="bi bi-envelope me-1 text-warning"></i>Email Address
                                 </label>
@@ -141,7 +141,7 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="col-md-5">
+                            <div class="col-md-5 col-lg-12 col-xl-5">
                                 <label for="contact_number" class="form-label fw-semibold text-dark">
                                     <i class="bi bi-telephone me-1 text-danger"></i>Contact Number
                                 </label>
@@ -155,8 +155,8 @@
                         </div>
                         
                         <!-- Password Fields -->
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
+                        <div class="row g-3 mb-4 password-fields">
+                            <div class="col-md-6 col-lg-12 col-xl-6">
                                 <label for="password" class="form-label fw-semibold text-dark">
                                     <i class="bi bi-shield-lock me-1 text-secondary"></i>Password
                                 </label>
@@ -172,7 +172,7 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6 col-lg-12 col-xl-6">
                                 <label for="password_confirmation" class="form-label fw-semibold text-dark">
                                     <i class="bi bi-shield-check me-1 text-secondary"></i>Confirm Password
                                 </label>
@@ -199,7 +199,7 @@
         </div>
 
         <!-- Existing Users Table - Right Side -->
-        <div class="col-lg-9">
+        <div class="col-lg-9 col-xl-8">
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100">
                 <div class="card-header bg-gradient text-white py-4">
                     <div class="d-flex justify-content-between align-items-center">
@@ -2775,6 +2775,221 @@ style.textContent = `
         
         .sbu-sites-count {
             font-size: 0.8rem;
+        }
+    }
+
+    /* Medium tablets responsive (769px to 820px) - iPad standard */
+    @media (min-width: 769px) and (max-width: 820px) {
+        .col-lg-3.col-xl-4 {
+            flex: 0 0 45%;
+            max-width: 45%;
+        }
+        
+        .col-lg-9.col-xl-8 {
+            flex: 0 0 55%;
+            max-width: 55%;
+        }
+        
+        .card-body {
+            padding: 1.75rem !important;
+        }
+        
+        /* Stack email and contact fields vertically on iPad */
+        .col-md-7.col-lg-12.col-xl-7,
+        .col-md-5.col-lg-12.col-xl-5 {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        /* Stack password fields vertically on iPad */
+        .password-fields .col-md-6.col-lg-12.col-xl-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        /* SBU cards single column on standard iPad */
+        .sbu-selection-container .col-md-6.col-lg-12.col-xl-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+        
+        .sbu-card {
+            min-height: 90px;
+            max-height: 110px;
+        }
+        
+        .sbu-card-content {
+            padding: 0.75rem;
+        }
+        
+        .sbu-name {
+            font-size: 0.9rem;
+        }
+        
+        .sbu-sites-count {
+            font-size: 0.8rem;
+        }
+    }
+
+    /* iPad Pro responsive (821px to 1024px) */
+    @media (min-width: 821px) and (max-width: 1024px) {
+        /* Adjust main layout for better iPad Pro spacing */
+        .col-lg-3.col-xl-4 {
+            flex: 0 0 42%;
+            max-width: 42%;
+        }
+        
+        .col-lg-9.col-xl-8 {
+            flex: 0 0 58%;
+            max-width: 58%;
+        }
+        
+        /* Optimize form layout for iPad Pro */
+        .card-body {
+            padding: 2rem !important;
+        }
+        
+        /* SBU Cards responsive adjustments */
+        .sbu-selection-container {
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .sbu-selection-container .row.g-3 {
+            --bs-gutter-x: 1rem;
+            --bs-gutter-y: 1rem;
+        }
+        
+        .sbu-card {
+            min-height: 100px;
+            max-height: 120px;
+        }
+        
+        .sbu-card-content {
+            padding: 0.875rem;
+        }
+        
+        .sbu-name {
+            font-size: 0.95rem;
+            margin-bottom: 0.375rem;
+        }
+        
+        .sbu-sites-count {
+            font-size: 0.8rem;
+        }
+        
+        /* Sites selection optimization */
+        .sites-selection-container {
+            padding: 1.25rem;
+        }
+        
+        .sites-selection-container .sites-header-container {
+            flex-direction: column;
+            gap: 0.875rem;
+            align-items: flex-start !important;
+        }
+        
+        .sites-selection-container .selection-controls {
+            flex-direction: row;
+            gap: 0.75rem;
+            width: 100%;
+            justify-content: flex-start;
+        }
+        
+        .sites-selection-container .selection-controls .btn {
+            flex: 0 0 auto;
+            padding: 0.625rem 1rem;
+            font-size: 0.875rem;
+            min-width: 120px;
+            margin-bottom: 0;
+        }
+        
+        .sites-selection-container .text-muted {
+            width: 100%;
+            flex: none;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        /* Form fields optimization */
+        .form-control, .form-select {
+            padding: 10px 14px !important;
+            font-size: 0.9rem;
+        }
+        
+        .form-label {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem !important;
+        }
+        
+        /* Contact information row */
+        .row.g-3.mb-4 .col-md-7.col-lg-12.col-xl-7,
+        .row.g-3.mb-4 .col-md-5.col-lg-12.col-xl-5 {
+            padding-right: 0.75rem;
+            padding-left: 0.75rem;
+        }
+        
+        /* Password fields */
+        .row.g-3.mb-4 .col-md-6.col-lg-12.col-xl-6 {
+            padding-right: 0.75rem;
+            padding-left: 0.75rem;
+        }
+        
+        /* Submit button */
+        .btn-lg {
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+        }
+        
+        /* Select2 adjustments for iPad Pro */
+        .select2-container--default .select2-selection--multiple {
+            min-height: 100px;
+            max-height: 140px;
+            padding: 0.5rem;
+        }
+        
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            padding: 4px 8px;
+            margin: 2px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+        }
+    }
+
+    /* Large iPad Pro responsive (1025px to 1200px) */
+    @media (min-width: 1025px) and (max-width: 1200px) {
+        /* Fine-tune layout for large iPad Pro */
+        .container-fluid {
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+        
+        .card-body {
+            padding: 2.5rem !important;
+        }
+        
+        /* Optimize SBU cards for large screen */
+        .sbu-selection-container .row.g-3 {
+            --bs-gutter-x: 1.25rem;
+            --bs-gutter-y: 1.25rem;
+        }
+        
+        .sbu-card {
+            min-height: 110px;
+        }
+        
+        /* Form optimization */
+        .form-control, .form-select {
+            padding: 12px 16px !important;
+            font-size: 0.95rem;
+        }
+        
+        .sites-selection-container .selection-controls .btn {
+            padding: 0.75rem 1.25rem;
+            font-size: 0.9rem;
+            min-width: 130px;
         }
     }
     
