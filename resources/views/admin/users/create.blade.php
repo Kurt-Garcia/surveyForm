@@ -767,164 +767,6 @@
         }
     }
 
-    /* Modal DataTables Specific Styling */
-    .modal-body-scrollable .dataTables_wrapper {
-        padding: 1rem !important;
-        background: white;
-    }
-
-    .modal-body-scrollable .dataTables_length,
-    .modal-body-scrollable .dataTables_filter {
-        margin-bottom: 1rem;
-    }
-
-    .modal-body-scrollable .dataTables_length {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .modal-body-scrollable .dataTables_length label {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 0 !important;
-        font-weight: 500;
-        color: var(--text-color);
-        font-size: 0.9rem;
-    }
-
-    .modal-body-scrollable .dataTables_filter {
-        text-align: right;
-    }
-
-    .modal-body-scrollable .dataTables_filter label {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 0 !important;
-        justify-content: flex-end;
-    }
-
-    .modal-body-scrollable .dataTables_filter input {
-        border-radius: 25px !important;
-        border: 2px solid #e9ecef !important;
-        padding: 8px 20px !important;
-        padding-left: 45px !important;
-        width: 250px !important;
-        transition: all 0.3s ease;
-    }
-
-    .modal-body-scrollable .dataTables_filter input:focus {
-        border-color: var(--primary-color) !important;
-        box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25) !important;
-        outline: none;
-    }
-
-    .modal-body-scrollable .dataTables_length select {
-        border-radius: 20px !important;
-        border: 2px solid #e9ecef !important;
-        padding: 6px 12px !important;
-        width: auto !important;
-        min-width: 80px !important;
-        max-width: 120px !important;
-    }
-
-    .modal-body-scrollable .dataTables_info {
-        font-size: 0.85rem;
-        color: #6c757d;
-        font-weight: 500;
-    }
-
-    .modal-body-scrollable .dataTables_paginate {
-        margin-top: 0.5rem;
-    }
-
-    .modal-body-scrollable .dataTables_paginate .paginate_button {
-        padding: 6px 12px !important;
-        margin: 0 2px !important;
-        border-radius: 8px !important;
-        border: 1px solid #dee2e6 !important;
-        color: var(--primary-color) !important;
-        background: white !important;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-
-    .modal-body-scrollable .dataTables_paginate .paginate_button:hover {
-        background: var(--primary-color) !important;
-        border-color: var(--primary-color) !important;
-        color: white !important;
-        transform: translateY(-1px);
-    }
-
-    .modal-body-scrollable .dataTables_paginate .paginate_button.current {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-        border-color: var(--primary-color) !important;
-        color: white !important;
-    }
-
-    .modal-body-scrollable .dataTables_paginate .paginate_button.disabled {
-        color: #6c757d !important;
-        background: #f8f9fa !important;
-        border-color: #dee2e6 !important;
-        cursor: not-allowed;
-    }
-
-    /* Modal table header styling */
-    .modal-body-scrollable #modalUserDetailsTable thead th {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-        color: white !important;
-        font-weight: 600 !important;
-        border: none !important;
-        padding: 1rem 0.75rem !important;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-size: 0.85rem;
-        position: relative;
-    }
-
-    /* Search icon positioning for modal */
-    .modal-body-scrollable .dataTables_filter .bi-search {
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #6c757d;
-        z-index: 10;
-        pointer-events: none;
-    }
-
-    /* Responsive adjustments for modal DataTables */
-    @media (max-width: 768px) {
-        .modal-body-scrollable .dataTables_filter input {
-            width: 200px !important;
-        }
-        
-        .modal-body-scrollable .dataTables_wrapper {
-            padding: 0.75rem !important;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .modal-body-scrollable .dataTables_filter input {
-            width: 180px !important;
-            font-size: 0.9rem;
-        }
-        
-        .modal-body-scrollable .dataTables_length label {
-            font-size: 0.85rem;
-        }
-        
-        .modal-body-scrollable .dataTables_info {
-            font-size: 0.8rem;
-        }
-        
-        .modal-body-scrollable .dataTables_wrapper {
-            padding: 0.5rem !important;
-        }
-    }
-
     /* Success text color */
     .text-success {
         color: #28a745 !important;
@@ -935,14 +777,40 @@
         color: #dc3545 !important;
     }
 
-    /* Warning text color */
-    .text-warning {
-        color: #ffc107 !important;
+    /* Main Users Table Pagination Styling - Match Modal Style */
+    .dataTables_wrapper:not(.modal-body-scrollable) .dataTables_paginate {
+        margin-top: 0.5rem;
     }
 
-    /* Info text color */
-    .text-info {
-        color: #17a2b8 !important;
+    .dataTables_wrapper:not(.modal-body-scrollable) .dataTables_paginate .paginate_button {
+        padding: 6px 12px !important;
+        margin: 0 2px !important;
+        border-radius: 8px !important;
+        border: 1px solid #dee2e6 !important;
+        color: var(--primary-color) !important;
+        background: white !important;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .dataTables_wrapper:not(.modal-body-scrollable) .dataTables_paginate .paginate_button:hover {
+        background: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+        color: white !important;
+        transform: translateY(-1px);
+    }
+
+    .dataTables_wrapper:not(.modal-body-scrollable) .dataTables_paginate .paginate_button.current {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+        border-color: var(--primary-color) !important;
+        color: white !important;
+    }
+
+    .dataTables_wrapper:not(.modal-body-scrollable) .dataTables_paginate .paginate_button.disabled {
+        color: #6c757d !important;
+        background: #f8f9fa !important;
+        border-color: #dee2e6 !important;
+        cursor: not-allowed;
     }
 
     /* SBU container validation styling */
@@ -1722,7 +1590,6 @@ function showUserDetailsModal(userData) {
                     responsive: true,
                     order: [[0, 'asc']], // Sort by SBU
                     language: {
-                        search: "<i class='bi bi-search'></i>",
                         searchPlaceholder: "Search SBU or Sites...",
                         lengthMenu: "_MENU_ per page",
                         info: "Showing <span class='fw-semibold'>_START_</span> to <span class='fw-semibold'>_END_</span> of <span class='fw-semibold'>_TOTAL_</span> entries",
@@ -1770,8 +1637,14 @@ function showUserDetailsModal(userData) {
                             
                         // Add icons to search
                         const searchContainer = $('.modal-body-scrollable .dataTables_filter');
-                        searchContainer.find('label').prepend('<i class="bi bi-search position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #6c757d; z-index: 10;"></i>');
-                        searchContainer.find('input').css('padding-left', '45px');
+                        
+                        // Wrap the input in a container for proper icon positioning
+                        const searchInput = searchContainer.find('input');
+                        searchInput.wrap('<div class="search-input-wrapper position-relative"></div>');
+                        
+                        // Add the search icon
+                        searchInput.before('<i class="bi bi-search search-icon"></i>');
+                        searchInput.css('padding-left', '45px');
                     },
                     drawCallback: function() {
                         // Add animation to rows
@@ -1966,7 +1839,7 @@ function confirmSubmit(event) {
 function confirmClose() {
     swalWithBootstrapButtons.fire({
         title: "Discard Changes?",
-        text: "Any unsaved changes will be lost!",
+               text: "Any unsaved changes will be lost!",
         icon: "warning",
         showCancelButton: true,
         cancelButtonText: "Stay here",
