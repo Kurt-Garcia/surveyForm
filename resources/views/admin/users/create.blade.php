@@ -408,6 +408,61 @@
         max-width: 120px !important;
     }
 
+    /* Modal DataTable Controls Alignment */
+    .modal-body-scrollable .dataTables_wrapper {
+        padding: 0 !important;
+    }
+    
+    .modal-body-scrollable .dataTables_wrapper .row {
+        align-items: center !important;
+        margin: 0 !important;
+    }
+    
+    .modal-body-scrollable .dataTables_wrapper .row > div {
+        display: flex !important;
+        align-items: center !important;
+        padding: 0 !important;
+    }
+    
+    .modal-body-scrollable .dataTables_filter {
+        text-align: right !important;
+        justify-content: flex-end !important;
+    }
+    
+    .modal-body-scrollable .dataTables_length {
+        justify-content: flex-start !important;
+    }
+    
+    .modal-body-scrollable .dataTables_filter label,
+    .modal-body-scrollable .dataTables_length label {
+        margin-bottom: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    /* Modal Search Input Responsive Styling */
+    .modal-body-scrollable .dataTables_filter input {
+        max-width: 100% !important;
+        width: auto !important;
+        min-width: 180px !important;
+    }
+    
+    .modal-body-scrollable .search-input-wrapper {
+        position: relative !important;
+        display: flex !important;
+        align-items: center !important;
+        max-width: 100% !important;
+    }
+    
+    .modal-body-scrollable .search-icon {
+        position: absolute !important;
+        left: 15px !important;
+        z-index: 10 !important;
+        color: #6c757d !important;
+        pointer-events: none !important;
+    }
+
     /* Table Styling */
     .table th {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
@@ -744,6 +799,26 @@
         .sites-cell {
             font-size: 0.85rem;
         }
+        
+        /* Modal DataTable responsive adjustments */
+        .modal-body-scrollable .dataTables_wrapper .row {
+            flex-direction: column !important;
+            gap: 0.75rem !important;
+        }
+        
+        .modal-body-scrollable .dataTables_wrapper .row > div {
+            width: 100% !important;
+            justify-content: center !important;
+        }
+        
+        .modal-body-scrollable .dataTables_filter {
+            text-align: center !important;
+            justify-content: center !important;
+        }
+        
+        .modal-body-scrollable .dataTables_length {
+            justify-content: center !important;
+        }
     }
 
     @media (max-width: 576px) {
@@ -764,6 +839,18 @@
         .sites-cell {
             font-size: 0.8rem;
             line-height: 1.5;
+        }
+        
+        /* Further adjustments for very small screens */
+        .modal-body-scrollable .dataTables_filter input {
+            width: 140px !important;
+            min-width: 140px !important;
+            font-size: 0.85rem !important;
+        }
+        
+        .modal-body-scrollable .dataTables_length select {
+            min-width: 70px !important;
+            font-size: 0.85rem !important;
         }
     }
 
@@ -1612,7 +1699,9 @@ function showUserDetailsModal(userData) {
                                 'border-radius': '25px',
                                 'border': '2px solid #e9ecef',
                                 'padding': '8px 20px',
-                                'width': '250px'
+                                'max-width': '100%',
+                                'width': 'auto',
+                                'min-width': '180px'
                             });
                         
                         $('.modal-body-scrollable .dataTables_filter label')
@@ -1645,6 +1734,39 @@ function showUserDetailsModal(userData) {
                         // Add the search icon
                         searchInput.before('<i class="bi bi-search search-icon"></i>');
                         searchInput.css('padding-left', '45px');
+                        
+                        // Responsive adjustments for modal search
+                        function adjustModalSearch() {
+                            const modalWidth = $('.modal-dialog').width();
+                            const searchInput = $('.modal-body-scrollable .dataTables_filter input');
+                            
+                            if (modalWidth < 576) {
+                                searchInput.css({
+                                    'width': '140px',
+                                    'min-width': '140px',
+                                    'font-size': '0.85rem',
+                                    'padding': '6px 15px 6px 35px'
+                                });
+                            } else if (modalWidth < 768) {
+                                searchInput.css({
+                                    'width': '180px',
+                                    'min-width': '160px',
+                                    'font-size': '0.9rem',
+                                    'padding': '7px 18px 7px 40px'
+                                });
+                            } else {
+                                searchInput.css({
+                                    'width': '250px',
+                                    'min-width': '180px',
+                                    'font-size': '1rem',
+                                    'padding': '8px 20px 8px 45px'
+                                });
+                            }
+                        }
+                        
+                        // Call on init and window resize
+                        adjustModalSearch();
+                        $(window).on('resize', adjustModalSearch);
                     },
                     drawCallback: function() {
                         // Add animation to rows
