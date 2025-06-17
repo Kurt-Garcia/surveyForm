@@ -224,13 +224,6 @@
         transform: translateY(-2px);
     }
     
-    .color-preview {
-        height: 30px;
-        border-radius: 6px;
-        margin-bottom: 10px;
-        transition: all 0.2s ease;
-    }
-    
     .form-control-color {
         height: 50px;
         padding: 5px;
@@ -273,32 +266,8 @@
         }
     });
 
-    // Function to update color previews
-    function updateColorPreviews() {
-        // Get all color inputs
-        const primaryColor = document.getElementById('primary_color').value;
-        const secondaryColor = document.getElementById('secondary_color').value;
-        const accentColor = document.getElementById('accent_color').value;
-        const backgroundColor = document.getElementById('background_color').value;
-        const textColor = document.getElementById('text_color').value;
-        
-        // Update color preview elements
-        document.getElementById('primary_color_preview').style.backgroundColor = primaryColor;
-        document.getElementById('secondary_color_preview').style.backgroundColor = secondaryColor;
-        document.getElementById('accent_color_preview').style.backgroundColor = accentColor;
-        document.getElementById('background_color_preview').style.backgroundColor = backgroundColor;
-        document.getElementById('text_color_preview').style.backgroundColor = textColor;
-    }
-
     // Initialize when DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize color previews
-        updateColorPreviews();
-
-        // Set up event listeners for colors
-        document.querySelectorAll('input[type="color"]').forEach(input => {
-            input.addEventListener('input', updateColorPreviews);
-        });
         
         // Set up event listeners for fonts
         // (Font preview handled by Select2)
