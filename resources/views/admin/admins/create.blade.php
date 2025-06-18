@@ -324,6 +324,8 @@
     /* Password Toggle Button Styling */
     .password-input-group {
         position: relative;
+        display: inline-block;
+        width: 100%;
     }
 
     .password-toggle-btn {
@@ -345,6 +347,9 @@
         justify-content: center;
         width: 32px;
         height: 32px;
+        /* Ensure button stays aligned with input field only */
+        margin-top: 0;
+        margin-bottom: 0;
     }
 
     .password-toggle-btn:hover {
@@ -365,6 +370,24 @@
     /* Adjust padding for password inputs to accommodate toggle button */
     .password-input-group .form-control {
         padding-right: 50px !important;
+        /* Ensure input field has consistent height */
+        box-sizing: border-box;
+    }
+
+    /* Ensure validation messages don't affect button positioning */
+    .password-input-group + .text-danger,
+    .password-input-group + .text-success,
+    .password-input-group + .text-warning,
+    .password-input-group + .invalid-feedback {
+        margin-top: 0.25rem;
+    }
+
+    /* Fix for dynamically added validation messages */
+    .password-input-group ~ .text-danger,
+    .password-input-group ~ .text-success,
+    .password-input-group ~ .text-warning {
+        margin-top: 0.25rem;
+        display: block;
     }
 
     /* Responsive Design */
@@ -1487,7 +1510,8 @@
                     successFeedback.className = 'text-success mt-1';
                     successFeedback.id = 'password-match-feedback';
                     successFeedback.innerHTML = '<small><i class="bi bi-check-circle-fill me-1"></i>Passwords match</small>';
-                    passwordConfirmationField.parentNode.appendChild(successFeedback);
+                    // Insert after the password-input-group div instead of inside it
+                    passwordConfirmationField.parentNode.parentNode.insertBefore(successFeedback, passwordConfirmationField.parentNode.nextSibling);
                     passwordConfirmationField.classList.remove('is-invalid');
                     passwordConfirmationField.classList.add('is-valid');
                 } else {
@@ -1497,7 +1521,8 @@
                     errorFeedback.className = 'text-danger mt-1';
                     errorFeedback.id = 'password-match-feedback';
                     errorFeedback.innerHTML = '<small><i class="bi bi-exclamation-triangle-fill me-1"></i>Passwords do not match</small>';
-                    passwordConfirmationField.parentNode.appendChild(errorFeedback);
+                    // Insert after the password-input-group div instead of inside it
+                    passwordConfirmationField.parentNode.parentNode.insertBefore(errorFeedback, passwordConfirmationField.parentNode.nextSibling);
                     passwordConfirmationField.classList.remove('is-valid');
                     passwordConfirmationField.classList.add('is-invalid');
                 }
@@ -1508,7 +1533,8 @@
                 warningFeedback.className = 'text-warning mt-1';
                 warningFeedback.id = 'password-match-feedback';
                 warningFeedback.innerHTML = '<small><i class="bi bi-exclamation-triangle me-1"></i>Please enter password first</small>';
-                passwordConfirmationField.parentNode.appendChild(warningFeedback);
+                // Insert after the password-input-group div instead of inside it
+                passwordConfirmationField.parentNode.parentNode.insertBefore(warningFeedback, passwordConfirmationField.parentNode.nextSibling);
                 passwordConfirmationField.classList.remove('is-valid');
                 passwordConfirmationField.classList.add('is-invalid');
             } else {

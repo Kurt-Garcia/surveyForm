@@ -380,6 +380,31 @@
         transform: translateY(-2px);
     }
 
+    /* Remove Bootstrap validation icons */
+    .form-control.is-valid,
+    .form-control.is-invalid {
+        background-image: none !important;
+        padding-right: 12px !important;
+    }
+
+    /* Custom validation styles - only border colors */
+    .form-control.is-valid {
+        border-color: #28a745 !important;
+        box-shadow: 0 0 0 0.1rem rgba(40, 167, 69, 0.25) !important;
+    }
+
+    .form-control.is-invalid {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 0.1rem rgba(220, 53, 69, 0.25) !important;
+    }
+
+    /* Special handling for password fields to account for toggle button */
+    .password-input-group .form-control.is-valid,
+    .password-input-group .form-control.is-invalid {
+        padding-right: 50px !important;
+        background-image: none !important;
+    }
+
     .form-label {
         font-weight: 600 !important;
         color: var(--text-color) !important;
@@ -1170,6 +1195,75 @@
         background-color: rgba(220, 53, 69, 0.05);
         box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
     }
+
+    /* Password Toggle Button Styling */
+    .password-input-group {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .password-toggle-btn {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6c757d;
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        /* Ensure button stays aligned with input field only */
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    .password-toggle-btn:hover {
+        color: var(--primary-color);
+        background-color: rgba(var(--primary-color-rgb), 0.1);
+    }
+
+    .password-toggle-btn:focus {
+        outline: none;
+        color: var(--primary-color);
+        background-color: rgba(var(--primary-color-rgb), 0.15);
+    }
+
+    .password-toggle-btn:active {
+        transform: translateY(-50%) scale(0.95);
+    }
+
+    /* Adjust padding for password inputs to accommodate toggle button */
+    .password-input-group .form-control {
+        padding-right: 50px !important;
+        /* Ensure input field has consistent height */
+        box-sizing: border-box;
+    }
+
+    /* Ensure validation messages don't affect button positioning */
+    .password-input-group + .text-danger,
+    .password-input-group + .text-success,
+    .password-input-group + .text-warning,
+    .password-input-group + .invalid-feedback {
+        margin-top: 0.25rem;
+    }
+
+    /* Fix for dynamically added validation messages */
+    .password-input-group ~ .text-danger,
+    .password-input-group ~ .text-success,
+    .password-input-group ~ .text-warning {
+        margin-top: 0.25rem;
+        display: block;
+    }
 </style>
 
 <script>
@@ -1578,7 +1672,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 successFeedback.className = 'text-success mt-1';
                 successFeedback.id = 'password-match-feedback';
                 successFeedback.innerHTML = '<small><i class="bi bi-check-circle-fill me-1"></i>Passwords match</small>';
-                passwordConfirmationField.parentNode.appendChild(successFeedback);
+                // Insert after the password-input-group div instead of inside it
+                passwordConfirmationField.parentNode.parentNode.insertBefore(successFeedback, passwordConfirmationField.parentNode.nextSibling);
                 passwordConfirmationField.classList.remove('is-invalid');
                 passwordConfirmationField.classList.add('is-valid');
             } else {
@@ -1588,7 +1683,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 errorFeedback.className = 'text-danger mt-1';
                 errorFeedback.id = 'password-match-feedback';
                 errorFeedback.innerHTML = '<small><i class="bi bi-exclamation-triangle-fill me-1"></i>Passwords do not match</small>';
-                passwordConfirmationField.parentNode.appendChild(errorFeedback);
+                // Insert after the password-input-group div instead of inside it
+                passwordConfirmationField.parentNode.parentNode.insertBefore(errorFeedback, passwordConfirmationField.parentNode.nextSibling);
                 passwordConfirmationField.classList.remove('is-valid');
                 passwordConfirmationField.classList.add('is-invalid');
             }
@@ -1599,7 +1695,8 @@ document.addEventListener('DOMContentLoaded', function() {
             warningFeedback.className = 'text-warning mt-1';
             warningFeedback.id = 'password-match-feedback';
             warningFeedback.innerHTML = '<small><i class="bi bi-exclamation-triangle me-1"></i>Please enter password first</small>';
-            passwordConfirmationField.parentNode.appendChild(warningFeedback);
+            // Insert after the password-input-group div instead of inside it
+            passwordConfirmationField.parentNode.parentNode.insertBefore(warningFeedback, passwordConfirmationField.parentNode.nextSibling);
             passwordConfirmationField.classList.remove('is-valid');
             passwordConfirmationField.classList.add('is-invalid');
         } else {
@@ -3022,5 +3119,39 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Password Toggle Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize password toggle buttons
+    initializePasswordToggles();
+});
+
+function initializePasswordToggles() {
+    // Remove any existing event listeners to prevent duplicates
+    document.querySelectorAll('.password-toggle-btn').forEach(button => {
+        // Clone the node to remove existing listeners
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+    });
+
+    // Add event listeners to all password toggle buttons
+    document.querySelectorAll('.password-toggle-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const targetInput = document.getElementById(targetId);
+            const eyeIcon = this.querySelector('i');
+            
+            if (targetInput) {
+                if (targetInput.type === 'password') {
+                    targetInput.type = 'text';
+                    eyeIcon.className = 'bi bi-eye-slash';
+                } else {
+                    targetInput.type = 'password';
+                    eyeIcon.className = 'bi bi-eye';
+                }
+            }
+        });
+    });
+}
 </script>
 @endsection
