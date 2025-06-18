@@ -150,7 +150,7 @@
                         <div class="question-input">
                             @switch($question->type)
                                 @case('radio')
-                                    <div class="modern-rating-group">
+                                    <div class="modern-rating-group-display">
                                         @for($i = 1; $i <= 5; $i++)
                                             <div class="modern-radio">
                                                 <input type="radio" 
@@ -333,7 +333,7 @@ $(document).ready(function() {
                     $('head').append(`
                         <style id="responsive-radio-styles">
                             @media (max-width: 576px) {
-                                .modern-rating-group, .summary-radio-group {
+                                .modern-rating-group, .modern-rating-group-display, .summary-radio-group {
                                     display: flex;
                                     flex-wrap: wrap;
                                     justify-content: flex-start;
@@ -396,7 +396,7 @@ $(document).ready(function() {
         // Clear previous error messages
         $('.validation-message').text('');
         $('#validationErrorsList ul').empty();
-        $('.modern-input, .modern-select, .modern-textarea, .modern-rating-group, .modern-star-rating').removeClass('input-error error');
+        $('.modern-input, .modern-select, .modern-textarea, .modern-rating-group, .modern-rating-group-display, .modern-star-rating').removeClass('input-error error');
         $('.question-card').removeClass('has-error');
         // Validate account name
         if (!$('#account_name').val().trim()) {
@@ -433,7 +433,7 @@ $(document).ready(function() {
                 $(this).addClass('has-error');
                 $(`#question_${questionId}_error`).text('This question requires an answer').addClass('text-danger');
                 errorList.push(`Question \"${questionText}\" requires an answer`);
-                $(this).find('.modern-rating-group, .modern-star-rating').addClass('input-error error');
+                $(this).find('.modern-rating-group, .modern-rating-group-display, .modern-star-rating').addClass('input-error error');
             }
         });
         // Validate recommendation
@@ -556,7 +556,7 @@ $(document).ready(function() {
                     errors = xhr.responseJSON.errors;
                 }
                 // Remove previous error states
-                $('.modern-input, .modern-select, .modern-star-rating, .modern-rating-group').removeClass('input-error error');
+                $('.modern-input, .modern-select, .modern-star-rating, .modern-rating-group, .modern-rating-group-display').removeClass('input-error error');
                 $('.validation-message').text('');
                 $('#validationAlertContainer').removeClass('d-none');
                 let errorListHtml = '';
@@ -568,7 +568,7 @@ $(document).ready(function() {
                             const qid = key.split('.')[1];
                             $(`#question_${qid}_error`).text(message).addClass('text-danger');
                             $(`.question-card[data-question-id="${qid}"]`).addClass('has-error');
-                            $(`.question-card[data-question-id="${qid}"] .modern-rating-group, .question-card[data-question-id="${qid}"] .modern-star-rating`).addClass('input-error error');
+                            $(`.question-card[data-question-id="${qid}"] .modern-rating-group, .question-card[data-question-id="${qid}"] .modern-rating-group-display, .question-card[data-question-id="${qid}"] .modern-star-rating`).addClass('input-error error');
                         } else {
                             // For normal fields
                             $('#' + key).addClass('input-error');
@@ -629,7 +629,7 @@ function validateForm() {
     // Clear previous error messages
     $('.validation-message').text('');
     $('#validationErrorsList ul').empty();
-    $('.modern-input, .modern-select, .modern-textarea, .modern-rating-group, .modern-star-rating').removeClass('input-error error');
+    $('.modern-input, .modern-select, .modern-textarea, .modern-rating-group, .modern-rating-group-display, .modern-star-rating').removeClass('input-error error');
     $('.question-card').removeClass('has-error');
     // Validate account name
     if (!$('#account_name').val().trim()) {
@@ -666,7 +666,7 @@ function validateForm() {
             $(this).addClass('has-error');
             $(`#question_${questionId}_error`).text('This question requires an answer').addClass('text-danger');
             errorList.push(`Question \"${questionText}\" requires an answer`);
-            $(this).find('.modern-rating-group, .modern-star-rating').addClass('input-error error');
+            $(this).find('.modern-rating-group, .modern-rating-group-display, .modern-star-rating').addClass('input-error error');
         }
     });
     // Validate recommendation
@@ -756,7 +756,7 @@ function updateResponseSummary(data) {
                 $('head').append(`
                     <style id="responsive-radio-styles">
                         @media (max-width: 576px) {
-                            .modern-rating-group {
+                            .modern-rating-group, .modern-rating-group-display {
                                 display: flex;
                                 flex-wrap: wrap;
                                 justify-content: flex-start;

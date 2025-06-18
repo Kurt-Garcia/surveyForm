@@ -158,6 +158,46 @@
                             </div>
                         </div>
 
+                        <!-- Bulk Question Creation Feature -->
+                        <div class="card shadow-sm mb-4" style="border: 2px solid #e3f2fd; background: linear-gradient(135deg, #f8f9fc 0%, #e3f2fd 100%);">
+                            <div class="card-header" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); color: white; border-bottom: none;">
+                                <h5 class="mb-0"><i class="fas fa-magic me-2"></i>{{ __('Bulk Create Questions') }}</h5>
+                                <small class="opacity-75">{{ __('Quickly create multiple questions at once') }}</small>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label for="bulk-question-count" class="form-label fw-bold">{{ __('Number of Questions') }}</label>
+                                        <input type="number" id="bulk-question-count" class="form-control form-control-lg" 
+                                               min="1" max="20" value="5" placeholder="5">
+                                        <small class="text-muted">{{ __('1-20 questions') }}</small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="bulk-question-type" class="form-label fw-bold">{{ __('Answer Type') }}</label>
+                                        <select id="bulk-question-type" class="form-select form-select-lg">
+                                            <option value="radio">{{ __('Radio Button') }}</option>
+                                            <option value="star">{{ __('Star Rating') }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-bold">{{ __('Required Questions') }}</label>
+                                        <div class="form-check form-switch mt-2">
+                                            <input class="form-check-input" type="checkbox" id="bulk-required" checked>
+                                            <label class="form-check-label fw-semibold" for="bulk-required">
+                                                {{ __('Make all required') }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 d-flex align-items-end">
+                                        <button type="button" class="btn btn-success btn-lg w-100" onclick="addBulkQuestions()" 
+                                                style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); border: none;">
+                                            <i class="fas fa-bolt me-2"></i>{{ __('Create Questions') }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div id="questions-container" class="mb-4">
                             <!-- Questions will be added here dynamically -->
                         </div>
@@ -165,7 +205,7 @@
                         <div class="form-group row">
                             <div class="col-md-12 d-flex flex-column flex-md-row justify-content-center gap-3">
                                 <button type="button" class="btn btn-info btn-lg" onclick="addQuestion()" style="background-color: var(--secondary-color); border-color: var(--secondary-color); color: #fff;">
-                                    <i class="fas fa-plus-circle me-2"></i>{{ __('Add Question') }}
+                                    <i class="fas fa-plus-circle me-2"></i>{{ __('Add Single Question') }}
                                 </button>
                                 <button type="submit" class="btn btn-primary btn-lg">
                                     <i class="fas fa-paper-plane me-2"></i>{{ __('Create Survey') }}
@@ -582,6 +622,134 @@
         }, 50);
     }
     
+    function addBulkQuestions() {
+        const count = parseInt(document.getElementById('bulk-question-count').value);
+        const type = document.getElementById('bulk-question-type').value;
+        const required = document.getElementById('bulk-required').checked;
+        
+        if (!count || count < 1 || count > 20) {
+            swalWithBootstrapButtons.fire({
+                title: "Invalid Number!",
+                text: "Please enter a number between 1 and 20.",
+                icon: "error"
+            });
+            return;
+        }
+        
+        swalWithBootstrapButtons.fire({
+            title: "Create Bulk Questions?",
+            text: `Are you sure you want to create ${count} questions with ${type === 'radio' ? 'Radio Button' : 'Star Rating'} type${required ? ' (all required)' : ''}?`,
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: `Yes, create ${count} questions!`,
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const container = document.getElementById('questions-container');
+                let startIndex = container.children.length;
+                let questionsCreated = 0;
+                
+                // Create questions with staggered animation
+                for (let i = 0; i < count; i++) {
+                    setTimeout(() => {
+                        const questionIndex = startIndex + i;
+                        const questionDiv = document.createElement('div');
+                        questionDiv.className = 'card shadow-sm mb-3 question-card bulk-created';
+                        questionDiv.style.opacity = '0';
+                        questionDiv.style.transform = 'translateY(20px)';
+                        
+                        const typeDisplayName = type === 'radio' ? 'Radio Button' : 'Star Rating';
+                        
+                        questionDiv.innerHTML = `
+                            <div class="card-body p-4">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h5 class="mb-3">
+                                            Question ${questionIndex + 1}
+                                            <span class="badge bg-success ms-2 fs-6">
+                                                <i class="fas fa-bolt me-1"></i>Bulk Created
+                                            </span>
+                                        </h5>
+                                        <input type="text" class="form-control form-control-lg mb-3" 
+                                            name="questions[${questionIndex}][text]" 
+                                            placeholder="Enter your question here" required>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <select class="form-select form-select-lg mb-3" 
+                                                    name="questions[${questionIndex}][type]" required>
+                                                    <option value="" disabled>Select answer type</option>
+                                                    <option value="radio" ${type === 'radio' ? 'selected' : ''}>Radio Button</option>
+                                                    <option value="star" ${type === 'star' ? 'selected' : ''}>Star Rating</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-check form-switch">
+                                                    <input type="hidden" name="questions[${questionIndex}][required]" value="0">
+                                                    <input class="form-check-input" type="checkbox" 
+                                                        id="required${questionIndex}"
+                                                        name="questions[${questionIndex}][required]"
+                                                        value="1" ${required ? 'checked' : ''}>
+                                                    <label class="form-check-label" for="required${questionIndex}">
+                                                        Required Question
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <button type="button" class="btn btn-outline-danger btn-lg" 
+                                            onclick="removeQuestion(this)">
+                                            <i class="fas fa-trash-alt me-2"></i>Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        container.appendChild(questionDiv);
+                        
+                        // Animate the question into view
+                        setTimeout(() => {
+                            questionDiv.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                            questionDiv.style.opacity = '1';
+                            questionDiv.style.transform = 'translateY(0)';
+                        }, 50);
+                        
+                        questionsCreated++;
+                        
+                        // Show success message when all questions are created
+                        if (questionsCreated === count) {
+                            setTimeout(() => {
+                                swalWithBootstrapButtons.fire({
+                                    title: "Success!",
+                                    text: `Successfully created ${count} questions with ${typeDisplayName} type.`,
+                                    icon: "success",
+                                    timer: 2000,
+                                    timerProgressBar: true
+                                });
+                                
+                                // Remove bulk-created badges and styling after 3 seconds
+                                setTimeout(() => {
+                                    document.querySelectorAll('.bulk-created .badge').forEach(badge => {
+                                        badge.style.opacity = '0';
+                                        badge.style.transform = 'scale(0)';
+                                        setTimeout(() => badge.remove(), 300);
+                                    });
+                                    document.querySelectorAll('.bulk-created').forEach(card => {
+                                        card.classList.remove('bulk-created');
+                                        card.style.border = '';
+                                        card.style.boxShadow = '';
+                                    });
+                                }, 3000);
+                            }, 300);
+                        }
+                    }, i * 150); // Stagger the creation by 150ms each
+                }
+            }
+        });
+    }
+    
     function removeQuestion(button) {
         swalWithBootstrapButtons.fire({
             title: "Remove Question?",
@@ -611,7 +779,29 @@
     function updateQuestionNumbers() {
         const questions = document.querySelectorAll('.question-card h5');
         questions.forEach((question, index) => {
-            question.textContent = `Question ${index + 1}`;
+            // Preserve any badges that might exist
+            const existingBadge = question.querySelector('.badge');
+            const badgeHtml = existingBadge ? existingBadge.outerHTML : '';
+            question.innerHTML = `Question ${index + 1} ${badgeHtml}`;
+        });
+        
+        // Update input names to maintain correct indexing
+        const questionCards = document.querySelectorAll('.question-card');
+        questionCards.forEach((card, index) => {
+            const textInput = card.querySelector('input[name*="[text]"]');
+            const typeSelect = card.querySelector('select[name*="[type]"]');
+            const hiddenRequired = card.querySelector('input[type="hidden"][name*="[required]"]');
+            const checkboxRequired = card.querySelector('input[type="checkbox"][name*="[required]"]');
+            
+            if (textInput) textInput.name = `questions[${index}][text]`;
+            if (typeSelect) typeSelect.name = `questions[${index}][type]`;
+            if (hiddenRequired) hiddenRequired.name = `questions[${index}][required]`;
+            if (checkboxRequired) {
+                checkboxRequired.name = `questions[${index}][required]`;
+                checkboxRequired.id = `required${index}`;
+                const label = card.querySelector(`label[for*="required"]`);
+                if (label) label.setAttribute('for', `required${index}`);
+            }
         });
     }
 
@@ -748,8 +938,8 @@
         }, 250);
     });
     
-    // Add first question by default
-    window.onload = addQuestion;
+    // Optional: Add first question by default (commented out to let users choose bulk or single creation)
+    // window.onload = addQuestion;
 </script>
 
 <style>
@@ -841,7 +1031,46 @@ body.js-initialized .sbu-card {
     border-radius: 8px 8px 0 0 !important;
 }
 
-/* Modern SBU Card Styling */
+/* Bulk question creation styles */
+.bulk-created .badge {
+    transition: all 0.3s ease;
+    animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.bulk-created {
+    position: relative;
+    border: 2px solid #28a745 !important;
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.3) !important;
+}
+
+/* Smooth animations for bulk creation */
+.question-card {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced form input styling */
+#bulk-question-count:focus,
+#bulk-question-type:focus,
+#bulk-required:focus {
+    border-color: #2196f3;
+    box-shadow: 0 0 0 0.25rem rgba(33, 150, 243, 0.25);
+}
+
+/* Mobile responsive for bulk creation */
+@media (max-width: 768px) {
+    .bulk-creation-card .row.g-3 > div {
+        margin-bottom: 1rem;
+    }
+    
+    .bulk-creation-card .col-md-3 {
+        width: 100%;
+    }
+}
 .sbu-selection-container {
     padding: 1.5rem;
     background: linear-gradient(135deg, #f8f9fc 0%, #f1f3f8 100%);

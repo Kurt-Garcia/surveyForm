@@ -158,14 +158,15 @@ body {
 }
 
 .btn-start {
-    background: linear-gradient(135deg, #4ECDC4 0%, #00b4db 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    border: none;
     display: inline-flex;
     align-items: center;
     gap: 0.75rem;
     font-weight: 600;
     font-size: 1.1rem;
+    text-decoration: none;
 }
 
 .btn-start i {
