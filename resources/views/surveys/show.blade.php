@@ -91,7 +91,7 @@
                 @if($survey->sites->count() > 0)
                 <small class="text-muted">
                     <i class="fas fa-map-marker-alt me-1"></i> 
-                    @formatSitesList($survey->sites)
+                    {!! formatSitesList($survey->sites) !!}
                 </small>
                 @endif
             </div>
@@ -1015,4 +1015,54 @@ $(document).ready(function() {
     font-family: var(--body-font);
 }
 </style>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Bootstrap tooltips for sites more indicators
+    function initializeTooltips() {
+        // Dispose of existing tooltips first
+        const existingTooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        existingTooltips.forEach(element => {
+            const tooltip = bootstrap.Tooltip.getInstance(element);
+            if (tooltip) {
+                tooltip.dispose();
+            }
+        });
+
+        // Initialize Bootstrap tooltips for sites more indicators
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                trigger: 'hover focus',
+                html: false,
+                sanitize: true
+            });
+        });
+
+        // Add click event handling to prevent conflicts
+        document.querySelectorAll('.sites-more-indicator').forEach(function(element) {
+            element.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Get the tooltip instance
+                const tooltip = bootstrap.Tooltip.getInstance(this);
+                if (tooltip) {
+                    tooltip.show();
+                    
+                    // Hide tooltip after 3 seconds
+                    setTimeout(() => {
+                        tooltip.hide();
+                    }, 3000);
+                }
+            });
+        });
+    }
+    
+    // Initial tooltip initialization
+    initializeTooltips();
+});
+</script>
 @endsection

@@ -71,7 +71,7 @@
                                 <small class="text-muted">
                                     @if($survey->sites->count() > 0)
                                         <i class="fas fa-map-marker-alt me-1"></i> 
-                                        @formatSitesList($survey->sites)
+                                        {!! formatSitesList($survey->sites) !!}
                                     @endif
                                 </small>
                             </div>
@@ -1184,8 +1184,54 @@
             onAfterLoad: function() {
                 // Re-attach event handlers after content is loaded
                 attachBroadcastHandlers();
+                // Re-initialize tooltips after pagination
+                initializeTooltips();
             }
         });
+
+        // Initialize tooltips function
+        function initializeTooltips() {
+            // Dispose of existing tooltips first
+            const existingTooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            existingTooltips.forEach(element => {
+                const tooltip = bootstrap.Tooltip.getInstance(element);
+                if (tooltip) {
+                    tooltip.dispose();
+                }
+            });
+
+            // Initialize Bootstrap tooltips for sites more indicators
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl, {
+                    trigger: 'hover focus',
+                    html: false,
+                    sanitize: true
+                });
+            });
+
+            // Add click event handling to prevent conflicts
+            document.querySelectorAll('.sites-more-indicator').forEach(function(element) {
+                element.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Get the tooltip instance
+                    const tooltip = bootstrap.Tooltip.getInstance(this);
+                    if (tooltip) {
+                        tooltip.show();
+                        
+                        // Hide tooltip after 3 seconds
+                        setTimeout(() => {
+                            tooltip.hide();
+                        }, 3000);
+                    }
+                });
+            });
+        }
+
+        // Initial tooltip initialization
+        initializeTooltips();
         
         // AJAX Instant Search functionality with SmoothPagination
         const searchForm = document.getElementById('search-form');

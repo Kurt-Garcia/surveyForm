@@ -639,3 +639,50 @@ body {
 .modal-title {
     color: white;
 }
+
+/* Sites More Indicator Styles */
+.sites-more-indicator {
+    color: #007bff !important;
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
+    display: inline-block;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.sites-more-indicator:hover {
+    color: #0056b3 !important;
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Ensure parent elements don't interfere with tooltip */
+.survey-meta .text-muted {
+    line-height: 1.4;
+    position: relative;
+}
+
+.survey-meta .text-muted i {
+    vertical-align: middle;
+}
+
+/* Custom tooltip styling */
+.tooltip {
+    font-size: 0.875rem;
+    z-index: 1070;
+}
+
+.tooltip-inner {
+    max-width: 300px;
+    background-color: #333;
+    color: #fff;
+    border-radius: 6px;
+    padding: 8px 12px;
+    text-align: left;
+    word-wrap: break-word;
+    white-space: pre-line; /* Preserves line breaks */
+}

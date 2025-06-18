@@ -2,12 +2,13 @@
 
 if (!function_exists('formatSitesList')) {
     /**
-     * Format a collection of sites into a readable string.
+     * Format a collection of sites into a readable string with tooltip for overflow.
      *
      * @param \Illuminate\Database\Eloquent\Collection $sites
+     * @param int $maxVisible Maximum number of sites to show before truncating
      * @return string
      */
-    function formatSitesList($sites) {
+    function formatSitesList($sites, $maxVisible = 1) {
         if ($sites->isEmpty()) {
             return 'No sites';
         }
@@ -20,20 +21,22 @@ if (!function_exists('formatSitesList')) {
         $mainSites = $sites->where('is_main', true)->pluck('name')->toArray();
         $otherSites = $sites->where('is_main', false)->pluck('name')->toArray();
         
-        $sitesList = [];
+        // Combine all sites for counting, prioritizing main sites first
+        $allSites = array_merge($mainSites, $otherSites);
+        $totalSites = count($allSites);
         
-        if (!empty($mainSites)) {
-            $sitesList[] = count($mainSites) == 1 ? 
-                'Main site: ' . implode(', ', $mainSites) : 
-                'Main sites: ' . implode(', ', $mainSites);
-        }
+        // For multiple sites, always show only the first site with +N More
+        $visibleSites = array_slice($allSites, 0, $maxVisible);
+        $remainingCount = $totalSites - $maxVisible;
         
-        if (!empty($otherSites)) {
-            $sitesList[] = count($otherSites) == 1 ? 
-                'Other site: ' . implode(', ', $otherSites) : 
-                'Other sites: ' . implode(', ', $otherSites);
-        }
+        // Create tooltip content with all remaining sites
+        $remainingSites = array_slice($allSites, $maxVisible);
+        $tooltipContent = 'Additional sites: ' . implode(', ', $remainingSites);
         
-        return implode(' | ', $sitesList);
+        return 'Deployed to: ' . implode(', ', $visibleSites) . 
+               ' <span class="sites-more-indicator" data-bs-toggle="tooltip" data-bs-placement="top" ' .
+               'data-bs-title="' . htmlspecialchars($tooltipContent, ENT_QUOTES, 'UTF-8') . '" ' .
+               'style="color: #007bff; cursor: pointer; text-decoration: underline; font-weight: 500;">+' . 
+               $remainingCount . ' More</span>';
     }
 }
