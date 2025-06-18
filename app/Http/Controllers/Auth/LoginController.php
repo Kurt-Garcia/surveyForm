@@ -62,12 +62,32 @@ class LoginController extends Controller
 
         // First try admin authentication
         if (Auth::guard('admin')->attempt(['name' => $request->name, 'password' => $request->password])) {
+            $admin = Auth::guard('admin')->user();
+            
+            // Check if admin account is disabled
+            if ($admin && $admin->status == 0) {
+                Auth::guard('admin')->logout();
+                // Store redirect flag in session
+                session(['redirect_to_disabled' => true]);
+                return false;
+            }
+            
             session(['is_admin' => true]);
             return true;
         }
 
         // If admin auth fails, try regular user authentication
         if (Auth::guard('web')->attempt(['name' => $request->name, 'password' => $request->password], $request->filled('remember'))) {
+            $user = Auth::guard('web')->user();
+            
+            // Check if user account is disabled
+            if ($user && $user->status == 0) {
+                Auth::guard('web')->logout();
+                // Store redirect flag in session
+                session(['redirect_to_disabled' => true]);
+                return false;
+            }
+            
             session(['is_admin' => false]);
             return true;
         }
@@ -77,8 +97,15 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
+        // Safety check - if user is null, something went wrong
+        if (!$user) {
+            return redirect('/');
+        }
+        
+        // Admin redirects are handled in the login method, so this should only handle regular users
         if (session('is_admin') === true) {
-            return redirect()->intended('/admin/dashboard');
+            // This shouldn't happen with our new flow, but just in case
+            return redirect('/admin/dashboard');
         }
 
         // For regular users, set user_site_ids and rating type in session
@@ -103,5 +130,74 @@ class LoginController extends Controller
 
         // Always redirect to welcome page
         return redirect('/');
+    }
+
+    /**
+     * Get the failed login response instance with custom message.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $message
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    protected function sendFailedLoginResponse(Request $request, $message = null)
+    {
+        // Check if this is a disabled account
+        if (session('redirect_to_disabled')) {
+            session()->forget('redirect_to_disabled');
+            return redirect()->route('account.disabled');
+        }
+        
+        $errors = $message ? [$this->username() => $message] : [$this->username() => trans('auth.failed')];
+        
+        if ($request->expectsJson()) {
+            return response()->json($errors, 422);
+        }
+
+        return redirect()->back()
+            ->withInput($request->only($this->username(), 'remember'))
+            ->withErrors($errors);
+    }
+
+    /**
+     * Handle a login request to the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function login(Request $request)
+    {
+        $this->validateLogin($request);
+
+        // If the class is using the ThrottlesLogins trait, we can automatically throttle
+        // the login attempts for this application. We'll key this by the username and
+        // the IP address of the client making these requests into this application.
+        if (method_exists($this, 'hasTooManyLoginAttempts') &&
+            $this->hasTooManyLoginAttempts($request)) {
+            $this->fireLockoutEvent($request);
+
+            return $this->sendLockoutResponse($request);
+        }
+
+        if ($this->attemptLogin($request)) {
+            if ($request->hasSession()) {
+                $request->session()->put('auth.password_confirmed_at', time());
+            }
+
+            // Check if this was an admin login
+            if (session('is_admin') === true) {
+                return redirect()->intended('/admin/dashboard');
+            }
+
+            return $this->sendLoginResponse($request);
+        }
+
+        // If the login attempt was unsuccessful we will increment the number of attempts
+        // to login and redirect the user back to the login form. Of course, when this
+        // user surpasses their maximum number of attempts they will get locked out.
+        $this->incrementLoginAttempts($request);
+
+        return $this->sendFailedLoginResponse($request);
     }
 }

@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'site.access' => \App\Http\Middleware\CheckSiteAccess::class,
+            'account.status' => \App\Http\Middleware\CheckAccountStatus::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

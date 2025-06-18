@@ -18,12 +18,68 @@ class Admin extends Authenticatable
         'email',
         'password',
         'contact_number',
+        'status',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed',
+            'status' => 'integer',
+        ];
+    }
+
+    /**
+     * Check if the admin is active (not disabled).
+     *
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        return $this->status === 1;
+    }
+
+    /**
+     * Check if the admin is disabled.
+     *
+     * @return bool
+     */
+    public function isDisabled(): bool
+    {
+        return $this->status === 0;
+    }
+
+    /**
+     * Scope to filter only active admins.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
+    }
+
+    /**
+     * Scope to filter only disabled admins.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeDisabled($query)
+    {
+        return $query->where('status', 0);
+    }
     
     /**
      * Get all SBUs that the admin has access to (many-to-many relationship).

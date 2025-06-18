@@ -25,6 +25,7 @@ class User extends Authenticatable
         'password',
         'contact_number',
         'created_by',
+        'status',
     ];
 
     /**
@@ -77,6 +78,49 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'status' => 'integer',
         ];
+    }
+
+    /**
+     * Check if the user is active (not disabled).
+     *
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        return $this->status === 1;
+    }
+
+    /**
+     * Check if the user is disabled.
+     *
+     * @return bool
+     */
+    public function isDisabled(): bool
+    {
+        return $this->status === 0;
+    }
+
+    /**
+     * Scope to filter only active users.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
+    }
+
+    /**
+     * Scope to filter only disabled users.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeDisabled($query)
+    {
+        return $query->where('status', 0);
     }
 }

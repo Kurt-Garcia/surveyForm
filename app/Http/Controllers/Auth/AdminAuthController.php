@@ -22,6 +22,14 @@ class AdminAuthController extends Controller
         ]);
 
         if (Auth::guard('admin')->attempt($credentials)) {
+            $admin = Auth::guard('admin')->user();
+            
+            // Check if admin account is disabled
+            if ($admin && $admin->status == 0) {
+                Auth::guard('admin')->logout();
+                return redirect()->route('account.disabled');
+            }
+            
             $request->session()->regenerate();
             return redirect()->intended(route('admin.dashboard'));
         }

@@ -24,13 +24,18 @@ Route::get('/customers/lookup-by-code', [CustomerController::class, 'lookupByCod
 
 Auth::routes();
 
+// Account disabled route
+Route::get('/account-disabled', function () {
+    return view('auth.account-disabled');
+})->name('account.disabled');
+
 // Password change routes - accessible by both users and admins
-Route::middleware(['auth:web,admin'])->group(function () {
+Route::middleware(['auth:web,admin', 'account.status'])->group(function () {
     Route::get('/password/change', [ChangePasswordController::class, 'showChangePasswordForm'])->name('password.change');
     Route::post('/password/change', [ChangePasswordController::class, 'changePassword']);
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'account.status'])->group(function () {
     Route::get('/home', [UserSurveyController::class, 'index'])->name('home');
     Route::get('/index', [UserSurveyController::class, 'index'])->name('index');
     
@@ -58,7 +63,7 @@ Route::prefix('admin')->group(function () {
     Route::post('/login', [AdminAuthController::class, 'login']);
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
-    Route::middleware(['auth:admin'])->group(function () {
+    Route::middleware(['auth:admin', 'account.status'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/customers', [CustomerController::class, 'index'])->name('admin.customers.index');
         Route::patch('/customers/{id}', [CustomerController::class, 'update'])->name('admin.customers.update');
