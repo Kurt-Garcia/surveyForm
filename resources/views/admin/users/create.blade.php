@@ -288,6 +288,13 @@
                 </div>
             </div>
 
+            <!-- Fixed Search Section -->
+            <div class="modal-search-fixed p-3 border-bottom bg-light">
+                <div id="modal-search-container">
+                    <!-- DataTable search will be moved here -->
+                </div>
+            </div>
+
             <!-- Scrollable Table Section -->
             <div class="modal-body-scrollable">
                 <div class="table-container-full-width">
@@ -305,6 +312,19 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Fixed Pagination Section -->
+            <div class="modal-pagination-fixed p-3 border-top bg-light">
+                <div id="modal-pagination-container" class="d-flex justify-content-between align-items-center">
+                    <div id="modal-info-container">
+                        <!-- DataTable info will be moved here -->
+                    </div>
+                    <div id="modal-paginate-container">
+                        <!-- DataTable pagination will be moved here -->
+                    </div>
+                </div>
+            </div>
+
             <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
                     <i class="bi bi-x-circle me-2"></i>Close
@@ -479,285 +499,352 @@
         flex: 1;
         overflow-y: auto;
         min-height: 200px;
-        max-height: 400px;
+        max-height: 300px; /* Reduced to account for fixed search and pagination */
     }
     
-    /* Modal DataTable Controls Alignment */
-    .modal-body-scrollable .dataTables_wrapper {
-        padding: 1rem 1.5rem 0 1.5rem !important;
-        margin-top: 0 !important;
+    /* Fixed Pagination Section Styling */
+    .modal-pagination-fixed {
+        flex-shrink: 0;
+        background: #f8f9fa !important;
+        border-top: 2px solid #e9ecef !important;
     }
     
-    .modal-body-scrollable .dataTables_wrapper .row {
-        align-items: center !important;
-        margin: 0 !important;
+    .modal-pagination-fixed .dataTables_info {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin: 0;
     }
     
-    .modal-body-scrollable .dataTables_wrapper .row > div {
-        display: flex !important;
-        align-items: center !important;
-        padding: 0 !important;
+    .modal-pagination-fixed .dataTables_paginate {
+        margin: 0;
     }
     
-    .modal-body-scrollable .dataTables_filter {
-        text-align: right !important;
-        justify-content: flex-end !important;
+    .modal-pagination-fixed .dataTables_paginate .paginate_button {
+        padding: 6px 12px;
+        margin: 0 2px;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        background: white;
+        color: #495057;
+        text-decoration: none;
+        transition: all 0.2s ease;
     }
     
-    .modal-body-scrollable .dataTables_length {
-        justify-content: flex-start !important;
+    .modal-pagination-fixed .dataTables_paginate .paginate_button:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
     }
     
-    .modal-body-scrollable .dataTables_filter label,
-    .modal-body-scrollable .dataTables_length label {
-        margin-bottom: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.current {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
-    /* Modal Search Input Responsive Styling */
-    .modal-body-scrollable .dataTables_filter input {
-        max-width: 100% !important;
-        width: auto !important;
-        min-width: 180px !important;
-    }
-    
-    .modal-body-scrollable .search-input-wrapper {
-        position: relative !important;
-        display: flex !important;
-        align-items: center !important;
-        max-width: 100% !important;
-    }
-    
-    .modal-body-scrollable .search-icon {
-        position: absolute !important;
-        left: 15px !important;
-        z-index: 10 !important;
-        color: #6c757d !important;
-        pointer-events: none !important;
+    /* Enhanced table row hover effect */
+    .table-hover-active {
+        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.08) 0%, rgba(var(--secondary-color-rgb), 0.08) 100%) !important;
+        transform: translateX(3px) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
     }
 
-    /* Table Styling */
-    .table th {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
-        border: none !important;
-        font-weight: 600 !important;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        letter-spacing: 0.5px;
-        padding: 1rem !important;
+    .more-sites-badge {
+        transition: all 0.3s ease !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        margin-left: 2px !important;
     }
 
-    .table td {
-        border: none !important;
-        padding: 1rem !important;
-        vertical-align: middle !important;
+    .more-sites-badge:hover {
+        transform: scale(1.05) !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
     }
 
-    .table tbody tr {
-        border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+    /* Modal Styling */
+    .modal-content {
+        border-radius: 15px !important;
+        overflow: hidden;
+    }
+
+    .modal-header.bg-gradient {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    }
+
+    .info-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        border-left: 4px solid var(--primary-color);
         transition: all 0.3s ease;
     }
 
-    .table tbody tr:hover {
-        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.05) 0%, rgba(var(--secondary-color-rgb), 0.05) 100%) !important;
-        transform: translateX(5px);
+    .info-card:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    /* Main Users Table Width Optimization */
-    #usersTable {
-        width: 100% !important;
-        table-layout: auto !important;
-    }
-    
-    #usersTable th,
-    #usersTable td {
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-    }
-    
-    /* Override for site column to allow wrapping */
-    #usersTable th:nth-child(5),
-    #usersTable td:nth-child(5) {
-        white-space: normal !important;
-        overflow: visible !important;
-        text-overflow: unset !important;
-    }
-    
-    /* Specific column width optimizations for better space usage */
-    #usersTable th:nth-child(1), /* Name */
-    #usersTable td:nth-child(1) {
-        width: 18% !important;
-        min-width: 150px !important;
-    }
-    
-    #usersTable th:nth-child(2), /* Email */
-    #usersTable td:nth-child(2) {
-        width: 25% !important;
-        min-width: 180px !important;
-    }
-    
-    #usersTable th:nth-child(3), /* Contact */
-    #usersTable td:nth-child(3) {
-        width: 14% !important;
-        min-width: 120px !important;
-    }
-    
-    #usersTable th:nth-child(4), /* SBU */
-    #usersTable td:nth-child(4) {
-        width: 13% !important;
-        min-width: 100px !important;
-    }
-    
-    #usersTable th:nth-child(5), /* Site */
-    #usersTable td:nth-child(5) {
-        width: 20% !important;
-        min-width: 150px !important;
-    }
-    
-    #usersTable th:nth-child(6), /* Created */
-    #usersTable td:nth-child(6) {
-        width: 10% !important;
-        min-width: 100px !important;
+    .info-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
     }
 
-    /* Full Width Table Header Styling for Modal */
-    .table-container-full-width {
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
+    .info-value {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #212529;
+        word-break: break-word;
     }
 
-    .table-header-full-width th {
-        padding-left: 1.5rem !important;
-        padding-right: 1.5rem !important;
-        margin: 0 !important;
+    .table-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        border: 1px solid #dee2e6;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .table-section h6 {
+        margin-bottom: 1.5rem !important;
+        padding-bottom: 0.75rem;
+        border-bottom: 3px solid var(--primary-color);
+        color: #2c3e50;
+    }
+
+    .modern-table {
+        margin-bottom: 0 !important;
+        margin-top: 0 !important; /* Remove top margin */
+        margin-left: 0 !important; /* Remove left margin */
+        margin-right: 0 !important; /* Remove right margin */
+        background: white;
+        border-radius: 0 !important;
+        overflow: visible;
+        box-shadow: none;
+        border: none;
+        width: 100% !important; /* Ensure full width */
+        /* Ensure table supports sticky positioning */
+        border-collapse: separate;
+        border-spacing: 0;
+        /* Prevent content from bleeding through sticky header */
+        position: relative;
+    }
+
+    /* Ensure table body doesn't interfere with sticky header */
+    .modern-table tbody {
+        position: relative;
+        z-index: 1;
+        background: white;
+    }
+
+    /* Additional layer protection for table rows */
+    .modern-table tbody tr {
+        position: relative;
+        background: white;
+        z-index: 1;
+    }
+
+    .modern-table thead th {
         background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
         color: white !important;
-        border: none !important;
         font-weight: 600 !important;
+        border: none !important;
+        padding: 1rem 0.75rem !important; /* Reduce horizontal padding */
         text-transform: uppercase;
-        font-size: 0.85rem;
         letter-spacing: 0.5px;
-        padding-top: 1rem !important;
-        padding-bottom: 1rem !important;
+        font-size: 0.85rem;
         position: sticky !important;
         top: 0 !important;
         z-index: 10 !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
     }
 
-    .table-body-padded td {
-        padding-left: 1.5rem !important;
-        padding-right: 1.5rem !important;
+    .modern-table tbody td {
+        padding: 1rem 0.75rem !important; /* Reduce horizontal padding */
+        border-bottom: 1px solid #f1f3f5 !important;
+        vertical-align: middle !important;
+        transition: all 0.3s ease;
     }
 
-    /* Ensure the table spans full width in modal */
-    #modalUserDetailsTable {
-        margin: 0 !important;
-        width: 100% !important;
-        border-collapse: collapse !important;
+    .modern-table tbody tr {
+        transition: all 0.3s ease;
     }
 
-    .modal-body-scrollable {
-        padding: 0 !important;
-        margin: 0 !important;
-        overflow-y: auto !important;
-        position: relative !important;
+    .modern-table tbody tr:hover {
+        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.05) 0%, rgba(var(--secondary-color-rgb), 0.05) 100%) !important;
+        transform: translateX(5px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .modern-table tbody tr:last-child td {
+        border-bottom: none !important;
+    }
+
+    .sbu-cell {
+        color: var(--primary-color) !important;
+        font-weight: 700 !important;
+        font-size: 1rem;
+        position: relative;
+    }
+
+    .sites-cell {
+        color: #495057;
+        font-weight: 500;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    .sites-cell .text-muted {
+        font-style: italic;
+        color: #6c757d !important;
+    }
+
+    /* Modal responsive adjustments */
+    @media (max-width: 768px) {
+        .modal-dialog {
+            margin: 0.5rem;
+            max-height: calc(100vh - 1rem);
+        }
+        
+        .modal-content {
+            height: calc(100vh - 1rem);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-body-fixed {
+            flex-shrink: 0;
+            padding: 1rem !important;
+        }
+        
+        .modal-body-scrollable {
+            flex: 1;
+            overflow-y: auto;
+            max-height: none;
+            padding: 0 !important; /* Remove padding to fix sticky header */
+        }
+        
+        /* Add padding to table container instead */
+        .modal-body-scrollable .table-container-full-width {
+            padding: 0 1rem 1rem 1rem !important;
+        }
+        
+        .modal-footer {
+            flex-shrink: 0;
+            padding: 0.75rem 1rem !important;
+        }
+        
+        .modal-body-scrollable {
+            max-height: 300px;
+        }
+        
+        .info-card {
+            padding: 0.75rem;
+        }
+        
+        .modern-table thead th,
+        .modern-table tbody td {
+            padding: 0.75rem 0.5rem !important; /* Further reduce padding for mobile */
+            font-size: 0.9rem;
+        }
+        
+        .sbu-cell {
+            font-size: 0.9rem;
+        }
+        
+        .sites-cell {
+            font-size: 0.85rem;
+        }
+        
+        /* Modal DataTable responsive adjustments */
+        .modal-body-scrollable .dataTables_wrapper .row {
+            flex-direction: column !important;
+            gap: 0.75rem !important;
+        }
+        
+        .modal-body-scrollable .dataTables_wrapper .row > div {
+            width: 100% !important;
+            justify-content: center !important;
+        }
+        
+        .modal-body-scrollable .dataTables_filter {
+            text-align: center !important;
+            justify-content: center !important;
+        }
+        
+        .modal-body_scrollable .dataTables_wrapper .row > div {
+            display: flex !important;
+            align-items: center !important;
+            padding: 0 !important;
+        }
+        
+        .modal-body-scrollable .dataTables_filter {
+            text-align: right !important;
+            justify-content: flex-end !important;
+        }
+        
+        .modal-body-scrollable .dataTables_length {
+            justify-content: flex-start !important;
+        }
+        
+        .modal-body-scrollable .dataTables_filter label,
+        .modal-body-scrollable .dataTables_length label {
+            margin-bottom: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+        }
+
+    /* Fixed Pagination Section Styling */
+    .modal-pagination-fixed {
+        flex-shrink: 0;
+        background: #f8f9fa !important;
+        border-top: 2px solid #e9ecef !important;
     }
     
-    /* Add padding to table container for proper spacing */
-    .modal-body-scrollable .table-container-full-width {
-        padding: 0 1.5rem 1.5rem 1.5rem;
-    }
-
-    /* User Type Badges */
-    .user-type-badge {
-        border-radius: 20px !important;
-        padding: 6px 16px !important;
-        font-weight: 600 !important;
-        font-size: 0.8rem !important;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .badge-admin {
-        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
-        color: white !important;
-    }
-
-    .badge-surveyor {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
-        color: white !important;
-    }
-
-    /* Site Badge Styling - Improved for better readability */
-    .site-badge {
-        border-radius: 12px !important;
-        padding: 6px 12px !important;
-        font-weight: 500 !important;
-        font-size: 0.75rem !important;
-        line-height: 1.2 !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
-        color: white !important;
-        border: none !important;
-        display: inline-block !important;
-        vertical-align: middle !important;
-    }
-
-    .site-badge:hover {
-        background: linear-gradient(135deg, #5a6268 0%, #495057 100%) !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
-    }
-
-    /* Site Column Responsive Design */
-    .site-column {
-        max-width: 180px !important;
-        min-width: 120px !important;
-    }
-
-    /* Site Badge Styling - Improved for better readability */
-    .site-badge {
-        border-radius: 12px !important;
-        padding: 6px 12px !important;
-        font-weight: 500 !important;
-        font-size: 0.75rem !important;
-        line-height: 1.2 !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
-        color: white !important;
-        border: none !important;
-        display: inline-block !important;
-        vertical-align: middle !important;
-    }
-
-    .site-badge:hover {
-        background: linear-gradient(135deg, #5a6268 0%, #495057 100%) !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
-    }
-
-    /* Site Column Responsive Design */
-    .site-column {
-        max-width: 250px !important;
-        min-width: 150px !important;
-        word-wrap: break-word !important;
-        overflow: visible !important;
+    .modal-pagination-fixed .dataTables_info {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin: 0;
     }
     
-    /* Sites display container */
-    .sites-display {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 4px !important;
-        align-items: center !important;
-        max-width: 100% !important;
+    .modal-pagination-fixed .dataTables_paginate {
+        margin: 0;
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button {
+        padding: 6px 12px;
+        margin: 0 2px;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        background: white;
+        color: #495057;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.current {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
     /* Tooltip styling for better visibility */
@@ -1033,167 +1120,754 @@
             justify-content: center !important;
         }
         
+        .modal-body_scrollable .dataTables_wrapper .row > div {
+            display: flex !important;
+            align-items: center !important;
+            padding: 0 !important;
+        }
+        
+        .modal-body-scrollable .dataTables_filter {
+            text-align: right !important;
+            justify-content: flex-end !important;
+        }
+        
         .modal-body-scrollable .dataTables_length {
-            justify-content: center !important;
+            justify-content: flex-start !important;
+        }
+        
+        .modal-body-scrollable .dataTables_filter label,
+        .modal-body-scrollable .dataTables_length label {
+            margin-bottom: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+        }
+
+    /* Fixed Pagination Section Styling */
+    .modal-pagination-fixed {
+        flex-shrink: 0;
+        background: #f8f9fa !important;
+        border-top: 2px solid #e9ecef !important;
+    }
+    
+    .modal-pagination-fixed .dataTables_info {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin: 0;
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate {
+        margin: 0;
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button {
+        padding: 6px 12px;
+        margin: 0 2px;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        background: white;
+        color: #495057;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.current {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Tooltip styling for better visibility */
+    .tooltip {
+        font-size: 0.8rem !important;
+    }
+
+    .tooltip-inner {
+        max-width: 300px !important;
+        text-align: center !important;
+        word-wrap: break-word !important;
+        background: rgba(0,0,0,0.9) !important;
+        border-radius: 6px !important;
+        padding: 8px 12px !important;
+    }
+
+    /* Mobile responsiveness for site badges */
+    @media (max-width: 768px) {
+        .site-badge {
+            font-size: 0.7rem !important;
+            padding: 4px 8px !important;
+            max-width: 120px !important;
+        }
+        
+        .site-column {
+            max-width: 180px !important;
+            min-width: 120px !important;
         }
     }
 
-    @media (max-width: 576px) {
+    @media (max-width: 480px) {
+        .site-badge {
+            font-size: 0.65rem !important;
+            padding: 3px 6px !important;
+            max-width: 100px !important;
+        }
+        
+        .site-column {
+            max-width: 150px !important;
+            min-width: 100px !important;
+        }
+    }
+
+    /* Clickable row styling */
+    .table-hover-active {
+        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.08) 0%, rgba(var(--secondary-color-rgb), 0.08) 100%) !important;
+        transform: translateX(3px) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    }
+
+    .more-sites-badge {
+        transition: all 0.3s ease !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        margin-left: 2px !important;
+    }
+
+    .more-sites-badge:hover {
+        transform: scale(1.05) !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+        border-radius: 15px !important;
+        overflow: hidden;
+    }
+
+    .modal-header.bg-gradient {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    }
+
+    .info-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        border-left: 4px solid var(--primary-color);
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-value {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #212529;
+        word-break: break-word;
+    }
+
+    .table-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        border: 1px solid #dee2e6;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .table-section h6 {
+        margin-bottom: 1.5rem !important;
+        padding-bottom: 0.75rem;
+        border-bottom: 3px solid var(--primary-color);
+        color: #2c3e50;
+    }
+
+    .modern-table {
+        margin-bottom: 0 !important;
+        margin-top: 0 !important; /* Remove top margin */
+        margin-left: 0 !important; /* Remove left margin */
+        margin-right: 0 !important; /* Remove right margin */
+        background: white;
+        border-radius: 0 !important;
+        overflow: visible;
+        box-shadow: none;
+        border: none;
+        width: 100% !important; /* Ensure full width */
+        /* Ensure table supports sticky positioning */
+        border-collapse: separate;
+        border-spacing: 0;
+        /* Prevent content from bleeding through sticky header */
+        position: relative;
+    }
+
+    /* Ensure table body doesn't interfere with sticky header */
+    .modern-table tbody {
+        position: relative;
+        z-index: 1;
+        background: white;
+    }
+
+    /* Additional layer protection for table rows */
+    .modern-table tbody tr {
+        position: relative;
+        background: white;
+        z-index: 1;
+    }
+
+    .modern-table thead th {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+        color: white !important;
+        font-weight: 600 !important;
+        border: none !important;
+        padding: 1rem 0.75rem !important; /* Reduce horizontal padding */
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 10 !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+
+    .modern-table tbody td {
+        padding: 1rem 0.75rem !important; /* Reduce horizontal padding */
+        border-bottom: 1px solid #f1f3f5 !important;
+        vertical-align: middle !important;
+        transition: all 0.3s ease;
+    }
+
+    .modern-table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .modern-table tbody tr:hover {
+        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.05) 0%, rgba(var(--secondary-color-rgb), 0.05) 100%) !important;
+        transform: translateX(5px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .modern-table tbody tr:last-child td {
+        border-bottom: none !important;
+    }
+
+    .sbu-cell {
+        color: var(--primary-color) !important;
+        font-weight: 700 !important;
+        font-size: 1rem;
+        position: relative;
+    }
+
+    .sites-cell {
+        color: #495057;
+        font-weight: 500;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    .sites-cell .text-muted {
+        font-style: italic;
+        color: #6c757d !important;
+    }
+
+    /* Modal responsive adjustments */
+    @media (max-width: 768px) {
         .modal-dialog {
-            margin: 1rem auto;
-            max-height: calc(100vh - 2rem);
-            width: calc(100vw - 2rem);
-            max-width: calc(100vw - 2rem);
-            display: flex;
-            align-items: center;
-            min-height: calc(100vh - 2rem);
+            margin: 0.5rem;
+            max-height: calc(100vh - 1rem);
         }
         
         .modal-content {
-            height: auto;
-            max-height: calc(100vh - 2rem);
-            width: 100%;
+            height: calc(100vh - 1rem);
+            display: flex;
+            flex-direction: column;
         }
         
         .modal-body-fixed {
-            padding: 0.75rem !important;
+            flex-shrink: 0;
+            padding: 1rem !important;
         }
         
         .modal-body-scrollable {
+            flex: 1;
+            overflow-y: auto;
+            max-height: none;
             padding: 0 !important; /* Remove padding to fix sticky header */
-            max-height: none !important;
-            flex: 1 !important;
-            overflow-y: auto !important;
         }
         
         /* Add padding to table container instead */
         .modal-body-scrollable .table-container-full-width {
-            padding: 0 0.75rem 0.75rem 0.75rem !important;
+            padding: 0 1rem 1rem 1rem !important;
         }
         
         .modal-footer {
-            padding: 0.5rem 0.75rem !important;
+            flex-shrink: 0;
+            padding: 0.75rem 1rem !important;
         }
         
-        .modal-header {
-            padding: 0.75rem !important;
-        }
-        
-        .modal-header h5 {
-            font-size: 1.1rem !important;
+        .modal-body-scrollable {
+            max-height: 300px;
         }
         
         .info-card {
-            padding: 0.5rem !important;
-            margin-bottom: 0.75rem !important;
-        }
-        
-        .info-label {
-            font-size: 0.85rem !important;
-        }
-        
-        .info-value {
-            font-size: 0.9rem !important;
+            padding: 0.75rem;
         }
         
         .modern-table thead th,
         .modern-table tbody td {
-            padding: 0.5rem 0.375rem !important; /* Minimal padding for very small screens */
-            font-size: 0.85rem;
+            padding: 0.75rem 0.5rem !important; /* Further reduce padding for mobile */
+            font-size: 0.9rem;
         }
         
         .sbu-cell {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
         }
         
         .sites-cell {
-            font-size: 0.8rem;
-            line-height: 1.5;
+            font-size: 0.85rem;
         }
         
-        /* Further adjustments for very small screens */
-        .modal-body-scrollable .dataTables_filter input {
-            width: 140px !important;
-            min-width: 140px !important;
-            font-size: 0.85rem !important;
+        /* Modal DataTable responsive adjustments */
+        .modal-body-scrollable .dataTables_wrapper .row {
+            flex-direction: column !important;
+            gap: 0.75rem !important;
         }
         
-        .modal-body-scrollable .dataTables_length select {
-            min-width: 70px !important;
-            font-size: 0.85rem !important;
+        .modal-body-scrollable .dataTables_wrapper .row > div {
+            width: 100% !important;
+            justify-content: center !important;
         }
         
-        /* Ensure pagination is visible and accessible */
-        .modal-body-scrollable .dataTables_wrapper .dataTables_paginate {
-            margin-top: 0.75rem !important;
+        .modal-body-scrollable .dataTables_filter {
             text-align: center !important;
+            justify-content: center !important;
         }
         
-        .modal-body-scrollable .dataTables_paginate .paginate_button {
-            padding: 4px 8px !important;
-            font-size: 0.8rem !important;
-            margin: 0 1px !important;
+        .modal-body_scrollable .dataTables_wrapper .row > div {
+            display: flex !important;
+            align-items: center !important;
+            padding: 0 !important;
         }
         
-        .modal-body-scrollable .dataTables_info {
-            font-size: 0.8rem !important;
-            text-align: center !important;
-            margin-top: 0.5rem !important;
+        .modal-body-scrollable .dataTables_filter {
+            text-align: right !important;
+            justify-content: flex-end !important;
         }
-    }
+        
+        .modal-body-scrollable .dataTables_length {
+            justify-content: flex-start !important;
+        }
+        
+        .modal-body-scrollable .dataTables_filter label,
+        .modal-body-scrollable .dataTables_length label {
+            margin-bottom: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+        }
 
-    /* Success text color */
-    .text-success {
-        color: #28a745 !important;
-    }
-
-    /* Danger text color */
-    .text-danger {
-        color: #dc3545 !important;
-    }
-
-    /* Main Users Table Pagination Styling - Match Modal Style */
-    .dataTables_wrapper:not(.modal-body-scrollable) .dataTables_paginate {
-        margin-top: 0.5rem;
-    }
-
-    .dataTables_wrapper:not(.modal-body-scrollable) .dataTables_paginate .paginate_button {
-        padding: 6px 12px !important;
-        margin: 0 2px !important;
-        border-radius: 8px !important;
-        border: 1px solid #dee2e6 !important;
-        color: var(--primary-color) !important;
-        background: white !important;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-
-    .dataTables_wrapper:not(.modal-body-scrollable) .dataTables_paginate .paginate_button:hover {
-        background: var(--primary-color) !important;
-        border-color: var(--primary-color) !important;
-        color: white !important;
-        transform: translateY(-1px);
-    }
-
-    .dataTables_wrapper:not(.modal-body-scrollable) .dataTables_paginate .paginate_button.current {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-        border-color: var(--primary-color) !important;
-        color: white !important;
-    }
-
-    .dataTables_wrapper:not(.modal-body-scrollable) .dataTables_paginate .paginate_button.disabled {
-        color: #6c757d !important;
+    /* Fixed Pagination Section Styling */
+    .modal-pagination-fixed {
+        flex-shrink: 0;
         background: #f8f9fa !important;
-        border-color: #dee2e6 !important;
+        border-top: 2px solid #e9ecef !important;
+    }
+    
+    .modal-pagination-fixed .dataTables_info {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin: 0;
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate {
+        margin: 0;
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button {
+        padding: 6px 12px;
+        margin: 0 2px;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        background: white;
+        color: #495057;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.current {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.disabled {
+        opacity: 0.5;
         cursor: not-allowed;
     }
 
-    /* SBU container validation styling */
-    .sbu-selection-container.border-danger {
-        border: 2px solid #dc3545 !important;
-        border-radius: 0.375rem;
-        background-color: rgba(220, 53, 69, 0.05);
-        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+    /* Tooltip styling for better visibility */
+    .tooltip {
+        font-size: 0.8rem !important;
+    }
+
+    .tooltip-inner {
+        max-width: 300px !important;
+        text-align: center !important;
+        word-wrap: break-word !important;
+        background: rgba(0,0,0,0.9) !important;
+        border-radius: 6px !important;
+        padding: 8px 12px !important;
+    }
+
+    /* Mobile responsiveness for site badges */
+    @media (max-width: 768px) {
+        .site-badge {
+            font-size: 0.7rem !important;
+            padding: 4px 8px !important;
+            max-width: 120px !important;
+        }
+        
+        .site-column {
+            max-width: 180px !important;
+            min-width: 120px !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .site-badge {
+            font-size: 0.65rem !important;
+            padding: 3px 6px !important;
+            max-width: 100px !important;
+        }
+        
+        .site-column {
+            max-width: 150px !important;
+            min-width: 100px !important;
+        }
+    }
+
+    /* Clickable row styling */
+    .table-hover-active {
+        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.08) 0%, rgba(var(--secondary-color-rgb), 0.08) 100%) !important;
+        transform: translateX(3px) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    }
+
+    .more-sites-badge {
+        transition: all 0.3s ease !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        margin-left: 2px !important;
+    }
+
+    .more-sites-badge:hover {
+        transform: scale(1.05) !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+        border-radius: 15px !important;
+        overflow: hidden;
+    }
+
+    .modal-header.bg-gradient {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    }
+
+    .info-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        border-left: 4px solid var(--primary-color);
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-value {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #212529;
+        word-break: break-word;
+    }
+
+    .table-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        border: 1px solid #dee2e6;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .table-section h6 {
+        margin-bottom: 1.5rem !important;
+        padding-bottom: 0.75rem;
+        border-bottom: 3px solid var(--primary-color);
+        color: #2c3e50;
+    }
+
+    .modern-table {
+        margin-bottom: 0 !important;
+        margin-top: 0 !important; /* Remove top margin */
+        margin-left: 0 !important; /* Remove left margin */
+        margin-right: 0 !important; /* Remove right margin */
+        background: white;
+        border-radius: 0 !important;
+        overflow: visible;
+        box-shadow: none;
+        border: none;
+        width: 100% !important; /* Ensure full width */
+        /* Ensure table supports sticky positioning */
+        border-collapse: separate;
+        border-spacing: 0;
+        /* Prevent content from bleeding through sticky header */
+        position: relative;
+    }
+
+    /* Ensure table body doesn't interfere with sticky header */
+    .modern-table tbody {
+        position: relative;
+        z-index: 1;
+        background: white;
+    }
+
+    /* Additional layer protection for table rows */
+    .modern-table tbody tr {
+        position: relative;
+        background: white;
+        z-index: 1;
+    }
+
+    .modern-table thead th {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+        color: white !important;
+        font-weight: 600 !important;
+        border: none !important;
+        padding: 1rem 0.75rem !important; /* Reduce horizontal padding */
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 10 !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+
+    .modern-table tbody td {
+        padding: 1rem 0.75rem !important; /* Reduce horizontal padding */
+        border-bottom: 1px solid #f1f3f5 !important;
+        vertical-align: middle !important;
+        transition: all 0.3s ease;
+    }
+
+    .modern-table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .modern-table tbody tr:hover {
+        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.05) 0%, rgba(var(--secondary-color-rgb), 0.05) 100%) !important;
+        transform: translateX(5px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .modern-table tbody tr:last-child td {
+        border-bottom: none !important;
+    }
+
+    .sbu-cell {
+        color: var(--primary-color) !important;
+        font-weight: 700 !important;
+        font-size: 1rem;
+        position: relative;
+    }
+
+    .sites-cell {
+        color: #495057;
+        font-weight: 500;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    .sites-cell .text-muted {
+        font-style: italic;
+        color: #6c757d !important;
+    }
+
+    /* Modal responsive adjustments */
+    @media (max-width: 768px) {
+        .modal-dialog {
+            margin: 0.5rem;
+            max-height: calc(100vh - 1rem);
+        }
+        
+        .modal-content {
+            height: calc(100vh - 1rem);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-body-fixed {
+            flex-shrink: 0;
+            padding: 1rem !important;
+        }
+        
+        .modal-body-scrollable {
+            flex: 1;
+            overflow-y: auto;
+            max-height: none;
+            padding: 0 !important; /* Remove padding to fix sticky header */
+        }
+        
+        /* Add padding to table container instead */
+        .modal-body-scrollable .table-container-full-width {
+            padding: 0 1rem 1rem 1rem !important;
+        }
+        
+        .modal-footer {
+            flex-shrink: 0;
+            padding: 0.75rem 1rem !important;
+        }
+        
+        .modal-body-scrollable {
+            max-height: 300px;
+        }
+        
+        .info-card {
+            padding: 0.75rem;
+        }
+        
+        .modern-table thead th,
+        .modern-table tbody td {
+            padding: 0.75rem 0.5rem !important; /* Further reduce padding for mobile */
+            font-size: 0.9rem;
+        }
+        
+        .sbu-cell {
+            font-size: 0.9rem;
+        }
+        
+        .sites-cell {
+            font-size: 0.85rem;
+        }
+        
+        /* Modal DataTable responsive adjustments */
+        .modal-body-scrollable .dataTables_wrapper .row {
+            flex-direction: column !important;
+            gap: 0.75rem !important;
+        }
+        
+        .modal-body-scrollable .dataTables_wrapper .row > div {
+            width: 100% !important;
+            justify-content: center !important;
+        }
+        
+        .modal-body-scrollable .dataTables_filter {
+            text-align: center !important;
+            justify-content: center !important;
+        }
+        
+        .modal-body_scrollable .dataTables_wrapper .row > div {
+            display: flex !important;
+            align-items: center !important;
+            padding: 0 !important;
+        }
+        
+        .modal-body-scrollable .dataTables_filter {
+            text-align: right !important;
+            justify-content: flex-end !important;
+        }
+        
+        .modal-body-scrollable .dataTables_length {
+            justify-content: flex-start !important;
+        }
+        
+        .modal-body-scrollable .dataTables_filter label,
+        .modal-body-scrollable .dataTables_length label {
+            margin-bottom: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+        }
+
+    /* Fixed Pagination Section Styling */
+    .modal-pagination-fixed {
+        flex-shrink: 0;
+        background: #f8f9fa !important;
+        border-top: 2px solid #e9ecef !important;
+    }
+    
+    .modal-pagination-fixed .dataTables_info {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin: 0;
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate {
+        margin: 0;
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button {
+        padding: 6px 12px;
+        margin: 0 2px;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        background: white;
+        color: #495057;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.current {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
     /* Password Toggle Button Styling */
@@ -2035,8 +2709,8 @@ function showUserDetailsModal(userData) {
         if (sites.length > 0) {
             setTimeout(() => {
                 modalDataTable = $('#modalUserDetailsTable').DataTable({
-                    pageLength: 10,
-                    lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "All"]],
+                    pageLength: 5,
+                    lengthChange: false, // Remove the per page selector
                     responsive: true,
                     ordering: false, // Disable sorting for all columns
                     language: {
@@ -2052,77 +2726,60 @@ function showUserDetailsModal(userData) {
                         emptyTable: "<div class='text-center py-3'><i class='bi bi-building text-muted fs-4 mb-2'></i><p class='text-muted mb-0'>No SBU or site access found</p></div>",
                         zeroRecords: "<div class='text-center py-3'><i class='bi bi-search text-muted fs-4 mb-2'></i><p class='text-muted mb-0'>No matching SBU or sites found</p></div>"
                     },
-                    dom: '<"row mb-3"<"col-md-6"l><"col-md-6"f>>rt<"row align-items-center pt-3"<"col-md-6"i><"col-md-6"p>>',
+                    dom: 'rt<"d-none"<"info-holder"i><"paginate-holder"p>>',
                     initComplete: function() {
-                        // Style the search input with modern design
-                        $('.modal-body-scrollable .dataTables_filter input')
-                            .addClass('form-control')
-                            .attr('placeholder', 'Search SBU or Sites...')
-                            .css({
-                                'border-radius': '25px',
-                                'border': '2px solid #e9ecef',
-                                'padding': '8px 20px',
-                                'max-width': '100%',
-                                'width': 'auto',
-                                'min-width': '180px'
-                            });
+                        // Create custom search input in the fixed container
+                        const searchContainer = $('#modal-search-container');
+                        searchContainer.html(`
+                            <div class="d-flex justify-content-end">
+                                <div class="search-input-wrapper position-relative">
+                                    <input type="text" id="modal-custom-search" class="form-control" 
+                                           placeholder="Search SBU or Sites..." 
+                                           style="border-radius: 25px; border: 2px solid #e9ecef; padding: 8px 20px 8px 55px; min-width: 250px;">
+                                </div>
+                            </div>
+                        `);
                         
-                        $('.modal-body-scrollable .dataTables_filter label')
-                            .addClass('position-relative')
-                            .css('margin-bottom', '0');
-                            
-                        $('.modal-body-scrollable .dataTables_filter input:focus').css({
-                            'border-color': 'var(--primary-color)',
-                            'box-shadow': '0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25)'
+                        // Connect custom search to DataTable
+                        $('#modal-custom-search').on('keyup search', function() {
+                            modalDataTable.search(this.value).draw();
                         });
                         
-                        // Style the length select
-                        $('.modal-body-scrollable .dataTables_length select')
-                            .addClass('form-select')
-                            .css({
-                                'border-radius': '20px',
-                                'border': '2px solid #e9ecef',
-                                'padding': '6px 12px',
-                                'width': 'auto',
-                                'min-width': '80px'
+                        // Style the custom search input focus
+                        $('#modal-custom-search').on('focus', function() {
+                            $(this).css({
+                                'border-color': 'var(--primary-color)',
+                                'box-shadow': '0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25)'
                             });
-                            
-                        // Add icons to search
-                        const searchContainer = $('.modal-body-scrollable .dataTables_filter');
-                        
-                        // Wrap the input in a container for proper icon positioning
-                        const searchInput = searchContainer.find('input');
-                        searchInput.wrap('<div class="search-input-wrapper position-relative"></div>');
-                        
-                        // Add the search icon
-                        searchInput.before('<i class="bi bi-search search-icon"></i>');
-                        searchInput.css('padding-left', '45px');
+                        }).on('blur', function() {
+                            $(this).css({
+                                'border-color': '#e9ecef',
+                                'box-shadow': 'none'
+                            });
+                        });
                         
                         // Responsive adjustments for modal search
                         function adjustModalSearch() {
                             const modalWidth = $('.modal-dialog').width();
-                            const searchInput = $('.modal-body-scrollable .dataTables_filter input');
+                            const searchInput = $('#modal-custom-search');
                             
                             if (modalWidth < 576) {
                                 searchInput.css({
-                                    'width': '140px',
-                                    'min-width': '140px',
+                                    'min-width': '200px',
                                     'font-size': '0.85rem',
-                                    'padding': '6px 15px 6px 35px'
+                                    'padding': '6px 15px 6px 45px'
                                 });
                             } else if (modalWidth < 768) {
                                 searchInput.css({
-                                    'width': '180px',
-                                    'min-width': '160px',
+                                    'min-width': '220px',
                                     'font-size': '0.9rem',
-                                    'padding': '7px 18px 7px 40px'
+                                    'padding': '7px 18px 7px 50px'
                                 });
                             } else {
                                 searchInput.css({
-                                    'width': '250px',
-                                    'min-width': '180px',
+                                    'min-width': '250px',
                                     'font-size': '1rem',
-                                    'padding': '8px 20px 8px 45px'
+                                    'padding': '8px 20px 8px 55px'
                                 });
                             }
                         }
@@ -2130,6 +2787,21 @@ function showUserDetailsModal(userData) {
                         // Call on init and window resize
                         adjustModalSearch();
                         $(window).on('resize', adjustModalSearch);
+                        
+                        // Move pagination controls to fixed containers
+                        setTimeout(() => {
+                            // Move info to fixed container
+                            const infoElement = $('.info-holder .dataTables_info').detach();
+                            $('#modal-info-container').append(infoElement);
+                            
+                            // Move pagination to fixed container
+                            const paginateElement = $('.paginate-holder .dataTables_paginate').detach();
+                            $('#modal-paginate-container').append(paginateElement);
+                            
+                            // Style the moved elements
+                            $('#modal-info-container .dataTables_info').addClass('mb-0');
+                            $('#modal-paginate-container .dataTables_paginate').addClass('mb-0');
+                        }, 50);
                     },
                     drawCallback: function() {
                         // Add animation to rows
@@ -2139,6 +2811,25 @@ function showUserDetailsModal(userData) {
                                 'animation': 'fadeInUp 0.4s ease forwards'
                             });
                         });
+                        
+                        // Ensure pagination controls stay in fixed containers after redraw
+                        setTimeout(() => {
+                            // Move info if it's not in the fixed container
+                            if ($('.info-holder .dataTables_info').length > 0) {
+                                const infoElement = $('.info-holder .dataTables_info').detach();
+                                $('#modal-info-container').empty().append(infoElement);
+                            }
+                            
+                            // Move pagination if it's not in the fixed container
+                            if ($('.paginate-holder .dataTables_paginate').length > 0) {
+                                const paginateElement = $('.paginate-holder .dataTables_paginate').detach();
+                                $('#modal-paginate-container').empty().append(paginateElement);
+                            }
+                            
+                            // Style the elements
+                            $('#modal-info-container .dataTables_info').addClass('mb-0');
+                            $('#modal-paginate-container .dataTables_paginate').addClass('mb-0');
+                        }, 10);
                     }
                 });
             }, 100); // Small delay to ensure modal is fully rendered
@@ -2825,12 +3516,22 @@ style.textContent = `
             padding: 1.25rem;
         }
         
+        .sbu-selection-container .row.g-3 {
+            --bs-gutter-x: 1rem;
+            --bs-gutter-y: 1rem;
+        }
+        
         .sbu-card {
-            min-height: 110px;
+            min-height: 90px;
+            max-height: 110px;
+        }
+        
+        .sbu-card-content {
+            padding: 0.75rem;
         }
         
         .sbu-name {
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
         
         .sbu-sites-count {
@@ -2904,7 +3605,7 @@ style.textContent = `
         }
         
         /* Stack password fields vertically on iPad */
-        .password-fields .col-md-6.col-lg-12.col-xl-6 {
+        .row.g-3.mb-4 .col-md-6.col-lg-12.col-xl-6 {
             flex: 0 0 100%;
             max-width: 100%;
             margin-bottom: 1rem;
@@ -3117,41 +3818,122 @@ style.textContent = `
             font-size: 0.9rem;
         }
     }
+    
+    /* Fixed Pagination Section Styling */
+    .modal-pagination-fixed {
+        flex-shrink: 0;
+        background: #f8f9fa !important;
+        border-top: 2px solid #e9ecef !important;
+    }
+    
+    .modal-pagination-fixed .dataTables_info {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin: 0;
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate {
+        margin: 0;
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button {
+        padding: 6px 12px;
+        margin: 0 2px;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+        background: white;
+        color: #495057;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.current {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    /* Password Toggle Button Styling */
+    .password-input-group {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .password-toggle-btn {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6c757d;
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        /* Ensure button stays aligned with input field only */
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    .password-toggle-btn:hover {
+        color: var(--primary-color);
+        background-color: rgba(var(--primary-color-rgb), 0.1);
+    }
+
+    .password-toggle-btn:focus {
+        outline: none;
+        color: var(--primary-color);
+        background-color: rgba(var(--primary-color-rgb), 0.15);
+    }
+
+    .password-toggle-btn:active {
+        transform: translateY(-50%) scale(0.95);
+    }
+
+    /* Adjust padding for password inputs to accommodate toggle button */
+    .password-input-group .form-control {
+        padding-right: 50px !important;
+        /* Ensure input field has consistent height */
+        box-sizing: border-box;
+    }
+
+    /* Ensure validation messages don't affect button positioning */
+    .password-input-group + .text-danger,
+    .password-input-group + .text-success,
+    .password-input-group + .text-warning,
+    .password-input-group + .invalid-feedback {
+        margin-top: 0.25rem;
+    }
+
+    /* Fix for dynamically added validation messages */
+    .password-input-group ~ .text-danger,
+    .password-input-group ~ .text-success,
+    .password-input-group ~ .text-warning {
+        margin-top: 0.25rem;
+        display: block;
+    }
 `;
+
 document.head.appendChild(style);
-
-// Password Toggle Functionality
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize password toggle buttons
-    initializePasswordToggles();
-});
-
-function initializePasswordToggles() {
-    // Remove any existing event listeners to prevent duplicates
-    document.querySelectorAll('.password-toggle-btn').forEach(button => {
-        // Clone the node to remove existing listeners
-        const newButton = button.cloneNode(true);
-        button.parentNode.replaceChild(newButton, button);
-    });
-
-    // Add event listeners to all password toggle buttons
-    document.querySelectorAll('.password-toggle-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const targetId = this.getAttribute('data-target');
-            const targetInput = document.getElementById(targetId);
-            const eyeIcon = this.querySelector('i');
-            
-            if (targetInput) {
-                if (targetInput.type === 'password') {
-                    targetInput.type = 'text';
-                    eyeIcon.className = 'bi bi-eye-slash';
-                } else {
-                    targetInput.type = 'password';
-                    eyeIcon.className = 'bi bi-eye';
-                }
-            }
-        });
-    });
-}
 </script>
 @endsection
