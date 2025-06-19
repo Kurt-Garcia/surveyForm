@@ -45,6 +45,11 @@ return [
             'provider' => 'admins',
             'session_name' => config('session.admin_cookie'),
         ],
+        'developer' => [
+            'driver' => 'session',
+            'provider' => 'developers',
+            'session_name' => config('session.developer_cookie'),
+        ],
     ],
 
     /*
@@ -72,6 +77,10 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model' => App\Models\Admin::class,
+        ],
+        'developers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Developer::class,
         ],
     ],
 

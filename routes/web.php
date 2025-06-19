@@ -12,6 +12,11 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
+// Developer Access Information (Remove this route in production!)
+Route::get('/dev-info', function () {
+    return view('dev-info');
+})->name('dev.info');
+
 // Direct access survey route for customers (no login required)
 // These routes don't use site.access middleware to allow public access via email links
 Route::get('/survey/{survey}', [UserSurveyController::class, 'customerSurvey'])->name('customer.survey');
@@ -167,3 +172,28 @@ Route::prefix('admin')->group(function () {
 
 // Health check route (publicly accessible)
 Route::get('/health', [\App\Http\Controllers\UserSurveyController::class, 'healthCheck'])->name('health.check');
+
+// Developer Routes - Secret Access Path
+Route::prefix('secret-dev-access-fastdev-2025')->group(function () {
+    Route::get('/login', [\App\Http\Controllers\DeveloperController::class, 'showLoginForm'])->name('developer.login');
+    Route::post('/login', [\App\Http\Controllers\DeveloperController::class, 'login']);
+    Route::post('/logout', [\App\Http\Controllers\DeveloperController::class, 'logout'])->name('developer.logout');
+
+    Route::middleware(['auth:developer', 'developer.access'])->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\DeveloperController::class, 'dashboard'])->name('developer.dashboard');
+        
+        // Survey Management
+        Route::get('/surveys', [\App\Http\Controllers\DeveloperController::class, 'surveys'])->name('developer.surveys');
+        Route::delete('/surveys/{id}', [\App\Http\Controllers\DeveloperController::class, 'deleteSurvey'])->name('developer.surveys.delete');
+        
+        // Admin Management
+        Route::get('/admins', [\App\Http\Controllers\DeveloperController::class, 'admins'])->name('developer.admins');
+        Route::patch('/admins/{id}/toggle-status', [\App\Http\Controllers\DeveloperController::class, 'toggleAdminStatus'])->name('developer.admins.toggle-status');
+        Route::delete('/admins/{id}', [\App\Http\Controllers\DeveloperController::class, 'deleteAdmin'])->name('developer.admins.delete');
+        
+        // User Management
+        Route::get('/users', [\App\Http\Controllers\DeveloperController::class, 'users'])->name('developer.users');
+        Route::patch('/users/{id}/toggle-status', [\App\Http\Controllers\DeveloperController::class, 'toggleUserStatus'])->name('developer.users.toggle-status');
+        Route::delete('/users/{id}', [\App\Http\Controllers\DeveloperController::class, 'deleteUser'])->name('developer.users.delete');
+    });
+});

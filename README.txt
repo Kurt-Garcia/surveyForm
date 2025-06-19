@@ -20,6 +20,10 @@ php artisan db:seed
 
 php artisan db:seed --class=TestDataSeeder (For Individual Seeding)
 
+php artisan db:seed --class=DeveloperSeeder
+
+http://127.0.0.1:8000/secret-dev-access-fastdev-2025/login
+
 
 
 -------To Test in the Phone-------
