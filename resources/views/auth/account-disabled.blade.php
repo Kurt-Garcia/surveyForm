@@ -246,8 +246,9 @@
 }
 
 .help-card {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: white;
+    background: #f7fafc;
+    border-left: 4px solid var(--primary-color);
+    color: #2d3748;
     padding: 1.5rem;
     border-radius: 16px;
     display: flex;
