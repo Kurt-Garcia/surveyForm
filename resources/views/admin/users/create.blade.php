@@ -3184,11 +3184,20 @@ style.textContent = `
         height: 100%;
         min-height: 120px;
     }
-    
-    .sbu-card:hover {
-        border-color: var(--primary-color);
-        box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.15);
-        transform: translateY(-2px);
+
+     .sbu-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        transition: left 0.5s;
+    }
+
+    .sbu-card:hover::before {
+        left: 100%;
     }
     
     .sbu-card.selected {

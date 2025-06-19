@@ -130,21 +130,19 @@
                 <button class="navbar-toggler" type="button" aria-label="Toggle navigation" id="offcanvasToggle">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileOffcanvas" aria-labelledby="mobileOffcanvasLabel">
+                <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="mobileOffcanvas" aria-labelledby="mobileOffcanvasLabel">
                   <div class="offcanvas-header">
                     <h5 class="offcanvas-title" id="mobileOffcanvasLabel">Menu</h5>
                     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                   </div>
                   <div class="offcanvas-body">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.dashboard') }}">Home</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.surveys.index') }}">Surveys</a>
                         </li>
-                    </ul>
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         @guest
                             @if (Route::has('login'))
                                 <li class="nav-item">
@@ -152,22 +150,19 @@
                                 </li>
                             @endif
                         @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('password.change') }}">
+                                    {{ __('Change Password') }}
                                 </a>
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('password.change') }}">
-                                        {{ __('Change Password') }}
-                                    </a>
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit();">
-                                        {{ __('Logout') }}
-                                    </a>
-                                    <form id="logout-form-mobile" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('logout') }}"
+                                   onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit();">
+                                    {{ __('Logout') }}
+                                </a>
+                                <form id="logout-form-mobile" action="{{ route('logout') }}" method="POST" class="d-none">
+                                    @csrf
+                                </form>
                             </li>
                         @endguest
                     </ul>
@@ -256,6 +251,18 @@
       
     <script>
       document.addEventListener('DOMContentLoaded', function() {
+        // Ensure proper navbar layout on page load
+        const navbar = document.querySelector('.navbar');
+        const navbarCollapse = document.querySelector('.navbar-collapse');
+        
+        if (window.innerWidth >= 768) {
+          if (navbarCollapse) {
+            navbarCollapse.style.display = 'flex';
+            navbarCollapse.style.justifyContent = 'space-between';
+          }
+        }
+        
+        // Initialize offcanvas for mobile only
         var offcanvasToggle = document.getElementById('offcanvasToggle');
         var offcanvasEl = document.getElementById('mobileOffcanvas');
         if (offcanvasToggle && offcanvasEl) {
@@ -264,6 +271,15 @@
             bsOffcanvas.toggle();
           });
         }
+        
+        // Handle window resize to maintain proper layout
+        window.addEventListener('resize', function() {
+          const navbarCollapse = document.querySelector('.navbar-collapse');
+          if (window.innerWidth >= 768 && navbarCollapse) {
+            navbarCollapse.style.display = 'flex';
+            navbarCollapse.style.justifyContent = 'space-between';
+          }
+        });
       });
 
       $(document).ready(function() {
@@ -285,6 +301,32 @@
         box-shadow: 0 2px 4px var(--shadow-color);
       }
       
+      /* Fix navbar glitch caused by mobile/desktop interference */
+      .navbar {
+        position: relative;
+      }
+      
+      .navbar-collapse {
+        justify-content: space-between;
+      }
+      
+      .navbar-nav.me-auto {
+        margin-right: auto;
+      }
+      
+      .navbar-nav.ms-auto {
+        margin-left: auto;
+      }
+      
+      /* Ensure mobile offcanvas doesn't affect desktop layout */
+      .offcanvas {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        z-index: 1045;
+        width: 280px;
+      }
+      
       /* Proper responsive navbar handling */
       @media (max-width: 767.98px) {
         .navbar-nav {
@@ -294,6 +336,11 @@
           width: 280px; 
           max-width: 80vw; 
         }
+        
+        /* Hide desktop navbar on mobile */
+        .navbar-collapse {
+          display: none !important;
+        }
       }
       
       @media (min-width: 768px) {
@@ -302,9 +349,28 @@
         }
         .navbar-collapse { 
           display: flex !important; 
+          justify-content: space-between !important;
         }
         .offcanvas { 
           display: none !important; 
+        }
+        
+        /* Ensure desktop navbar stays properly aligned */
+        .navbar-expand-md .navbar-collapse {
+          flex-basis: auto;
+          flex-grow: 1;
+        }
+        
+        .navbar-expand-md .navbar-nav {
+          flex-direction: row;
+        }
+        
+        .navbar-expand-md .navbar-nav.me-auto {
+          margin-right: auto !important;
+        }
+        
+        .navbar-expand-md .navbar-nav.ms-auto {
+          margin-left: auto !important;
         }
       }
 
