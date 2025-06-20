@@ -728,18 +728,16 @@
     @media (max-width: 768px) {
         .modal-dialog {
             margin: 0.5rem;
-            max-height: calc(100vh - 1rem);
+            max-height: calc(100vh - 0.5rem);
         }
         
         .modal-content {
-            height: calc(100vh - 1rem);
-            display: flex;
-            flex-direction: column;
+            height: calc(100vh - 0.5rem);
+            max-height: calc(100vh - 0.5rem);
         }
         
         .modal-body-fixed {
-            flex-shrink: 0;
-            padding: 1rem !important;
+            padding: 0.75rem !important; /* Reduce padding to save space */
         }
         
         .modal-body-scrollable {
@@ -747,24 +745,46 @@
             overflow-y: auto;
             max-height: none;
             padding: 0 !important; /* Remove padding to fix sticky header */
+            min-height: 30vh; /* Reduce height to ensure pagination is visible */
+            max-height: calc(100vh - 280px); /* Limit height to ensure footer is visible */
         }
         
         /* Add padding to table container instead */
         .modal-body-scrollable .table-container-full-width {
-            padding: 0 1rem 1rem 1rem !important;
+            padding: 0 0.75rem 0.75rem 0.75rem !important; /* Reduce padding */
         }
         
         .modal-footer {
             flex-shrink: 0;
-            padding: 0.75rem 1rem !important;
+            padding: 0.5rem 1rem !important; /* Reduce footer padding */
+            min-height: 60px; /* Ensure minimum footer height */
         }
         
-        .modal-body-scrollable {
-            max-height: 300px;
+        /* Fixed pagination section */
+        .modal-pagination-fixed {
+            flex-shrink: 0;
+            padding: 0.5rem 1rem !important; /* Reduce pagination padding */
+            min-height: 50px; /* Ensure minimum pagination height */
+        }
+        
+        /* Fixed search section */
+        .modal-search-fixed {
+            flex-shrink: 0;
+            padding: 0.5rem 1rem !important; /* Reduce search padding */
         }
         
         .info-card {
-            padding: 0.75rem;
+            padding: 0.5rem; /* Reduce info card padding */
+            margin-bottom: 0.5rem; /* Reduce bottom margin */
+        }
+        
+        .info-label {
+            font-size: 0.75rem; /* Smaller label text */
+            margin-bottom: 0.25rem;
+        }
+        
+        .info-value {
+            font-size: 0.85rem; /* Smaller value text */
         }
         
         .modern-table thead th,
@@ -820,1141 +840,112 @@
             gap: 8px !important;
         }
 
-    /* Fixed Pagination Section Styling */
-    .modal-pagination-fixed {
-        flex-shrink: 0;
-        background: #f8f9fa !important;
-        border-top: 2px solid #e9ecef !important;
-    }
-    
-    .modal-pagination-fixed .dataTables_info {
-        font-size: 0.9rem;
-        color: #6c757d;
-        margin: 0;
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate {
-        margin: 0;
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button {
-        padding: 6px 12px;
-        margin: 0 2px;
-        border-radius: 6px;
-        border: 1px solid #dee2e6;
-        background: white;
-        color: #495057;
-        text-decoration: none;
-        transition: all 0.2s ease;
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button:hover {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button.current {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    /* Tooltip styling for better visibility */
-    .tooltip {
-        font-size: 0.8rem !important;
-    }
-
-    .tooltip-inner {
-        max-width: 300px !important;
-        text-align: center !important;
-        word-wrap: break-word !important;
-        background: rgba(0,0,0,0.9) !important;
-        border-radius: 6px !important;
-        padding: 8px 12px !important;
-    }
-
-    /* Mobile responsiveness for site badges */
-    @media (max-width: 768px) {
-        .site-badge {
-            font-size: 0.7rem !important;
+        /* Mobile pagination responsive design */
+        .modal-pagination-fixed {
+            padding: 0.75rem 1rem !important;
+        }
+        
+        .modal-pagination-fixed .dataTables_paginate .paginate_button {
             padding: 4px 8px !important;
-            max-width: 120px !important;
+            margin: 0 1px !important;
+            font-size: 0.8rem !important;
+            border-radius: 4px !important;
         }
         
-        .site-column {
-            max-width: 180px !important;
-            min-width: 120px !important;
+        .modal-pagination-fixed .dataTables_info {
+            font-size: 0.8rem !important;
+        }
+        
+        #modal-pagination-container {
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+            align-items: center !important;
+        }
+        
+        #modal-info-container, 
+        #modal-paginate-container {
+            text-align: center !important;
         }
     }
 
+    /* Additional responsive design for very small screens */
     @media (max-width: 480px) {
-        .site-badge {
-            font-size: 0.65rem !important;
-            padding: 3px 6px !important;
-            max-width: 100px !important;
-        }
-        
-        .site-column {
-            max-width: 150px !important;
-            min-width: 100px !important;
-        }
-    }
-
-    /* Clickable row styling */
-    .table-hover-active {
-        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.08) 0%, rgba(var(--secondary-color-rgb), 0.08) 100%) !important;
-        transform: translateX(3px) !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
-    }
-
-    .more-sites-badge {
-        transition: all 0.3s ease !important;
-        white-space: nowrap !important;
-        flex-shrink: 0 !important;
-        margin-left: 2px !important;
-    }
-
-    .more-sites-badge:hover {
-        transform: scale(1.05) !important;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
-    }
-
-    /* Modal Styling */
-    .modal-content {
-        border-radius: 15px !important;
-        overflow: hidden;
-    }
-
-    .modal-header.bg-gradient {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-    }
-
-    .info-card {
-        background: #f8f9fa;
-        border-radius: 10px;
-        padding: 1rem;
-        border-left: 4px solid var(--primary-color);
-        transition: all 0.3s ease;
-    }
-
-    .info-card:hover {
-        background: #e9ecef;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    .info-label {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #6c757d;
-        margin-bottom: 0.5rem;
-    }
-
-    .info-value {
-        font-size: 1rem;
-        font-weight: 500;
-        color: #212529;
-        word-break: break-word;
-    }
-
-    .table-section {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border-radius: 15px;
-        padding: 2rem;
-        border: 1px solid #dee2e6;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    }
-
-    .table-section h6 {
-        margin-bottom: 1.5rem !important;
-        padding-bottom: 0.75rem;
-        border-bottom: 3px solid var(--primary-color);
-        color: #2c3e50;
-    }
-
-    .modern-table {
-        margin-bottom: 0 !important;
-        margin-top: 0 !important; /* Remove top margin */
-        margin-left: 0 !important; /* Remove left margin */
-        margin-right: 0 !important; /* Remove right margin */
-        background: white;
-        border-radius: 0 !important;
-        overflow: visible;
-        box-shadow: none;
-        border: none;
-        width: 100% !important; /* Ensure full width */
-        /* Ensure table supports sticky positioning */
-        border-collapse: separate;
-        border-spacing: 0;
-        /* Prevent content from bleeding through sticky header */
-        position: relative;
-    }
-
-    /* Ensure table body doesn't interfere with sticky header */
-    .modern-table tbody {
-        position: relative;
-        z-index: 1;
-        background: white;
-    }
-
-    /* Additional layer protection for table rows */
-    .modern-table tbody tr {
-        position: relative;
-        background: white;
-        z-index: 1;
-    }
-
-    .modern-table thead th {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-        color: white !important;
-        font-weight: 600 !important;
-        border: none !important;
-        padding: 1rem 0.75rem !important; /* Reduce horizontal padding */
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-size: 0.85rem;
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 10 !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-    }
-
-    .modern-table tbody td {
-        padding: 1rem 0.75rem !important; /* Reduce horizontal padding */
-        border-bottom: 1px solid #f1f3f5 !important;
-        vertical-align: middle !important;
-        transition: all 0.3s ease;
-    }
-
-    .modern-table tbody tr {
-        transition: all 0.3s ease;
-    }
-
-    .modern-table tbody tr:hover {
-        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.05) 0%, rgba(var(--secondary-color-rgb), 0.05) 100%) !important;
-        transform: translateX(5px);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .modern-table tbody tr:last-child td {
-        border-bottom: none !important;
-    }
-
-    .sbu-cell {
-        color: var(--primary-color) !important;
-        font-weight: 700 !important;
-        font-size: 1rem;
-        position: relative;
-    }
-
-    .sites-cell {
-        color: #495057;
-        font-weight: 500;
-        line-height: 1.6;
-        font-size: 0.95rem;
-    }
-
-    .sites-cell .text-muted {
-        font-style: italic;
-        color: #6c757d !important;
-    }
-
-    /* Modal responsive adjustments */
-    @media (max-width: 768px) {
         .modal-dialog {
-            margin: 0.5rem;
-            max-height: calc(100vh - 1rem);
+            margin: 0.25rem;
+            max-height: calc(100vh - 0.5rem);
         }
         
         .modal-content {
-            height: calc(100vh - 1rem);
-            display: flex;
-            flex-direction: column;
+            height: calc(100vh - 0.5rem);
+            max-height: calc(100vh - 0.5rem);
         }
         
         .modal-body-fixed {
-            flex-shrink: 0;
-            padding: 1rem !important;
+            padding: 0.5rem !important; /* Further reduce padding */
         }
         
         .modal-body-scrollable {
-            flex: 1;
-            overflow-y: auto;
-            max-height: none;
-            padding: 0 !important; /* Remove padding to fix sticky header */
+            min-height: 25vh; /* Further reduce for very small screens */
+            max-height: calc(100vh - 250px); /* Ensure pagination and footer are visible */
         }
         
-        /* Add padding to table container instead */
-        .modal-body-scrollable .table-container-full-width {
-            padding: 0 1rem 1rem 1rem !important;
+        .modal-pagination-fixed .dataTables_paginate .paginate_button {
+            padding: 3px 6px !important;
+            margin: 0 !important;
+            font-size: 0.75rem !important;
+        }
+        
+        .modal-pagination-fixed .dataTables_info {
+            font-size: 0.75rem !important;
+        }
+        
+        .modal-pagination-fixed {
+            padding: 0.25rem 0.5rem !important; /* Very compact pagination */
+            min-height: 45px;
         }
         
         .modal-footer {
-            flex-shrink: 0;
-            padding: 0.75rem 1rem !important;
+            padding: 0.25rem 0.5rem !important; /* Very compact footer */
+            min-height: 50px;
         }
         
-        .modal-body-scrollable {
-            max-height: 300px;
-        }
-        
-        .info-card {
-            padding: 0.75rem;
+        #modal-pagination-container {
+            gap: 0.25rem !important;
         }
         
         .modern-table thead th,
         .modern-table tbody td {
-            padding: 0.75rem 0.5rem !important; /* Further reduce padding for mobile */
-            font-size: 0.9rem;
-        }
-        
-        .sbu-cell {
-            font-size: 0.9rem;
-        }
-        
-        .sites-cell {
+            padding: 0.5rem 0.25rem !important;
             font-size: 0.85rem;
-        }
-        
-        /* Modal DataTable responsive adjustments */
-        .modal-body-scrollable .dataTables_wrapper .row {
-            flex-direction: column !important;
-            gap: 0.75rem !important;
-        }
-        
-        .modal-body-scrollable .dataTables_wrapper .row > div {
-            width: 100% !important;
-            justify-content: center !important;
-        }
-        
-        .modal-body-scrollable .dataTables_filter {
-            text-align: center !important;
-            justify-content: center !important;
-        }
-        
-        .modal-body_scrollable .dataTables_wrapper .row > div {
-            display: flex !important;
-            align-items: center !important;
-            padding: 0 !important;
-        }
-        
-        .modal-body-scrollable .dataTables_filter {
-            text-align: right !important;
-            justify-content: flex-end !important;
-        }
-        
-        .modal-body-scrollable .dataTables_length {
-            justify-content: flex-start !important;
-        }
-        
-        .modal-body-scrollable .dataTables_filter label,
-        .modal-body-scrollable .dataTables_length label {
-            margin-bottom: 0 !important;
-            display: flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-        }
-
-    /* Fixed Pagination Section Styling */
-    .modal-pagination-fixed {
-        flex-shrink: 0;
-        background: #f8f9fa !important;
-        border-top: 2px solid #e9ecef !important;
-    }
-    
-    .modal-pagination-fixed .dataTables_info {
-        font-size: 0.9rem;
-        color: #6c757d;
-        margin: 0;
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate {
-        margin: 0;
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button {
-        padding: 6px 12px;
-        margin: 0 2px;
-        border-radius: 6px;
-        border: 1px solid #dee2e6;
-        background: white;
-        color: #495057;
-        text-decoration: none;
-        transition: all 0.2s ease;
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button:hover {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button.current {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    /* Tooltip styling for better visibility */
-    .tooltip {
-        font-size: 0.8rem !important;
-    }
-
-    .tooltip-inner {
-        max-width: 300px !important;
-        text-align: center !important;
-        word-wrap: break-word !important;
-        background: rgba(0,0,0,0.9) !important;
-        border-radius: 6px !important;
-        padding: 8px 12px !important;
-    }
-
-    /* Mobile responsiveness for site badges */
-    @media (max-width: 768px) {
-        .site-badge {
-            font-size: 0.7rem !important;
-            padding: 4px 8px !important;
-            max-width: 120px !important;
-        }
-        
-        .site-column {
-            max-width: 180px !important;
-            min-width: 120px !important;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .site-badge {
-            font-size: 0.65rem !important;
-            padding: 3px 6px !important;
-            max-width: 100px !important;
-        }
-        
-        .site-column {
-            max-width: 150px !important;
-            min-width: 100px !important;
-        }
-    }
-
-    /* Clickable row styling */
-    .table-hover-active {
-        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.08) 0%, rgba(var(--secondary-color-rgb), 0.08) 100%) !important;
-        transform: translateX(3px) !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
-    }
-
-    .more-sites-badge {
-        transition: all 0.3s ease !important;
-        white-space: nowrap !important;
-        flex-shrink: 0 !important;
-        margin-left: 2px !important;
-    }
-
-    .more-sites-badge:hover {
-        transform: scale(1.05) !important;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
-    }
-
-    /* Modal Styling */
-    .modal-content {
-        border-radius: 15px !important;
-        overflow: hidden;
-    }
-
-    .modal-header.bg-gradient {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-    }
-
-    .info-card {
-        background: #f8f9fa;
-        border-radius: 10px;
-        padding: 1rem;
-        border-left: 4px solid var(--primary-color);
-        transition: all 0.3s ease;
-    }
-
-    .info-card:hover {
-        background: #e9ecef;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    .info-label {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #6c757d;
-        margin-bottom: 0.5rem;
-    }
-
-    .info-value {
-        font-size: 1rem;
-        font-weight: 500;
-        color: #212529;
-        word-break: break-word;
-    }
-
-    .table-section {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border-radius: 15px;
-        padding: 2rem;
-        border: 1px solid #dee2e6;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    }
-
-    .table-section h6 {
-        margin-bottom: 1.5rem !important;
-        padding-bottom: 0.75rem;
-        border-bottom: 3px solid var(--primary-color);
-        color: #2c3e50;
-    }
-
-    .modern-table {
-        margin-bottom: 0 !important;
-        margin-top: 0 !important; /* Remove top margin */
-        margin-left: 0 !important; /* Remove left margin */
-        margin-right: 0 !important; /* Remove right margin */
-        background: white;
-        border-radius: 0 !important;
-        overflow: visible;
-        box-shadow: none;
-        border: none;
-        width: 100% !important; /* Ensure full width */
-        /* Ensure table supports sticky positioning */
-        border-collapse: separate;
-        border-spacing: 0;
-        /* Prevent content from bleeding through sticky header */
-        position: relative;
-    }
-
-    /* Ensure table body doesn't interfere with sticky header */
-    .modern-table tbody {
-        position: relative;
-        z-index: 1;
-        background: white;
-    }
-
-    /* Additional layer protection for table rows */
-    .modern-table tbody tr {
-        position: relative;
-        background: white;
-        z-index: 1;
-    }
-
-    .modern-table thead th {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-        color: white !important;
-        font-weight: 600 !important;
-        border: none !important;
-        padding: 1rem 0.75rem !important; /* Reduce horizontal padding */
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-size: 0.85rem;
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 10 !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-    }
-
-    .modern-table tbody td {
-        padding: 1rem 0.75rem !important; /* Reduce horizontal padding */
-        border-bottom: 1px solid #f1f3f5 !important;
-        vertical-align: middle !important;
-        transition: all 0.3s ease;
-    }
-
-    .modern-table tbody tr {
-        transition: all 0.3s ease;
-    }
-
-    .modern-table tbody tr:hover {
-        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.05) 0%, rgba(var(--secondary-color-rgb), 0.05) 100%) !important;
-        transform: translateX(5px);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .modern-table tbody tr:last-child td {
-        border-bottom: none !important;
-    }
-
-    .sbu-cell {
-        color: var(--primary-color) !important;
-        font-weight: 700 !important;
-        font-size: 1rem;
-        position: relative;
-    }
-
-    .sites-cell {
-        color: #495057;
-        font-weight: 500;
-        line-height: 1.6;
-        font-size: 0.95rem;
-    }
-
-    .sites-cell .text-muted {
-        font-style: italic;
-        color: #6c757d !important;
-    }
-
-    /* Modal responsive adjustments */
-    @media (max-width: 768px) {
-        .modal-dialog {
-            margin: 0.5rem;
-            max-height: calc(100vh - 1rem);
-        }
-        
-        .modal-content {
-            height: calc(100vh - 1rem);
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .modal-body-fixed {
-            flex-shrink: 0;
-            padding: 1rem !important;
-        }
-        
-        .modal-body-scrollable {
-            flex: 1;
-            overflow-y: auto;
-            max-height: none;
-            padding: 0 !important; /* Remove padding to fix sticky header */
-        }
-        
-        /* Add padding to table container instead */
-        .modal-body-scrollable .table-container-full-width {
-            padding: 0 1rem 1rem 1rem !important;
-        }
-        
-        .modal-footer {
-            flex-shrink: 0;
-            padding: 0.75rem 1rem !important;
-        }
-        
-        .modal-body-scrollable {
-            max-height: 300px;
         }
         
         .info-card {
-            padding: 0.75rem;
+            padding: 0.4rem; /* Even smaller info cards */
+            margin-bottom: 0.3rem;
         }
         
-        .modern-table thead th,
-        .modern-table tbody td {
-            padding: 0.75rem 0.5rem !important; /* Further reduce padding for mobile */
-            font-size: 0.9rem;
+        .info-label {
+            font-size: 0.7rem;
+            margin-bottom: 0.2rem;
         }
         
-        .sbu-cell {
-            font-size: 0.9rem;
+        .info-value {
+            font-size: 0.8rem;
         }
         
-        .sites-cell {
-            font-size: 0.85rem;
+        /* Ensure pagination buttons are properly sized on very small screens */
+        .modal-pagination-fixed .dataTables_paginate .paginate_button span {
+            display: none; /* Hide text, keep only icons */
         }
         
-        /* Modal DataTable responsive adjustments */
-        .modal-body-scrollable .dataTables_wrapper .row {
-            flex-direction: column !important;
-            gap: 0.75rem !important;
-        }
-        
-        .modal-body-scrollable .dataTables_wrapper .row > div {
-            width: 100% !important;
+        .modal-pagination-fixed .dataTables_paginate .paginate_button {
+            width: 30px !important;
+            height: 30px !important;
+            display: inline-flex !important;
+            align-items: center !important;
             justify-content: center !important;
-        }
-        
-        .modal-body-scrollable .dataTables_filter {
             text-align: center !important;
-            justify-content: center !important;
         }
-        
-        .modal-body_scrollable .dataTables_wrapper .row > div {
-            display: flex !important;
-            align-items: center !important;
-            padding: 0 !important;
-        }
-        
-        .modal-body-scrollable .dataTables_filter {
-            text-align: right !important;
-            justify-content: flex-end !important;
-        }
-        
-        .modal-body-scrollable .dataTables_length {
-            justify-content: flex-start !important;
-        }
-        
-        .modal-body-scrollable .dataTables_filter label,
-        .modal-body-scrollable .dataTables_length label {
-            margin-bottom: 0 !important;
-            display: flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-        }
-
-    /* Fixed Pagination Section Styling */
-    .modal-pagination-fixed {
-        flex-shrink: 0;
-        background: #f8f9fa !important;
-        border-top: 2px solid #e9ecef !important;
-    }
-    
-    .modal-pagination-fixed .dataTables_info {
-        font-size: 0.9rem;
-        color: #6c757d;
-        margin: 0;
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate {
-        margin: 0;
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button {
-        padding: 6px 12px;
-        margin: 0 2px;
-        border-radius: 6px;
-        border: 1px solid #dee2e6;
-        background: white;
-        color: #495057;
-        text-decoration: none;
-        transition: all 0.2s ease;
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button:hover {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button.current {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    /* Tooltip styling for better visibility */
-    .tooltip {
-        font-size: 0.8rem !important;
-    }
-
-    .tooltip-inner {
-        max-width: 300px !important;
-        text-align: center !important;
-        word-wrap: break-word !important;
-        background: rgba(0,0,0,0.9) !important;
-        border-radius: 6px !important;
-        padding: 8px 12px !important;
-    }
-
-    /* Mobile responsiveness for site badges */
-    @media (max-width: 768px) {
-        .site-badge {
-            font-size: 0.7rem !important;
-            padding: 4px 8px !important;
-            max-width: 120px !important;
-        }
-        
-        .site-column {
-            max-width: 180px !important;
-            min-width: 120px !important;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .site-badge {
-            font-size: 0.65rem !important;
-            padding: 3px 6px !important;
-            max-width: 100px !important;
-        }
-        
-        .site-column {
-            max-width: 150px !important;
-            min-width: 100px !important;
-        }
-    }
-
-    /* Clickable row styling */
-    .table-hover-active {
-        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.08) 0%, rgba(var(--secondary-color-rgb), 0.08) 100%) !important;
-        transform: translateX(3px) !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
-    }
-
-    .more-sites-badge {
-        transition: all 0.3s ease !important;
-        white-space: nowrap !important;
-        flex-shrink: 0 !important;
-        margin-left: 2px !important;
-    }
-
-    .more-sites-badge:hover {
-        transform: scale(1.05) !important;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
-    }
-
-    /* Modal Styling */
-    .modal-content {
-        border-radius: 15px !important;
-        overflow: hidden;
-    }
-
-    .modal-header.bg-gradient {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-    }
-
-    .info-card {
-        background: #f8f9fa;
-        border-radius: 10px;
-        padding: 1rem;
-        border-left: 4px solid var(--primary-color);
-        transition: all 0.3s ease;
-    }
-
-    .info-card:hover {
-        background: #e9ecef;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    .info-label {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #6c757d;
-        margin-bottom: 0.5rem;
-    }
-
-    .info-value {
-        font-size: 1rem;
-        font-weight: 500;
-        color: #212529;
-        word-break: break-word;
-    }
-
-    .table-section {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border-radius: 15px;
-        padding: 2rem;
-        border: 1px solid #dee2e6;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    }
-
-    .table-section h6 {
-        margin-bottom: 1.5rem !important;
-        padding-bottom: 0.75rem;
-        border-bottom: 3px solid var(--primary-color);
-        color: #2c3e50;
-    }
-
-    .modern-table {
-        margin-bottom: 0 !important;
-        margin-top: 0 !important; /* Remove top margin */
-        margin-left: 0 !important; /* Remove left margin */
-        margin-right: 0 !important; /* Remove right margin */
-        background: white;
-        border-radius: 0 !important;
-        overflow: visible;
-        box-shadow: none;
-        border: none;
-        width: 100% !important; /* Ensure full width */
-        /* Ensure table supports sticky positioning */
-        border-collapse: separate;
-        border-spacing: 0;
-        /* Prevent content from bleeding through sticky header */
-        position: relative;
-    }
-
-    /* Ensure table body doesn't interfere with sticky header */
-    .modern-table tbody {
-        position: relative;
-        z-index: 1;
-        background: white;
-    }
-
-    /* Additional layer protection for table rows */
-    .modern-table tbody tr {
-        position: relative;
-        background: white;
-        z-index: 1;
-    }
-
-    .modern-table thead th {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-        color: white !important;
-        font-weight: 600 !important;
-        border: none !important;
-        padding: 1rem 0.75rem !important; /* Reduce horizontal padding */
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-size: 0.85rem;
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 10 !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-    }
-
-    .modern-table tbody td {
-        padding: 1rem 0.75rem !important; /* Reduce horizontal padding */
-        border-bottom: 1px solid #f1f3f5 !important;
-        vertical-align: middle !important;
-        transition: all 0.3s ease;
-    }
-
-    .modern-table tbody tr {
-        transition: all 0.3s ease;
-    }
-
-    .modern-table tbody tr:hover {
-        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.05) 0%, rgba(var(--secondary-color-rgb), 0.05) 100%) !important;
-        transform: translateX(5px);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .modern-table tbody tr:last-child td {
-        border-bottom: none !important;
-    }
-
-    .sbu-cell {
-        color: var(--primary-color) !important;
-        font-weight: 700 !important;
-        font-size: 1rem;
-        position: relative;
-    }
-
-    .sites-cell {
-        color: #495057;
-        font-weight: 500;
-        line-height: 1.6;
-        font-size: 0.95rem;
-    }
-
-    .sites-cell .text-muted {
-        font-style: italic;
-        color: #6c757d !important;
-    }
-
-    /* Modal responsive adjustments */
-    @media (max-width: 768px) {
-        .modal-dialog {
-            margin: 0.5rem;
-            max-height: calc(100vh - 1rem);
-        }
-        
-        .modal-content {
-            height: calc(100vh - 1rem);
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .modal-body-fixed {
-            flex-shrink: 0;
-            padding: 1rem !important;
-        }
-        
-        .modal-body-scrollable {
-            flex: 1;
-            overflow-y: auto;
-            max-height: none;
-            padding: 0 !important; /* Remove padding to fix sticky header */
-        }
-        
-        /* Add padding to table container instead */
-        .modal-body-scrollable .table-container-full-width {
-            padding: 0 1rem 1rem 1rem !important;
-        }
-        
-        .modal-footer {
-            flex-shrink: 0;
-            padding: 0.75rem 1rem !important;
-        }
-        
-        .modal-body-scrollable {
-            max-height: 300px;
-        }
-        
-        .info-card {
-            padding: 0.75rem;
-        }
-        
-        .modern-table thead th,
-        .modern-table tbody td {
-            padding: 0.75rem 0.5rem !important; /* Further reduce padding for mobile */
-            font-size: 0.9rem;
-        }
-        
-        .sbu-cell {
-            font-size: 0.9rem;
-        }
-        
-        .sites-cell {
-            font-size: 0.85rem;
-        }
-        
-        /* Modal DataTable responsive adjustments */
-        .modal-body-scrollable .dataTables_wrapper .row {
-            flex-direction: column !important;
-            gap: 0.75rem !important;
-        }
-        
-        .modal-body-scrollable .dataTables_wrapper .row > div {
-            width: 100% !important;
-            justify-content: center !important;
-        }
-        
-        .modal-body-scrollable .dataTables_filter {
-            text-align: center !important;
-            justify-content: center !important;
-        }
-        
-        .modal-body_scrollable .dataTables_wrapper .row > div {
-            display: flex !important;
-            align-items: center !important;
-            padding: 0 !important;
-        }
-        
-        .modal-body-scrollable .dataTables_filter {
-            text-align: right !important;
-            justify-content: flex-end !important;
-        }
-        
-        .modal-body-scrollable .dataTables_length {
-            justify-content: flex-start !important;
-        }
-        
-        .modal-body-scrollable .dataTables_filter label,
-        .modal-body-scrollable .dataTables_length label {
-            margin-bottom: 0 !important;
-            display: flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-        }
-
-    /* Fixed Pagination Section Styling */
-    .modal-pagination-fixed {
-        flex-shrink: 0;
-        background: #f8f9fa !important;
-        border-top: 2px solid #e9ecef !important;
-    }
-    
-    .modal-pagination-fixed .dataTables_info {
-        font-size: 0.9rem;
-        color: #6c757d;
-        margin: 0;
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate {
-        margin: 0;
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button {
-        padding: 6px 12px;
-        margin: 0 2px;
-        border-radius: 6px;
-        border: 1px solid #dee2e6;
-        background: white;
-        color: #495057;
-        text-decoration: none;
-        transition: all 0.2s ease;
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button:hover {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button.current {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    /* Password Toggle Button Styling */
-    .password-input-group {
-        position: relative;
-        display: inline-block;
-        width: 100%;
-    }
-
-    .password-toggle-btn {
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: #6c757d;
-        font-size: 1.1rem;
-        cursor: pointer;
-        padding: 4px;
-        border-radius: 4px;
-        transition: all 0.2s ease;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        /* Ensure button stays aligned with input field only */
-        margin-top: 0;
-        margin-bottom: 0;
-    }
-
-    .password-toggle-btn:hover {
-        color: var(--primary-color);
-        background-color: rgba(var(--primary-color-rgb), 0.1);
-    }
-
-    .password-toggle-btn:focus {
-        outline: none;
-        color: var(--primary-color);
-        background-color: rgba(var(--primary-color-rgb), 0.15);
-    }
-
-    .password-toggle-btn:active {
-        transform: translateY(-50%) scale(0.95);
-    }
-
-    /* Adjust padding for password inputs to accommodate toggle button */
-    .password-input-group .form-control {
-        padding-right: 50px !important;
-        /* Ensure input field has consistent height */
-        box-sizing: border-box;
-    }
-
-    /* Ensure validation messages don't affect button positioning */
-    .password-input-group + .text-danger,
-    .password-input-group + .text-success,
-    .password-input-group + .text-warning,
-    .password-input-group + .invalid-feedback {
-        margin-top: 0.25rem;
-    }
-
-    /* Fix for dynamically added validation messages */
-    .password-input-group ~ .text-danger,
-    .password-input-group ~ .text-success,
-    .password-input-group ~ .text-warning {
-        margin-top: 0.25rem;
-        display: block;
     }
 </style>
 
@@ -2596,7 +1587,6 @@ function initializeUsersTable() {
             $('.modal-backdrop').remove();
             $('body').removeClass('modal-open');
             $('body').css('overflow', '');
-            $('body').css('padding-right', '');
         }
     });
 }
@@ -2639,7 +1629,6 @@ function showUserDetailsModal(userData) {
     $('.modal-backdrop').remove();
     $('body').removeClass('modal-open');
     $('body').css('overflow', '');
-    $('body').css('padding-right', '');
     
     // Populate user information
     document.getElementById('modal-user-name').textContent = userData.name || '-';
@@ -2715,7 +1704,6 @@ function showUserDetailsModal(userData) {
         $('.modal-backdrop').remove();
         $('body').removeClass('modal-open');
         $('body').css('overflow', '');
-        $('body').css('padding-right', '');
     }, { once: true }); // Use once: true to prevent multiple listeners
     
     // Show the modal first
@@ -2805,6 +1793,69 @@ function showUserDetailsModal(userData) {
                         // Call on init and window resize
                         adjustModalSearch();
                         $(window).on('resize', adjustModalSearch);
+                        
+                        // Mobile-specific modal adjustments
+                        function adjustModalForMobile() {
+                            const windowWidth = $(window).width();
+                            const modal = $('#userDetailsModal');
+                            
+                            if (windowWidth <= 768) {
+                                // Enable touch scrolling for mobile
+                                $('.modal-body-scrollable').css({
+                                    '-webkit-overflow-scrolling': 'touch',
+                                    'overflow': 'auto'
+                                });
+                                
+                                // Adjust pagination for mobile
+                                setTimeout(() => {
+                                    $('.dataTables_paginate .paginate_button').each(function() {
+                                        $(this).css({
+                                            'white-space': 'nowrap',
+                                            'display': 'inline-block'
+                                        });
+                                    });
+                                }, 100);
+                            }
+                        }
+                        
+                        // Call mobile adjustments
+                        adjustModalForMobile();
+                        $(window).on('resize', adjustModalForMobile);
+                        
+                        // Mobile modal height adjustment - ensure pagination and footer are visible
+                        function adjustModalHeight() {
+                            const windowHeight = $(window).height();
+                            const windowWidth = $(window).width();
+                            
+                            if (windowWidth <= 768) {
+                                const modal = $('#userDetailsModal');
+                                const modalHeader = $('.modal-header').outerHeight() || 60;
+                                const modalBodyFixed = $('.modal-body-fixed').outerHeight() || 120;
+                                const modalSearchFixed = $('.modal-search-fixed').outerHeight() || 50;
+                                const modalPaginationFixed = $('.modal-pagination-fixed').outerHeight() || 50;
+                                const modalFooter = $('.modal-footer').outerHeight() || 60;
+                                
+                                // Calculate available height for scrollable content
+                                const availableHeight = windowHeight - 40; // Account for modal margins
+                                const fixedElementsHeight = modalHeader + modalBodyFixed + modalSearchFixed + modalPaginationFixed + modalFooter;
+                                const scrollableHeight = Math.max(200, availableHeight - fixedElementsHeight);
+                                
+                                $('.modal-body-scrollable').css({
+                                    'max-height': scrollableHeight + 'px',
+                                    'min-height': Math.min(200, scrollableHeight) + 'px'
+                                });
+                                
+                                // Ensure modal content doesn't exceed viewport
+                                $('.modal-content').css({
+                                    'max-height': availableHeight + 'px',
+                                    'height': 'auto'
+                                });
+                            }
+                        }
+                        
+                        // Call height adjustment
+                        adjustModalHeight();
+                        $(window).on('resize orientationchange', adjustModalHeight);
                         
                         // Move pagination controls to fixed containers
                         setTimeout(() => {
@@ -3415,265 +2466,7 @@ style.textContent = `
         font-style: italic;
     }
 
-    /* Ensure Select2 dropdown doesn't overflow on smaller screens */
-    .select2-dropdown {
-        z-index: 9999 !important;
-    }
     
-    .select2-container {
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-    }
-    
-    .select2-container--default .select2-selection--multiple .select2-selection__rendered {
-        width: 100% !important;
-        overflow-x: hidden !important;
-        word-wrap: break-word !important;
-        box-sizing: border-box !important;
-    }
-    
-    /* Select2 custom styles for site selection */
-    .select2-container--default .select2-selection--multiple {
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        min-height: 120px;
-        padding: 8px;
-        transition: all 0.3s ease;
-    }
-    
-    .select2-container--default.select2-container--focus .select2-selection--multiple {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
-    }
-    
-    .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-        border: 1px solid var(--primary-color);
-        border-radius: 6px;
-        color: white;
-        padding: 4px 8px;
-        margin: 2px;
-    }
-    
-    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-        color: white;
-        margin-right: 8px;
-    }
-    
-    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
-        color: #ffcccc;
-    }
-    
-    /* Select2 dropdown styling */
-    .select2-container--default .select2-results__option--highlighted[aria-selected] {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-        color: white;
-    }
-    
-    .select2-container--default .select2-results__option[aria-selected=true] {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-        color: white;
-    }
-    
-    /* Site selection buttons styling */
-    .sites-selection-container .selection-controls .btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(var(--primary-color-rgb), 0.2);
-    }
-    
-    .sites-selection-container .selection-controls .btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-    
-    .sites-selection-container .selection-controls .btn:disabled:hover {
-        transform: none;
-        box-shadow: none;
-    }
-    
-    /* iPad Pro responsive fixes - prevent overflow */
-    @media screen and (min-width: 1024px) and (max-width: 1366px) {
-        .sites-selection-container {
-            padding: 1.25rem;
-        }
-        
-        .sites-selection-container .sites-header-container {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: flex-start !important;
-        }
-        
-        .sites-selection-container .selection-controls {
-            display: flex;
-            flex-direction: row;
-            gap: 0.5rem;
-            width: 100%;
-            justify-content: flex-start;
-            min-width: auto;
-        }
-        
-        .sites-selection-container .selection-controls .btn {
-            font-size: 0.8rem;
-            padding: 0.5rem 0.75rem;
-            min-width: auto;
-            flex: 0 1 auto;
-            white-space: nowrap;
-        }
-        
-        .sites-selection-container .text-muted {
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            flex: none;
-            width: 100%;
-        }
-        
-        .select2-container--default .select2-selection--multiple {
-            min-height: 100px;
-            max-height: 150px;
-            overflow-y: auto;
-            width: 100% !important;
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-        
-        .select2-container {
-            width: 100% !important;
-            max-width: 100%;
-        }
-        
-        .select2-container--default .select2-selection--multiple .select2-selection__choice {
-            padding: 3px 6px;
-            margin: 2px;
-            font-size: 0.85rem;
-            max-width: calc(100% - 10px);
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        /* SBU cards responsive adjustments for iPad Pro */
-        .sbu-selection-container {
-            padding: 1.25rem;
-        }
-        
-        .sbu-selection-container .row.g-3 {
-            --bs-gutter-x: 1rem;
-            --bs-gutter-y: 1rem;
-        }
-        
-        .sbu-card {
-            min-height: 90px;
-            max-height: 110px;
-        }
-        
-        .sbu-card-content {
-            padding: 0.75rem;
-        }
-        
-        .sbu-name {
-            font-size: 0.9rem;
-        }
-        
-        .sbu-sites-count {
-            font-size: 0.8rem;
-        }
-    }
-    
-    /* iPad Mini responsive (768px to 820px) */
-    @media (min-width: 768px) and (max-width: 820px) {
-        .sites-selection-container {
-            padding: 1rem;
-        }
-        
-        .sites-selection-container .sites-header-container {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: flex-start !important;
-        }
-        
-        .sites-selection-container .selection-controls {
-            flex-direction: column;
-            gap: 1rem;
-            width: 100%;
-            min-width: auto;
-        }
-        
-        .sites-selection-container .selection-controls .btn {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .sites-selection-container .text-muted {
-            width: 100%;
-            flex: none;
-            margin-bottom: 0.5rem;
-        }
-        
-        .sbu-name {
-            font-size: 1rem;
-        }
-        
-        .sbu-sites-count {
-            font-size: 0.8rem;
-        }
-    }
-
-    /* Medium tablets responsive (769px to 820px) - iPad standard */
-    @media (min-width: 769px) and (max-width: 820px) {
-        .col-lg-3.col-xl-4 {
-            flex: 0 0 45%;
-            max-width: 45%;
-        }
-        
-        .col-lg-9.col-xl-8 {
-            flex: 0 0 55%;
-            max-width: 55%;
-        }
-        
-        .card-body {
-            padding: 1.75rem !important;
-        }
-        
-        /* Stack email and contact fields vertically on iPad */
-        .col-md-7.col-lg-12.col-xl-7,
-        .col-md-5.col-lg-12.col-xl-5 {
-            flex: 0 0 100%;
-            max-width: 100%;
-            margin-bottom: 1rem;
-        }
-        
-        /* Stack password fields vertically on iPad */
-        .row.g-3.mb-4 .col-md-6.col-lg-12.col-xl-6 {
-            flex: 0 0 100%;
-            max-width: 100%;
-            margin-bottom: 1rem;
-        }
-        
-        /* SBU cards single column on standard iPad */
-        .sbu-selection-container .col-md-6.col-lg-12.col-xl-6 {
-            flex: 0 0 100%;
-            max-width: 100%;
-        }
-        
-        .sbu-card {
-            min-height: 90px;
-            max-height: 110px;
-        }
-        
-        .sbu-card-content {
-            padding: 0.75rem;
-        }
-        
-        .sbu-name {
-            font-size: 0.9rem;
-        }
-        
-        .sbu-sites-count {
-            font-size: 0.8rem;
-        }
-    }
 
     /* iPad Pro responsive (821px to 1024px) */
     @media (min-width: 821px) and (max-width: 1024px) {
@@ -3799,181 +2592,7 @@ style.textContent = `
             border-radius: 6px;
         }
     }
-
-    /* Large iPad Pro responsive (1025px to 1200px) */
-    @media (min-width: 1025px) and (max-width: 1200px) {
-        /* Fine-tune layout for large iPad Pro */
-        .container-fluid {
-            padding-left: 2rem;
-            padding-right: 2rem;
-        }
-        
-        .card-body {
-            padding: 2.5rem !important;
-        }
-        
-        /* Optimize SBU cards for large screen */
-        .sbu-selection-container .row.g-3 {
-            --bs-gutter-x: 1.25rem;
-            --bs-gutter-y: 1.25rem;
-        }
-        
-        .sbu-card {
-            min-height: 110px;
-        }
-        
-        /* Form optimization */
-        .form-control, .form-select {
-            padding: 12px 16px !important;
-            font-size: 0.95rem;
-        }
-        
-        .sites-selection-container .selection-controls .btn {
-            padding: 0.75rem 1.25rem;
-            font-size: 0.9rem;
-            min-width: 130px;
-        }
-    }
-    
-    /* Very small mobile devices (below 480px) */
-    @media (max-width: 479px) {
-        .sites-selection-container .selection-controls {
-            gap: 1.25rem;
-        }
-        
-        .sites-selection-container .selection-controls .btn {
-            padding: 0.875rem 1rem;
-            font-size: 0.95rem;
-            font-weight: 500;
-            border-radius: 8px;
-            margin-bottom: 0.75rem;
-        }
-        
-        .sites-selection-container .sites-header-container {
-            gap: 1.5rem;
-        }
-        
-        .sites-selection-container .text-muted {
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-        }
-    }
-    
-    /* Fixed Pagination Section Styling */
-    .modal-pagination-fixed {
-        flex-shrink: 0;
-        background: #f8f9fa !important;
-        border-top: 2px solid #e9ecef !important;
-    }
-    
-    .modal-pagination-fixed .dataTables_info {
-        font-size: 0.9rem;
-        color: #6c757d;
-        margin: 0;
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate {
-        margin: 0;
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button {
-        padding: 6px 12px;
-        margin: 0 2px;
-        border-radius: 6px;
-        border: 1px solid #dee2e6;
-        background: white;
-        color: #495057;
-        text-decoration: none;
-        transition: all 0.2s ease;
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button:hover {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button.current {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-    
-    .modal-pagination-fixed .dataTables_paginate .paginate_button.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-    
-    /* Password Toggle Button Styling */
-    .password-input-group {
-        position: relative;
-        display: inline-block;
-        width: 100%;
-    }
-
-    .password-toggle-btn {
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: #6c757d;
-        font-size: 1.1rem;
-        cursor: pointer;
-        padding: 4px;
-        border-radius: 4px;
-        transition: all 0.2s ease;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        /* Ensure button stays aligned with input field only */
-        margin-top: 0;
-        margin-bottom: 0;
-    }
-
-    .password-toggle-btn:hover {
-        color: var(--primary-color);
-        background-color: rgba(var(--primary-color-rgb), 0.1);
-    }
-
-    .password-toggle-btn:focus {
-        outline: none;
-        color: var(--primary-color);
-        background-color: rgba(var(--primary-color-rgb), 0.15);
-    }
-
-    .password-toggle-btn:active {
-        transform: translateY(-50%) scale(0.95);
-    }
-
-    /* Adjust padding for password inputs to accommodate toggle button */
-    .password-input-group .form-control {
-        padding-right: 50px !important;
-        /* Ensure input field has consistent height */
-        box-sizing: border-box;
-    }
-
-    /* Ensure validation messages don't affect button positioning */
-    .password-input-group + .text-danger,
-    .password-input-group + .text-success,
-    .password-input-group + .text-warning,
-    .password-input-group + .invalid-feedback {
-        margin-top: 0.25rem;
-    }
-
-    /* Fix for dynamically added validation messages */
-    .password-input-group ~ .text-danger,
-    .password-input-group ~ .text-success,
-    .password-input-group ~ .text-warning {
-        margin-top: 0.25rem;
-        display: block;
-    }
 `;
-
 document.head.appendChild(style);
 </script>
 @endsection

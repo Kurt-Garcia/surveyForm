@@ -157,11 +157,14 @@ class UserManagementController extends Controller
         // Attach all selected SBUs to the user
         $user->sbus()->attach($request->sbu_ids);
         
+        // Remove duplicate site IDs before attaching to avoid constraint violations
+        $uniqueSiteIds = array_unique($request->site_ids);
+        
         // Attach all selected sites to the user
-        $user->sites()->attach($request->site_ids);
+        $user->sites()->attach($uniqueSiteIds);
 
         return redirect()->route('admin.users.create')
-            ->with('success', 'User created successfully with access to ' . count($request->sbu_ids) . ' SBU(s) and ' . count($request->site_ids) . ' site(s)!');
+            ->with('success', 'User created successfully with access to ' . count($request->sbu_ids) . ' SBU(s) and ' . count($uniqueSiteIds) . ' site(s)!');
     }
 
     // Get sites by selected SBUs (for AJAX requests)
