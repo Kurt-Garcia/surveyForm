@@ -43,16 +43,23 @@
                     <form action="{{ route('admin.users.store') }}" method="POST" id="userForm" onsubmit="return confirmSubmit(event)">
                         @csrf
                         
+                        @if($sbus->count() > 0)
                         <!-- SBU Selection -->
                         <div class="mb-4">
                             <label class="form-label fw-semibold text-dark">
                                 <i class="bi bi-building me-1" style="color: var(--primary-color);"></i>Strategic Business Units
                             </label>
                             <div class="sbu-selection-container">
-                                <p class="text-muted mb-3 fs-6">Select one or more SBUs where this user will have access:</p>
-                                <div class="row g-3">
+                                <p class="text-muted mb-3 fs-6">
+                                    Select one or more SBUs where this user will have access. 
+                                    <small class="text-info">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        You can only assign users to SBUs you have access to ({{ $sbus->count() }} available).
+                                    </small>
+                                </p>
+                                <div class="row g-3 {{ $sbus->count() == 1 ? 'justify-content-center' : '' }}">
                                     @foreach($sbus as $sbu)
-                                        <div class="col-md-6 col-lg-12 col-xl-6">
+                                        <div class="{{ $sbus->count() == 1 ? 'col-md-8 col-lg-10 col-xl-8' : 'col-md-6 col-lg-12 col-xl-6' }}">
                                             <div class="sbu-card" data-sbu-id="{{ $sbu->id }}">
                                                 <input class="sbu-checkbox d-none" type="checkbox" 
                                                        id="sbu_{{ $sbu->id }}" 
@@ -193,6 +200,17 @@
                                 <i class="bi bi-person-plus-fill me-2"></i>Create Surveyor Account
                             </button>
                         </div>
+                        @else
+                        <!-- No SBUs Available Message -->
+                        <div class="text-center py-5">
+                            <div class="alert alert-warning border-0 rounded-3 shadow-sm">
+                                <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+                                <h5 class="mb-2">No SBUs Available</h5>
+                                <p class="mb-3">You don't have access to any Strategic Business Units. You cannot create new surveyors until SBUs are assigned to your account.</p>
+                                <small class="text-muted">Please contact your system administrator for assistance.</small>
+                            </div>
+                        </div>
+                        @endif
                     </form>
                 </div>
             </div>
@@ -497,9 +515,9 @@
     
     .modal-body-scrollable {
         flex: 1;
-        overflow-y: auto;
-        min-height: 200px;
-        max-height: 300px; /* Reduced to account for fixed search and pagination */
+        overflow-y: visible;
+        min-height: auto;
+        max-height: none;
     }
     
     /* Fixed Pagination Section Styling */
@@ -3275,6 +3293,19 @@ style.textContent = `
     
     .sbu-card:not(.selected) .sbu-sites-count {
         color: #6c757d;
+    }
+    
+    /* Center content when only one SBU is available */
+    .justify-content-center .sbu-card-body {
+        text-align: center;
+    }
+    
+    .justify-content-center .sbu-name {
+        text-align: center;
+    }
+    
+    .justify-content-center .sbu-sites-count {
+        text-align: center;
     }
     
     /* Sites selection styles */

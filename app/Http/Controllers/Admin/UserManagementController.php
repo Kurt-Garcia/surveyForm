@@ -9,6 +9,8 @@ use App\Models\Admin;
 use App\Models\Sbu;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class UserManagementController extends Controller
@@ -16,13 +18,41 @@ class UserManagementController extends Controller
     // Show the form to create a new user
     public function create()
     {
-        $sbus = \App\Models\Sbu::with('sites')->get();
+        // Get the logged-in admin
+        $admin = Auth::guard('admin')->user();
+        
+        // Get only the SBUs that this admin has access to
+        if ($admin) {
+            // Use the admin_sbu pivot table to filter SBUs
+            $adminSbuIds = DB::table('admin_sbu')
+                            ->where('admin_id', $admin->id)
+                            ->pluck('sbu_id');
+            
+            if ($adminSbuIds->isNotEmpty()) {
+                $sbus = Sbu::with('sites')->whereIn('id', $adminSbuIds)->get();
+            } else {
+                // If admin has no specific SBUs assigned, show all (for backward compatibility)
+                $sbus = Sbu::with('sites')->get();
+            }
+        } else {
+            $sbus = Sbu::with('sites')->get();
+        }
+        
         return view('admin.users.create', compact('sbus'));
     }
 
     // Store the new user
     public function store(Request $request)
     {
+        // Get the logged-in admin's accessible SBU IDs
+        $admin = Auth::guard('admin')->user();
+        $adminSbuIds = DB::table('admin_sbu')
+                        ->where('admin_id', $admin->id)
+                        ->pluck('sbu_id');
+        
+        // If admin has no specific SBUs, allow all (for backward compatibility)
+        $allowedSbuIds = $adminSbuIds->isNotEmpty() ? $adminSbuIds->toArray() : Sbu::pluck('id')->toArray();
+
         $validator = Validator::make($request->all(), [
             'name' => [
                 'required',
@@ -59,7 +89,19 @@ class UserManagementController extends Controller
                     }
                 }
             ],
-            'sbu_ids' => 'required|array|min:1',
+            'sbu_ids' => [
+                'required',
+                'array',
+                'min:1',
+                function ($attribute, $value, $fail) use ($allowedSbuIds) {
+                    foreach ($value as $sbuId) {
+                        if (!in_array($sbuId, $allowedSbuIds)) {
+                            $fail('You can only assign users to SBUs you have access to.');
+                            break;
+                        }
+                    }
+                }
+            ],
             'sbu_ids.*' => 'exists:sbus,id',
             'site_ids' => 'required|array|min:1',
             'site_ids.*' => 'exists:sites,id',
