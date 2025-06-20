@@ -24,6 +24,33 @@ body {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     min-height: 100vh;
     color: white;
+    position: relative;
+}
+
+/* Animated background particles */
+.bg-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    50% { transform: translateY(-20px) rotate(180deg); opacity: 0.5; }
 }
 
 .dev-card {
@@ -32,6 +59,8 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 16px;
     transition: all 0.3s ease;
+    position: relative;
+    z-index: 10;
 }
 
 .dev-card:hover {
@@ -45,6 +74,8 @@ body {
     padding: 2rem;
     color: white;
     border: none;
+    position: relative;
+    z-index: 10;
 }
 
 .dev-action-card {
@@ -64,6 +95,8 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    position: relative;
+    z-index: 10;
 }
 
 .dev-action-card:hover {
@@ -95,8 +128,10 @@ body {
 </head>
 <body>
 
+<div class="bg-particles" id="particles"></div>
+
 <div class="developer-dashboard">
-    <div class="container-fluid px-4 py-5">
+    <div class="container-fluid px-4 py-5" style="position: relative; z-index: 10;">
         <!-- Header with logout -->
         <div class="row mb-4">
             <div class="col-md-6">
@@ -224,8 +259,26 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+// Create floating particles
+function createParticles() {
+    const particlesContainer = document.getElementById('particles');
+    const particleCount = 50;
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 6 + 's';
+        particle.style.animationDuration = (Math.random() * 3 + 4) + 's';
+        particlesContainer.appendChild(particle);
+    }
+}
+
 // Fade in effect
 document.addEventListener('DOMContentLoaded', function() {
+    createParticles();
+    
     const dashboard = document.querySelector('.developer-dashboard');
     setTimeout(() => {
         dashboard.style.opacity = '1';
