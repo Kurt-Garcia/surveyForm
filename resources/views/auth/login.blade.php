@@ -239,9 +239,9 @@
         top: 50%;
         transform: translateY(-50%);
         background: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        border: none;
         border-radius: 8px;
-        color: rgba(255, 255, 255, 0.8);
+        color: #2b313c;
         width: 40px;
         height: 40px;
         display: flex;
@@ -255,8 +255,8 @@
     }
 
     .glass-password-toggle:hover {
-        background: rgba(255, 255, 255, 0.25);
-        color: white;
+        background: none;
+        color: #2d3748;
         transform: translateY(-50%) scale(1.05);
     }
 
@@ -294,7 +294,7 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        color: white;
+        color: #4a5568;
         font-size: 12px;
         font-weight: bold;
     }

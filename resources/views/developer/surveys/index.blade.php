@@ -233,7 +233,7 @@ body {
                                 </span>
                             </div>
 
-                            <div class="text-muted mb-3">
+                            <div class="text-white mb-3">
                                 <small>
                                     <i class="bi bi-calendar"></i> Created: {{ $survey->created_at->format('M d, Y') }}<br>
                                     <i class="bi bi-chat-dots"></i> Questions: {{ $survey->questions->count() }}<br>
@@ -248,7 +248,7 @@ body {
                             </div>
 
                             @if($survey->start_date && $survey->end_date)
-                                <div class="text-muted mb-3">
+                                <div class="text-white mb-3">
                                     <small>
                                         <i class="bi bi-clock"></i> 
                                         {{ $survey->start_date->format('M d') }} - {{ $survey->end_date->format('M d, Y') }}

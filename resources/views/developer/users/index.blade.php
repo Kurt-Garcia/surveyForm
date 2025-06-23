@@ -228,7 +228,7 @@ body {
                                     <h5 class="text-white mb-1">{{ $user->name }}</h5>
                                     <p class="text-light mb-1">{{ $user->email }}</p>
                                     @if($user->contact_number)
-                                        <small class="text-muted">{{ $user->contact_number }}</small>
+                                        <small class="text-white">{{ $user->contact_number }}</small>
                                     @endif
                                 </div>
                                 <span class="badge {{ $user->status ? 'status-active' : 'status-disabled' }} px-3 py-2">
@@ -236,7 +236,7 @@ body {
                                 </span>
                             </div>
 
-                            <div class="text-muted mb-3">
+                            <div class="text-white mb-3">
                                 <small>
                                     <i class="bi bi-calendar"></i> Created: {{ $user->created_at->format('M d, Y') }}<br>
                                     @if($user->sbus->count() > 0)
@@ -245,7 +245,7 @@ body {
                                             <span class="badge bg-info">{{ $sbu->name }}</span>
                                         @endforeach
                                     @else
-                                        <i class="bi bi-building"></i> SBU: <span class="text-muted">None assigned</span>
+                                        <i class="bi bi-building"></i> SBU: <span class="text-white">None assigned</span>
                                     @endif
                                 </small>
                             </div>
