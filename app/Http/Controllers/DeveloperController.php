@@ -113,10 +113,28 @@ class DeveloperController extends Controller
     /**
      * Toggle admin status
      */
-    public function toggleAdminStatus($id)
+    public function toggleAdminStatus(Request $request, $id)
     {
         $admin = Admin::findOrFail($id);
-        $admin->status = !$admin->status;
+        
+        // If disabling the admin, require a reason
+        if ($admin->status == 1) {
+            $request->validate([
+                'disabled_reason' => 'required|string|min:10|max:500'
+            ], [
+                'disabled_reason.required' => 'Please provide a reason for disabling this account.',
+                'disabled_reason.min' => 'The reason must be at least 10 characters long.',
+                'disabled_reason.max' => 'The reason cannot exceed 500 characters.'
+            ]);
+            
+            $admin->status = 0;
+            $admin->disabled_reason = $request->disabled_reason;
+        } else {
+            // If enabling the admin, clear the disabled reason
+            $admin->status = 1;
+            $admin->disabled_reason = null;
+        }
+        
         $admin->save();
 
         return back()->with('success', 'Admin status updated successfully.');
@@ -125,10 +143,28 @@ class DeveloperController extends Controller
     /**
      * Toggle user status
      */
-    public function toggleUserStatus($id)
+    public function toggleUserStatus(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        $user->status = !$user->status;
+        
+        // If disabling the user, require a reason
+        if ($user->status == 1) {
+            $request->validate([
+                'disabled_reason' => 'required|string|min:10|max:500'
+            ], [
+                'disabled_reason.required' => 'Please provide a reason for disabling this account.',
+                'disabled_reason.min' => 'The reason must be at least 10 characters long.',
+                'disabled_reason.max' => 'The reason cannot exceed 500 characters.'
+            ]);
+            
+            $user->status = 0;
+            $user->disabled_reason = $request->disabled_reason;
+        } else {
+            // If enabling the user, clear the disabled reason
+            $user->status = 1;
+            $user->disabled_reason = null;
+        }
+        
         $user->save();
 
         return back()->with('success', 'User status updated successfully.');

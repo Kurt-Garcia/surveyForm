@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class LoginController extends Controller
 {
@@ -82,9 +83,22 @@ class LoginController extends Controller
             
             // Check if user account is disabled
             if ($user && $user->status == 0) {
+                // Store user info in cache temporarily (5 minutes expiration)
+                Cache::put('disabled_user_' . $user->id, [
+                    'disabled_reason' => $user->disabled_reason,
+                    'account_type' => 'User'
+                ], 300);
+                
+                // Store user info in a global cache as backup
+                Cache::put('disabled_user_backup', [
+                    'id' => $user->id,
+                    'disabled_reason' => $user->disabled_reason,
+                    'account_type' => 'User'
+                ], 300);
+                
                 Auth::guard('web')->logout();
                 // Store redirect flag in session
-                session(['redirect_to_disabled' => true]);
+                session(['redirect_to_disabled' => true, 'disabled_user_id' => $user->id]);
                 return false;
             }
             
@@ -143,8 +157,14 @@ class LoginController extends Controller
     {
         // Check if this is a disabled account
         if (session('redirect_to_disabled')) {
-            session()->forget('redirect_to_disabled');
-            return redirect()->route('account.disabled');
+            $userId = session('disabled_user_id');
+            session()->forget(['redirect_to_disabled', 'disabled_user_id']);
+            
+            if ($userId) {
+                return redirect()->route('account.disabled', ['uid' => $userId]);
+            } else {
+                return redirect()->route('account.disabled');
+            }
         }
         
         $errors = $message ? [$this->username() => $message] : [$this->username() => trans('auth.failed')];

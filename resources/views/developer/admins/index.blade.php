@@ -126,14 +126,23 @@ body {
 
                             <div class="d-grid gap-2">
                                 <!-- Toggle Status -->
-                                <form method="POST" action="{{ route('developer.admins.toggle-status', $admin->id) }}" class="d-inline">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="btn {{ $admin->status ? 'btn-dev-warning' : 'status-active' }} btn-sm w-100">
-                                        <i class="bi bi-{{ $admin->status ? 'pause' : 'play' }}-circle"></i>
-                                        {{ $admin->status ? 'Disable Account' : 'Enable Account' }}
+                                @if($admin->status)
+                                    <!-- Disable Button - Opens Modal -->
+                                    <button type="button" class="btn btn-dev-warning btn-sm w-100" data-bs-toggle="modal" data-bs-target="#disableAdminModal{{ $admin->id }}">
+                                        <i class="bi bi-pause-circle"></i>
+                                        Disable Account
                                     </button>
-                                </form>
+                                @else
+                                    <!-- Enable Button - Direct Form -->
+                                    <form method="POST" action="{{ route('developer.admins.toggle-status', $admin->id) }}" class="d-inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn status-active btn-sm w-100">
+                                            <i class="bi bi-play-circle"></i>
+                                            Enable Account
+                                        </button>
+                                    </form>
+                                @endif
 
                                 <!-- Delete Admin -->
                                 <form method="POST" action="{{ route('developer.admins.delete', $admin->id) }}" 
@@ -177,8 +186,91 @@ body {
     </div>
 </div>
 
+<!-- Disable Admin Modals -->
+@foreach($admins as $admin)
+    @if($admin->status)
+    <div class="modal fade" id="disableAdminModal{{ $admin->id }}" tabindex="-1" aria-labelledby="disableAdminModalLabel{{ $admin->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="disableAdminModalLabel{{ $admin->id }}">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Disable Admin Account
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{{ route('developer.admins.toggle-status', $admin->id) }}">
+                    @csrf
+                    @method('PATCH')
+                    <div class="modal-body">
+                        <div class="alert alert-warning" role="alert">
+                            <strong>Warning:</strong> You are about to disable <strong>{{ $admin->name }}</strong>'s admin account.
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="disabled_reason{{ $admin->id }}" class="form-label">
+                                <strong>Reason for Disabling Account</strong> <span class="text-danger">*</span>
+                            </label>
+                            <textarea 
+                                class="form-control" 
+                                id="disabled_reason{{ $admin->id }}" 
+                                name="disabled_reason" 
+                                rows="4" 
+                                placeholder="Example: Account disabled due to security policy violation, suspicious activity, or administrative decision. Please provide a clear explanation..."
+                                required
+                                minlength="10"
+                                maxlength="500"
+                            ></textarea>
+                            <div class="form-text">
+                                This reason will be displayed to the admin when they attempt to log in. Minimum 10 characters, maximum 500 characters.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-pause-circle me-1"></i>Disable Account
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endif
+@endforeach
+
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// Add form validation for disable reason modals
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all disable admin forms
+    const disableForms = document.querySelectorAll('form[action*="toggle-status"]');
+    
+    disableForms.forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            const textarea = form.querySelector('textarea[name="disabled_reason"]');
+            if (textarea) {
+                const reason = textarea.value.trim();
+                if (reason.length === 0) {
+                    e.preventDefault();
+                    alert('Please provide a reason for disabling this account.');
+                    textarea.focus();
+                    return false;
+                }
+                if (reason.length < 10) {
+                    e.preventDefault();
+                    alert('Please provide a more detailed reason (at least 10 characters).');
+                    textarea.focus();
+                    return false;
+                }
+            }
+        });
+    });
+});
+</script>
 
 </body>
 </html>

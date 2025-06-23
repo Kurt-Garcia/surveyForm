@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use App\Models\Admin;
 
 class AdminAuthController extends Controller
@@ -26,8 +27,21 @@ class AdminAuthController extends Controller
             
             // Check if admin account is disabled
             if ($admin && $admin->status == 0) {
+                // Store admin info in cache temporarily (5 minutes expiration)
+                Cache::put('disabled_admin_' . $admin->id, [
+                    'disabled_reason' => $admin->disabled_reason,
+                    'account_type' => 'Admin'
+                ], 300);
+                
+                // Store admin info in a global cache as backup
+                Cache::put('disabled_admin_backup', [
+                    'id' => $admin->id,
+                    'disabled_reason' => $admin->disabled_reason,
+                    'account_type' => 'Admin'
+                ], 300);
+                
                 Auth::guard('admin')->logout();
-                return redirect()->route('account.disabled');
+                return redirect()->route('account.disabled', ['aid' => $admin->id]);
             }
             
             $request->session()->regenerate();

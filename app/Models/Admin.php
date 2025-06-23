@@ -19,6 +19,7 @@ class Admin extends Authenticatable
         'password',
         'contact_number',
         'status',
+        'disabled_reason',
     ];
 
     protected $hidden = [

@@ -35,6 +35,30 @@
                             </ul>
                         </div>
 
+                        @if($disabledReason)
+                        <div class="reason-box">
+                            <h6><i class="bi bi-clipboard-text me-2"></i>Reason for Account Suspension</h6>
+                            <div class="reason-content">
+                                <p>{{ $disabledReason }}</p>
+                            </div>
+                            @if($accountType)
+                            <small class="reason-meta">
+                                <i class="bi bi-person-badge me-1"></i>{{ $accountType }} Account Status Updated
+                            </small>
+                            @endif
+                        </div>
+                        @endif
+
+                        {{-- Debug Information (remove in production) --}}
+                        @if(config('app.debug'))
+                        <div class="alert alert-info" style="font-size: 0.8em; margin-bottom: 1rem;">
+                            <strong>Debug Info:</strong><br>
+                            Disabled Reason: "{{ $disabledReason }}" ({{ strlen($disabledReason) }} chars)<br>
+                            Account Type: "{{ $accountType }}"<br>
+                            URL Params: {{ json_encode(request()->all()) }}
+                        </div>
+                        @endif
+
                         <div class="help-section">
                             <div class="help-card">
                                 <i class="bi bi-headset"></i>
@@ -240,6 +264,41 @@
 .info-list li i {
     color: #e53e3e;
     font-size: 0.9rem;
+}
+
+.reason-box {
+    background: #fff8e1;
+    border-left: 4px solid #ff9800;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.reason-box h6 {
+    color: #e65100;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.reason-content {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ffcc02;
+    margin-bottom: 0.5rem;
+}
+
+.reason-content p {
+    margin: 0;
+    color: #4a5568;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.reason-meta {
+    color: #bf360c;
+    font-style: italic;
 }
 
 .help-section {

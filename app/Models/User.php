@@ -26,6 +26,7 @@ class User extends Authenticatable
         'contact_number',
         'created_by',
         'status',
+        'disabled_reason',
     ];
 
     /**

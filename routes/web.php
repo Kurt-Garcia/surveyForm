@@ -30,9 +30,26 @@ Route::get('/customers/lookup-by-code', [CustomerController::class, 'lookupByCod
 Auth::routes();
 
 // Account disabled route
-Route::get('/account-disabled', function () {
-    return view('auth.account-disabled');
-})->name('account.disabled');
+Route::get('/account-disabled', [\App\Http\Controllers\Auth\AccountStatusController::class, 'showAccountDisabled'])->name('account.disabled');
+
+// TEMP: Test route to disable a user (remove after testing)
+Route::get('/test-disable-user/{id}', function($id) {
+    $user = \App\Models\User::find($id);
+    if ($user) {
+        $user->status = 0;
+        $user->disabled_reason = 'Test reason: Account disabled for testing the new feature implementation.';
+        $user->save();
+        
+        // Store in cache like the middleware would
+        \Cache::put('disabled_user_' . $user->id, [
+            'disabled_reason' => $user->disabled_reason,
+            'account_type' => 'User'
+        ], 60);
+        
+        return redirect()->route('account.disabled', ['uid' => $user->id]);
+    }
+    return 'User not found';
+});
 
 // Password change routes - accessible by both users and admins
 Route::middleware(['auth:web,admin', 'account.status'])->group(function () {
