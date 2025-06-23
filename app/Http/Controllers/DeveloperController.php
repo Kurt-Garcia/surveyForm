@@ -90,25 +90,34 @@ class DeveloperController extends Controller
     public function surveys(Request $request)
     {
         $sbu = $request->get('sbu');
+        $search = $request->get('search');
         $sbuName = '';
+        
+        $query = Survey::with(['questions', 'responses', 'sbus', 'admin']);
+        
+        // Apply search filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'LIKE', "%{$search}%")
+                  ->orWhereHas('admin', function($adminQuery) use ($search) {
+                      $adminQuery->where('name', 'LIKE', "%{$search}%")
+                                 ->orWhere('email', 'LIKE', "%{$search}%");
+                  });
+            });
+        }
         
         if ($sbu && in_array($sbu, ['FDC', 'FUI'])) {
             // Filter by SBU
             $sbuModel = Sbu::where('name', $sbu)->first();
             if ($sbuModel) {
-                $surveys = Survey::with(['questions', 'responses', 'sbus'])
-                    ->whereHas('sbus', function($query) use ($sbuModel) {
-                        $query->where('sbu_id', $sbuModel->id);
-                    })
-                    ->paginate(6);
+                $query->whereHas('sbus', function($q) use ($sbuModel) {
+                    $q->where('sbu_id', $sbuModel->id);
+                });
                 $sbuName = $sbu;
-            } else {
-                $surveys = Survey::with(['questions', 'responses', 'sbus'])->paginate(6);
             }
-        } else {
-            // Show all surveys
-            $surveys = Survey::with(['questions', 'responses', 'sbus'])->paginate(6);
         }
+        
+        $surveys = $query->paginate(6)->appends($request->query());
         
         return view('developer.surveys.index', compact('surveys', 'sbuName'));
     }
@@ -119,23 +128,32 @@ class DeveloperController extends Controller
     public function admins(Request $request)
     {
         $sbu = $request->get('sbu');
+        $search = $request->get('search');
         $sbuName = '';
+        
+        $query = Admin::with(['sbus']);
+        
+        // Apply search filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('contact_number', 'LIKE', "%{$search}%");
+            });
+        }
         
         if ($sbu && in_array($sbu, ['FDC', 'FUI'])) {
             // Filter by SBU
             $sbuModel = Sbu::where('name', $sbu)->first();
             if ($sbuModel) {
-                $admins = Admin::with(['sbus'])->whereHas('sbus', function($query) use ($sbuModel) {
-                    $query->where('sbu_id', $sbuModel->id);
-                })->paginate(6);
+                $query->whereHas('sbus', function($q) use ($sbuModel) {
+                    $q->where('sbu_id', $sbuModel->id);
+                });
                 $sbuName = $sbu;
-            } else {
-                $admins = Admin::with(['sbus'])->paginate(6);
             }
-        } else {
-            // Show all admins
-            $admins = Admin::with(['sbus'])->paginate(6);
         }
+        
+        $admins = $query->paginate(6)->appends($request->query());
         
         return view('developer.admins.index', compact('admins', 'sbuName'));
     }
@@ -146,23 +164,32 @@ class DeveloperController extends Controller
     public function users(Request $request)
     {
         $sbu = $request->get('sbu');
+        $search = $request->get('search');
         $sbuName = '';
+        
+        $query = User::with(['sbus']);
+        
+        // Apply search filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%")
+                  ->orWhere('contact_number', 'LIKE', "%{$search}%");
+            });
+        }
         
         if ($sbu && in_array($sbu, ['FDC', 'FUI'])) {
             // Filter by SBU
             $sbuModel = Sbu::where('name', $sbu)->first();
             if ($sbuModel) {
-                $users = User::with(['sbus'])->whereHas('sbus', function($query) use ($sbuModel) {
-                    $query->where('sbu_id', $sbuModel->id);
-                })->paginate(6);
+                $query->whereHas('sbus', function($q) use ($sbuModel) {
+                    $q->where('sbu_id', $sbuModel->id);
+                });
                 $sbuName = $sbu;
-            } else {
-                $users = User::with(['sbus'])->paginate(6);
             }
-        } else {
-            // Show all users
-            $users = User::with(['sbus'])->paginate(6);
         }
+        
+        $users = $query->paginate(6)->appends($request->query());
         
         return view('developer.users.index', compact('users', 'sbuName'));
     }

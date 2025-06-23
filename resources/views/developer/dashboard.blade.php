@@ -91,11 +91,39 @@ body {
 }
 
 .dev-action-card:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateY(-10px) scale(1.02);
+    transform: translateY(-10px) translateZ(20px) scale(1.02);
     color: white;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     border-color: rgba(255, 255, 255, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.dev-action-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -150%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.1) 40%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0.1) 60%,
+        transparent 70%
+    );
+    transform: rotate(45deg);
+    transition: left 0.6s ease-out;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+}
+
+.dev-action-card:hover::before {
+    left: 50%;
+    opacity: 1;
 }
 
 .pulse-effect {
