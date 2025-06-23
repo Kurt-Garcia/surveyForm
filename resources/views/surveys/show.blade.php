@@ -657,7 +657,7 @@ $(document).ready(function() {
                                 <div class="rating-display d-flex align-items-center flex-wrap">
                                     <div class="modern-rating-group me-3 mb-2">
                                         ${Array.from({length: 5}, (_, i) => {
-                                            const isSelected = i + 1 <= response.rating;
+                                            const isSelected = i + 1 == response.rating; // Only highlight the exact selected rating
                                             return `<div class="modern-radio-display ${isSelected ? 'selected' : ''}">${i + 1}</div>`;
                                         }).join('')}
                                     </div>
