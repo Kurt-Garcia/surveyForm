@@ -1,7 +1,8 @@
 @extends('layouts.app-welcome')
 
 @section('content')
-<div class="account-disabled-container">    <div class="container">
+<div class="account-disabled-container mt-4">    
+    <div class="container">
         <div class="row justify-content-center align-items-center min-vh-90">
             <div class="col-lg-7 col-md-9 col-sm-11">
                 <div class="error-card">
