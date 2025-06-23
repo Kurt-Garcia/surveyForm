@@ -98,32 +98,46 @@
                             <div class="mb-3">
                                 <label class="form-label fw-bold">SBU</label>
                                 <div class="sbu-selection-container">
-                                    <p class="text-muted mb-4 fs-6">Select one or both SBUs where you want to deploy this survey:</p>
-                                    <div class="row g-3">
-                                        @foreach(\App\Models\Sbu::all() as $sbu)
-                                            <div class="col-md-6">
-                                                <div class="sbu-card" data-sbu-id="{{ $sbu->id }}">
-                                                    <input class="sbu-checkbox d-none" type="checkbox" 
-                                                           id="sbu_{{ $sbu->id }}" 
-                                                           name="sbu_ids[]" 
-                                                           value="{{ $sbu->id }}"
-                                                           {{ $survey->sbus->contains($sbu->id) ? 'checked' : '' }}>
-                                                    
-                                                    <div class="sbu-card-content">
-                                                        <div class="sbu-card-header">
-                                                            <div class="sbu-check-indicator">
-                                                                <i class="fas fa-check"></i>
+                                    @if($sbus->count() > 0)
+                                        <p class="text-muted mb-4 fs-6">
+                                            @if($sbus->count() == 1)
+                                                Select your SBU to deploy this survey:
+                                            @else
+                                                Select one or more SBUs where you want to deploy this survey:
+                                            @endif
+                                        </p>
+                                        <div class="row g-3 {{ $sbus->count() == 1 ? 'justify-content-center' : '' }}">
+                                            @foreach($sbus as $sbu)
+                                                <div class="{{ $sbus->count() == 1 ? 'col-md-6 col-lg-4' : 'col-md-6' }}">
+                                                    <div class="sbu-card" data-sbu-id="{{ $sbu->id }}">
+                                                        <input class="sbu-checkbox d-none" type="checkbox" 
+                                                               id="sbu_{{ $sbu->id }}" 
+                                                               name="sbu_ids[]" 
+                                                               value="{{ $sbu->id }}"
+                                                               {{ $survey->sbus->contains($sbu->id) ? 'checked' : '' }}>
+                                                        
+                                                        <div class="sbu-card-content">
+                                                            <div class="sbu-card-header">
+                                                                <div class="sbu-check-indicator">
+                                                                    <i class="fas fa-check"></i>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                        <div class="sbu-card-body">
-                                                            <h5 class="sbu-name">{{ $sbu->name }}</h5>
-                                                            <p class="sbu-sites-count">{{ $sbu->sites->count() }} sites available</p>
+                                                            <div class="sbu-card-body">
+                                                                <h5 class="sbu-name">{{ $sbu->name }}</h5>
+                                                                <p class="sbu-sites-count">{{ $sbu->sites->count() }} sites available</p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        <div class="alert alert-warning text-center" role="alert">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <strong>No SBUs Available</strong><br>
+                                            <small>You don't have access to any SBU. Please contact your administrator to get access permissions.</small>
+                                        </div>
+                                    @endif
                                     @error('sbu_ids')
                                         <div class="text-danger mt-3" role="alert">
                                             <i class="fas fa-exclamation-circle me-1"></i>
@@ -160,9 +174,16 @@
                             </div>
                             
                             <div>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-save me-2"></i>Update Deployment Settings
-                                </button>
+                                @if($sbus->count() > 0)
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save me-2"></i>Update Deployment Settings
+                                    </button>
+                                @else
+                                    <div class="alert alert-info text-center w-100" role="alert">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Cannot update deployment settings without SBU access. Please contact your administrator.
+                                    </div>
+                                @endif
                             </div>
                         </form>
                     </div>
@@ -508,6 +529,26 @@
     animation: pulse-select 0.3s ease-in-out;
 }
 
+/* Single SBU Card Styling - Enhanced centering and size */
+.row.justify-content-center .sbu-card {
+    max-width: 300px;
+    height: 120px;
+    margin: 0 auto;
+}
+
+.row.justify-content-center .sbu-card-content {
+    padding: 1rem;
+}
+
+.row.justify-content-center .sbu-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.row.justify-content-center .sbu-sites-count {
+    font-size: 0.9rem;
+}
+
 /* Sites Selection Container Styling */
 .sites-selection-container {
     padding: 1.5rem;
@@ -657,6 +698,20 @@
     
     .sites-selection-container .select2-container--default .select2-selection--multiple {
         min-height: 100px;
+    }
+    
+    /* Single SBU responsive styling */
+    .row.justify-content-center .sbu-card {
+        max-width: 100%;
+        height: 100px;
+    }
+    
+    .row.justify-content-center .sbu-card-content {
+        padding: 0.75rem;
+    }
+    
+    .row.justify-content-center .sbu-name {
+        font-size: 1rem;
     }
 }
 </style>
@@ -983,18 +1038,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Store all sites organized by SBU for client-side filtering
     const sbuSites = {
-        @foreach(\App\Models\Sbu::all() as $sbu)
-            {{ $sbu->id }}: [
-                @foreach($sbu->sites as $site)
-                    {
-                        id: {{ $site->id }},
-                        name: "{{ $site->name }}",
-                        sbu_name: "{{ $sbu->name }}",
-                        is_main: {{ $site->is_main ? 'true' : 'false' }}
-                    },
-                @endforeach
-            ],
-        @endforeach
+        @if($sbus->count() > 0)
+            @foreach($sbus as $sbu)
+                {{ $sbu->id }}: [
+                    @foreach($sbu->sites as $site)
+                        {
+                            id: {{ $site->id }},
+                            name: "{{ $site->name }}",
+                            sbu_name: "{{ $sbu->name }}",
+                            is_main: {{ $site->is_main ? 'true' : 'false' }}
+                        },
+                    @endforeach
+                ],
+            @endforeach
+        @endif
     };
     
     // Function to update site options based on selected SBUs
@@ -1149,12 +1206,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Initialize site options based on initial checkbox values
-    updateSiteOptions();
-    
-    // Update site options when SBU checkboxes change
-    sbuCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', updateSiteOptions);
-    });
+    @if($sbus->count() > 0)
+        updateSiteOptions();
+        
+        // Update site options when SBU checkboxes change
+        sbuCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateSiteOptions);
+        });
+    @endif
 });
 </script>
 @endsection

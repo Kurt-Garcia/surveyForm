@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use App\Models\Survey;
 use App\Models\Sbu;
 use App\Models\Site;
@@ -15,12 +16,33 @@ class SurveyController extends Controller
 {
     public function create()
     {
-        $sbus = Sbu::with('sites')->get();
+        // Get only the SBUs that the current admin has access to
+        $admin = Auth::guard('admin')->user();
+        
+        // Get SBUs that this admin has access to via pivot table
+        $sbus = Sbu::with('sites')
+            ->whereHas('admins', function($query) use ($admin) {
+                $query->where('admin_id', $admin->id);
+            })
+            ->get();
+        
+        // If no SBUs are assigned to the admin, return empty collection for security
+        if ($sbus->isEmpty()) {
+            $sbus = collect();
+        }
+        
         return view('admin.create_survey', compact('sbus'));
     }
 
     public function store(Request $request)
     {
+        $admin = Auth::guard('admin')->user();
+        
+        // Get SBUs that this admin has access to
+        $adminSbuIds = Sbu::whereHas('admins', function($query) use ($admin) {
+            $query->where('admin_id', $admin->id);
+        })->pluck('id')->toArray();
+        
         $request->validate([
             'title' => 'required|string|max:255|unique:surveys,title',
             'sbu_ids' => 'required|array|min:1',
@@ -33,6 +55,13 @@ class SurveyController extends Controller
             'questions.*.type' => 'required|string|in:text,radio,star,select',
             'questions.*.required' => 'boolean'
         ]);
+        
+        // Additional validation: Check if admin has access to selected SBUs
+        $invalidSbuIds = array_diff($request->sbu_ids, $adminSbuIds);
+        if (!empty($invalidSbuIds)) {
+            return back()->withErrors(['sbu_ids' => 'You do not have access to some of the selected SBUs.'])
+                        ->withInput();
+        }
 
         DB::beginTransaction();
         try {
@@ -98,12 +127,21 @@ class SurveyController extends Controller
 
     public function show(Survey $survey)
     {
+        $admin = Auth::guard('admin')->user();
+        
         // Ensure the authenticated admin owns this survey
-        if ($survey->admin_id !== Auth::guard('admin')->id()) {
+        if ($survey->admin_id !== $admin->id) {
             abort(403, 'Unauthorized action.');
         }
 
-        return view('admin.surveys.show', compact('survey'));
+        // Get SBUs that this admin has access to
+        $sbus = Sbu::with('sites')
+            ->whereHas('admins', function($query) use ($admin) {
+                $query->where('admin_id', $admin->id);
+            })
+            ->get();
+
+        return view('admin.surveys.show', compact('survey', 'sbus'));
     }
 
     public function edit(Survey $survey)
@@ -236,7 +274,15 @@ class SurveyController extends Controller
      */
     public function getSbusWithSites()
     {
-        $sbus = Sbu::with('sites')->get();
+        $admin = Auth::guard('admin')->user();
+        
+        // Get SBUs that this admin has access to
+        $sbus = Sbu::with('sites')
+            ->whereHas('admins', function($query) use ($admin) {
+                $query->where('admin_id', $admin->id);
+            })
+            ->get();
+            
         return response()->json($sbus);
     }
     
@@ -245,10 +291,17 @@ class SurveyController extends Controller
      */
     public function updateDeployment(Request $request, Survey $survey)
     {
+        $admin = Auth::guard('admin')->user();
+        
         // Ensure the authenticated admin owns this survey
-        if ($survey->admin_id !== Auth::guard('admin')->id()) {
+        if ($survey->admin_id !== $admin->id) {
             abort(403, 'Unauthorized action.');
         }
+        
+        // Get SBUs that this admin has access to
+        $adminSbuIds = Sbu::whereHas('admins', function($query) use ($admin) {
+            $query->where('admin_id', $admin->id);
+        })->pluck('id')->toArray();
         
         $request->validate([
             'sbu_ids' => 'required|array|min:1',
@@ -256,6 +309,13 @@ class SurveyController extends Controller
             'site_ids' => 'required|array|min:1',
             'site_ids.*' => 'exists:sites,id',
         ]);
+        
+        // Additional validation: Check if admin has access to selected SBUs
+        $invalidSbuIds = array_diff($request->sbu_ids, $adminSbuIds);
+        if (!empty($invalidSbuIds)) {
+            return back()->withErrors(['sbu_ids' => 'You do not have access to some of the selected SBUs.'])
+                        ->withInput();
+        }
         
         DB::beginTransaction();
         try {

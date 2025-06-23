@@ -62,22 +62,29 @@
                             <label class="col-md-3 col-form-label">{{ __('SBU') }}</label>
                             <div class="col-md-9">
                                 <div class="sbu-selection-container">
-                                    <p class="text-muted mb-4 fs-6">Select one or both SBUs where you want to deploy this survey:</p>
-                                    <div class="row g-3">
-                                        @foreach($sbus as $sbu)
-                                            <div class="col-md-6">
-                                                <div class="sbu-card {{ in_array($sbu->id, old('sbu_ids', [])) ? 'selected' : '' }}" data-sbu-id="{{ $sbu->id }}">
-                                                    <input class="sbu-checkbox d-none" type="checkbox" 
-                                                           id="sbu_{{ $sbu->id }}" 
-                                                           name="sbu_ids[]" 
-                                                           value="{{ $sbu->id }}"
-                                                           {{ in_array($sbu->id, old('sbu_ids', [])) ? 'checked' : '' }}>
-                                                    
-                                                    <div class="sbu-card-content">
-                                                        <div class="sbu-card-header">
-                                                            <div class="sbu-check-indicator">
-                                                                <i class="fas fa-check"></i>
-                                                            </div>
+                                    @if($sbus->count() > 0)
+                                        <p class="text-muted mb-4 fs-6">
+                                            @if($sbus->count() == 1)
+                                                Select your SBU to deploy this survey:
+                                            @else
+                                                Select {{ $sbus->count() == 1 ? 'the' : 'one or more' }} SBU{{ $sbus->count() > 1 ? 's' : '' }} where you want to deploy this survey:
+                                            @endif
+                                        </p>
+                                        <div class="row g-3 {{ $sbus->count() == 1 ? 'justify-content-center' : '' }}">
+                                            @foreach($sbus as $sbu)
+                                                <div class="{{ $sbus->count() == 1 ? 'col-md-6 col-lg-4' : 'col-md-6' }}">
+                                                    <div class="sbu-card {{ in_array($sbu->id, old('sbu_ids', [])) ? 'selected' : '' }}" data-sbu-id="{{ $sbu->id }}">
+                                                        <input class="sbu-checkbox d-none" type="checkbox" 
+                                                               id="sbu_{{ $sbu->id }}" 
+                                                               name="sbu_ids[]" 
+                                                               value="{{ $sbu->id }}"
+                                                               {{ in_array($sbu->id, old('sbu_ids', [])) ? 'checked' : '' }}>
+                                                        
+                                                        <div class="sbu-card-content">
+                                                            <div class="sbu-card-header">
+                                                                <div class="sbu-check-indicator">
+                                                                    <i class="fas fa-check"></i>
+                                                                </div>
                                                         </div>
                                                         <div class="sbu-card-body">
                                                             <h5 class="sbu-name">{{ $sbu->name }}</h5>
@@ -88,6 +95,13 @@
                                             </div>
                                         @endforeach
                                     </div>
+                                    @else
+                                        <div class="alert alert-warning text-center" role="alert">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            <strong>No SBUs Available</strong><br>
+                                            <small>You don't have access to any SBU. Please contact your administrator to get access permissions.</small>
+                                        </div>
+                                    @endif
                                     @error('sbu_ids')
                                         <div class="text-danger mt-3" role="alert">
                                             <i class="fas fa-exclamation-circle me-1"></i>
@@ -158,6 +172,7 @@
                             </div>
                         </div>
 
+                        @if($sbus->count() > 0)
                         <!-- Bulk Question Creation Feature -->
                         <div class="card shadow-sm mb-4" style="border: 2px solid #e3f2fd; background: linear-gradient(135deg, #f8f9fc 0%, #e3f2fd 100%);">
                             <div class="card-header" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); color: white; border-bottom: none;">
@@ -197,6 +212,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
 
                         <div id="questions-container" class="mb-4">
                             <!-- Questions will be added here dynamically -->
@@ -204,12 +220,19 @@
 
                         <div class="form-group row">
                             <div class="col-md-12 d-flex flex-column flex-md-row justify-content-center gap-3">
-                                <button type="button" class="btn btn-info btn-lg" onclick="addQuestion()" style="background-color: var(--secondary-color); border-color: var(--secondary-color); color: #fff;">
-                                    <i class="fas fa-plus-circle me-2"></i>{{ __('Add Single Question') }}
-                                </button>
-                                <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-paper-plane me-2"></i>{{ __('Create Survey') }}
-                                </button>
+                                @if($sbus->count() > 0)
+                                    <button type="button" class="btn btn-info btn-lg" onclick="addQuestion()" style="background-color: var(--secondary-color); border-color: var(--secondary-color); color: #fff;">
+                                        <i class="fas fa-plus-circle me-2"></i>{{ __('Add Single Question') }}
+                                    </button>
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-paper-plane me-2"></i>{{ __('Create Survey') }}
+                                    </button>
+                                @else
+                                    <div class="alert alert-info text-center w-100" role="alert">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Cannot create survey without SBU access. Please contact your administrator.
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </form>
@@ -269,18 +292,20 @@
     
     // Store all sites organized by SBU for client-side filtering
     const sbuSites = {
-        @foreach($sbus as $sbu)
-            {{ $sbu->id }}: [
-                @foreach($sbu->sites as $site)
-                    {
-                        id: {{ $site->id }},
-                        name: "{{ $site->name }}",
-                        sbu_name: "{{ $sbu->name }}",
-                        is_main: {{ $site->is_main ? 'true' : 'false' }}
-                    },
-                @endforeach
-            ],
-        @endforeach
+        @if($sbus->count() > 0)
+            @foreach($sbus as $sbu)
+                {{ $sbu->id }}: [
+                    @foreach($sbu->sites as $site)
+                        {
+                            id: {{ $site->id }},
+                            name: "{{ $site->name }}",
+                            sbu_name: "{{ $sbu->name }}",
+                            is_main: {{ $site->is_main ? 'true' : 'false' }}
+                        },
+                    @endforeach
+                ],
+            @endforeach
+        @endif
     };
     
     // Function to update site options based on selected SBUs
@@ -455,7 +480,15 @@
         // Mark JavaScript as initialized to prevent visual flashes
         document.body.classList.add('js-initialized');
         
-        updateSiteOptions();
+        @if($sbus->count() > 0)
+            updateSiteOptions();
+        @endif
+        
+        // Initialize validation for any existing questions (e.g., from old form values)
+        const existingQuestions = document.querySelectorAll('.question-text-input');
+        existingQuestions.forEach(input => {
+            addQuestionValidation(input);
+        });
     });
     
     // Real-time title validation
@@ -579,9 +612,21 @@
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <h5 class="mb-3">Question ${questionIndex + 1}</h5>
-                        <input type="text" class="form-control form-control-lg mb-3" 
-                            name="questions[${questionIndex}][text]" 
-                            placeholder="Enter your question here" required>
+                        <div class="position-relative">
+                            <input type="text" class="form-control form-control-lg mb-3 question-text-input" 
+                                name="questions[${questionIndex}][text]" 
+                                placeholder="Enter your question here" required
+                                data-question-index="${questionIndex}">
+                            <div class="question-validation-spinner position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                <div class="spinner-border spinner-border-sm text-warning" role="status">
+                                    <span class="visually-hidden">Checking...</span>
+                                </div>
+                            </div>
+                            <div class="question-validation-icon position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                <i class="fas fa-check text-success"></i>
+                            </div>
+                        </div>
+                        <div class="question-validation-message" style="display: none; margin-top: -0.75rem; margin-bottom: 0.75rem;"></div>
                         <div class="row">
                             <div class="col-md-6">
                                 <select class="form-select form-select-lg mb-3" 
@@ -619,6 +664,10 @@
         setTimeout(() => {
             questionDiv.style.transition = 'opacity 0.3s ease-in';
             questionDiv.style.opacity = '1';
+            
+            // Add real-time validation for the new question
+            const questionInput = questionDiv.querySelector('.question-text-input');
+            addQuestionValidation(questionInput);
         }, 50);
     }
     
@@ -671,9 +720,21 @@
                                                 <i class="fas fa-bolt me-1"></i>Bulk Created
                                             </span>
                                         </h5>
-                                        <input type="text" class="form-control form-control-lg mb-3" 
-                                            name="questions[${questionIndex}][text]" 
-                                            placeholder="Enter your question here" required>
+                                        <div class="position-relative">
+                                            <input type="text" class="form-control form-control-lg mb-3 question-text-input" 
+                                                name="questions[${questionIndex}][text]" 
+                                                placeholder="Enter your question here" required
+                                                data-question-index="${questionIndex}">
+                                            <div class="question-validation-spinner position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                                <div class="spinner-border spinner-border-sm text-warning" role="status">
+                                                    <span class="visually-hidden">Checking...</span>
+                                                </div>
+                                            </div>
+                                            <div class="question-validation-icon position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                                <i class="fas fa-check text-success"></i>
+                                            </div>
+                                        </div>
+                                        <div class="question-validation-message" style="display: none; margin-top: -0.75rem; margin-bottom: 0.75rem;"></div>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <select class="form-select form-select-lg mb-3" 
@@ -714,6 +775,10 @@
                             questionDiv.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
                             questionDiv.style.opacity = '1';
                             questionDiv.style.transform = 'translateY(0)';
+                            
+                            // Add real-time validation for the new question
+                            const questionInput = questionDiv.querySelector('.question-text-input');
+                            addQuestionValidation(questionInput);
                         }, 50);
                         
                         questionsCreated++;
@@ -793,7 +858,10 @@
             const hiddenRequired = card.querySelector('input[type="hidden"][name*="[required]"]');
             const checkboxRequired = card.querySelector('input[type="checkbox"][name*="[required]"]');
             
-            if (textInput) textInput.name = `questions[${index}][text]`;
+            if (textInput) {
+                textInput.name = `questions[${index}][text]`;
+                textInput.setAttribute('data-question-index', index);
+            }
             if (typeSelect) typeSelect.name = `questions[${index}][type]`;
             if (hiddenRequired) hiddenRequired.name = `questions[${index}][required]`;
             if (checkboxRequired) {
@@ -801,6 +869,106 @@
                 checkboxRequired.id = `required${index}`;
                 const label = card.querySelector(`label[for*="required"]`);
                 if (label) label.setAttribute('for', `required${index}`);
+            }
+        });
+        
+        // Re-validate all questions after renumbering
+        setTimeout(() => {
+            validateAllQuestions();
+        }, 100);
+    }
+
+    // Question validation functionality
+    let questionValidationTimeouts = {};
+    const validatedQuestions = new Set();
+
+    function addQuestionValidation(questionInput) {
+        let validationTimeout;
+        
+        questionInput.addEventListener('input', function() {
+            const currentValue = this.value.trim();
+            const questionIndex = this.getAttribute('data-question-index');
+            const spinner = this.parentElement.querySelector('.question-validation-spinner');
+            const icon = this.parentElement.querySelector('.question-validation-icon');
+            const message = this.parentElement.nextElementSibling;
+            
+            // Clear previous timeout
+            clearTimeout(questionValidationTimeouts[questionIndex]);
+            
+            // Reset validation state
+            validatedQuestions.delete(questionIndex);
+            this.classList.remove('is-valid', 'is-invalid');
+            spinner.style.display = 'none';
+            icon.style.display = 'none';
+            message.style.display = 'none';
+            
+            if (currentValue.length < 3) {
+                return; // Don't validate until at least 3 characters
+            }
+            
+            // Show spinner
+            spinner.style.display = 'block';
+            
+            // Debounce the validation
+            questionValidationTimeouts[questionIndex] = setTimeout(() => {
+                validateQuestionUniqueness(this, currentValue, questionIndex);
+            }, 500);
+        });
+    }
+
+    function validateQuestionUniqueness(inputElement, questionText, currentQuestionIndex) {
+        const spinner = inputElement.parentElement.querySelector('.question-validation-spinner');
+        const icon = inputElement.parentElement.querySelector('.question-validation-icon');
+        const message = inputElement.parentElement.nextElementSibling;
+        
+        // Get all question inputs except the current one
+        const allQuestionInputs = document.querySelectorAll('.question-text-input');
+        const otherQuestions = Array.from(allQuestionInputs).filter(input => {
+            const index = input.getAttribute('data-question-index');
+            return index !== currentQuestionIndex && input.value.trim().length > 0;
+        });
+        
+        // Check for duplicates (case-insensitive)
+        const normalizedCurrentText = questionText.toLowerCase().trim();
+        const isDuplicate = otherQuestions.some(otherInput => {
+            const otherText = otherInput.value.toLowerCase().trim();
+            return otherText === normalizedCurrentText;
+        });
+        
+        // Hide spinner
+        spinner.style.display = 'none';
+        
+        if (isDuplicate) {
+            // Question is duplicate
+            validatedQuestions.delete(currentQuestionIndex);
+            inputElement.classList.add('is-invalid');
+            inputElement.classList.remove('is-valid');
+            icon.innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i>';
+            icon.style.display = 'block';
+            message.innerHTML = '<small class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>This question already exists in the survey. Please make it unique.</small>';
+            message.style.display = 'block';
+        } else {
+            // Question is unique
+            validatedQuestions.add(currentQuestionIndex);
+            inputElement.classList.add('is-valid');
+            inputElement.classList.remove('is-invalid');
+            icon.innerHTML = '<i class="fas fa-check text-success"></i>';
+            icon.style.display = 'block';
+            message.innerHTML = '<small class="text-success"><i class="fas fa-check-circle me-1"></i>Question is unique and valid.</small>';
+            message.style.display = 'block';
+        }
+    }
+
+    function validateAllQuestions() {
+        const allQuestionInputs = document.querySelectorAll('.question-text-input');
+        allQuestionInputs.forEach(input => {
+            const questionText = input.value.trim();
+            const questionIndex = input.getAttribute('data-question-index');
+            
+            if (questionText.length >= 3) {
+                setTimeout(() => {
+                    validateQuestionUniqueness(input, questionText, questionIndex);
+                }, 100 * parseInt(questionIndex)); // Stagger validation to avoid conflicts
             }
         });
     }
@@ -882,11 +1050,48 @@
             return false;
         }
 
+        // Check for duplicate questions before submission
+        const questionInputs = document.querySelectorAll('.question-text-input');
+        const questionTexts = Array.from(questionInputs).map(input => input.value.trim().toLowerCase());
+        const duplicateQuestions = questionTexts.filter((text, index) => 
+            text.length > 0 && questionTexts.indexOf(text) !== index
+        );
+
+        if (duplicateQuestions.length > 0) {
+            swalWithBootstrapButtons.fire({
+                title: "Duplicate Questions Found!",
+                text: "Please ensure all questions are unique. Some questions appear to be duplicated.",
+                icon: "error"
+            });
+            
+            // Highlight duplicate questions
+            questionInputs.forEach(input => {
+                const text = input.value.trim().toLowerCase();
+                if (duplicateQuestions.includes(text)) {
+                    input.classList.add('is-invalid');
+                    input.focus();
+                }
+            });
+            return false;
+        }
+
+        // Check for empty questions
+        const emptyQuestions = Array.from(questionInputs).filter(input => input.value.trim().length < 3);
+        if (emptyQuestions.length > 0) {
+            swalWithBootstrapButtons.fire({
+                title: "Empty Questions Found!",
+                text: "Please fill in all questions with at least 3 characters.",
+                icon: "error"
+            });
+            emptyQuestions[0].focus();
+            return false;
+        }
+
         const titleInputForm = document.getElementById('title');
         titleInputForm.value = capitalizeFirstLetter(titleInputForm.value);
 
-        const questionInputs = document.querySelectorAll('input[name^="questions"][name$="[text]"]');
-        questionInputs.forEach(input => {
+        const allQuestionInputs = document.querySelectorAll('input[name^="questions"][name$="[text]"]');
+        allQuestionInputs.forEach(input => {
             // Apply both capitalization and punctuation check
             input.value = addPunctuationIfMissing(capitalizeFirstLetter(input.value));
             console.log('Question updated: ' + input.value);
@@ -970,6 +1175,41 @@
 #title-validation-message {
     font-size: 0.875rem;
     margin-top: 0.25rem;
+}
+
+/* Question validation styling */
+.question-text-input.is-valid {
+    border-color: #28a745;
+    padding-right: calc(1.5em + 1rem);
+    background-image: none;
+}
+
+.question-text-input.is-invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + 1rem);
+    background-image: none;
+}
+
+.question-validation-spinner .spinner-border {
+    width: 1.2rem;
+    height: 1.2rem;
+    border-width: 2px;
+}
+
+.question-validation-icon {
+    font-size: 1.1rem;
+    z-index: 5;
+}
+
+.question-validation-message {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.question-validation-message small {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 /* Prevent layout shift during initialization */
@@ -1213,6 +1453,26 @@ body.js-initialized .sbu-card {
     animation: pulse-select 0.3s ease-in-out;
 }
 
+/* Single SBU Card Styling - Enhanced centering and size */
+.row.justify-content-center .sbu-card {
+    max-width: 300px;
+    height: 120px;
+    margin: 0 auto;
+}
+
+.row.justify-content-center .sbu-card-content {
+    padding: 1rem;
+}
+
+.row.justify-content-center .sbu-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.row.justify-content-center .sbu-sites-count {
+    font-size: 0.9rem;
+}
+
 /* Sites Selection Container Styling */
 .sites-selection-container {
     padding: 1.5rem;
@@ -1362,6 +1622,20 @@ body.js-initialized .sbu-card {
     
     .sites-selection-container .select2-container--default .select2-selection--multiple {
         min-height: 100px;
+    }
+    
+    /* Single SBU responsive styling */
+    .row.justify-content-center .sbu-card {
+        max-width: 100%;
+        height: 100px;
+    }
+    
+    .row.justify-content-center .sbu-card-content {
+        padding: 0.75rem;
+    }
+    
+    .row.justify-content-center .sbu-name {
+        font-size: 1rem;
     }
 }
 
