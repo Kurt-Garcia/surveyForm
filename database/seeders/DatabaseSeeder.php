@@ -44,5 +44,20 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminSeeder::class
         ]);
+        
+        // // Create large dataset for testing
+        // $this->call([
+        //     LargeDataSeeder::class
+        // ]);
+        
+        // // Create detailed surveys with comprehensive questions
+        // $this->call([
+        //     DetailedSurveySeeder::class
+        // ]);
+        
+        // // Create sample survey responses
+        // $this->call([
+        //     SurveyResponseSeeder::class
+        // ]);
     }
 }

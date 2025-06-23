@@ -214,33 +214,42 @@ body {
             </div>
             
             <div class="col-md-4">
-                <a href="{{ route('developer.surveys') }}" class="dev-action-card survey-zone">
+                <div class="dev-action-card survey-zone" style="cursor: pointer;" onclick="showSbuModal('surveys')">
                     <div>
                         <i class="bi bi-clipboard-data display-4 mb-3"></i>
                         <h5>Survey Management</h5>
                         <p>View, Edit & Delete All Surveys</p>
+                        <small class="text-light mt-2">
+                            <i class="bi bi-filter"></i> Filter by SBU
+                        </small>
                     </div>
-                </a>
+                </div>
             </div>
             
             <div class="col-md-4">
-                <a href="{{ route('developer.admins') }}" class="dev-action-card admin-zone">
+                <div class="dev-action-card admin-zone" style="cursor: pointer;" onclick="showSbuModal('admins')">
                     <div>
                         <i class="bi bi-shield-lock display-4 mb-3"></i>
                         <h5>Admin Management</h5>
                         <p>Manage Admin Accounts & Permissions</p>
+                        <small class="text-light mt-2">
+                            <i class="bi bi-filter"></i> Filter by SBU
+                        </small>
                     </div>
-                </a>
+                </div>
             </div>
             
             <div class="col-md-4">
-                <a href="{{ route('developer.users') }}" class="dev-action-card user-zone">
+                <div class="dev-action-card user-zone" style="cursor: pointer;" onclick="showSbuModal('users')">
                     <div>
                         <i class="bi bi-people display-4 mb-3"></i>
                         <h5>User Management</h5>
                         <p>Control All User Accounts</p>
+                        <small class="text-light mt-2">
+                            <i class="bi bi-filter"></i> Filter by SBU
+                        </small>
                     </div>
-                </a>
+                </div>
             </div>
         </div>
 
@@ -253,6 +262,52 @@ body {
                 </div>
             </div>
         </div>    </div>
+</div>
+
+<!-- SBU Selection Modal -->
+<div class="modal fade" id="sbuSelectionModal" tabindex="-1" aria-labelledby="sbuSelectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: rgba(26, 26, 46, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); color: white;">
+            <div class="modal-header border-bottom border-secondary">
+                <h5 class="modal-title text-warning" id="sbuSelectionModalLabel">
+                    <i class="bi bi-building"></i> Select SBU
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4">
+                <p class="text-light mb-4">Choose which Strategic Business Unit you want to manage:</p>
+                
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="sbu-option-card" onclick="navigateToManagement('FDC')" style="background: linear-gradient(135deg, #e74c3c, #c0392b); border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s ease; border: 2px solid #e74c3c;">
+                            <i class="bi bi-building display-4 mb-3 text-white"></i>
+                            <h4 class="fw-bold text-white">FDC</h4>
+                            <p class="mb-0 text-white-50">Fast Distribution</p>
+                            <small class="text-white-50 mt-2 d-block">
+                                <i class="bi bi-arrow-right"></i> View FDC Records
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="sbu-option-card" onclick="navigateToManagement('FUI')" style="background: linear-gradient(135deg, #3498db, #2980b9); border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s ease; border: 2px solid #3498db;">
+                            <i class="bi bi-building display-4 mb-3 text-white"></i>
+                            <h4 class="fw-bold text-white">FUI</h4>
+                            <p class="mb-0 text-white-50">Fast Unimerchant</p>
+                            <small class="text-white-50 mt-2 d-block">
+                                <i class="bi bi-arrow-right"></i> View FUI Records
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button type="button" class="btn btn-outline-light" onclick="navigateToManagement('ALL')">
+                        <i class="bi bi-list"></i> View All (No Filter)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Bootstrap JS -->
@@ -275,7 +330,48 @@ function createParticles() {
     }
 }
 
-// Fade in effect
+// Variables to store current management type and modal instance
+let currentManagementType = '';
+let sbuModal;
+
+// Show SBU selection modal
+function showSbuModal(managementType) {
+    currentManagementType = managementType;
+    sbuModal = new bootstrap.Modal(document.getElementById('sbuSelectionModal'));
+    sbuModal.show();
+}
+
+// Navigate to management page with SBU
+function navigateToManagement(sbu) {
+    if (sbuModal) {
+        sbuModal.hide();
+    }
+    
+    let url = '';
+    if (sbu === 'ALL') {
+        // No SBU filter - show all records
+        if (currentManagementType === 'surveys') {
+            url = '{{ route("developer.surveys") }}';
+        } else if (currentManagementType === 'admins') {
+            url = '{{ route("developer.admins") }}';
+        } else if (currentManagementType === 'users') {
+            url = '{{ route("developer.users") }}';
+        }
+    } else {
+        // With SBU filter
+        if (currentManagementType === 'surveys') {
+            url = '{{ route("developer.surveys") }}' + '?sbu=' + sbu;
+        } else if (currentManagementType === 'admins') {
+            url = '{{ route("developer.admins") }}' + '?sbu=' + sbu;
+        } else if (currentManagementType === 'users') {
+            url = '{{ route("developer.users") }}' + '?sbu=' + sbu;
+        }
+    }
+    
+    window.location.href = url;
+}
+
+// Add hover effects to SBU option cards
 document.addEventListener('DOMContentLoaded', function() {
     createParticles();
     
@@ -283,6 +379,22 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         dashboard.style.opacity = '1';
     }, 100);
+    
+    // Add hover effects to SBU cards when modal is shown
+    document.getElementById('sbuSelectionModal').addEventListener('shown.bs.modal', function() {
+        const sbuCards = document.querySelectorAll('.sbu-option-card');
+        sbuCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.05)';
+                this.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.5)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                this.style.boxShadow = 'none';
+            });
+        });
+    });
 });
 </script>
 

@@ -77,10 +77,40 @@ body {
             <div class="col-md-6">
                 <h1 class="display-5 fw-bold text-warning">
                     <i class="bi bi-shield-lock"></i> Admin Management
+                    @if($sbuName)
+                        <span class="badge bg-warning text-dark ms-2">{{ $sbuName }}</span>
+                    @endif
                 </h1>
-                <p class="text-light">Total Admins: {{ $admins->total() }}</p>
+                <p class="text-light">
+                    Total Admins: {{ $admins->total() }}
+                    @if($sbuName)
+                        <span class="text-warning">| Filtered by SBU: {{ $sbuName === 'FDC' ? 'Fast Distribution' : 'Fast Unimerchant' }}</span>
+                    @endif
+                </p>
             </div>
             <div class="col-md-6 text-end">
+                <div class="btn-group me-2" role="group">
+                    <button type="button" class="btn btn-outline-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-funnel"></i> Filter by SBU
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ route('developer.admins') }}">
+                            <i class="bi bi-list"></i> All Admins
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ route('developer.admins', ['sbu' => 'FDC']) }}">
+                            <i class="bi bi-building"></i> FDC Only
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ route('developer.admins', ['sbu' => 'FUI']) }}">
+                            <i class="bi bi-building"></i> FUI Only
+                        </a></li>
+                    </ul>
+                </div>
+                @if($sbuName)
+                    <a href="{{ route('developer.admins') }}" class="btn btn-outline-warning me-2">
+                        <i class="bi bi-x"></i> Clear Filter
+                    </a>
+                @endif
                 <a href="{{ route('developer.dashboard') }}" class="btn btn-outline-light me-2">
                     <i class="bi bi-arrow-left"></i> Back to Dashboard
                 </a>
@@ -120,7 +150,15 @@ body {
 
                             <div class="text-muted mb-3">
                                 <small>
-                                    <i class="bi bi-calendar"></i> Created: {{ $admin->created_at->format('M d, Y') }}
+                                    <i class="bi bi-calendar"></i> Created: {{ $admin->created_at->format('M d, Y') }}<br>
+                                    @if($admin->sbus->count() > 0)
+                                        <i class="bi bi-building"></i> SBU: 
+                                        @foreach($admin->sbus as $sbu)
+                                            <span class="badge bg-warning text-dark">{{ $sbu->name }}</span>
+                                        @endforeach
+                                    @else
+                                        <i class="bi bi-building"></i> SBU: <span class="text-muted">None assigned</span>
+                                    @endif
                                 </small>
                             </div>
 

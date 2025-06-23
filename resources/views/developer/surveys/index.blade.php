@@ -77,10 +77,40 @@ body {
             <div class="col-md-6">
                 <h1 class="display-5 fw-bold text-success">
                     <i class="bi bi-clipboard-data"></i> Survey Management
+                    @if($sbuName)
+                        <span class="badge bg-success ms-2">{{ $sbuName }}</span>
+                    @endif
                 </h1>
-                <p class="text-light">Total Surveys: {{ $surveys->total() }}</p>
+                <p class="text-light">
+                    Total Surveys: {{ $surveys->total() }}
+                    @if($sbuName)
+                        <span class="text-success">| Filtered by SBU: {{ $sbuName === 'FDC' ? 'Fast Distribution' : 'Fast Unimerchant' }}</span>
+                    @endif
+                </p>
             </div>
             <div class="col-md-6 text-end">
+                <div class="btn-group me-2" role="group">
+                    <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-funnel"></i> Filter by SBU
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ route('developer.surveys') }}">
+                            <i class="bi bi-list"></i> All Surveys
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ route('developer.surveys', ['sbu' => 'FDC']) }}">
+                            <i class="bi bi-building"></i> FDC Only
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ route('developer.surveys', ['sbu' => 'FUI']) }}">
+                            <i class="bi bi-building"></i> FUI Only
+                        </a></li>
+                    </ul>
+                </div>
+                @if($sbuName)
+                    <a href="{{ route('developer.surveys') }}" class="btn btn-outline-warning me-2">
+                        <i class="bi bi-x"></i> Clear Filter
+                    </a>
+                @endif
                 <a href="{{ route('developer.dashboard') }}" class="btn btn-outline-light me-2">
                     <i class="bi bi-arrow-left"></i> Back to Dashboard
                 </a>
@@ -119,7 +149,13 @@ body {
                                 <small>
                                     <i class="bi bi-calendar"></i> Created: {{ $survey->created_at->format('M d, Y') }}<br>
                                     <i class="bi bi-chat-dots"></i> Questions: {{ $survey->questions->count() }}<br>
-                                    <i class="bi bi-graph-up"></i> Responses: {{ $survey->responses->count() }}
+                                    <i class="bi bi-graph-up"></i> Responses: {{ $survey->responses->count() }}<br>
+                                    @if($survey->sbus->count() > 0)
+                                        <i class="bi bi-building"></i> SBU: 
+                                        @foreach($survey->sbus as $sbu)
+                                            <span class="badge bg-primary">{{ $sbu->name }}</span>
+                                        @endforeach
+                                    @endif
                                 </small>
                             </div>
 

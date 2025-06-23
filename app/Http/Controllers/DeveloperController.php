@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Survey;
 use App\Models\Admin;
 use App\Models\User;
+use App\Models\Sbu;
 use App\Models\SurveyResponseHeader;
 
 class DeveloperController extends Controller
@@ -86,28 +87,84 @@ class DeveloperController extends Controller
     /**
      * Show all surveys with management options
      */
-    public function surveys()
+    public function surveys(Request $request)
     {
-        $surveys = Survey::with(['questions', 'responses'])->paginate(15);
-        return view('developer.surveys.index', compact('surveys'));
+        $sbu = $request->get('sbu');
+        $sbuName = '';
+        
+        if ($sbu && in_array($sbu, ['FDC', 'FUI'])) {
+            // Filter by SBU
+            $sbuModel = Sbu::where('name', $sbu)->first();
+            if ($sbuModel) {
+                $surveys = Survey::with(['questions', 'responses', 'sbus'])
+                    ->whereHas('sbus', function($query) use ($sbuModel) {
+                        $query->where('sbu_id', $sbuModel->id);
+                    })
+                    ->paginate(15);
+                $sbuName = $sbu;
+            } else {
+                $surveys = Survey::with(['questions', 'responses', 'sbus'])->paginate(15);
+            }
+        } else {
+            // Show all surveys
+            $surveys = Survey::with(['questions', 'responses', 'sbus'])->paginate(15);
+        }
+        
+        return view('developer.surveys.index', compact('surveys', 'sbuName'));
     }
 
     /**
      * Show all admins with management options
      */
-    public function admins()
+    public function admins(Request $request)
     {
-        $admins = Admin::paginate(15);
-        return view('developer.admins.index', compact('admins'));
+        $sbu = $request->get('sbu');
+        $sbuName = '';
+        
+        if ($sbu && in_array($sbu, ['FDC', 'FUI'])) {
+            // Filter by SBU
+            $sbuModel = Sbu::where('name', $sbu)->first();
+            if ($sbuModel) {
+                $admins = Admin::with(['sbus'])->whereHas('sbus', function($query) use ($sbuModel) {
+                    $query->where('sbu_id', $sbuModel->id);
+                })->paginate(15);
+                $sbuName = $sbu;
+            } else {
+                $admins = Admin::with(['sbus'])->paginate(15);
+            }
+        } else {
+            // Show all admins
+            $admins = Admin::with(['sbus'])->paginate(15);
+        }
+        
+        return view('developer.admins.index', compact('admins', 'sbuName'));
     }
 
     /**
      * Show all users with management options
      */
-    public function users()
+    public function users(Request $request)
     {
-        $users = User::paginate(15);
-        return view('developer.users.index', compact('users'));
+        $sbu = $request->get('sbu');
+        $sbuName = '';
+        
+        if ($sbu && in_array($sbu, ['FDC', 'FUI'])) {
+            // Filter by SBU
+            $sbuModel = Sbu::where('name', $sbu)->first();
+            if ($sbuModel) {
+                $users = User::with(['sbus'])->whereHas('sbus', function($query) use ($sbuModel) {
+                    $query->where('sbu_id', $sbuModel->id);
+                })->paginate(15);
+                $sbuName = $sbu;
+            } else {
+                $users = User::with(['sbus'])->paginate(15);
+            }
+        } else {
+            // Show all users
+            $users = User::with(['sbus'])->paginate(15);
+        }
+        
+        return view('developer.users.index', compact('users', 'sbuName'));
     }
 
     /**

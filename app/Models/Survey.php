@@ -39,6 +39,22 @@ class Survey extends Model
         return $this->hasMany(SurveyResponseHeader::class);
     }
 
+    /**
+     * Alias for responseHeaders - used in views
+     */
+    public function responses(): HasMany
+    {
+        return $this->hasMany(SurveyResponseHeader::class);
+    }
+
+    /**
+     * Get all response details for this survey through response headers
+     */
+    public function responseDetails()
+    {
+        return $this->hasManyThrough(SurveyResponseDetail::class, SurveyResponseHeader::class, 'survey_id', 'header_id');
+    }
+
     public function updateQuestionCount(): void
     {
         $this->total_questions = $this->questions()->count();
