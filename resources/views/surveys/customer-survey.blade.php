@@ -86,7 +86,7 @@
                 @if($survey->sites->count() > 0)
                 <small class="text-muted">
                     <i class="fas fa-map-marker-alt me-1"></i> 
-                    {!! formatSitesList($survey->sites) !!}
+                    Deployed to: {{ $survey->sites->pluck('name')->implode(', ') }}
                 </small>
                 @endif
             </div>
