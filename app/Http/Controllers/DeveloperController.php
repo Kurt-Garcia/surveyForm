@@ -100,14 +100,14 @@ class DeveloperController extends Controller
                     ->whereHas('sbus', function($query) use ($sbuModel) {
                         $query->where('sbu_id', $sbuModel->id);
                     })
-                    ->paginate(15);
+                    ->paginate(6);
                 $sbuName = $sbu;
             } else {
-                $surveys = Survey::with(['questions', 'responses', 'sbus'])->paginate(15);
+                $surveys = Survey::with(['questions', 'responses', 'sbus'])->paginate(6);
             }
         } else {
             // Show all surveys
-            $surveys = Survey::with(['questions', 'responses', 'sbus'])->paginate(15);
+            $surveys = Survey::with(['questions', 'responses', 'sbus'])->paginate(6);
         }
         
         return view('developer.surveys.index', compact('surveys', 'sbuName'));
@@ -127,14 +127,14 @@ class DeveloperController extends Controller
             if ($sbuModel) {
                 $admins = Admin::with(['sbus'])->whereHas('sbus', function($query) use ($sbuModel) {
                     $query->where('sbu_id', $sbuModel->id);
-                })->paginate(15);
+                })->paginate(6);
                 $sbuName = $sbu;
             } else {
-                $admins = Admin::with(['sbus'])->paginate(15);
+                $admins = Admin::with(['sbus'])->paginate(6);
             }
         } else {
             // Show all admins
-            $admins = Admin::with(['sbus'])->paginate(15);
+            $admins = Admin::with(['sbus'])->paginate(6);
         }
         
         return view('developer.admins.index', compact('admins', 'sbuName'));
@@ -154,14 +154,14 @@ class DeveloperController extends Controller
             if ($sbuModel) {
                 $users = User::with(['sbus'])->whereHas('sbus', function($query) use ($sbuModel) {
                     $query->where('sbu_id', $sbuModel->id);
-                })->paginate(15);
+                })->paginate(6);
                 $sbuName = $sbu;
             } else {
-                $users = User::with(['sbus'])->paginate(15);
+                $users = User::with(['sbus'])->paginate(6);
             }
         } else {
             // Show all users
-            $users = User::with(['sbus'])->paginate(15);
+            $users = User::with(['sbus'])->paginate(6);
         }
         
         return view('developer.users.index', compact('users', 'sbuName'));

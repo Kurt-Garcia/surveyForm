@@ -66,6 +66,73 @@ body {
     border: none;
     color: white;
 }
+
+/* Custom Pagination Styles */
+.custom-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.custom-pagination .pagination {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.custom-pagination .page-item {
+    border: none;
+}
+
+.custom-pagination .page-link {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+}
+
+.custom-pagination .page-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.custom-pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-color: #3498db;
+    color: white;
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+}
+
+.custom-pagination .page-item.disabled .page-link {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.4);
+    cursor: not-allowed;
+}
+
+.custom-pagination .page-item.disabled .page-link:hover {
+    transform: none;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.custom-pagination .page-link span {
+    font-size: 14px;
+}
 </style>
 </head>
 <body>
@@ -88,38 +155,57 @@ body {
                     @endif
                 </p>
             </div>
-            <div class="col-md-6 text-end">
-                <div class="btn-group me-2" role="group">
-                    <button type="button" class="btn btn-outline-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-funnel"></i> Filter by SBU
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('developer.users') }}">
-                            <i class="bi bi-list"></i> All Users
-                        </a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ route('developer.users', ['sbu' => 'FDC']) }}">
-                            <i class="bi bi-building"></i> FDC Only
-                        </a></li>
-                        <li><a class="dropdown-item" href="{{ route('developer.users', ['sbu' => 'FUI']) }}">
-                            <i class="bi bi-building"></i> FUI Only
-                        </a></li>
-                    </ul>
-                </div>
-                @if($sbuName)
-                    <a href="{{ route('developer.users') }}" class="btn btn-outline-info me-2">
-                        <i class="bi bi-x"></i> Clear Filter
+            <div class="col-md-6">
+                <!-- Search, Filter, and Actions -->
+                <div class="d-flex flex-wrap gap-2 justify-content-end align-items-center">
+                    <!-- Search Input -->
+                    <div class="input-group" style="max-width: 300px;">
+                        <input type="text" id="userSearch" class="form-control" placeholder="Search users..." 
+                               value="{{ request('search') }}" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white;">
+                        <button class="btn btn-outline-info" type="button" id="searchBtn">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+
+                    <!-- Filter Dropdown -->
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-funnel"></i> Filter
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('developer.users') }}">
+                                <i class="bi bi-list"></i> All Users
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('developer.users', ['sbu' => 'FDC']) }}">
+                                <i class="bi bi-building"></i> FDC Only
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ route('developer.users', ['sbu' => 'FUI']) }}">
+                                <i class="bi bi-building"></i> FUI Only
+                            </a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Clear Filter -->
+                    @if($sbuName || request('search'))
+                        <a href="{{ route('developer.users') }}" class="btn btn-outline-info">
+                            <i class="bi bi-x"></i> Clear
+                        </a>
+                    @endif
+
+                    <!-- Back to Dashboard -->
+                    <a href="{{ route('developer.dashboard') }}" class="btn btn-outline-light">
+                        <i class="bi bi-arrow-left"></i> Back
                     </a>
-                @endif
-                <a href="{{ route('developer.dashboard') }}" class="btn btn-outline-light me-2">
-                    <i class="bi bi-arrow-left"></i> Back to Dashboard
-                </a>
-                <form method="POST" action="{{ route('developer.logout') }}" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-light">
-                        <i class="bi bi-power"></i> Logout
-                    </button>
-                </form>
+
+                    <!-- Logout -->
+                    <form method="POST" action="{{ route('developer.logout') }}" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-light">
+                            <i class="bi bi-power"></i> Logout
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -131,10 +217,12 @@ body {
 
         <!-- Users List -->
         <div class="dev-card p-4">
-            <div class="row g-4">
+            <div id="usersContainer" class="row g-4">
                 @forelse($users as $user)
-                    <div class="col-md-6 col-lg-4">
-                        <div class="user-card p-4">
+                    <div class="col-md-6 col-lg-4 user-item">
+                        <div class="user-card p-4" 
+                             data-name="{{ strtolower($user->name) }}" 
+                             data-email="{{ strtolower($user->email) }}">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
                                     <h5 class="text-white mb-1">{{ $user->name }}</h5>
@@ -195,7 +283,7 @@ body {
                         </div>
                     </div>
                 @empty
-                    <div class="col-12">
+                    <div class="col-12" id="noUsersMessage">
                         <div class="text-center text-muted py-5">
                             <i class="bi bi-people-fill display-4 mb-3"></i>
                             <h4>No Users Found</h4>
@@ -208,8 +296,10 @@ body {
 
         <!-- Pagination -->
         @if($users->hasPages())
-            <div class="mt-4">
-                {{ $users->links() }}
+            <div class="mt-4 d-flex justify-content-center">
+                <div class="custom-pagination">
+                    {{ $users->links() }}
+                </div>
             </div>
         @endif
 
@@ -282,7 +372,7 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-// Add form validation for disable reason modals
+// Real-time search and form validation
 document.addEventListener('DOMContentLoaded', function() {
     // Get all disable user forms
     const disableForms = document.querySelectorAll('form[action*="toggle-status"]');
@@ -307,6 +397,123 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Real-time client-side search functionality
+    const searchInput = document.getElementById('userSearch');
+    const searchBtn = document.getElementById('searchBtn');
+    const userItems = document.querySelectorAll('.user-item');
+    const usersContainer = document.getElementById('usersContainer');
+    const totalElement = document.querySelector('.text-light');
+    let originalTotalText = totalElement.textContent;
+    
+    // Create no results message element
+    function createNoResultsMessage() {
+        const noResultsDiv = document.createElement('div');
+        noResultsDiv.id = 'noSearchResults';
+        noResultsDiv.className = 'col-12';
+        noResultsDiv.innerHTML = `
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-search display-4 mb-3"></i>
+                <h4>No Users Found</h4>
+                <p>No users match your search criteria. Try different keywords.</p>
+            </div>
+        `;
+        return noResultsDiv;
+    }
+    
+    // Function to perform real-time search
+    function performRealTimeSearch() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        let visibleCount = 0;
+        
+        // Remove existing no results message
+        const existingNoResults = document.getElementById('noSearchResults');
+        if (existingNoResults) {
+            existingNoResults.remove();
+        }
+        
+        // Hide original no users message when searching
+        const noUsersMessage = document.getElementById('noUsersMessage');
+        if (noUsersMessage && searchTerm !== '') {
+            noUsersMessage.style.display = 'none';
+        } else if (noUsersMessage && searchTerm === '') {
+            noUsersMessage.style.display = '';
+        }
+        
+        userItems.forEach(function(item) {
+            const userCard = item.querySelector('.user-card');
+            const name = userCard.getAttribute('data-name');
+            const email = userCard.getAttribute('data-email');
+            
+            // Check if search term matches name or email
+            if (searchTerm === '' || 
+                name.includes(searchTerm) || 
+                email.includes(searchTerm)) {
+                item.style.display = '';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Show no results message if no users match and we have a search term
+        if (visibleCount === 0 && searchTerm !== '' && userItems.length > 0) {
+            const noResultsMessage = createNoResultsMessage();
+            usersContainer.appendChild(noResultsMessage);
+        }
+        
+        // Update header with search results count
+        updateHeaderCount(visibleCount, searchTerm);
+    }
+    
+    // Update header count
+    function updateHeaderCount(count, searchTerm) {
+        if (searchTerm !== '') {
+            const totalMatch = originalTotalText.match(/Total Users: (\d+)/);
+            if (totalMatch) {
+                const totalUsers = totalMatch[1];
+                let newText = `Total Users: ${totalUsers} <span class="text-info">| Showing: ${count} results</span>`;
+                
+                // Preserve SBU filter info if it exists
+                if (originalTotalText.includes('| Filtered by SBU:')) {
+                    const sbuPart = originalTotalText.substring(originalTotalText.indexOf('| Filtered by SBU:'));
+                    newText += ' ' + sbuPart;
+                }
+                
+                totalElement.innerHTML = newText;
+            }
+        } else {
+            totalElement.innerHTML = originalTotalText;
+        }
+    }
+    
+    // Real-time search on input
+    searchInput.addEventListener('input', performRealTimeSearch);
+    
+    // Search button click
+    searchBtn.addEventListener('click', performRealTimeSearch);
+    
+    // Enter key support
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            performRealTimeSearch();
+        }
+    });
+
+    // Style search input placeholder
+    searchInput.addEventListener('focus', function() {
+        this.style.background = 'rgba(255,255,255,0.2)';
+    });
+    
+    searchInput.addEventListener('blur', function() {
+        this.style.background = 'rgba(255,255,255,0.1)';
+    });
+    
+    // Initialize search on page load if there's a search term
+    if (searchInput.value.trim() !== '') {
+        performRealTimeSearch();
+    }
 });
 </script>
 

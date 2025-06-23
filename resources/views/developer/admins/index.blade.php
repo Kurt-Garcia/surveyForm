@@ -66,6 +66,73 @@ body {
     border: none;
     color: white;
 }
+
+/* Custom Pagination Styles */
+.custom-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.custom-pagination .pagination {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.custom-pagination .page-item {
+    border: none;
+}
+
+.custom-pagination .page-link {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+}
+
+.custom-pagination .page-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.custom-pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    border-color: #f39c12;
+    color: white;
+    box-shadow: 0 4px 8px rgba(243, 156, 18, 0.3);
+}
+
+.custom-pagination .page-item.disabled .page-link {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.4);
+    cursor: not-allowed;
+}
+
+.custom-pagination .page-item.disabled .page-link:hover {
+    transform: none;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.custom-pagination .page-link span {
+    font-size: 14px;
+}
 </style>
 </head>
 <body>
@@ -88,38 +155,57 @@ body {
                     @endif
                 </p>
             </div>
-            <div class="col-md-6 text-end">
-                <div class="btn-group me-2" role="group">
-                    <button type="button" class="btn btn-outline-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-funnel"></i> Filter by SBU
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('developer.admins') }}">
-                            <i class="bi bi-list"></i> All Admins
-                        </a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ route('developer.admins', ['sbu' => 'FDC']) }}">
-                            <i class="bi bi-building"></i> FDC Only
-                        </a></li>
-                        <li><a class="dropdown-item" href="{{ route('developer.admins', ['sbu' => 'FUI']) }}">
-                            <i class="bi bi-building"></i> FUI Only
-                        </a></li>
-                    </ul>
-                </div>
-                @if($sbuName)
-                    <a href="{{ route('developer.admins') }}" class="btn btn-outline-warning me-2">
-                        <i class="bi bi-x"></i> Clear Filter
+            <div class="col-md-6">
+                <!-- Search, Filter, and Actions -->
+                <div class="d-flex flex-wrap gap-2 justify-content-end align-items-center">
+                    <!-- Search Input -->
+                    <div class="input-group" style="max-width: 300px;">
+                        <input type="text" id="adminSearch" class="form-control" placeholder="Search admins..." 
+                               value="{{ request('search') }}" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white;">
+                        <button class="btn btn-outline-warning" type="button" id="searchBtn">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+
+                    <!-- Filter Dropdown -->
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-funnel"></i> Filter
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('developer.admins') }}">
+                                <i class="bi bi-list"></i> All Admins
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('developer.admins', ['sbu' => 'FDC']) }}">
+                                <i class="bi bi-building"></i> FDC Only
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ route('developer.admins', ['sbu' => 'FUI']) }}">
+                                <i class="bi bi-building"></i> FUI Only
+                            </a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Clear Filter -->
+                    @if($sbuName || request('search'))
+                        <a href="{{ route('developer.admins') }}" class="btn btn-outline-warning">
+                            <i class="bi bi-x"></i> Clear
+                        </a>
+                    @endif
+
+                    <!-- Back to Dashboard -->
+                    <a href="{{ route('developer.dashboard') }}" class="btn btn-outline-light">
+                        <i class="bi bi-arrow-left"></i> Back
                     </a>
-                @endif
-                <a href="{{ route('developer.dashboard') }}" class="btn btn-outline-light me-2">
-                    <i class="bi bi-arrow-left"></i> Back to Dashboard
-                </a>
-                <form method="POST" action="{{ route('developer.logout') }}" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-light">
-                        <i class="bi bi-power"></i> Logout
-                    </button>
-                </form>
+
+                    <!-- Logout -->
+                    <form method="POST" action="{{ route('developer.logout') }}" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-light">
+                            <i class="bi bi-power"></i> Logout
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -131,10 +217,12 @@ body {
 
         <!-- Admins List -->
         <div class="dev-card p-4">
-            <div class="row g-4">
+            <div id="adminsContainer" class="row g-4">
                 @forelse($admins as $admin)
-                    <div class="col-md-6 col-lg-4">
-                        <div class="admin-card p-4">
+                    <div class="col-md-6 col-lg-4 admin-item">
+                        <div class="admin-card p-4" 
+                             data-name="{{ strtolower($admin->name) }}" 
+                             data-email="{{ strtolower($admin->email) }}">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
                                     <h5 class="text-white mb-1">{{ $admin->name }}</h5>
@@ -195,7 +283,7 @@ body {
                         </div>
                     </div>
                 @empty
-                    <div class="col-12">
+                    <div class="col-12" id="noAdminsMessage">
                         <div class="text-center text-muted py-5">
                             <i class="bi bi-shield-x display-4 mb-3"></i>
                             <h4>No Admins Found</h4>
@@ -208,8 +296,10 @@ body {
 
         <!-- Pagination -->
         @if($admins->hasPages())
-            <div class="mt-4">
-                {{ $admins->links() }}
+            <div class="mt-4 d-flex justify-content-center">
+                <div class="custom-pagination">
+                    {{ $admins->links() }}
+                </div>
             </div>
         @endif
 
@@ -282,7 +372,7 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-// Add form validation for disable reason modals
+// Real-time search and form validation
 document.addEventListener('DOMContentLoaded', function() {
     // Get all disable admin forms
     const disableForms = document.querySelectorAll('form[action*="toggle-status"]');
@@ -307,6 +397,123 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Real-time client-side search functionality
+    const searchInput = document.getElementById('adminSearch');
+    const searchBtn = document.getElementById('searchBtn');
+    const adminItems = document.querySelectorAll('.admin-item');
+    const adminsContainer = document.getElementById('adminsContainer');
+    const totalElement = document.querySelector('.text-light');
+    let originalTotalText = totalElement.textContent;
+    
+    // Create no results message element
+    function createNoResultsMessage() {
+        const noResultsDiv = document.createElement('div');
+        noResultsDiv.id = 'noSearchResults';
+        noResultsDiv.className = 'col-12';
+        noResultsDiv.innerHTML = `
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-search display-4 mb-3"></i>
+                <h4>No Admins Found</h4>
+                <p>No admins match your search criteria. Try different keywords.</p>
+            </div>
+        `;
+        return noResultsDiv;
+    }
+    
+    // Function to perform real-time search
+    function performRealTimeSearch() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        let visibleCount = 0;
+        
+        // Remove existing no results message
+        const existingNoResults = document.getElementById('noSearchResults');
+        if (existingNoResults) {
+            existingNoResults.remove();
+        }
+        
+        // Hide original no admins message when searching
+        const noAdminsMessage = document.getElementById('noAdminsMessage');
+        if (noAdminsMessage && searchTerm !== '') {
+            noAdminsMessage.style.display = 'none';
+        } else if (noAdminsMessage && searchTerm === '') {
+            noAdminsMessage.style.display = '';
+        }
+        
+        adminItems.forEach(function(item) {
+            const adminCard = item.querySelector('.admin-card');
+            const name = adminCard.getAttribute('data-name');
+            const email = adminCard.getAttribute('data-email');
+            
+            // Check if search term matches name or email
+            if (searchTerm === '' || 
+                name.includes(searchTerm) || 
+                email.includes(searchTerm)) {
+                item.style.display = '';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Show no results message if no admins match and we have a search term
+        if (visibleCount === 0 && searchTerm !== '' && adminItems.length > 0) {
+            const noResultsMessage = createNoResultsMessage();
+            adminsContainer.appendChild(noResultsMessage);
+        }
+        
+        // Update header with search results count
+        updateHeaderCount(visibleCount, searchTerm);
+    }
+    
+    // Update header count
+    function updateHeaderCount(count, searchTerm) {
+        if (searchTerm !== '') {
+            const totalMatch = originalTotalText.match(/Total Admins: (\d+)/);
+            if (totalMatch) {
+                const totalAdmins = totalMatch[1];
+                let newText = `Total Admins: ${totalAdmins} <span class="text-warning">| Showing: ${count} results</span>`;
+                
+                // Preserve SBU filter info if it exists
+                if (originalTotalText.includes('| Filtered by SBU:')) {
+                    const sbuPart = originalTotalText.substring(originalTotalText.indexOf('| Filtered by SBU:'));
+                    newText += ' ' + sbuPart;
+                }
+                
+                totalElement.innerHTML = newText;
+            }
+        } else {
+            totalElement.innerHTML = originalTotalText;
+        }
+    }
+    
+    // Real-time search on input
+    searchInput.addEventListener('input', performRealTimeSearch);
+    
+    // Search button click
+    searchBtn.addEventListener('click', performRealTimeSearch);
+    
+    // Enter key support
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            performRealTimeSearch();
+        }
+    });
+
+    // Style search input placeholder
+    searchInput.addEventListener('focus', function() {
+        this.style.background = 'rgba(255,255,255,0.2)';
+    });
+    
+    searchInput.addEventListener('blur', function() {
+        this.style.background = 'rgba(255,255,255,0.1)';
+    });
+    
+    // Initialize search on page load if there's a search term
+    if (searchInput.value.trim() !== '') {
+        performRealTimeSearch();
+    }
 });
 </script>
 
