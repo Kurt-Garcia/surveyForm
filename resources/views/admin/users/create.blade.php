@@ -353,6 +353,41 @@
 </div>
 
 <style>
+    /* Modal DataTable initialization - prevent content flash */
+    #modalUserDetailsTable {
+        table-layout: fixed !important;
+        width: 100% !important;
+    }
+    
+    #modalUserDetailsTable tbody {
+        transition: opacity 0.2s ease;
+    }
+    
+    #modalUserDetailsTable.dt-processing tbody {
+        opacity: 0.5;
+    }
+    
+    /* Ensure smooth DataTable initialization */
+    .dataTables_wrapper .dataTables_processing {
+        display: none !important; /* Hide default processing indicator */
+    }
+    
+    /* Pre-load state for modal table to prevent flash */
+    #modalUserDetailsTable tbody tr:nth-child(n+6) {
+        display: none; /* Hide rows beyond 5 initially */
+    }
+    
+    /* DataTables will override this once initialized */
+    .modal-body-scrollable .dataTables_wrapper tbody tr {
+        display: table-row !important; /* Ensure DataTables can control visibility */
+    }
+    
+    /* Prevent pagination controls from jumping around */
+    .modal-pagination-fixed .dataTables_info,
+    .modal-pagination-fixed .dataTables_paginate {
+        transition: none !important;
+    }
+    
     /* Modal Size Control */
     .modal-dialog {
         max-width: 90vw;
@@ -1663,6 +1698,8 @@ function showUserDetailsModal(userData) {
         // Create one row per site
         sites.forEach((site, index) => {
             const row = document.createElement('tr');
+            // Add data attribute for better DataTable handling
+            row.setAttribute('data-index', index);
             row.innerHTML = `
                 <td class="text-center fw-bold" style="color: var(--primary-color);">
                     ${index + 1}
@@ -1713,12 +1750,39 @@ function showUserDetailsModal(userData) {
     modalElement.addEventListener('shown.bs.modal', function () {
         // Only initialize DataTable if there are sites to display
         if (sites.length > 0) {
-            setTimeout(() => {
-                modalDataTable = $('#modalUserDetailsTable').DataTable({
-                    pageLength: 5,
-                    lengthChange: false, // Remove the per page selector
-                    responsive: true,
-                    ordering: false, // Disable sorting for all columns
+            // Ensure table is ready and hide content initially to prevent flashing
+            const table = $('#modalUserDetailsTable');
+            const tbody = table.find('tbody');
+            
+            // Set table to fixed layout and temporarily hide content
+            table.css('table-layout', 'fixed');
+            tbody.css('opacity', '0');
+            
+            // Ensure all table rows beyond the first 5 are hidden initially
+            if (sites.length > 5) {
+                tbody.find('tr').each(function(index) {
+                    if (index >= 5) {
+                        $(this).hide();
+                    }
+                });
+            }
+            
+            // Pre-setup pagination containers to prevent jumping
+            $('#modal-info-container').empty();
+            $('#modal-paginate-container').empty();
+             modalDataTable = table.DataTable({
+                pageLength: 5,
+                lengthChange: false, // Remove the per page selector
+                responsive: true,
+                ordering: false, // Disable sorting for all columns
+                searching: true, // Enable searching but we'll use custom search
+                paging: true, // Ensure paging is enabled
+                info: true, // Show info
+                autoWidth: false, // Prevent auto width calculation
+                deferRender: true, // Improve performance
+                stateSave: false, // Don't save state to prevent conflicts
+                processing: false, // Disable processing indicator
+                serverSide: false, // Client-side processing
                     language: {
                         searchPlaceholder: "Search SBU or Sites...",
                         lengthMenu: "_MENU_ per page",
@@ -1733,7 +1797,16 @@ function showUserDetailsModal(userData) {
                         zeroRecords: "<div class='text-center py-3'><i class='bi bi-search text-muted fs-4 mb-2'></i><p class='text-muted mb-0'>No matching SBU or sites found</p></div>"
                     },
                     dom: 'rt<"d-none"<"info-holder"i><"paginate-holder"p>>',
+                preInit: function() {
+                    // Ensure table is stable before DataTables initialization
+                    $('#modalUserDetailsTable').css('table-layout', 'fixed');
+                },
                     initComplete: function() {
+                        // Show table content smoothly now that DataTables is initialized
+                        $('#modalUserDetailsTable tbody').animate({
+                            opacity: 1
+                        }, 200);
+                        
                         // Create custom search input in the fixed container
                         const searchContainer = $('#modal-search-container');
                         searchContainer.html(`
@@ -1857,51 +1930,33 @@ function showUserDetailsModal(userData) {
                         adjustModalHeight();
                         $(window).on('resize orientationchange', adjustModalHeight);
                         
-                        // Move pagination controls to fixed containers
-                        setTimeout(() => {
-                            // Move info to fixed container
-                            const infoElement = $('.info-holder .dataTables_info').detach();
-                            $('#modal-info-container').append(infoElement);
-                            
-                            // Move pagination to fixed container
-                            const paginateElement = $('.paginate-holder .dataTables_paginate').detach();
-                            $('#modal-paginate-container').append(paginateElement);
-                            
-                            // Style the moved elements
-                            $('#modal-info-container .dataTables_info').addClass('mb-0');
-                            $('#modal-paginate-container .dataTables_paginate').addClass('mb-0');
-                        }, 50);
+                        // Move pagination controls to fixed containers immediately
+                        const infoElement = $('.info-holder .dataTables_info');
+                        const paginateElement = $('.paginate-holder .dataTables_paginate');
+                        
+                        if (infoElement.length > 0) {
+                            infoElement.detach().appendTo('#modal-info-container').addClass('mb-0');
+                        }
+                        
+                        if (paginateElement.length > 0) {
+                            paginateElement.detach().appendTo('#modal-paginate-container').addClass('mb-0');
+                        }
                     },
                     drawCallback: function() {
-                        // Add animation to rows
-                        $('.modal-body-scrollable table tbody tr').each(function(index) {
-                            $(this).css({
-                                'animation-delay': (index * 0.05) + 's',
-                                'animation': 'fadeInUp 0.4s ease forwards'
-                            });
-                        });
-                        
                         // Ensure pagination controls stay in fixed containers after redraw
-                        setTimeout(() => {
-                            // Move info if it's not in the fixed container
-                            if ($('.info-holder .dataTables_info').length > 0) {
-                                const infoElement = $('.info-holder .dataTables_info').detach();
-                                $('#modal-info-container').empty().append(infoElement);
-                            }
-                            
-                            // Move pagination if it's not in the fixed container
-                            if ($('.paginate-holder .dataTables_paginate').length > 0) {
-                                const paginateElement = $('.paginate-holder .dataTables_paginate').detach();
-                                $('#modal-paginate-container').empty().append(paginateElement);
-                            }
-                            
-                            // Style the elements
-                            $('#modal-info-container .dataTables_info').addClass('mb-0');
-                            $('#modal-paginate-container .dataTables_paginate').addClass('mb-0');
-                        }, 10);
+                        const infoElement = $('.info-holder .dataTables_info');
+                        const paginateElement = $('.paginate-holder .dataTables_paginate');
+                        
+                        // Only move if they're not already in the correct container
+                        if (infoElement.length > 0 && !$('#modal-info-container .dataTables_info').length) {
+                            infoElement.detach().appendTo('#modal-info-container').addClass('mb-0');
+                        }
+                        
+                        if (paginateElement.length > 0 && !$('#modal-paginate-container .dataTables_paginate').length) {
+                            paginateElement.detach().appendTo('#modal-paginate-container').addClass('mb-0');
+                        }
                     }
                 });
-            }, 100); // Small delay to ensure modal is fully rendered
         }
     }, { once: true });
 }
