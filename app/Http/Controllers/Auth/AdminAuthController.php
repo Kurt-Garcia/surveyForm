@@ -13,7 +13,7 @@ class AdminAuthController extends Controller
 {
     public function showLoginForm()
     {
-        return view('admin.auth.login');
+        return view('admin.login');
     }
 
     public function login(Request $request)
@@ -107,6 +107,6 @@ class AdminAuthController extends Controller
             Log::info('Preserved disabled admin session data after logout:', ['admin_id' => $disabledAdminId]);
         }
         
-        return redirect()->route('admin.login');
+        return redirect()->route('login');
     }
 }

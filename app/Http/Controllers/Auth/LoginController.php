@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -55,11 +56,19 @@ class LoginController extends Controller
 
     protected function attemptLogin(Request $request)
     {
+        // Preserve disabled admin session data before clearing sessions
+        $disabledAdminId = $request->session()->get('disabled_admin_id');
+        
         // Clear any existing sessions to prevent guard conflicts
         Auth::guard('web')->logout();
         Auth::guard('admin')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        
+        // Restore disabled admin session data if it existed
+        if ($disabledAdminId) {
+            $request->session()->put('disabled_admin_id', $disabledAdminId);
+        }
 
         // First try admin authentication
         if (Auth::guard('admin')->attempt(['name' => $request->name, 'password' => $request->password])) {
@@ -67,9 +76,33 @@ class LoginController extends Controller
             
             // Check if admin account is disabled
             if ($admin && $admin->status == 0) {
+                Log::info('Admin login attempt via LoginController - account disabled:', [
+                    'admin_id' => $admin->id,
+                    'admin_name' => $admin->name,
+                    'disabled_reason' => $admin->disabled_reason
+                ]);
+                
+                // Store admin info in cache temporarily (15 minutes expiration for better reliability)
+                Cache::put('disabled_admin_' . $admin->id, [
+                    'disabled_reason' => $admin->disabled_reason,
+                    'account_type' => 'Admin'
+                ], 900); // 15 minutes instead of 5
+                
+                // Store admin info in a global cache as backup
+                Cache::put('disabled_admin_backup', [
+                    'id' => $admin->id,
+                    'disabled_reason' => $admin->disabled_reason,
+                    'account_type' => 'Admin'
+                ], 900); // 15 minutes instead of 5
+                
+                Log::info('Admin disabled cache set via LoginController:', [
+                    'cache_key' => 'disabled_admin_' . $admin->id,
+                    'backup_cache' => 'disabled_admin_backup'
+                ]);
+                
                 Auth::guard('admin')->logout();
-                // Store redirect flag in session
-                session(['redirect_to_disabled' => true]);
+                // Store redirect flag and admin ID in session
+                session(['redirect_to_disabled' => true, 'disabled_admin_id' => $admin->id]);
                 return false;
             }
             
@@ -158,9 +191,12 @@ class LoginController extends Controller
         // Check if this is a disabled account
         if (session('redirect_to_disabled')) {
             $userId = session('disabled_user_id');
-            session()->forget(['redirect_to_disabled', 'disabled_user_id']);
+            $adminId = session('disabled_admin_id');
+            session()->forget(['redirect_to_disabled', 'disabled_user_id', 'disabled_admin_id']);
             
-            if ($userId) {
+            if ($adminId) {
+                return redirect()->route('account.disabled', ['aid' => $adminId]);
+            } elseif ($userId) {
                 return redirect()->route('account.disabled', ['uid' => $userId]);
             } else {
                 return redirect()->route('account.disabled');
