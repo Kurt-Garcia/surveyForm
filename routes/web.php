@@ -13,11 +13,6 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
-// Developer Access Information (Remove this route in production!)
-Route::get('/dev-info', function () {
-    return view('dev-info');
-})->name('dev.info');
-
 // Direct access survey route for customers (no login required)
 // These routes don't use site.access middleware to allow public access via email links
 Route::get('/survey/{survey}', [UserSurveyController::class, 'customerSurvey'])->name('customer.survey');

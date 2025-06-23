@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Developer;
 
 class DeveloperAccess
 {
@@ -14,17 +15,19 @@ class DeveloperAccess
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
-     */    public function handle(Request $request, Closure $next)
+     */
+    public function handle(Request $request, Closure $next)
     {
         // Check if developer is authenticated
         if (!Auth::guard('developer')->check()) {
             abort(404); // Return 404 instead of unauthorized to hide the existence of this page
         }
 
+        /** @var Developer|null $developer */
         $developer = Auth::guard('developer')->user();
         
-        // Check if developer is active
-        if (!$developer->isActive()) {
+        // Check if developer exists and is active
+        if (!$developer || !$developer->isActive()) {
             abort(404); // Return 404 instead of unauthorized to hide the existence of this page
         }
 
