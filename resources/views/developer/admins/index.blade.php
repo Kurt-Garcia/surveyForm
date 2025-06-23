@@ -156,7 +156,23 @@ body {
                 </p>
             </div>
             <div class="col-md-6">
-                <!-- Search, Filter, and Actions -->
+                <!-- Navigation Actions -->
+                <div class="d-flex flex-wrap gap-2 justify-content-end align-items-center mb-3">
+                    <!-- Back to Dashboard -->
+                    <a href="{{ route('developer.dashboard') }}" class="btn btn-outline-light">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </a>
+
+                    <!-- Logout -->
+                    <form method="POST" action="{{ route('developer.logout') }}" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-light">
+                            <i class="bi bi-power"></i> Logout
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Search and Filter Actions -->
                 <div class="d-flex flex-wrap gap-2 justify-content-end align-items-center">
                     <!-- Search Input -->
                     <div class="input-group" style="max-width: 300px;">
@@ -192,19 +208,6 @@ body {
                             <i class="bi bi-x"></i> Clear
                         </a>
                     @endif
-
-                    <!-- Back to Dashboard -->
-                    <a href="{{ route('developer.dashboard') }}" class="btn btn-outline-light">
-                        <i class="bi bi-arrow-left"></i> Back
-                    </a>
-
-                    <!-- Logout -->
-                    <form method="POST" action="{{ route('developer.logout') }}" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-outline-light">
-                            <i class="bi bi-power"></i> Logout
-                        </button>
-                    </form>
                 </div>
             </div>
         </div>
