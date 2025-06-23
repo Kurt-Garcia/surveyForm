@@ -61,13 +61,23 @@
 
                         <!-- Action Buttons -->
                         <div class="action-buttons">
-                            <form method="POST" action="{{ route('logout') }}" class="mb-3">
-                                @csrf
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-box-arrow-right"></i>
-                                    Back to Login
-                                </button>
-                            </form>
+                            @if($accountType === 'Admin')
+                                <form method="POST" action="{{ route('admin.logout') }}" class="mb-3">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-box-arrow-right"></i>
+                                        Back to Admin Login
+                                    </button>
+                                </form>
+                            @else
+                                <form method="POST" action="{{ route('logout') }}" class="mb-3">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-box-arrow-right"></i>
+                                        Back to Login
+                                    </button>
+                                </form>
+                            @endif
                             
                             <a href="{{ route('welcome') }}" class="btn btn-outline">
                                 <i class="bi bi-house"></i>
