@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\UserSurveyController;
@@ -41,7 +42,7 @@ Route::get('/test-disable-user/{id}', function($id) {
         $user->save();
         
         // Store in cache like the middleware would
-        \Cache::put('disabled_user_' . $user->id, [
+        Cache::put('disabled_user_' . $user->id, [
             'disabled_reason' => $user->disabled_reason,
             'account_type' => 'User'
         ], 60);

@@ -105,9 +105,34 @@ class AccountStatusController extends Controller
                     $accountType = 'Admin';
                 }
                 $request->session()->forget('disabled_admin_id');
+            }        }
+        
+        // Final fallback: Query database directly if we have ID parameters but no cached data
+        if (!$disabledReason) {
+            if ($request->has('uid')) {
+                $userId = $request->get('uid');
+                $user = User::find($userId);
+                Log::info('Final fallback - checking user directly:', ['user_id' => $userId, 'user' => $user]);
+                if ($user && $user->status == 0) {
+                    $disabledReason = $user->disabled_reason;
+                    $accountType = 'User';
+                    Log::info('Found disabled user directly from DB:', ['reason' => $disabledReason, 'type' => $accountType]);
+                }
+            }
+            
+            if ($request->has('aid')) {
+                $adminId = $request->get('aid');
+                $admin = Admin::find($adminId);
+                Log::info('Final fallback - checking admin directly:', ['admin_id' => $adminId, 'admin' => $admin]);
+                if ($admin && $admin->status == 0) {
+                    $disabledReason = $admin->disabled_reason;
+                    $accountType = 'Admin';
+                    Log::info('Found disabled admin directly from DB:', ['reason' => $disabledReason, 'type' => $accountType]);
+                }
             }
         }
-          // Provide default values if null
+          
+        // Provide default values if null
         $disabledReason = $disabledReason ?? '';
         $accountType = $accountType ?? '';
         

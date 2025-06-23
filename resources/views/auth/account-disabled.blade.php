@@ -49,16 +49,6 @@
                         </div>
                         @endif
 
-                        {{-- Debug Information (remove in production) --}}
-                        @if(config('app.debug'))
-                        <div class="alert alert-info" style="font-size: 0.8em; margin-bottom: 1rem;">
-                            <strong>Debug Info:</strong><br>
-                            Disabled Reason: "{{ $disabledReason }}" ({{ strlen($disabledReason) }} chars)<br>
-                            Account Type: "{{ $accountType }}"<br>
-                            URL Params: {{ json_encode(request()->all()) }}
-                        </div>
-                        @endif
-
                         <div class="help-section">
                             <div class="help-card">
                                 <i class="bi bi-headset"></i>
