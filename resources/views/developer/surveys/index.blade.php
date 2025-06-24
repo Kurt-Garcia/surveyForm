@@ -67,6 +67,12 @@ body {
     color: white;
 }
 
+.btn-warning {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    border: none;
+    color: white;
+}
+
 /* Custom Pagination Styles */
 .custom-pagination {
     display: flex;
@@ -263,10 +269,26 @@ body {
                             @endif
 
                             <div class="d-grid gap-2">
-                                <!-- View Survey -->
-                                <a href="{{ route('admin.surveys.show', $survey->id) }}" class="btn btn-dev-success btn-sm">
-                                    <i class="bi bi-eye"></i> View Details
-                                </a>
+                                <!-- Enable/Disable Survey -->
+                                @if($survey->is_active)
+                                    <form method="POST" action="{{ route('developer.surveys.disable', $survey->id) }}" 
+                                          onsubmit="return confirm('Are you sure you want to DISABLE this survey? Users will no longer be able to access it.')" class="d-inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-warning btn-sm w-100">
+                                            <i class="bi bi-pause-circle"></i> Disable Survey
+                                        </button>
+                                    </form>
+                                @else
+                                    <form method="POST" action="{{ route('developer.surveys.enable', $survey->id) }}" 
+                                          onsubmit="return confirm('Are you sure you want to ENABLE this survey? Users will be able to access it again.')" class="d-inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-dev-success btn-sm w-100">
+                                            <i class="bi bi-play-circle"></i> Enable Survey
+                                        </button>
+                                    </form>
+                                @endif
 
                                 <!-- Delete Survey -->
                                 <form method="POST" action="{{ route('developer.surveys.delete', $survey->id) }}" 

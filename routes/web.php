@@ -198,6 +198,8 @@ Route::prefix('c2VjcmV0LWRldi1hY2Nlc3MtZmFzdGRldi0yMDI1')->group(function () {
         
         // Survey Management
         Route::get('/surveys', [\App\Http\Controllers\DeveloperController::class, 'surveys'])->name('developer.surveys');
+        Route::patch('/surveys/{id}/enable', [\App\Http\Controllers\DeveloperController::class, 'enableSurvey'])->name('developer.surveys.enable');
+        Route::patch('/surveys/{id}/disable', [\App\Http\Controllers\DeveloperController::class, 'disableSurvey'])->name('developer.surveys.disable');
         Route::delete('/surveys/{id}', [\App\Http\Controllers\DeveloperController::class, 'deleteSurvey'])->name('developer.surveys.delete');
         
         // Admin Management

@@ -277,6 +277,28 @@ class DeveloperController extends Controller
     }
 
     /**
+     * Enable survey
+     */
+    public function enableSurvey($id)
+    {
+        $survey = Survey::findOrFail($id);
+        $survey->update(['is_active' => true]);
+
+        return back()->with('success', 'Survey has been enabled successfully.');
+    }
+
+    /**
+     * Disable survey
+     */
+    public function disableSurvey($id)
+    {
+        $survey = Survey::findOrFail($id);
+        $survey->update(['is_active' => false]);
+
+        return back()->with('success', 'Survey has been disabled successfully.');
+    }
+
+    /**
      * Delete survey
      */
     public function deleteSurvey($id)
