@@ -32,7 +32,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
     
     <!-- Theme Fonts -->
-    @if($activeTheme)
+    @if(isset($activeTheme) && $activeTheme)
     <link href="https://fonts.googleapis.com/css2?family={{ str_replace(' ', '+', $activeTheme->heading_font) }}:wght@400;500;600;700&family={{ str_replace(' ', '+', $activeTheme->body_font) }}:wght@400;500;600&display=swap" rel="stylesheet">
     @endif
 
@@ -52,7 +52,7 @@
 </head>
 <body>
     <!-- Theme CSS Variables -->
-    @if($activeTheme)
+    @if(isset($activeTheme) && $activeTheme)
     <style>
         :root {
             --primary-color: {{ $activeTheme->primary_color }};
@@ -110,7 +110,7 @@
             border-color: var(--primary-color) !important;
         }
         
-        {{ $activeTheme->custom_css ?? '' }}
+        {{ isset($activeTheme) && $activeTheme ? ($activeTheme->custom_css ?? '') : '' }}
     </style>
     @endif
     

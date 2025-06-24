@@ -267,6 +267,33 @@ body {
     white-space: pre-line; /* Preserves line breaks */
 }
 
+/* Theme-specific survey card styling */
+.survey-card[style*="--card-primary-color"] {
+    border-left: 4px solid var(--card-primary-color, #007bff);
+}
+
+.survey-card[style*="--card-primary-color"]:hover {
+    border-left-color: var(--card-secondary-color, var(--card-primary-color, #007bff));
+}
+
+.survey-card .card-title {
+    transition: color 0.3s ease;
+}
+
+.survey-card .btn-start:hover {
+    opacity: 0.9;
+    filter: brightness(1.1);
+}
+
+.survey-card .badge {
+    transition: background-color 0.3s ease;
+}
+
+/* Enhanced hover effects for themed cards */
+.survey-card[style*="--card-primary-color"]:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
 @media (max-width: 768px) {
     .hero-section {
         padding: 6rem 0;

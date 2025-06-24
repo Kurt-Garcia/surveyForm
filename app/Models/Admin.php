@@ -101,4 +101,14 @@ class Admin extends Authenticatable
     {
         return $this->belongsToMany(Site::class, 'admin_site', 'admin_id', 'site_id')->withTimestamps();
     }
+    
+    /**
+     * Get all themes created by the admin.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function themes()
+    {
+        return $this->hasMany(\App\Models\ThemeSetting::class);
+    }
 }

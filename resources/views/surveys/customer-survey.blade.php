@@ -7,13 +7,13 @@
 
 <style>
     :root {
-        --primary-color: {{ $activeTheme->primary_color ?? '#E53935' }};
-        --text-color: {{ $activeTheme->text_color?? '#333' }};
-        --secondary-color: {{ $activeTheme->secondary_color ?? '#2C3E50' }};
-        --accent-color: {{ $activeTheme->accent_color ?? '#F1C40F' }};
-        --button-hover-color: {{ $activeTheme->button_hover_color ?? '#B71C1C' }};
-        --body-font: '{{ $activeTheme->body_font ?? "Inter" }}', sans-serif;
-        --heading-font: '{{ $activeTheme->heading_font ?? "Inter" }}', sans-serif;
+        --primary-color: {{ isset($activeTheme) ? $activeTheme->primary_color : '#E53935' }};
+        --text-color: {{ isset($activeTheme) ? $activeTheme->text_color : '#333' }};
+        --secondary-color: {{ isset($activeTheme) ? $activeTheme->secondary_color : '#2C3E50' }};
+        --accent-color: {{ isset($activeTheme) ? $activeTheme->accent_color : '#F1C40F' }};
+        --button-hover-color: {{ isset($activeTheme) ? ($activeTheme->button_hover_color ?? '#B71C1C') : '#B71C1C' }};
+        --body-font: '{{ isset($activeTheme) ? $activeTheme->body_font : "Inter" }}', sans-serif;
+        --heading-font: '{{ isset($activeTheme) ? $activeTheme->heading_font : "Inter" }}', sans-serif;
     }
 
     .input-error {

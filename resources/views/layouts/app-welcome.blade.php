@@ -13,7 +13,7 @@
     <link rel="icon" type="image/png" href="{{ asset('img/favicon.ico') }}">
 
     <!-- Theme Fonts -->
-    @if($activeTheme)
+    @if(isset($activeTheme) && $activeTheme)
     <link href="https://fonts.googleapis.com/css2?family={{ str_replace(' ', '+', $activeTheme->heading_font) }}:wght@400;500;600;700&family={{ str_replace(' ', '+', $activeTheme->body_font) }}:wght@400;500;600&display=swap" rel="stylesheet">
     @endif
 
@@ -29,7 +29,7 @@
 </head>
 <body>
     <!-- Theme CSS Variables -->
-    @if($activeTheme)
+    @if(isset($activeTheme) && $activeTheme)
     <style>
         :root {
             --primary-color: {{ $activeTheme->primary_color }};
@@ -95,7 +95,7 @@
         /* Do not modify navbar colors - keep it white instead of theme colors */
         
         /* Add any custom CSS from the theme */
-        {{ $activeTheme->custom_css ?? '' }}
+        {{ isset($activeTheme) && $activeTheme ? ($activeTheme->custom_css ?? '') : '' }}
     </style>
     @endif
     

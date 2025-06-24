@@ -17,7 +17,7 @@ class UserSurveyController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Survey::with(['questions', 'sites', 'sbus'])->where('is_active', true);
+        $query = Survey::with(['questions', 'sites', 'sbus', 'admin'])->where('is_active', true);
         
         if (Auth::check()) {
             // Get all site IDs the user has access to
@@ -52,7 +52,15 @@ class UserSurveyController extends Controller
             $surveys->appends(['search' => $request->search]);
         }
         
-        return view('index', compact('surveys'));
+        // Get active themes for each survey's admin
+        $surveyThemes = [];
+        foreach ($surveys as $survey) {
+            if ($survey->admin_id) {
+                $surveyThemes[$survey->id] = \App\Models\ThemeSetting::getActiveTheme($survey->admin_id);
+            }
+        }
+        
+        return view('index', compact('surveys', 'surveyThemes'));
     }
 
     public function show(Survey $survey, Request $request)
@@ -103,13 +111,18 @@ class UserSurveyController extends Controller
         $prefillAccountType = $request->query('account_type');
 
         $questions = $survey->questions;
+        
+        // Get the active theme for the survey's admin
+        $activeTheme = \App\Models\ThemeSetting::getActiveTheme($survey->admin_id);
+        
         return view('surveys.show', compact(
             'survey', 
             'questions', 
             'hasResponded', 
             'allowResubmit',
             'prefillAccountName',
-            'prefillAccountType'
+            'prefillAccountType',
+            'activeTheme'
         ));
     }
 
@@ -269,13 +282,18 @@ class UserSurveyController extends Controller
         }
 
         $questions = $survey->questions;
+        
+        // Get the active theme for the survey's admin
+        $activeTheme = \App\Models\ThemeSetting::getActiveTheme($survey->admin_id);
+        
         return view('surveys.customer-survey', compact(
             'survey', 
             'questions', 
             'hasResponded', 
             'allowResubmit',
             'prefillAccountName',
-            'prefillAccountType'
+            'prefillAccountType',
+            'activeTheme'
         ));
     }
 

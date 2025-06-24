@@ -21,10 +21,20 @@ class ThemeServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Share the active theme with all views
+        // Share the active theme with all views to ensure it's always defined
         View::composer('*', function (\Illuminate\View\View $view) {
-            $activeTheme = ThemeSetting::getActiveTheme();
-            $view->with('activeTheme', $activeTheme);
+            // Only set if not already defined (controllers can override)
+            if (!$view->offsetExists('activeTheme')) {
+                $activeTheme = null;
+                
+                // Check if we're in admin context
+                if (auth()->guard('admin')->check()) {
+                    $admin = auth()->guard('admin')->user();
+                    $activeTheme = ThemeSetting::getActiveTheme($admin->id);
+                }
+                
+                $view->with('activeTheme', $activeTheme);
+            }
         });
     }
 }

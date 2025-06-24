@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 
 class ThemeSetting extends Model
@@ -11,6 +12,7 @@ class ThemeSetting extends Model
     
     protected $fillable = [
         'name',
+        'admin_id',
         'is_active',
         'primary_color',
         'secondary_color',
@@ -26,17 +28,40 @@ class ThemeSetting extends Model
     ];
 
     /**
-     * Get the active theme
-     *
-     * @return ThemeSetting|null
+     * Get the admin that owns this theme
      */
-    public static function getActiveTheme()
+    public function admin(): BelongsTo
     {
-        return self::where('is_active', true)->first();
+        return $this->belongsTo(Admin::class);
     }
 
     /**
-     * Set this theme as active and deactivate all others
+     * Get the active theme for a specific admin or global
+     *
+     * @param int|null $adminId
+     * @return ThemeSetting|null
+     */
+    public static function getActiveTheme($adminId = null)
+    {
+        if ($adminId) {
+            // First try to get admin-specific active theme
+            $adminTheme = self::where('is_active', true)
+                             ->where('admin_id', $adminId)
+                             ->first();
+            
+            if ($adminTheme) {
+                return $adminTheme;
+            }
+        }
+        
+        // Fallback to global theme (admin_id = null)
+        return self::where('is_active', true)
+                  ->whereNull('admin_id')
+                  ->first();
+    }
+
+    /**
+     * Set this theme as active and deactivate all others for the same admin
      */
     public function setAsActive()
     {
@@ -44,8 +69,17 @@ class ThemeSetting extends Model
         \Illuminate\Support\Facades\DB::beginTransaction();
         
         try {
-            // Deactivate all themes
-            self::where('id', '!=', $this->id)->update(['is_active' => false]);
+            // If this is an admin-specific theme, only deactivate other themes for the same admin
+            if ($this->admin_id) {
+                self::where('id', '!=', $this->id)
+                    ->where('admin_id', $this->admin_id)
+                    ->update(['is_active' => false]);
+            } else {
+                // If this is a global theme, deactivate all global themes
+                self::where('id', '!=', $this->id)
+                    ->whereNull('admin_id')
+                    ->update(['is_active' => false]);
+            }
             
             // Activate this theme
             $this->is_active = true;

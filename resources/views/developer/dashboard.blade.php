@@ -206,9 +206,9 @@ body {
 <div class="bg-particles" id="particles"></div>
 
 <div class="developer-dashboard">
-    <div class="container-fluid px-4 py-5" style="position: relative; z-index: 10;">
+    <div class="container-fluid px-4 pt-3 pb-5" style="position: relative; z-index: 10;">
         <!-- Header with logout -->
-        <div class="row mb-4">
+        <div class="row mb-3">
             <div class="col-md-6">
                 <h1 class="display-4 fw-bold text-danger">
                     <i class="bi bi-code-slash"></i> Developer Portal
@@ -226,14 +226,14 @@ body {
         </div>
 
         <!-- Main Management Actions (Highlighted) -->
-        <div class="row g-4 mb-5">
+        <div class="row g-5 mb-5">
             <div class="col-12">
                 <h2 class="text-center mb-5 text-warning display-5 fw-bold">
                     <i class="bi bi-gear-wide-connected"></i> SYSTEM MANAGEMENT
                 </h2>
             </div>
             
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6 mb-5">
                 <div class="dev-action-card survey-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);" onclick="showSbuModal('surveys')">
                     <div>
                         <i class="bi bi-clipboard-data" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
@@ -247,7 +247,7 @@ body {
                 </div>
             </div>
             
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6 mb-5">
                 <div class="dev-action-card admin-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);" onclick="showSbuModal('admins')">
                     <div>
                         <i class="bi bi-shield-lock" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
@@ -261,7 +261,7 @@ body {
                 </div>
             </div>
             
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6 mb-5">
                 <div class="dev-action-card user-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);" onclick="showSbuModal('users')">
                     <div>
                         <i class="bi bi-people" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>

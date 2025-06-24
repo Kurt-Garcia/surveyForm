@@ -50,25 +50,35 @@
                 @php
                     $hasResponded = session('account_name') ? App\Models\SurveyResponseHeader::hasResponded($survey->id, session('account_name')) : false;
                     $responseCount = App\Models\SurveyResponseHeader::where('survey_id', $survey->id)->count();
+                    $surveyTheme = isset($surveyThemes[$survey->id]) ? $surveyThemes[$survey->id] : null;
                 @endphp
                 <div class="col">
-                    <div class="card h-100 survey-card shadow-sm hover-lift">
+                    <div class="card h-100 survey-card shadow-sm hover-lift" 
+                         @if($surveyTheme)
+                         style="--card-primary-color: {{ $surveyTheme->primary_color }}; 
+                               --card-secondary-color: {{ $surveyTheme->secondary_color }}; 
+                               --card-accent-color: {{ $surveyTheme->accent_color }}; 
+                               --card-heading-font: {{ $surveyTheme->heading_font }}; 
+                               --card-body-font: {{ $surveyTheme->body_font }};"
+                         @endif>
                         <div class="card-body">
                             <div class="survey-logo-wrapper text-center mb-3">
                                 @if($survey->logo)
                                     <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="survey-logo-large">
                                 @else
-                                    <i class="fas fa-poll fa-2x"></i>
+                                    <i class="fas fa-poll fa-2x" @if($surveyTheme) style="color: {{ $surveyTheme->accent_color }}" @endif></i>
                                 @endif
                             </div>
-                            <h4 class="card-title">{{ strtoupper($survey->title) }}</h4>
+                            <h4 class="card-title" @if($surveyTheme) style="font-family: {{ $surveyTheme->heading_font }}; color: {{ $surveyTheme->text_color }}" @endif>
+                                {{ strtoupper($survey->title) }}
+                            </h4>
                             <div class="survey-meta mb-2">
                                 @if($survey->sbus->count() > 0)
                                     @foreach($survey->sbus as $sbu)
-                                        <span class="badge bg-primary me-1">{{ $sbu->name }}</span>
+                                        <span class="badge me-1" @if($surveyTheme) style="background-color: {{ $surveyTheme->accent_color }}" @else style="background-color: var(--bs-primary)" @endif>{{ $sbu->name }}</span>
                                     @endforeach
                                 @endif
-                                <small class="text-muted">
+                                <small class="text-muted" @if($surveyTheme) style="font-family: {{ $surveyTheme->body_font }}" @endif>
                                     @if($survey->sites->count() > 0)
                                         <i class="fas fa-map-marker-alt me-1"></i> 
                                         {!! formatSitesList($survey->sites) !!}
@@ -77,11 +87,11 @@
                             </div>
                             <div class="d-flex justify-content-between mt-3 mb-3">
                                 <div class="survey-info">
-                                    <div class="text-muted mb-2">
+                                    <div class="text-muted mb-2" @if($surveyTheme) style="font-family: {{ $surveyTheme->body_font }}" @endif>
                                         <i class="fas fa-question-circle me-1"></i>
                                         {{ $survey->questions->count() }} questions
                                     </div>
-                                    <div class="text-muted">
+                                    <div class="text-muted" @if($surveyTheme) style="font-family: {{ $surveyTheme->body_font }}" @endif>
                                         <i class="fas fa-chart-bar me-1"></i>
                                         {{ $responseCount }} responses
                                     </div>
@@ -93,7 +103,12 @@
                                 @endif
                             </div>
                             <div class="d-flex gap-2 mt-auto">
-                                <a href="{{ route('surveys.show', $survey) }}" class="btn btn-start btn-primary flex-grow-1" style="font-family: var(--body-font)">
+                                <a href="{{ route('surveys.show', $survey) }}" class="btn btn-start flex-grow-1" 
+                                   @if($surveyTheme) 
+                                   style="background-color: {{ $surveyTheme->primary_color }}; border-color: {{ $surveyTheme->primary_color }}; color: white; font-family: {{ $surveyTheme->body_font }}"
+                                   @else 
+                                   style="background-color: var(--bs-primary); border-color: var(--bs-primary); color: white; font-family: var(--body-font)"
+                                   @endif>
                                     <i class="fas fa-eye me-1"></i> View Survey
                                 </a>
                                 <a href="{{ route('surveys.responses.index', $survey) }}" class="btn btn-outline-secondary">

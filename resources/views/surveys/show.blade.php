@@ -10,10 +10,10 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <style>
     :root {
-        --primary-color: {{ $activeTheme->primary_color ?? '#E53935' }};
-        --secondary-color: {{ $activeTheme->secondary_color ?? '#2C3E50' }};
-        --accent-color: {{ $activeTheme->accent_color ?? '#F1C40F' }};
-        --button-hover-color: {{ $activeTheme->button_hover_color ?? '#B71C1C' }};
+        --primary-color: {{ isset($activeTheme) ? $activeTheme->primary_color : '#E53935' }};
+        --secondary-color: {{ isset($activeTheme) ? $activeTheme->secondary_color : '#2C3E50' }};
+        --accent-color: {{ isset($activeTheme) ? $activeTheme->accent_color : '#F1C40F' }};
+        --button-hover-color: {{ isset($activeTheme) ? ($activeTheme->button_hover_color ?? '#B71C1C') : '#B71C1C' }};
     }
 
     /* Hide thank-you message by default */
