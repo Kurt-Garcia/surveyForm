@@ -75,7 +75,15 @@ class ThemeSetting extends Model
                     ->where('admin_id', $this->admin_id)
                     ->update(['is_active' => false]);
             } else {
-                // If this is a global theme, deactivate all global themes
+                // If this is a global theme being activated, we need to get the current admin
+                // from the session/auth and deactivate their admin-specific themes
+                $admin = \Illuminate\Support\Facades\Auth::guard('admin')->user();
+                if ($admin) {
+                    self::where('admin_id', $admin->id)
+                        ->update(['is_active' => false]);
+                }
+                
+                // Also deactivate other global themes
                 self::where('id', '!=', $this->id)
                     ->whereNull('admin_id')
                     ->update(['is_active' => false]);
@@ -98,6 +106,18 @@ class ThemeSetting extends Model
      */
     public function generateCssVariables()
     {
+        // Helper function to convert hex to RGB
+        $hexToRgb = function($hex) {
+            $hex = ltrim($hex, '#');
+            if (strlen($hex) == 3) {
+                $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+            }
+            $r = hexdec(substr($hex, 0, 2));
+            $g = hexdec(substr($hex, 2, 2));
+            $b = hexdec(substr($hex, 4, 2));
+            return "$r, $g, $b";
+        };
+
         return <<<CSS
         :root {
             --primary-color: {$this->primary_color};
@@ -107,6 +127,13 @@ class ThemeSetting extends Model
             --text-color: {$this->text_color};
             --heading-font: '{$this->heading_font}', sans-serif;
             --body-font: '{$this->body_font}', sans-serif;
+            
+            /* RGB versions for rgba() usage */
+            --primary-color-rgb: {$hexToRgb($this->primary_color)};
+            --secondary-color-rgb: {$hexToRgb($this->secondary_color)};
+            --accent-color-rgb: {$hexToRgb($this->accent_color)};
+            --background-color-rgb: {$hexToRgb($this->background_color)};
+            --text-color-rgb: {$hexToRgb($this->text_color)};
             
             /* Derived variables */
             --primary-gradient: linear-gradient(135deg, {$this->primary_color}, {$this->secondary_color});

@@ -157,6 +157,27 @@
             --heading-font: '{{ $activeTheme->heading_font }}', sans-serif;
             --body-font: '{{ $activeTheme->body_font }}', sans-serif;
             
+            @php
+                // Helper function to convert hex to RGB
+                $hexToRgb = function($hex) {
+                    $hex = ltrim($hex, '#');
+                    if (strlen($hex) == 3) {
+                        $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+                    }
+                    $r = hexdec(substr($hex, 0, 2));
+                    $g = hexdec(substr($hex, 2, 2));
+                    $b = hexdec(substr($hex, 4, 2));
+                    return "$r, $g, $b";
+                };
+            @endphp
+            
+            /* RGB versions for rgba() usage */
+            --primary-color-rgb: {{ $hexToRgb($activeTheme->primary_color) }};
+            --secondary-color-rgb: {{ $hexToRgb($activeTheme->secondary_color) }};
+            --accent-color-rgb: {{ $hexToRgb($activeTheme->accent_color) }};
+            --background-color-rgb: {{ $hexToRgb($activeTheme->background_color) }};
+            --text-color-rgb: {{ $hexToRgb($activeTheme->text_color) }};
+            
             /* Derived variables */
             --primary-gradient: linear-gradient(135deg, {{ $activeTheme->primary_color }}, {{ $activeTheme->secondary_color }});
             --card-bg-color: #ffffff;

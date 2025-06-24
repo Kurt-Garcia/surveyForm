@@ -55,9 +55,13 @@ class SurveyResponseController extends Controller
             ->paginate(10)
             ->withQueryString(); // This preserves the search parameter in pagination links
 
+        // Get the active theme for the survey's admin
+        $activeTheme = \App\Models\ThemeSetting::getActiveTheme($survey->admin_id);
+
         return view('surveys.responses.responses', [
             'survey' => $survey,
-            'responses' => $responses
+            'responses' => $responses,
+            'activeTheme' => $activeTheme
         ]);
     }
 
@@ -77,7 +81,10 @@ class SurveyResponseController extends Controller
         $header = $response;
         $responses = $response->details;
 
-        return view('admin.surveys.response-detail', compact('survey', 'header', 'responses'));
+        // Get the active theme for the survey's admin
+        $activeTheme = \App\Models\ThemeSetting::getActiveTheme($survey->admin_id);
+
+        return view('admin.surveys.response-detail', compact('survey', 'header', 'responses', 'activeTheme'));
     }
 
     public function store(Request $request)

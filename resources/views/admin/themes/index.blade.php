@@ -41,7 +41,12 @@
                     <div class="card theme-card h-100 {{ $theme->is_active ? 'active' : '' }}">
                         <div class="theme-status-indicator" style="background-color: {{ $theme->primary_color }};"></div>
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0 fw-bold theme-title">{{ $theme->name }}</h5>
+                            <div>
+                                <h5 class="mb-0 fw-bold theme-title">{{ $theme->name }}</h5>
+                                @if($theme->admin_id === null)
+                                    <small class="text-muted"><i class="bi bi-globe me-1"></i>Default Theme</small>
+                                @endif
+                            </div>
                             @if($theme->is_active)
                                 <span class="badge active-badge"><i class="bi bi-check-circle-fill me-1"></i>Active</span>
                             @endif
@@ -91,17 +96,29 @@
                                     </button>
                                 </form>
                                 @endif
-                                <a href="{{ route('admin.themes.edit', $theme->id) }}" class="btn btn-action edit-btn">
-                                    <i class="bi bi-pencil-square me-2"></i>Edit Theme
-                                </a>
-                                @if(!$theme->is_active)
-                                <form action="{{ route('admin.themes.destroy', $theme->id) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-action delete-btn">
-                                        <i class="bi bi-trash me-2"></i>Delete Theme
-                                    </button>
-                                </form>
+                                
+                                @if($theme->admin_id !== null)
+                                    <!-- Only show edit/delete for admin-created themes -->
+                                    <a href="{{ route('admin.themes.edit', $theme->id) }}" class="btn btn-action edit-btn">
+                                        <i class="bi bi-pencil-square me-2"></i>Edit Theme
+                                    </a>
+                                    @if(!$theme->is_active)
+                                    <form action="{{ route('admin.themes.destroy', $theme->id) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-action delete-btn">
+                                            <i class="bi bi-trash me-2"></i>Delete Theme
+                                        </button>
+                                    </form>
+                                    @endif
+                                @else
+                                    <!-- For global themes, show info about being default -->
+                                    <div class="default-theme-info">
+                                        <small class="text-muted">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            This is a default theme and cannot be edited or deleted.
+                                        </small>
+                                    </div>
                                 @endif
                             </div>
                         </div>
@@ -369,6 +386,15 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
+.default-theme-info {
+    padding: 0.75rem;
+    background-color: rgba(108, 117, 125, 0.1);
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid rgba(108, 117, 125, 0.2);
+    grid-column: 1 / -1; /* Span all columns */
+}
+
 .activate-btn {
     background-color: rgba(var(--primary-rgb, 78, 115, 223), 0.1);
     color: var(--primary-color, #4e73df);
@@ -616,7 +642,7 @@
             });
         });
 
-        // Handle Delete Theme button clicks
+        // Handle Delete Theme button clicks - only for admin themes
         const deleteButtons = document.querySelectorAll('.delete-btn');
         deleteButtons.forEach(function(button) {
             button.addEventListener('click', function(e) {

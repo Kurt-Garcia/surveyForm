@@ -25,8 +25,13 @@ class ThemeController extends Controller
     {
         $admin = Auth::guard('admin')->user();
         
-        // Get themes created by the current admin only
-        $themes = ThemeSetting::where('admin_id', $admin->id)->get();
+        // Get themes created by the current admin AND global default themes
+        $themes = ThemeSetting::where(function($query) use ($admin) {
+            $query->where('admin_id', $admin->id)  // Admin-specific themes
+                  ->orWhereNull('admin_id');         // Global default themes
+        })->orderBy('admin_id', 'asc')              // Show global themes first
+          ->orderBy('created_at', 'asc')
+          ->get();
         
         return view('admin.themes.index', compact('themes'));
     }
@@ -101,6 +106,12 @@ class ThemeController extends Controller
     {
         $admin = Auth::guard('admin')->user();
         
+        // Prevent editing global/default themes
+        if ($theme->admin_id === null) {
+            return redirect()->route('admin.themes.index')
+                ->with('error', 'Default themes cannot be edited. Please create a new theme instead.');
+        }
+        
         // Ensure the theme belongs to the current admin
         if ($theme->admin_id !== $admin->id) {
             abort(403, 'Unauthorized action.');
@@ -120,6 +131,12 @@ class ThemeController extends Controller
     public function update(Request $request, ThemeSetting $theme)
     {
         $admin = Auth::guard('admin')->user();
+        
+        // Prevent updating global/default themes
+        if ($theme->admin_id === null) {
+            return redirect()->route('admin.themes.index')
+                ->with('error', 'Default themes cannot be updated. Please create a new theme instead.');
+        }
         
         // Ensure the theme belongs to the current admin
         if ($theme->admin_id !== $admin->id) {
@@ -175,8 +192,8 @@ class ThemeController extends Controller
     {
         $admin = Auth::guard('admin')->user();
         
-        // Ensure the theme belongs to the current admin
-        if ($theme->admin_id !== $admin->id) {
+        // Allow activation of global themes OR admin-specific themes
+        if ($theme->admin_id !== null && $theme->admin_id !== $admin->id) {
             abort(403, 'Unauthorized action.');
         }
         
@@ -195,6 +212,12 @@ class ThemeController extends Controller
     public function destroy(ThemeSetting $theme)
     {
         $admin = Auth::guard('admin')->user();
+        
+        // Prevent deleting global/default themes
+        if ($theme->admin_id === null) {
+            return redirect()->route('admin.themes.index')
+                ->with('error', 'Default themes cannot be deleted.');
+        }
         
         // Ensure the theme belongs to the current admin
         if ($theme->admin_id !== $admin->id) {
