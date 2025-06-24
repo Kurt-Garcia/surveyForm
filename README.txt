@@ -14,8 +14,6 @@ composer run dev
 
 php artisan migrate
 
-php artisan php artisan migrate --path=database/migrations/2025_04_15_055750_add_is_active_to_surveys_table.php
-
 php artisan db:seed
 
 php artisan db:seed --class=TestDataSeeder (For Individual Seeding)
@@ -56,28 +54,6 @@ git push -u origin Version-16
 
 
 
-
-
-
-
-
-nefegix327@bocapies.com
-Admin12359?!$
-
-bocotop968@firain.com
-Admin12359?!$
-
-mofidi9893@bamsrad.com
-Admin12359?!$
-
-tosin64917@daxiake.com
-Admin12359?!$
-
-kireci6070@leabro.com
-Admin12359?!$
-
-fisehe4300@pngzero.com
-Admin12359?!$
 
 https://cssgridgenerator.io/
 
