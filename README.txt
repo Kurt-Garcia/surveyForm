@@ -24,6 +24,9 @@ php artisan db:seed --class=DeveloperSeeder
 
 http://127.0.0.1:8000/secret-dev-access-fastdev-2025/login
 
+http://127.0.0.1:8000/c2VjcmV0LWRldi1hY2Nlc3MtZmFzdGRldi0yMDI1/login
+
+
 
 
 -------To Test in the Phone-------

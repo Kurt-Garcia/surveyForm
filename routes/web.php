@@ -186,8 +186,9 @@ Route::prefix('admin')->group(function () {
 // Health check route (publicly accessible)
 Route::get('/health', [\App\Http\Controllers\UserSurveyController::class, 'healthCheck'])->name('health.check');
 
-// Developer Routes - Secret Access Path
-Route::prefix('secret-dev-access-fastdev-2025')->group(function () {
+// Developer Routes - Secret Access Path (Base64 Encoded)
+// Original path: secret-dev-access-fastdev-2025
+Route::prefix('c2VjcmV0LWRldi1hY2Nlc3MtZmFzdGRldi0yMDI1')->group(function () {
     Route::get('/login', [\App\Http\Controllers\DeveloperController::class, 'showLoginForm'])->name('developer.login');
     Route::post('/login', [\App\Http\Controllers\DeveloperController::class, 'login']);
     Route::post('/logout', [\App\Http\Controllers\DeveloperController::class, 'logout'])->name('developer.logout');

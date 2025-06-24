@@ -289,7 +289,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ url('secret-dev-access-fastdev-2025/login') }}">
+                    <form method="POST" action="{{ url('c2VjcmV0LWRldi1hY2Nlc3MtZmFzdGRldi0yMDI1/login') }}">
                         @csrf
 
                         <div class="mb-4">

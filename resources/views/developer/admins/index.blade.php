@@ -349,7 +349,7 @@ body {
                                 id="disabled_reason{{ $admin->id }}" 
                                 name="disabled_reason" 
                                 rows="4" 
-                                placeholder="Example: Account disabled due to security policy violation, suspicious activity, or administrative decision. Please provide a clear explanation..."
+                                placeholder="Reason for disabling account..."
                                 required
                                 minlength="10"
                                 maxlength="500"
