@@ -19,12 +19,18 @@ class DatabaseSeeder extends Seeder
             SbuAndSiteSeeder::class,
         ]);
 
+        // Create admin users first (needed for foreign key constraint)
+        $this->call([
+            AdminSeeder::class,
+        ]);
+
         // Create the test user without sbu_id and site_id
         $user = User::factory()->create([
             'name' => 'Monkey D. Luffy',
             'email' => 'pirateKing@gmail.com',
             'contact_number' => '09123456789',
             'password' => bcrypt('admin123'),
+            'created_by' => 1,
         ]);
 
         // Get the first SBU and its sites to assign to the user
@@ -39,11 +45,6 @@ class DatabaseSeeder extends Seeder
                 $user->sites()->attach($firstSite->id);
             }
         }
-
-        // Create admin users
-        $this->call([
-            AdminSeeder::class
-        ]);
         
         // // Create large dataset for testing
         // $this->call([
