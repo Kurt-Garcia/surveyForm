@@ -75,7 +75,7 @@
                             <div class="survey-meta mb-2">
                                 @if($survey->sbus->count() > 0)
                                     @foreach($survey->sbus as $sbu)
-                                        <span class="badge me-1" @if($surveyTheme) style="background-color: {{ $surveyTheme->accent_color }}" @else style="background-color: var(--bs-primary)" @endif>{{ $sbu->name }}</span>
+                                        <span class="badge me-1" @if($surveyTheme) style="background: linear-gradient(135deg, {{ $surveyTheme->primary_color }}, {{ $surveyTheme->secondary_color }}) !important; color: white !important; font-family: {{ $surveyTheme->body_font }}; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);" @else style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important; color: white !important; font-family: var(--body-font); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);" @endif>{{ $sbu->name }}</span>
                                     @endforeach
                                 @endif
                                 <small class="text-muted" @if($surveyTheme) style="font-family: {{ $surveyTheme->body_font }}" @endif>
@@ -105,9 +105,9 @@
                             <div class="d-flex gap-2 mt-auto">
                                 <a href="{{ route('surveys.show', $survey) }}" class="btn btn-start flex-grow-1" 
                                    @if($surveyTheme) 
-                                   style="background-color: {{ $surveyTheme->primary_color }}; border-color: {{ $surveyTheme->primary_color }}; color: white; font-family: {{ $surveyTheme->body_font }}"
+                                   style="background: linear-gradient(135deg, {{ $surveyTheme->primary_color }}, {{ $surveyTheme->secondary_color }}) !important; border: none !important; color: white !important; font-family: {{ $surveyTheme->body_font }}; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);"
                                    @else 
-                                   style="background-color: var(--bs-primary); border-color: var(--bs-primary); color: white; font-family: var(--body-font)"
+                                   style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important; border: none !important; color: white !important; font-family: var(--body-font); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);"
                                    @endif>
                                     <i class="fas fa-eye me-1"></i> View Survey
                                 </a>
@@ -269,15 +269,65 @@
     }
     .badge {
         font-weight: 500;
-        padding: 8px 12px;
-        border-radius: 30px;
+        padding: 8px 16px;
+        border-radius: 25px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+        color: white !important;
+        border: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
         font-family: var(--body-font);
+    }
+
+    .badge::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .badge:hover::before {
+        left: 100%;
+    }
+
+    .badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
     }
     .btn-start {
         border-radius: 8px;
         font-weight: 500;
         position: relative;
         z-index: 10;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+        border: none !important;
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        text-decoration: none !important;
+    }
+    
+    .btn-start:hover {
+        background: linear-gradient(135deg, var(--secondary-color), var(--primary-color)) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+        color: white !important;
+    }
+    
+    .btn-start:focus,
+    .btn-start:active {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
     .btn-outline-secondary {
         border-radius: 8px;

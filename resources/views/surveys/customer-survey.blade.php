@@ -34,12 +34,87 @@
     
     .survey-metadata .badge {
         font-size: 0.85rem;
-        padding: 5px 10px;
-        border-radius: 20px;
+        padding: 8px 16px;
+        border-radius: 25px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+        color: white !important;
+        border: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .survey-metadata .badge::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .survey-metadata .badge:hover::before {
+        left: 100%;
+    }
+
+    .survey-metadata .badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
     }
     
     .survey-metadata .text-muted {
         font-size: 0.85rem;
+    }
+
+    .font-theme{
+        font-family: var(--body-font);
+    }
+
+    .font-theme-heading{
+        font-family: var(--heading-font);
+    }
+
+    /* Thank you message gradient styling */
+    .thank-you-message {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        margin-top: 2rem;
+    }
+
+    .thank-you-message h3 {
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        margin-bottom: 1rem;
+    }
+
+    .thank-you-message p {
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 1.5rem;
+    }
+
+    .thank-you-message .small-button {
+        background: rgba(255, 255, 255, 0.2) !important;
+        border: 2px solid rgba(255, 255, 255, 0.5) !important;
+        color: white !important;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+
+    .thank-you-message .small-button:hover {
+        background: rgba(255, 255, 255, 0.3) !important;
+        border-color: rgba(255, 255, 255, 0.8) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     }
 </style>
 
@@ -842,15 +917,6 @@ function showResponseSummaryModal() {
     </div>
 </div>
 
-<style>
-    .font-theme{
-        font-family: var(--body-font);
-    }
-
-    .font-theme-heading{
-        font-family: var(--heading-font);
-    }
-</style>
 @endsection
 
 @section('scripts')
