@@ -265,26 +265,23 @@ body {
                                         Disable Account
                                     </button>
                                 @else
-                                    <!-- Enable Button - Direct Form -->
-                                    <form method="POST" action="{{ route('developer.admins.toggle-status', $admin->id) }}" class="d-inline">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="btn status-active btn-sm w-100">
-                                            <i class="bi bi-play-circle"></i>
-                                            Enable Account
-                                        </button>
-                                    </form>
+                                    <!-- Enable Button - SweetAlert Confirmation -->
+                                    <button type="button" class="btn status-active btn-sm w-100 enable-admin-btn" 
+                                            data-admin-id="{{ $admin->id }}" 
+                                            data-admin-name="{{ $admin->name }}"
+                                            data-action-url="{{ route('developer.admins.toggle-status', $admin->id) }}">
+                                        <i class="bi bi-play-circle"></i>
+                                        Enable Account
+                                    </button>
                                 @endif
 
-                                <!-- Delete Admin -->
-                                <form method="POST" action="{{ route('developer.admins.delete', $admin->id) }}" 
-                                      onsubmit="return confirm('Are you sure you want to DELETE this admin? This action cannot be undone!')" class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-dev-danger btn-sm w-100">
-                                        <i class="bi bi-trash"></i> Delete Admin
-                                    </button>
-                                </form>
+                                <!-- Delete Admin - SweetAlert Confirmation -->
+                                <button type="button" class="btn btn-dev-danger btn-sm w-100 delete-admin-btn" 
+                                        data-admin-id="{{ $admin->id }}" 
+                                        data-admin-name="{{ $admin->name }}"
+                                        data-action-url="{{ route('developer.admins.delete', $admin->id) }}">
+                                    <i class="bi bi-trash"></i> Delete Admin
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -332,7 +329,7 @@ body {
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form method="POST" action="{{ route('developer.admins.toggle-status', $admin->id) }}">
+                <form method="POST" action="{{ route('developer.admins.toggle-status', $admin->id) }}" id="disableForm{{ $admin->id }}">
                     @csrf
                     @method('PATCH')
                     <div class="modal-body">
@@ -360,10 +357,15 @@ body {
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-secondary cancel-disable-btn" 
+                                data-bs-dismiss="modal"
+                                data-admin-name="{{ $admin->name }}">
                             <i class="bi bi-x-circle me-1"></i>Cancel
                         </button>
-                        <button type="submit" class="btn btn-warning">
+                        <button type="button" class="btn btn-warning disable-confirm-btn" 
+                                data-admin-id="{{ $admin->id }}" 
+                                data-admin-name="{{ $admin->name }}"
+                                data-form-id="disableForm{{ $admin->id }}">
                             <i class="bi bi-pause-circle me-1"></i>Disable Account
                         </button>
                     </div>
@@ -376,31 +378,231 @@ body {
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-// Form validation for disable admin forms
+// Enhanced form validation and SweetAlert confirmations
 document.addEventListener('DOMContentLoaded', function() {
-    // Get all disable admin forms
-    const disableForms = document.querySelectorAll('form[action*="toggle-status"]');
-    
-    disableForms.forEach(function(form) {
-        form.addEventListener('submit', function(e) {
-            const textarea = form.querySelector('textarea[name="disabled_reason"]');
-            if (textarea) {
-                const reason = textarea.value.trim();
-                if (reason.length === 0) {
-                    e.preventDefault();
-                    alert('Please provide a reason for disabling this account.');
-                    textarea.focus();
-                    return false;
+    // Enable Admin Account - SweetAlert Confirmation
+    document.querySelectorAll('.enable-admin-btn').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const adminName = this.dataset.adminName;
+            const actionUrl = this.dataset.actionUrl;
+            
+            Swal.fire({
+                title: 'Enable Admin Account?',
+                html: `Are you sure you want to <strong>enable</strong> <span class="text-success">${adminName}</span>'s admin account?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-play-circle"></i> Yes, Enable Account',
+                cancelButtonText: '<i class="bi bi-x-circle"></i> Cancel',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-secondary'
                 }
-                if (reason.length < 10) {
-                    e.preventDefault();
-                    alert('Please provide a more detailed reason (at least 10 characters).');
-                    textarea.focus();
-                    return false;
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading state
+                    Swal.fire({
+                        title: 'Enabling Account...',
+                        text: 'Please wait while we enable the admin account.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Create and submit form
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = actionUrl;
+                    
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = csrfToken;
+                    
+                    const methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'PATCH';
+                    
+                    form.appendChild(csrfInput);
+                    form.appendChild(methodInput);
+                    document.body.appendChild(form);
+                    form.submit();
                 }
+            });
+        });
+    });
+
+    // Delete Admin Account - SweetAlert Confirmation
+    document.querySelectorAll('.delete-admin-btn').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const adminName = this.dataset.adminName;
+            const actionUrl = this.dataset.actionUrl;
+            
+            Swal.fire({
+                title: 'Delete Admin Account?',
+                html: `
+                    <div class="text-center">
+                        <p>Are you sure you want to <strong class="text-danger">permanently delete</strong> <span class="text-primary">${adminName}</span>'s admin account?</p>
+                        <div class="alert alert-danger mt-3">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Warning:</strong> This action cannot be undone!
+                        </div>
+                    </div>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-trash"></i> Yes, Delete Permanently',
+                cancelButtonText: '<i class="bi bi-x-circle"></i> Cancel',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'btn btn-danger',
+                    cancelButton: 'btn btn-secondary'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading state
+                    Swal.fire({
+                        title: 'Deleting Account...',
+                        text: 'Please wait while we delete the admin account.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Create and submit form
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = actionUrl;
+                    
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = csrfToken;
+                    
+                    const methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'DELETE';
+                    
+                    form.appendChild(csrfInput);
+                    form.appendChild(methodInput);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        });
+    });
+
+    // Cancel Disable Modal - No confirmation needed
+    document.querySelectorAll('.cancel-disable-btn').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            // Simply close the modal without any confirmation
+            const modal = this.closest('.modal');
+            const bsModal = bootstrap.Modal.getInstance(modal);
+            if (bsModal) {
+                bsModal.hide();
             }
+        });
+    });
+
+    // Disable Account Confirmation - SweetAlert
+    document.querySelectorAll('.disable-confirm-btn').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const adminName = this.dataset.adminName;
+            const formId = this.dataset.formId;
+            const form = document.getElementById(formId);
+            const textarea = form.querySelector('textarea[name="disabled_reason"]');
+            const reason = textarea.value.trim();
+            
+            // Validate reason
+            if (reason.length === 0) {
+                Swal.fire({
+                    title: 'Reason Required',
+                    text: 'Please provide a reason for disabling this account.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    customClass: {
+                        confirmButton: 'btn btn-primary'
+                    }
+                });
+                textarea.focus();
+                return false;
+            }
+            
+            if (reason.length < 10) {
+                Swal.fire({
+                    title: 'Reason Too Short',
+                    text: 'Please provide a more detailed reason (at least 10 characters).',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    customClass: {
+                        confirmButton: 'btn btn-primary'
+                    }
+                });
+                textarea.focus();
+                return false;
+            }
+            
+            // Show confirmation
+            Swal.fire({
+                title: 'Disable Admin Account?',
+                html: `
+                    <div class="text-center">
+                        <p>Are you sure you want to <strong class="text-warning">disable</strong> <span class="text-primary">${adminName}</span>'s admin account?</p>
+                        <div class="alert alert-warning mt-3">
+                            <strong>Reason:</strong> ${reason}
+                        </div>
+                    </div>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f39c12',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-pause-circle"></i> Yes, Disable Account',
+                cancelButtonText: '<i class="bi bi-x-circle"></i> Cancel',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'btn btn-warning',
+                    cancelButton: 'btn btn-secondary'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading state
+                    Swal.fire({
+                        title: 'Disabling Account...',
+                        text: 'Please wait while we disable the admin account.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Submit the form
+                    form.submit();
+                }
+            });
         });
     });
 

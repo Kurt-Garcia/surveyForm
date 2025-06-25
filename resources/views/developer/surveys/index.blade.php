@@ -271,34 +271,29 @@ body {
                             <div class="d-grid gap-2">
                                 <!-- Enable/Disable Survey -->
                                 @if($survey->is_active)
-                                    <form method="POST" action="{{ route('developer.surveys.disable', $survey->id) }}" 
-                                          onsubmit="return confirm('Are you sure you want to DISABLE this survey? Users will no longer be able to access it.')" class="d-inline">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="btn btn-warning btn-sm w-100">
-                                            <i class="bi bi-pause-circle"></i> Disable Survey
-                                        </button>
-                                    </form>
+                                    <button type="button" class="btn btn-warning btn-sm w-100 disable-survey-btn" 
+                                            data-survey-id="{{ $survey->id }}" 
+                                            data-survey-title="{{ $survey->title }}"
+                                            data-action-url="{{ route('developer.surveys.disable', $survey->id) }}">
+                                        <i class="bi bi-pause-circle"></i> Disable Survey
+                                    </button>
                                 @else
-                                    <form method="POST" action="{{ route('developer.surveys.enable', $survey->id) }}" 
-                                          onsubmit="return confirm('Are you sure you want to ENABLE this survey? Users will be able to access it again.')" class="d-inline">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="btn btn-dev-success btn-sm w-100">
-                                            <i class="bi bi-play-circle"></i> Enable Survey
-                                        </button>
-                                    </form>
+                                    <button type="button" class="btn btn-dev-success btn-sm w-100 enable-survey-btn" 
+                                            data-survey-id="{{ $survey->id }}" 
+                                            data-survey-title="{{ $survey->title }}"
+                                            data-action-url="{{ route('developer.surveys.enable', $survey->id) }}">
+                                        <i class="bi bi-play-circle"></i> Enable Survey
+                                    </button>
                                 @endif
 
                                 <!-- Delete Survey -->
-                                <form method="POST" action="{{ route('developer.surveys.delete', $survey->id) }}" 
-                                      onsubmit="return confirm('Are you sure you want to DELETE this survey and all its responses? This action cannot be undone!')" class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-dev-danger btn-sm w-100">
-                                        <i class="bi bi-trash"></i> Delete Survey
-                                    </button>
-                                </form>
+                                <button type="button" class="btn btn-dev-danger btn-sm w-100 delete-survey-btn" 
+                                        data-survey-id="{{ $survey->id }}" 
+                                        data-survey-title="{{ $survey->title }}"
+                                        data-survey-responses="{{ $survey->responses->count() }}"
+                                        data-action-url="{{ route('developer.surveys.delete', $survey->id) }}">
+                                    <i class="bi bi-trash"></i> Delete Survey
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -336,10 +331,206 @@ body {
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-// Enhanced UX for survey management
+// Enhanced form validation and SweetAlert confirmations for Survey Management
 document.addEventListener('DOMContentLoaded', function() {
+    // Enable Survey - SweetAlert Confirmation
+    document.querySelectorAll('.enable-survey-btn').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const surveyTitle = this.dataset.surveyTitle;
+            const actionUrl = this.dataset.actionUrl;
+            
+            Swal.fire({
+                title: 'Enable Survey?',
+                html: `Are you sure you want to <strong class="text-success">enable</strong> the survey <span class="text-primary">"${surveyTitle}"</span>?<br><br><small class="text-muted">Users will be able to access and respond to this survey.</small>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-play-circle"></i> Yes, Enable Survey',
+                cancelButtonText: '<i class="bi bi-x-circle"></i> Cancel',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-secondary'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading state
+                    Swal.fire({
+                        title: 'Enabling Survey...',
+                        text: 'Please wait while we enable the survey.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Create and submit form
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = actionUrl;
+                    
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = csrfToken;
+                    
+                    const methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'PATCH';
+                    
+                    form.appendChild(csrfInput);
+                    form.appendChild(methodInput);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        });
+    });
+
+    // Disable Survey - SweetAlert Confirmation
+    document.querySelectorAll('.disable-survey-btn').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const surveyTitle = this.dataset.surveyTitle;
+            const actionUrl = this.dataset.actionUrl;
+            
+            Swal.fire({
+                title: 'Disable Survey?',
+                html: `Are you sure you want to <strong class="text-warning">disable</strong> the survey <span class="text-primary">"${surveyTitle}"</span>?<br><br><div class="alert alert-warning mt-3"><i class="bi bi-exclamation-triangle"></i> <strong>Note:</strong> Users will no longer be able to access this survey.</div>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f39c12',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-pause-circle"></i> Yes, Disable Survey',
+                cancelButtonText: '<i class="bi bi-x-circle"></i> Cancel',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'btn btn-warning',
+                    cancelButton: 'btn btn-secondary'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading state
+                    Swal.fire({
+                        title: 'Disabling Survey...',
+                        text: 'Please wait while we disable the survey.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Create and submit form
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = actionUrl;
+                    
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = csrfToken;
+                    
+                    const methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'PATCH';
+                    
+                    form.appendChild(csrfInput);
+                    form.appendChild(methodInput);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        });
+    });
+
+    // Delete Survey - SweetAlert Confirmation
+    document.querySelectorAll('.delete-survey-btn').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const surveyTitle = this.dataset.surveyTitle;
+            const surveyResponses = this.dataset.surveyResponses;
+            const actionUrl = this.dataset.actionUrl;
+            
+            const responseText = parseInt(surveyResponses) > 0 
+                ? `<strong class="text-info">${surveyResponses}</strong> response${parseInt(surveyResponses) !== 1 ? 's' : ''}` 
+                : 'no responses';
+            
+            Swal.fire({
+                title: 'Delete Survey?',
+                html: `
+                    <div class="text-center">
+                        <p>Are you sure you want to <strong class="text-danger">permanently delete</strong> the survey <span class="text-primary">"${surveyTitle}"</span>?</p>
+                        <p>This survey currently has <strong>${responseText}</strong>.</p>
+                        <div class="alert alert-danger mt-3">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Warning:</strong> This action will permanently delete the survey and all its data. This cannot be undone!
+                        </div>
+                    </div>
+                `,
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-trash"></i> Yes, Delete Permanently',
+                cancelButtonText: '<i class="bi bi-x-circle"></i> Cancel',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'btn btn-danger',
+                    cancelButton: 'btn btn-secondary'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading state
+                    Swal.fire({
+                        title: 'Deleting Survey...',
+                        text: 'Please wait while we delete the survey and all its data.',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Create and submit form
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = actionUrl;
+                    
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = csrfToken;
+                    
+                    const methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'DELETE';
+                    
+                    form.appendChild(csrfInput);
+                    form.appendChild(methodInput);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        });
+    });
+
     // Style search input placeholder for better UX
     const searchInputs = document.querySelectorAll('input[name="search"]');
     searchInputs.forEach(function(searchInput) {

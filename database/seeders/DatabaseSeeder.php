@@ -45,6 +45,11 @@ class DatabaseSeeder extends Seeder
                 $user->sites()->attach($firstSite->id);
             }
         }
+
+        // Seed the Developer
+        $this->call([
+            DeveloperSeeder::class,
+        ]);
         
         // // Create large dataset for testing
         // $this->call([
