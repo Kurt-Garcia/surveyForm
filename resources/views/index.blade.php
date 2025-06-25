@@ -62,6 +62,15 @@
                                --card-body-font: {{ $surveyTheme->body_font }};"
                          @endif>
                         <div class="card-body">
+                            <!-- Badges positioned in top-left corner -->
+                            @if($survey->sbus->count() > 0)
+                                <div class="card-badges">
+                                    @foreach($survey->sbus as $sbu)
+                                        <span class="badge me-1" @if($surveyTheme) style="background: linear-gradient(135deg, {{ $surveyTheme->primary_color }}, {{ $surveyTheme->secondary_color }}) !important; color: white !important; font-family: {{ $surveyTheme->body_font }}; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);" @else style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important; color: white !important; font-family: var(--body-font); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);" @endif>{{ $sbu->name }}</span>
+                                    @endforeach
+                                </div>
+                            @endif
+                            
                             <div class="survey-logo-wrapper text-center mb-3">
                                 @if($survey->logo)
                                     <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="survey-logo-large">
@@ -73,11 +82,6 @@
                                 {{ strtoupper($survey->title) }}
                             </h4>
                             <div class="survey-meta mb-2">
-                                @if($survey->sbus->count() > 0)
-                                    @foreach($survey->sbus as $sbu)
-                                        <span class="badge me-1" @if($surveyTheme) style="background: linear-gradient(135deg, {{ $surveyTheme->primary_color }}, {{ $surveyTheme->secondary_color }}) !important; color: white !important; font-family: {{ $surveyTheme->body_font }}; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);" @else style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important; color: white !important; font-family: var(--body-font); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);" @endif>{{ $sbu->name }}</span>
-                                    @endforeach
-                                @endif
                                 <small class="text-muted" @if($surveyTheme) style="font-family: {{ $surveyTheme->body_font }}" @endif>
                                     @if($survey->sites->count() > 0)
                                         <i class="fas fa-map-marker-alt me-1"></i> 
@@ -234,6 +238,29 @@
         position: relative;
         overflow: hidden;
     }
+    
+    /* Card badges positioned in top-left corner */
+    .card-badges {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 5;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        max-width: calc(100% - 24px);
+    }
+    
+    .card-badges .badge {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        font-weight: 600;
+        border-radius: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    
     .survey-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
@@ -259,6 +286,8 @@
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
+        text-align: center;
+        width: 100%;
     }
     .survey-info {
         font-size: 0.9rem;
@@ -348,6 +377,7 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+        padding-top: 2.5rem; /* Extra padding to account for badges */
     }
     .hover-lift {
         transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -704,8 +734,15 @@
         /* Card body adjustments for desktop */
         .survey-card .card-body {
             padding: 1.5rem !important;
+            padding-top: 2.5rem !important; /* Account for badges */
             display: flex !important;
             flex-direction: column !important;
+        }
+        
+        /* Badge positioning for desktop */
+        .survey-card .card-badges {
+            top: 15px;
+            left: 15px;
         }
         
         /* Hover effects for desktop */
@@ -833,8 +870,20 @@
         /* Card body adjustments for better spacing */
         .survey-card .card-body {
             padding: 1.25rem !important;
+            padding-top: 2.5rem !important; /* Account for badges */
             display: flex !important;
             flex-direction: column !important;
+        }
+        
+        /* Badge positioning for iPad */
+        .survey-card .card-badges {
+            top: 12px;
+            left: 12px;
+        }
+        
+        .survey-card .card-badges .badge {
+            font-size: 0.65rem !important;
+            padding: 3px 6px !important;
         }
         
         /* Better touch targets and accessibility */
@@ -921,6 +970,13 @@
         /* Card body padding for iPad Pro */
         .survey-card .card-body {
             padding: 1.5rem !important;
+            padding-top: 2.5rem !important; /* Account for badges */
+        }
+        
+        /* Badge positioning for iPad Pro */
+        .survey-card .card-badges {
+            top: 15px;
+            left: 15px;
         }
         
         /* Ensure proper flex behavior */
@@ -1052,8 +1108,20 @@
         /* Card body adjustments for iPhone 4 */
         .survey-card .card-body {
             padding: 1rem !important;
+            padding-top: 2.2rem !important; /* Account for badges */
             display: flex !important;
             flex-direction: column !important;
+        }
+        
+        /* Badge positioning for iPhone 4 */
+        .survey-card .card-badges {
+            top: 10px;
+            left: 10px;
+        }
+        
+        .survey-card .card-badges .badge {
+            font-size: 0.6rem !important;
+            padding: 2px 5px !important;
         }
         
         /* Ensure all buttons have same height on iPhone 4 */
@@ -1171,8 +1239,20 @@
         /* Card body adjustments for general mobile */
         .survey-card .card-body {
             padding: 1.1rem !important;
+            padding-top: 2.3rem !important; /* Account for badges */
             display: flex !important;
             flex-direction: column !important;
+        }
+        
+        /* Badge positioning for general mobile */
+        .survey-card .card-badges {
+            top: 10px;
+            left: 10px;
+        }
+        
+        .survey-card .card-badges .badge {
+            font-size: 0.65rem !important;
+            padding: 3px 6px !important;
         }
         
         /* Ensure consistent button heights on general mobile */
