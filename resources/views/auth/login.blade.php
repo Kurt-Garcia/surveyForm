@@ -238,10 +238,9 @@
         right: 15px;
         top: 50%;
         transform: translateY(-50%);
-        background: rgba(255, 255, 255, 0.15);
+        background: transparent;
         border: none;
-        border-radius: 8px;
-        color: #2b313c;
+        color: rgba(255, 255, 255, 0.8);
         width: 40px;
         height: 40px;
         display: flex;
@@ -250,14 +249,12 @@
         cursor: pointer;
         transition: all 0.3s ease;
         z-index: 5;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
     }
 
     .glass-password-toggle:hover {
-        background: none;
-        color: #2d3748;
-        transform: translateY(-50%) scale(1.05);
+        background: transparent;
+        color: rgba(255, 255, 255, 1);
+        transform: translateY(-50%) scale(1.1);
     }
 
     .password-wrapper .glass-input {
