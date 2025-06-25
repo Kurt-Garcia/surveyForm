@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page Not Found | 404</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Aww.. Don't Cry! | 404</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -13,179 +13,345 @@
         }
         
         body {
-            font-family: 'Nunito', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #fff;
-            height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
-            position: relative;
+            line-height: 1.5;
         }
         
         .container {
-            text-align: center;
-            max-width: 800px;
+            display: flex;
+            align-items: center;
+            max-width: 1000px;
             padding: 2rem;
-            z-index: 2;
+            gap: 0;
         }
         
-        h1 {
+        .image-section {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+        }
+        
+        .content-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            min-width: 300px;
+            padding-left: 1rem;
+        }
+        
+        .error-image {
+            width: 450px;
+            height: auto;
+            max-width: 100%;
+            object-fit: contain;
+        }
+        
+        .error-image-fallback {
+            display: none;
             font-size: 10rem;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.2);
-            font-weight: 700;
-            position: relative;
-            animation: pulse 3s infinite;
         }
         
-        h2 {
-            font-size: 2rem;
-            margin-bottom: 2rem;
+        .main-message {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 0.8rem;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+        }
+        
+        .sub-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .sub-message {
+            font-size: 1.3rem;
+            color: #e74c3c;
+            margin-bottom: 1.5rem;
             font-weight: 600;
-            opacity: 0.9;
+            line-height: 1.3;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: relative;
         }
         
-        p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            opacity: 0.8;
+        .sub-message::after {
+            content: '⚡';
+            margin-left: 0.5rem;
+            font-size: 1.1em;
+            animation: pulse 2s infinite;
+        }
+        
+        .description {
+            font-size: 1.1rem;
+            color: #34495e;
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+            max-width: 450px;
+            font-weight: 500;
+            font-style: italic;
+            position: relative;
+        }
+        
+        .description::before {
+            content: '"';
+            font-size: 3rem;
+            color: #bdc3c7;
+            position: absolute;
+            left: -1.5rem;
+            top: -0.5rem;
+            font-family: Georgia, serif;
+        }
+        
+        .description::after {
+            content: '"';
+            font-size: 3rem;
+            color: #bdc3c7;
+            position: absolute;
+            right: -1.5rem;
+            bottom: -1rem;
+            font-family: Georgia, serif;
+        }
+        
+        .btn-container {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
         }
         
         .btn {
             display: inline-block;
-            background-color: #fff;
-            color: #6a57d5;
-            padding: 0.8rem 2rem;
-            border-radius: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
             text-decoration: none;
             font-weight: 600;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            font-size: 1rem;
             transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.9rem;
-        }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.2);
-        }
-        
-        .shapes {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: 1;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            position: relative;
             overflow: hidden;
         }
         
-        .shape {
+        .btn::before {
+            content: '';
             position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
         }
         
-        .shape1 {
-            width: 150px;
-            height: 150px;
-            left: 10%;
-            top: 20%;
-            animation: float 8s infinite;
+        .btn:hover::before {
+            left: 100%;
         }
         
-        .shape2 {
-            width: 80px;
-            height: 80px;
-            right: 15%;
-            top: 15%;
-            animation: float 6s infinite 1s;
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
         }
         
-        .shape3 {
-            width: 200px;
-            height: 200px;
-            left: 15%;
-            bottom: 10%;
-            animation: float 9s infinite 2s;
+        .btn-secondary {
+            background: linear-gradient(135deg, #ff7675 0%, #fd79a8 100%);
+            box-shadow: 0 4px 15px rgba(255, 118, 117, 0.4);
         }
         
-        .shape4 {
-            width: 120px;
-            height: 120px;
-            right: 10%;
-            bottom: 20%;
-            animation: float 7s infinite 3s;
-        }
-        
-        @keyframes float {
-            0% {
-                transform: translateY(0) rotate(0deg);
-            }
-            50% {
-                transform: translateY(-20px) rotate(5deg);
-            }
-            100% {
-                transform: translateY(0) rotate(0deg);
-            }
+        .btn-secondary:hover {
+            box-shadow: 0 8px 25px rgba(255, 118, 117, 0.6);
         }
         
         @keyframes pulse {
-            0% {
+            0%, 100% {
                 transform: scale(1);
             }
             50% {
-                transform: scale(1.05);
-            }
-            100% {
-                transform: scale(1);
+                transform: scale(1.1);
             }
         }
         
         @media (max-width: 768px) {
-            h1 {
-                font-size: 8rem;
+            .container {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
             }
             
-            h2 {
-                font-size: 1.5rem;
+            .content-section {
+                text-align: center;
+                min-width: auto;
+                justify-content: flex-start;
+                padding-left: 0;
             }
             
-            p {
+            .main-message {
+                text-align: center;
+            }
+            
+            .sub-content {
+                max-width: 500px;
+            }
+            
+            .main-message {
+                font-size: 2.2rem;
+            }
+            
+            .sub-message {
+                font-size: 1.1rem;
+            }
+            
+            .description {
                 font-size: 1rem;
+                max-width: 400px;
+            }
+            
+            .description::before,
+            .description::after {
+                display: none;
+            }
+            
+            .error-image {
+                width: 350px;
+            }
+            
+            .btn-container {
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .content-section {
+                min-width: auto;
+                justify-content: flex-start;
+                padding-left: 0;
+            }
+            
+            .main-message {
+                text-align: center;
+            }
+            
+            .sub-content {
+                max-width: 350px;
+            }
+            
+            .main-message {
+                font-size: 1.8rem;
+            }
+            
+            .sub-message {
+                font-size: 1rem;
+            }
+            
+            .description {
+                max-width: 300px;
+            }
+            
+            .description::before,
+            .description::after {
+                display: none;
+            }
+            
+            .error-image {
+                width: 280px;
+            }
+            
+            .btn-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 200px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="shapes">
-        <div class="shape shape1"></div>
-        <div class="shape shape2"></div>
-        <div class="shape shape3"></div>
-        <div class="shape shape4"></div>
-    </div>
-    
     <div class="container">
-        <h1>404</h1>
-        <h2>Oops! Page Not Found</h2>
-        <p>The page you're looking for doesn't exist or has been moved.</p>
-        <a href="{{ url('/') }}" class="btn">Back to Home</a>
+        <div class="image-section">
+            <img src="{{ asset('img/Crying Sadness.png') }}" alt="Crying Sadness" class="error-image" onerror="this.style.display='none'; document.querySelector('.error-image-fallback').style.display='block';">
+            <div class="error-image-fallback">😭</div>
+        </div>
+        
+        <div class="content-section">
+            <h1 class="main-message">AWWW...DON'T CRY.</h1>
+            
+            <div class="sub-content">
+                <p class="sub-message">It's just a 404 Error!</p>
+                
+                <p class="description">
+                    What you're looking for may have been misplaced in Long Term Memory.
+                </p>
+                
+                <div class="btn-container">
+                    <a href="{{ url('/') }}" class="btn">Go Home</a>
+                    <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+                </div>
+            </div>
+        </div>
     </div>
     
     <script>
-        // Add interactive floating elements
-        document.addEventListener('mousemove', function(e) {
-            const shapes = document.querySelectorAll('.shape');
-            let x = e.clientX / window.innerWidth;
-            let y = e.clientY / window.innerHeight;
+        // Handle image loading with space in filename
+        document.addEventListener('DOMContentLoaded', function() {
+            const img = document.querySelector('.error-image');
+            const fallback = document.querySelector('.error-image-fallback');
             
-            shapes.forEach(shape => {
-                const speed = parseFloat(Math.random() * 2).toFixed(2);
-                shape.style.transform = `translate(${x * 20}px, ${y * 20}px) scale(${1 + x * 0.1})`;
-            });
+            // Try different approaches for the image path
+            const imagePaths = [
+                "{{ asset('img/Crying Sadness.png') }}",
+                "{{ asset('img/Crying%20Sadness.png') }}",
+                "/img/Crying Sadness.png",
+                "/img/Crying%20Sadness.png"
+            ];
+            
+            let currentPath = 0;
+            
+            function tryNextPath() {
+                if (currentPath < imagePaths.length) {
+                    img.src = imagePaths[currentPath];
+                    currentPath++;
+                } else {
+                    // If all paths fail, show fallback
+                    img.style.display = 'none';
+                    fallback.style.display = 'block';
+                }
+            }
+            
+            img.onerror = function() {
+                tryNextPath();
+            };
+            
+            // Check if image loads successfully
+            img.onload = function() {
+                fallback.style.display = 'none';
+                img.style.display = 'block';
+            };
         });
     </script>
 </body>
