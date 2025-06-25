@@ -26,14 +26,16 @@ class CheckAccountStatus
                 // Store user info in cache temporarily (5 minutes expiration)
                 Cache::put('disabled_user_' . $user->id, [
                     'disabled_reason' => $user->disabled_reason,
-                    'account_type' => 'User'
+                    'account_type' => 'User',
+                    'disabled_at' => $user->disabled_at
                 ], 300);
                 
                 // Store user info in a global cache as backup
                 Cache::put('disabled_user_backup', [
                     'id' => $user->id,
                     'disabled_reason' => $user->disabled_reason,
-                    'account_type' => 'User'
+                    'account_type' => 'User',
+                    'disabled_at' => $user->disabled_at
                 ], 300);
                 
                 // Logout the user
@@ -55,14 +57,16 @@ class CheckAccountStatus
                 // Store admin info in cache temporarily (5 minutes expiration)
                 Cache::put('disabled_admin_' . $admin->id, [
                     'disabled_reason' => $admin->disabled_reason,
-                    'account_type' => 'Admin'
+                    'account_type' => 'Admin',
+                    'disabled_at' => $admin->disabled_at
                 ], 300); // 5 minutes instead of 1 minute
                 
                 // Store admin info in a global cache as backup
                 Cache::put('disabled_admin_backup', [
                     'id' => $admin->id,
                     'disabled_reason' => $admin->disabled_reason,
-                    'account_type' => 'Admin'
+                    'account_type' => 'Admin',
+                    'disabled_at' => $admin->disabled_at
                 ], 300);
                 
                 // Logout the admin

@@ -19,6 +19,7 @@ class AccountStatusController extends Controller
     {
         $disabledReason = null;
         $accountType = null;
+        $disabledAt = null;
         
         // Debug: Log request data
         Log::info('Account Disabled Debug:', [
@@ -41,8 +42,9 @@ class AccountStatusController extends Controller
             if ($cacheData) {
                 $disabledReason = $cacheData['disabled_reason'];
                 $accountType = $cacheData['account_type'];
+                $disabledAt = isset($cacheData['disabled_at']) && $cacheData['disabled_at'] ? \Carbon\Carbon::parse($cacheData['disabled_at']) : null;
                 // Don't clear cache immediately - let it expire naturally
-                Log::info('Found user cache data:', ['reason' => $disabledReason, 'type' => $accountType]);
+                Log::info('Found user cache data:', ['reason' => $disabledReason, 'type' => $accountType, 'disabled_at' => $disabledAt]);
             }
         }
         
@@ -58,8 +60,9 @@ class AccountStatusController extends Controller
             if ($cacheData) {
                 $disabledReason = $cacheData['disabled_reason'];
                 $accountType = $cacheData['account_type'];
+                $disabledAt = isset($cacheData['disabled_at']) && $cacheData['disabled_at'] ? \Carbon\Carbon::parse($cacheData['disabled_at']) : null;
                 // Don't clear cache immediately - let it expire naturally
-                Log::info('Found admin cache data:', ['reason' => $disabledReason, 'type' => $accountType]);
+                Log::info('Found admin cache data:', ['reason' => $disabledReason, 'type' => $accountType, 'disabled_at' => $disabledAt]);
             }
         }
           // Fallback: Check session (for backward compatibility)
@@ -69,8 +72,9 @@ class AccountStatusController extends Controller
             if ($backupData && $request->has('aid') && $backupData['id'] == $request->get('aid')) {
                 $disabledReason = $backupData['disabled_reason'];
                 $accountType = $backupData['account_type'];
+                $disabledAt = isset($backupData['disabled_at']) && $backupData['disabled_at'] ? \Carbon\Carbon::parse($backupData['disabled_at']) : null;
                 Cache::forget('disabled_admin_backup');
-                Log::info('Found admin backup cache data:', ['reason' => $disabledReason, 'type' => $accountType]);
+                Log::info('Found admin backup cache data:', ['reason' => $disabledReason, 'type' => $accountType, 'disabled_at' => $disabledAt]);
             }
             
             // Check backup cache for user
@@ -78,8 +82,9 @@ class AccountStatusController extends Controller
             if ($backupData && $request->has('uid') && $backupData['id'] == $request->get('uid')) {
                 $disabledReason = $backupData['disabled_reason'];
                 $accountType = $backupData['account_type'];
+                $disabledAt = isset($backupData['disabled_at']) && $backupData['disabled_at'] ? \Carbon\Carbon::parse($backupData['disabled_at']) : null;
                 Cache::forget('disabled_user_backup');
-                Log::info('Found user backup cache data:', ['reason' => $disabledReason, 'type' => $accountType]);
+                Log::info('Found user backup cache data:', ['reason' => $disabledReason, 'type' => $accountType, 'disabled_at' => $disabledAt]);
             }
             
             // Check if there's a user ID in session (set during logout process)
@@ -90,6 +95,7 @@ class AccountStatusController extends Controller
                 if ($user && $user->status == 0) {
                     $disabledReason = $user->disabled_reason;
                     $accountType = 'User';
+                    $disabledAt = $user->disabled_at;
                 }
                 $request->session()->forget('disabled_user_id');
             }
@@ -101,6 +107,7 @@ class AccountStatusController extends Controller
                 if ($admin && $admin->status == 0) {
                     $disabledReason = $admin->disabled_reason;
                     $accountType = 'Admin';
+                    $disabledAt = $admin->disabled_at;
                 }
                 $request->session()->forget('disabled_admin_id');
             }
@@ -115,7 +122,8 @@ class AccountStatusController extends Controller
                 if (!$disabledReason) {
                     $disabledReason = $user->disabled_reason;
                     $accountType = 'User';
-                    Log::info('Using user data from DB (no cache):', ['reason' => $disabledReason, 'type' => $accountType]);
+                    $disabledAt = $user->disabled_at;
+                    Log::info('Using user data from DB (no cache):', ['reason' => $disabledReason, 'type' => $accountType, 'disabled_at' => $disabledAt]);
                 } else {
                     // Verify cache data matches DB data
                     if ($disabledReason !== $user->disabled_reason) {
@@ -126,6 +134,7 @@ class AccountStatusController extends Controller
                         $disabledReason = $user->disabled_reason;
                         $accountType = 'User';
                     }
+                    $disabledAt = $user->disabled_at; // Always get timestamp from DB
                 }
             }
         }
@@ -139,7 +148,8 @@ class AccountStatusController extends Controller
                 if (!$disabledReason) {
                     $disabledReason = $admin->disabled_reason;
                     $accountType = 'Admin';
-                    Log::info('Using admin data from DB (no cache):', ['reason' => $disabledReason, 'type' => $accountType]);
+                    $disabledAt = $admin->disabled_at;
+                    Log::info('Using admin data from DB (no cache):', ['reason' => $disabledReason, 'type' => $accountType, 'disabled_at' => $disabledAt]);
                 } else {
                     // Verify cache data matches DB data
                     if ($disabledReason !== $admin->disabled_reason) {
@@ -150,6 +160,7 @@ class AccountStatusController extends Controller
                         $disabledReason = $admin->disabled_reason;
                         $accountType = 'Admin';
                     }
+                    $disabledAt = $admin->disabled_at; // Always get timestamp from DB
                 }
             }
         }
@@ -157,12 +168,14 @@ class AccountStatusController extends Controller
         // Provide default values if null
         $disabledReason = $disabledReason ?? '';
         $accountType = $accountType ?? '';
+        $disabledAt = $disabledAt ?? null;
         
         Log::info('Final values:', [
             'disabledReason' => $disabledReason,
-            'accountType' => $accountType
+            'accountType' => $accountType,
+            'disabledAt' => $disabledAt
         ]);
         
-        return view('auth.account-disabled', compact('disabledReason', 'accountType'));
+        return view('auth.account-disabled', compact('disabledReason', 'accountType', 'disabledAt'));
     }
 }

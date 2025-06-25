@@ -20,6 +20,7 @@ class Admin extends Authenticatable
         'contact_number',
         'status',
         'disabled_reason',
+        'disabled_at',
     ];
 
     protected $hidden = [
@@ -37,6 +38,7 @@ class Admin extends Authenticatable
         return [
             'password' => 'hashed',
             'status' => 'integer',
+            'disabled_at' => 'datetime',
         ];
     }
 

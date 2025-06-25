@@ -20,28 +20,23 @@ class AdminSeeder extends Seeder
             'password' => Hash::make('admin123'),
         ]);
 
-        // Get the first SBU and Site to assign to the admin
-        $firstSbu = Sbu::first();
-        $firstSite = Site::first();
+        // Get FDC and FUI SBUs to assign to the admin
+        $fdcSbu = Sbu::where('name', 'FDC')->first();
+        $fuiSbu = Sbu::where('name', 'FUI')->first();
 
-        if ($firstSbu) {
-            // Attach the admin to the first SBU
-            $admin->sbus()->attach($firstSbu->id);
+        // Attach admin to both FDC and FUI SBUs
+        if ($fdcSbu) {
+            $admin->sbus()->attach($fdcSbu->id);
         }
 
-        if ($firstSite) {
-            // Attach the admin to the first site
-            $admin->sites()->attach($firstSite->id);
+        if ($fuiSbu) {
+            $admin->sbus()->attach($fuiSbu->id);
         }
 
-        // Optionally, you can attach multiple SBUs and sites
-        // For example, attach to all SBUs:
-        // $admin->sbus()->attach(Sbu::pluck('id')->toArray());
-        
-        // Or attach to all sites of a specific SBU:
-        // if ($firstSbu) {
-        //     $sbuSites = Site::where('sbu_id', $firstSbu->id)->pluck('id')->toArray();
-        //     $admin->sites()->attach($sbuSites);
-        // }
+        // Attach admin to all sites
+        $allSites = Site::all();
+        if ($allSites->isNotEmpty()) {
+            $admin->sites()->attach($allSites->pluck('id')->toArray());
+        }
     }
 }

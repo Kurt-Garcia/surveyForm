@@ -49,6 +49,25 @@
                         </div>
                         @endif
 
+                        @if($disabledAt)
+                        <div class="timestamp-box">
+                            <h6><i class="bi bi-clock-history me-2"></i>Account Disabled On</h6>
+                            <div class="timestamp-content">
+                                <div class="timestamp-date">
+                                    <i class="bi bi-calendar3 me-2"></i>
+                                    <strong>{{ $disabledAt->format('F j, Y') }}</strong>
+                                </div>
+                                <div class="timestamp-time">
+                                    <i class="bi bi-clock me-2"></i>
+                                    <strong>{{ $disabledAt->format('g:i A') }}</strong>
+                                </div>
+                                <div class="timestamp-timezone">
+                                    <small class="text-muted">{{ $disabledAt->format('T') }} ({{ $disabledAt->diffForHumans() }})</small>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
                         <div class="help-section">
                             <div class="help-card">
                                 <i class="bi bi-headset"></i>
@@ -287,6 +306,10 @@
     border-radius: 8px;
     border: 1px solid #ffcc02;
     margin-bottom: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .reason-content p {
@@ -294,11 +317,57 @@
     color: #4a5568;
     line-height: 1.6;
     font-size: 0.95rem;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 .reason-meta {
     color: #bf360c;
     font-style: italic;
+}
+
+.timestamp-box {
+    background: #e3f2fd;
+    border-left: 4px solid #1976d2;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.timestamp-box h6 {
+    color: #0d47a1;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.timestamp-content {
+    background: white;
+    padding: 1.25rem;
+    border-radius: 8px;
+    border: 1px solid #90caf9;
+}
+
+.timestamp-date {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    color: #1565c0;
+    font-size: 1.1rem;
+}
+
+.timestamp-time {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    color: #1565c0;
+    font-size: 1.1rem;
+}
+
+.timestamp-timezone {
+    text-align: center;
+    padding-top: 0.5rem;
+    border-top: 1px solid #e3f2fd;
 }
 
 .help-section {

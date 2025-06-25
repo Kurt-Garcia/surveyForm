@@ -213,10 +213,12 @@ class DeveloperController extends Controller
             
             $admin->status = 0;
             $admin->disabled_reason = $request->disabled_reason;
+            $admin->disabled_at = now();
         } else {
-            // If enabling the admin, clear the disabled reason
+            // If enabling the admin, clear the disabled reason and timestamp
             $admin->status = 1;
             $admin->disabled_reason = null;
+            $admin->disabled_at = null;
         }
         
         $admin->save();
@@ -243,10 +245,12 @@ class DeveloperController extends Controller
             
             $user->status = 0;
             $user->disabled_reason = $request->disabled_reason;
+            $user->disabled_at = now();
         } else {
-            // If enabling the user, clear the disabled reason
+            // If enabling the user, clear the disabled reason and timestamp
             $user->status = 1;
             $user->disabled_reason = null;
+            $user->disabled_at = null;
         }
         
         $user->save();

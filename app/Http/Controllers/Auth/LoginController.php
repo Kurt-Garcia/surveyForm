@@ -85,14 +85,16 @@ class LoginController extends Controller
                 // Store admin info in cache temporarily (15 minutes expiration for better reliability)
                 Cache::put('disabled_admin_' . $admin->id, [
                     'disabled_reason' => $admin->disabled_reason,
-                    'account_type' => 'Admin'
+                    'account_type' => 'Admin',
+                    'disabled_at' => $admin->disabled_at
                 ], 900); // 15 minutes instead of 5
                 
                 // Store admin info in a global cache as backup
                 Cache::put('disabled_admin_backup', [
                     'id' => $admin->id,
                     'disabled_reason' => $admin->disabled_reason,
-                    'account_type' => 'Admin'
+                    'account_type' => 'Admin',
+                    'disabled_at' => $admin->disabled_at
                 ], 900); // 15 minutes instead of 5
                 
                 Log::info('Admin disabled cache set via LoginController:', [
@@ -119,14 +121,16 @@ class LoginController extends Controller
                 // Store user info in cache temporarily (5 minutes expiration)
                 Cache::put('disabled_user_' . $user->id, [
                     'disabled_reason' => $user->disabled_reason,
-                    'account_type' => 'User'
+                    'account_type' => 'User',
+                    'disabled_at' => $user->disabled_at
                 ], 300);
                 
                 // Store user info in a global cache as backup
                 Cache::put('disabled_user_backup', [
                     'id' => $user->id,
                     'disabled_reason' => $user->disabled_reason,
-                    'account_type' => 'User'
+                    'account_type' => 'User',
+                    'disabled_at' => $user->disabled_at
                 ], 300);
                 
                 Auth::guard('web')->logout();

@@ -27,6 +27,7 @@ class User extends Authenticatable
         'created_by',
         'status',
         'disabled_reason',
+        'disabled_at',
     ];
 
     /**
@@ -80,6 +81,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'status' => 'integer',
+            'disabled_at' => 'datetime',
         ];
     }
 
