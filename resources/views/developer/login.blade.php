@@ -301,7 +301,7 @@
                                    name="login" 
                                    value="{{ old('login') }}" 
                                    placeholder="Enter your credentials"
-                                   required autocomplete="username" autofocus>
+                                   required autocomplete="username" autofocus maxlength="100">
                         </div>
 
                         <div class="mb-4">
@@ -313,7 +313,7 @@
                                        class="form-control @error('password') is-invalid @enderror" 
                                        name="password" 
                                        placeholder="Enter your password"
-                                       required autocomplete="current-password">
+                                       required autocomplete="current-password" maxlength="100">
                                 <button type="button" class="password-toggle-btn" onclick="togglePassword()">
                                     <i class="bi bi-eye" id="toggleIcon"></i>
                                 </button>

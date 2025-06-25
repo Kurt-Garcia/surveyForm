@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <div class="password-input-group">
                                     <input id="current_password" type="password" 
                                         class="form-control @error('current_password') is-invalid @enderror" 
-                                        name="current_password" required autocomplete="current-password">
+                                        name="current_password" required autocomplete="current-password" maxlength="100">
                                     <button type="button" class="password-toggle-btn" data-target="current_password">
                                         <i class="bi bi-eye"></i>
                                     </button>
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <div class="password-input-group">
                                     <input id="password" type="password" 
                                         class="form-control @error('password') is-invalid @enderror" 
-                                        name="password" required autocomplete="new-password">
+                                        name="password" required autocomplete="new-password" maxlength="100">
                                     <button type="button" class="password-toggle-btn" data-target="password">
                                         <i class="bi bi-eye"></i>
                                     </button>
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
                                 <div class="password-input-group">
                                     <input id="password-confirm" type="password" class="form-control"
-                                        name="password_confirmation" required autocomplete="new-password">
+                                        name="password_confirmation" required autocomplete="new-password" maxlength="100">
                                     <button type="button" class="password-toggle-btn" data-target="password-confirm">
                                         <i class="bi bi-eye"></i>
                                     </button>

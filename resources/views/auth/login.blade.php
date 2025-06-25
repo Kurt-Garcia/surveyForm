@@ -42,7 +42,7 @@
                                 <i class="bi bi-person input-icon"></i>
                                 <input id="name" type="text" class="glass-input @error('name') is-invalid @enderror" 
                                     name="name" value="{{ old('name') }}" required autocomplete="name" autofocus 
-                                    placeholder="Enter your username">
+                                    placeholder="Enter your username" maxlength="100">
                             </div>
                             @error('name')
                                 <span class="text-danger small mt-1 d-block">{{ $message }}</span>
@@ -56,7 +56,7 @@
                                 <div class="password-input-group w-100">
                                     <input id="password" type="password" class="glass-input @error('password') is-invalid @enderror" 
                                         name="password" required autocomplete="current-password" 
-                                        placeholder="Enter your password">
+                                        placeholder="Enter your password" maxlength="100">
                                     <button type="button" class="glass-password-toggle" data-target="password">
                                         <i class="bi bi-eye"></i>
                                     </button>

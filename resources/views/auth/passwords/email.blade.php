@@ -48,7 +48,7 @@
                                 <i class="bi bi-envelope input-icon"></i>
                                 <input id="email" type="email" class="glass-input @error('email') is-invalid @enderror" 
                                     name="email" value="{{ old('email') }}" required autocomplete="email" autofocus 
-                                    placeholder="Enter your email">
+                                    placeholder="Enter your email" maxlength="100">
                             </div>
                             @error('email')
                                 <span class="text-danger small mt-1 d-block">{{ $message }}</span>
