@@ -132,57 +132,60 @@ function confirmResubmission() {
 
                 <div class="card-body p-4">
                     <!-- Response Meta Information -->
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="text-muted mb-1">Account Name</label>
-                                <h5>
-                                    @php
-                                        $customer = DB::table('TBLCUSTOMER')->where('CUSTNAME', $header->account_name)->first();
-                                        $custcode = $customer ? $customer->CUSTCODE : '';
-                                    @endphp
-                                    {{ $custcode ? $custcode . ' - ' . $header->account_name : $header->account_name }}
-                                </h5>
+                    <div class="customer-info-section border p-3 mb-4 bg-light rounded">
+                        <!-- First row: Account Name and Account Type -->
+                        <div class="row mb-3">
+                            <div class="col-md-9">
+                                <div class="mb-3">
+                                    <label class="text-muted mb-1">Account Name</label>
+                                    <h5>
+                                        @php
+                                            $customer = DB::table('TBLCUSTOMER')->where('CUSTNAME', $header->account_name)->first();
+                                            $custcode = $customer ? $customer->CUSTCODE : '';
+                                        @endphp
+                                        {{ $custcode ? $custcode . ' - ' . $header->account_name : $header->account_name }}
+                                    </h5>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="text-muted mb-1">Account Type</label>
+                                    <h5>{{ $header->account_type }}</h5>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="text-muted mb-1">Account Type</label>
-                                <h5>{{ $header->account_type }}</h5>
+                        
+                        <!-- Second row: Date, Start Time, End Time, Duration -->
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="text-muted mb-1">Date</label>
+                                    <h5>{{ $header->date->format('M d, Y') }}</h5>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="text-muted mb-1">Date</label>
-                                <h5>{{ $header->date->format('M d, Y') }}</h5>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="text-muted mb-1">Start Time</label>
+                                    <h5>{{ $header->start_time ? $header->start_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</h5>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Time Information -->
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="text-muted mb-1">Start Time</label>
-                                <h5>{{ $header->start_time ? $header->start_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</h5>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="text-muted mb-1">End Time</label>
+                                    <h5>{{ $header->end_time ? $header->end_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</h5>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="text-muted mb-1">End Time</label>
-                                <h5>{{ $header->end_time ? $header->end_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}</h5>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="text-muted mb-1">Duration</label>
-                                <h5>
-                                    @if($header->start_time && $header->end_time)
-                                        {{ $header->end_time->diffForHumans($header->start_time, ['parts' => 2]) }}
-                                    @else
-                                        N/A
-                                    @endif
-                                </h5>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="text-muted mb-1">Duration</label>
+                                    <h5>
+                                        @if($header->start_time && $header->end_time)
+                                            {{ $header->end_time->diffForHumans($header->start_time, ['parts' => 2]) }}
+                                        @else
+                                            N/A
+                                        @endif
+                                    </h5>
+                                </div>
                             </div>
                         </div>
                     </div>
