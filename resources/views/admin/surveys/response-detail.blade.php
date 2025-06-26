@@ -359,32 +359,11 @@ function printWithPrintJS() {
     const comments = "{{ $header->comments }}";
     const logoPath = "@if($survey->logo){{ asset('storage/' . $survey->logo) }}@else{{ asset('img/logo.png') }}@endif";
     
-    // Function to truncate text and calculate font size
-    function getTruncatedTextAndFontSize(text, maxLength = 30) {
-        let fontSize = '10pt';
-        let displayText = text;
-        
-        if (text.length > maxLength) {
-            // Try smaller font first
-            if (text.length <= 40) {
-                fontSize = '9pt';
-            } else if (text.length <= 50) {
-                fontSize = '8pt';
-            } else {
-                // If still too long, truncate with ellipsis
-                fontSize = '8pt';
-                displayText = text.substring(0, maxLength - 3) + '...';
-            }
-        }
-        
-        return { text: displayText, fontSize: fontSize, isOriginal: displayText === text };
-    }
-    
     // Process account name and type
-    const accountNameData = getTruncatedTextAndFontSize(accountName, 30);
-    const accountTypeData = getTruncatedTextAndFontSize(accountType, 25);
+    const accountNameData = { text: accountName, fontSize: '10pt' };
+    const accountTypeData = { text: accountType, fontSize: '10pt' };
     
-    // Create header content (Logo + Customer Info)
+    // Create header content for Print (Logo + Customer Info)
     const headerContent = `
         <div class="print-header" style="margin-bottom: 20px; page-break-after: avoid;">
             <div class="header-logo" style="text-align: center; margin-bottom: 10px;">
@@ -397,11 +376,11 @@ function printWithPrintJS() {
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                     <div style="flex: 1; margin-right: 15px; min-width: 0; max-width: 75%;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Account Name</div>
-                        <div style="font-size: ${accountNameData.fontSize}; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${accountName}">${accountNameData.text}</div>
+                        <div style="font-size: 10pt; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${accountName}</div>
                     </div>
                     <div style="flex: 1; min-width: 0; max-width: 23%;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Account Type</div>
-                        <div style="font-size: ${accountTypeData.fontSize}; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${accountType}">${accountTypeData.text}</div>
+                        <div style="font-size: 10pt; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${accountType}</div>
                     </div>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
@@ -717,7 +696,7 @@ function generatePDF() {
     const accountNameDataPDF = getTruncatedTextAndFontSizePDF(accountNameText, 30);
     const accountTypeDataPDF = getTruncatedTextAndFontSizePDF(accountTypeText, 25);
     
-    // Create header content (Logo + Customer Info)
+    // Create header content for PDF (Logo + Customer Info)
     const headerContent = `
         <div class="pdf-header" style="margin-bottom: 20px;">
             <div class="header-logo" style="text-align: center; margin-bottom: 10px;">
@@ -728,29 +707,29 @@ function generatePDF() {
             </div>
             <div class="customer-info" style="border: 1px solid #ddd; padding: 12px; background-color: #f9f9f9; margin-bottom: 15px;">
                 <div style="display: flex; gap: 15px; margin-bottom: 10px;">
-                    <div style="flex: 1; min-width: 0; max-width: 33%;">
+                    <div style="flex: 1; min-width: 0; max-width: 75%;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Account Name</div>
                         <div style="font-size: ${accountNameDataPDF.fontSize}; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${accountNameText}">${accountNameDataPDF.text}</div>
                     </div>
-                    <div style="flex: 1; min-width: 0; max-width: 33%;">
+                    <div style="flex: 1; min-width: 0; max-width: 23%;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Account Type</div>
                         <div style="font-size: ${accountTypeDataPDF.fontSize}; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${accountTypeText}">${accountTypeDataPDF.text}</div>
                     </div>
-                    <div style="flex: 1; min-width: 0; max-width: 33%;">
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <div style="flex: 1; min-width: 0; max-width: 25%;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Date</div>
                         <div style="font-size: 10pt; font-weight: bold;">${responseDate}</div>
                     </div>
-                </div>
-                <div style="display: flex; gap: 15px;">
-                    <div style="flex: 1; min-width: 0; max-width: 33%;">
+                    <div style="flex: 1; min-width: 0; max-width: 25%;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Start Time</div>
                         <div style="font-size: 10pt; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${startTime}</div>
                     </div>
-                    <div style="flex: 1; min-width: 0; max-width: 33%;">
+                    <div style="flex: 1; min-width: 0; max-width: 25%;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">End Time</div>
                         <div style="font-size: 10pt; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${endTime}</div>
                     </div>
-                    <div style="flex: 1; min-width: 0; max-width: 33%;">
+                    <div style="flex: 1; min-width: 0; max-width: 25%;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Duration</div>
                         <div style="font-size: 10pt; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${duration}</div>
                     </div>
