@@ -240,7 +240,7 @@
         transform: translateY(-50%);
         background: transparent;
         border: none;
-        color: rgba(255, 255, 255, 0.8);
+        color: #343a40;
         width: 40px;
         height: 40px;
         display: flex;
@@ -253,7 +253,7 @@
 
     .glass-password-toggle:hover {
         background: transparent;
-        color: rgba(255, 255, 255, 1);
+        color: #212529;
         transform: translateY(-50%) scale(1.1);
     }
 
