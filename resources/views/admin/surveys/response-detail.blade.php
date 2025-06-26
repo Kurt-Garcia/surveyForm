@@ -1,5 +1,9 @@
 @extends(Auth::guard('admin')->check() ? 'layouts.app' : 'layouts.app-user')
 
+@php
+use Illuminate\Support\Facades\DB;
+@endphp
+
 @section('content')
 <div class="container-fluid px-4 mt-4">
     <!-- Print-only logo header -->
@@ -132,7 +136,13 @@ function confirmResubmission() {
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="text-muted mb-1">Account Name</label>
-                                <h5>{{ $header->account_name }}</h5>
+                                <h5>
+                                    @php
+                                        $customer = DB::table('TBLCUSTOMER')->where('CUSTNAME', $header->account_name)->first();
+                                        $custcode = $customer ? $customer->CUSTCODE : '';
+                                    @endphp
+                                    {{ $custcode ? $custcode . ' - ' . $header->account_name : $header->account_name }}
+                                </h5>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -349,7 +359,12 @@ function printWithPrintJS() {
     
     // Get actual values from the page
     const surveyTitle = "{{ strtoupper($survey->title) }}";
-    const accountName = "{{ $header->account_name }}";
+    @php
+        $customer = DB::table('TBLCUSTOMER')->where('CUSTNAME', $header->account_name)->first();
+        $custcode = $customer ? $customer->CUSTCODE : '';
+        $displayAccountName = $custcode ? $custcode . ' - ' . $header->account_name : $header->account_name;
+    @endphp
+    const accountName = "{{ $displayAccountName }}";
     const accountType = "{{ $header->account_type }}";
     const responseDate = "{{ $header->date->format('M d, Y') }}";
     const startTime = "{{ $header->start_time ? $header->start_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}";
@@ -376,7 +391,7 @@ function printWithPrintJS() {
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                     <div style="flex: 1; margin-right: 15px; min-width: 0; max-width: 75%;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Account Name</div>
-                        <div style="font-size: 10pt; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${accountName}</div>
+                        <div style="font-size: 9pt; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${accountName}</div>
                     </div>
                     <div style="flex: 1; min-width: 0; max-width: 23%;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Account Type</div>
@@ -661,7 +676,7 @@ function generatePDF() {
     
     // Get actual values from the page
     const surveyTitleText = "{{ strtoupper($survey->title) }}";
-    const accountNameText = "{{ $header->account_name }}";
+    const accountNameText = "{{ $displayAccountName }}";
     const accountTypeText = "{{ $header->account_type }}";
     const responseDate = "{{ $header->date->format('M d, Y') }}";
     const startTime = "{{ $header->start_time ? $header->start_time->setTimezone('Asia/Manila')->format('h:i:s A') : 'N/A' }}";
@@ -692,8 +707,8 @@ function generatePDF() {
         return { text: displayText, fontSize: fontSize, isOriginal: displayText === text };
     }
     
-    // Process account name and type for PDF
-    const accountNameDataPDF = getTruncatedTextAndFontSizePDF(accountNameText, 30);
+    // Process account name and type for PDF - show full account name without truncation
+    const accountNameDataPDF = { text: accountNameText, fontSize: '10pt' };
     const accountTypeDataPDF = getTruncatedTextAndFontSizePDF(accountTypeText, 25);
     
     // Create header content for PDF (Logo + Customer Info)
@@ -1040,15 +1055,7 @@ p, span, div {
     padding: 0 0.15rem !important;
     min-width: 0 !important;
 }
-/* Text truncation for long account names in print */
-.col-md-4 h5 {
-    font-size: 10pt !important;
-    line-height: 1.2 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    max-width: 100% !important;
-}
+
 /* Ensure customer info section doesn't break */
 .customer-info {
     page-break-inside: avoid !important;
