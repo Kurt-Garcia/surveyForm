@@ -395,29 +395,29 @@ function printWithPrintJS() {
             </div>
             <div class="customer-info" style="border: 1px solid #ddd; padding: 12px; background-color: #f9f9f9; margin-bottom: 15px;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <div style="flex: 1; margin-right: 15px; min-width: 0; max-width: 33%;">
+                    <div style="flex: 1; margin-right: 15px; min-width: 0; max-width: 75%;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Account Name</div>
                         <div style="font-size: ${accountNameData.fontSize}; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${accountName}">${accountNameData.text}</div>
                     </div>
-                    <div style="flex: 1; margin-right: 15px; min-width: 0; max-width: 33%;">
+                    <div style="flex: 1; min-width: 0; max-width: 23%;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Account Type</div>
                         <div style="font-size: ${accountTypeData.fontSize}; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${accountType}">${accountTypeData.text}</div>
                     </div>
-                    <div style="flex: 1; min-width: 0; max-width: 33%;">
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <div style="flex: 1; margin-right: 15px; min-width: 0; max-width: 25%;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Date</div>
                         <div style="font-size: 10pt; font-weight: bold;">${responseDate}</div>
                     </div>
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <div style="flex: 1; margin-right: 15px; min-width: 0; max-width: 33%;">
+                    <div style="flex: 1; margin-right: 15px; min-width: 0; max-width: 25%;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Start Time</div>
                         <div style="font-size: 10pt; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${startTime}</div>
                     </div>
-                    <div style="flex: 1; margin-right: 15px; min-width: 0; max-width: 33%;">
+                    <div style="flex: 1; margin-right: 15px; min-width: 0; max-width: 25%;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">End Time</div>
                         <div style="font-size: 10pt; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${endTime}</div>
                     </div>
-                    <div style="flex: 1; min-width: 0; max-width: 33%;">
+                    <div style="flex: 1; min-width: 0; max-width: 25%;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 3px;">Duration</div>
                         <div style="font-size: 10pt; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${duration}</div>
                     </div>
