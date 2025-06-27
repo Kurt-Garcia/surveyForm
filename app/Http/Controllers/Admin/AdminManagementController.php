@@ -159,10 +159,61 @@ class AdminManagementController extends Controller
         ]);
     }
 
+    /**
+     * Get admins data for DataTables
+     *
+     * @return JsonResponse
+     */
+    public function data(): JsonResponse
+    {
+        $admins = Admin::with(['sbus.sites'])
+            ->select(['id', 'name', 'email', 'contact_number', 'created_at'])
+            ->get();
+
+        $data = $admins->map(function ($admin) {
+            $sbus = $admin->sbus;
+            $sbuNames = $sbus->pluck('name')->join(', ') ?: 'No SBU assigned';
+            
+            // Get all sites from all SBUs
+            $allSites = $sbus->flatMap(function ($sbu) {
+                return $sbu->sites;
+            })->unique('id');
+            
+            $siteCount = $allSites->count();
+            $sites = $allSites->map(function ($site) {
+                return ['id' => $site->id, 'name' => $site->name];
+            })->values()->toArray();
+
+            return [
+                'id' => $admin->id,
+                'name' => $admin->name,
+                'email' => $admin->email,
+                'contact_number' => $admin->contact_number,
+                'sbu_name' => $sbuNames,
+                'site_name' => $siteCount > 0 ? $allSites->first()->name : 'N/A',
+                'site_count' => $siteCount,
+                'sites' => $sites,
+                'created_at' => $admin->created_at->format('M d, Y'),
+                'sbus' => $sbus->map(function ($sbu) {
+                    return [
+                        'id' => $sbu->id,
+                        'name' => $sbu->name,
+                        'sites' => $sbu->sites->map(function ($site) {
+                            return ['id' => $site->id, 'name' => $site->name];
+                        })->toArray()
+                    ];
+                })->toArray()
+            ];
+        });
+
+        return response()->json(['data' => $data]);
+    }
+
     public function create()
     {
-        $sbus = \App\Models\Sbu::with('sites')->get();
-        return view('admin.admins.create', compact('sbus'));
+        // This method is deprecated - admin creation now uses UserManagementController with mode=admin
+        // Redirect to the new unified create view
+        return redirect()->route('admin.admins.create');
     }
 
     public function store(Request $request)
@@ -282,7 +333,7 @@ class AdminManagementController extends Controller
         // Attach all selected sites to the admin
         $admin->sites()->attach($request->site_ids);
 
-        return redirect()->route('admin.dashboard')
+        return redirect()->route('admin.admins.create')
             ->with('success', 'Admin account created successfully with access to ' . count($request->sbu_ids) . ' SBU(s) and ' . count($request->site_ids) . ' site(s)!');
         } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->validator)

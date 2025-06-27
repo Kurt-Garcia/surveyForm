@@ -15,9 +15,11 @@ use Illuminate\Validation\Rule;
 
 class UserManagementController extends Controller
 {
-    // Show the form to create a new user
-    public function create()
+    // Show the form to create a new user or admin
+    public function create(Request $request)
     {
+        $mode = $request->route('mode') ?? 'user'; // Default to 'user' mode
+        
         // Get the logged-in admin
         $admin = Auth::guard('admin')->user();
         
@@ -38,7 +40,7 @@ class UserManagementController extends Controller
             $sbus = Sbu::with('sites')->get();
         }
         
-        return view('admin.users.create', compact('sbus'));
+        return view('admin.users.create', compact('sbus', 'mode'));
     }
 
     // Store the new user
@@ -185,6 +187,7 @@ class UserManagementController extends Controller
         
         return response()->json($sites);
     }
+
 
     // Get data for DataTables displaying only survey users created by current admin
     public function data()

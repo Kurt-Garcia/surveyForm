@@ -12,24 +12,24 @@
         <div class="col-12">
             <div class="text-center mb-4" style="color: var(--text-color);">
                 <h1 class="display-4 fw-bold mb-3" style="color: var(--text-color);">
-                    <i class="bi bi-person-plus-fill me-3"></i>User Management
+                    <i class="bi bi-{{ $mode === 'admin' ? 'person-gear' : 'person-plus-fill' }} me-3"></i>{{ $mode === 'admin' ? 'Administrator' : 'User' }} Management
                 </h1>
-                <p class="lead" style="color: var(--text-color); opacity: 0.8;">Create new surveyors and manage existing users with modern tools</p>
+                <p class="lead" style="color: var(--text-color); opacity: 0.8;">{{ $mode === 'admin' ? 'Create new administrators and manage existing ones' : 'Create new surveyors and manage existing users with modern tools' }}</p>
             </div>
         </div>
     </div>
 
     <div class="row g-4">
-        <!-- Create New User Form - Left Side -->
+        <!-- Create New {{ $mode === 'admin' ? 'Admin' : 'User' }} Form - Left Side -->
         <div class="col-lg-3 col-xl-4">
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100">
                 <div class="card-header bg-gradient text-white py-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h4 class="mb-0 fw-bold">
-                                <i class="bi bi-plus-circle-fill me-2"></i>Add New Surveyor
+                                <i class="bi bi-plus-circle-fill me-2"></i>Add New {{ $mode === 'admin' ? 'Administrator' : 'Surveyor' }}
                             </h4>
-                            <p class="mb-0 opacity-90 small mt-1">Create a new surveyor account</p>
+                            <p class="mb-0 opacity-90 small mt-1">Create a new {{ $mode === 'admin' ? 'administrator' : 'surveyor' }} account</p>
                         </div>
                     </div>
                 </div>
@@ -40,8 +40,9 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('admin.users.store') }}" method="POST" id="userForm" onsubmit="return confirmSubmit(event)">
+                    <form action="{{ $mode === 'admin' ? route('admin.admins.store') : route('admin.users.store') }}" method="POST" id="userForm" onsubmit="return confirmSubmit(event)">
                         @csrf
+                        <input type="hidden" id="form-mode" value="{{ $mode }}">
                         
                         @if($sbus->count() > 0)
                         <!-- SBU Selection -->
@@ -51,10 +52,10 @@
                             </label>
                             <div class="sbu-selection-container">
                                 <p class="text-muted mb-3 fs-6">
-                                    Select one or more SBUs where this user will have access. 
+                                    Select one or more SBUs where this {{ $mode === 'admin' ? 'administrator' : 'user' }} will have access. 
                                     <small class="text-info">
                                         <i class="bi bi-info-circle me-1"></i>
-                                        You can only assign users to SBUs you have access to ({{ $sbus->count() }} available).
+                                        You can only assign {{ $mode === 'admin' ? 'administrators' : 'users' }} to SBUs you have access to ({{ $sbus->count() }} available).
                                     </small>
                                 </p>
                                 <div class="row g-3 {{ $sbus->count() == 1 ? 'justify-content-center' : '' }}">
@@ -98,7 +99,7 @@
                             </label>
                             <div class="sites-selection-container">
                                 <div class="d-flex justify-content-between align-items-center mb-3 sites-header-container">
-                                    <p class="text-muted mb-0 fs-6 flex-grow-1 me-3">Select sites where this user will have access:</p>
+                                    <p class="text-muted mb-0 fs-6 flex-grow-1 me-3">Select sites where this {{ $mode === 'admin' ? 'administrator' : 'user' }} will have access:</p>
                                     <div class="selection-controls flex-shrink-0">
                                         <button type="button" id="selectAllSites" class="btn btn-sm me-2" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); color: white; border: none;" disabled>
                                             <i class="fas fa-check-double me-1"></i>Select All
@@ -197,7 +198,7 @@
                         <!-- Submit Button -->
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg rounded-pill shadow-sm py-3" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); border: none;">
-                                <i class="bi bi-person-plus-fill me-2"></i>Create Surveyor Account
+                                <i class="bi bi-{{ $mode === 'admin' ? 'person-gear' : 'person-plus-fill' }} me-2"></i>Create {{ $mode === 'admin' ? 'Administrator' : 'Surveyor' }} Account
                             </button>
                         </div>
                         @else
@@ -206,7 +207,7 @@
                             <div class="alert alert-warning border-0 rounded-3 shadow-sm">
                                 <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
                                 <h5 class="mb-2">No SBUs Available</h5>
-                                <p class="mb-3">You don't have access to any Strategic Business Units. You cannot create new surveyors until SBUs are assigned to your account.</p>
+                                <p class="mb-3">You don't have access to any Strategic Business Units. You cannot create new {{ $mode === 'admin' ? 'administrators' : 'surveyors' }} until SBUs are assigned to your account.</p>
                                 <small class="text-muted">Please contact your system administrator for assistance.</small>
                             </div>
                         </div>
@@ -216,16 +217,16 @@
             </div>
         </div>
 
-        <!-- Existing Users Table - Right Side -->
+        <!-- Existing {{ $mode === 'admin' ? 'Administrators' : 'Users' }} Table - Right Side -->
         <div class="col-lg-9 col-xl-8">
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100">
                 <div class="card-header bg-gradient text-white py-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h4 class="mb-0 fw-bold">
-                                <i class="bi bi-people-fill me-2"></i>Survey Users
+                                <i class="bi bi-{{ $mode === 'admin' ? 'people-fill' : 'people-fill' }} me-2"></i>{{ $mode === 'admin' ? 'Administrators' : 'Survey Users' }}
                             </h4>
-                            <p class="mb-0 opacity-90 small mt-1">All surveyors in the system</p>
+                            <p class="mb-0 opacity-90 small mt-1">All {{ $mode === 'admin' ? 'administrators' : 'surveyors' }} in the system</p>
                         </div>
                         <div class="d-flex gap-2">
                             <span class="badge bg-light text-dark rounded-pill px-3 py-2">
@@ -258,13 +259,13 @@
     </div>
 </div>
 
-<!-- User Details Modal -->
+<!-- {{ $mode === 'admin' ? 'Administrator' : 'User' }} Details Modal -->
 <div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-gradient text-white">
                 <h5 class="modal-title fw-bold" id="userDetailsModalLabel">
-                    <i class="bi bi-person-circle me-2"></i>User Details
+                    <i class="bi bi-person-circle me-2"></i>{{ $mode === 'admin' ? 'Administrator' : 'User' }} Details
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -1497,9 +1498,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 //Modal initialization for more than five sites
 function initializeUsersTable() {
+    const mode = '{{ $mode }}';
+    const dataUrl = mode === 'admin' ? '{{ route("admin.admins.data") }}' : '{{ route("admin.users.data") }}';
+    
     $('#usersTable').DataTable({
         ajax: {
-            url: '{{ route("admin.users.data") }}',
+            url: dataUrl,
             dataSrc: 'data'
         },
         columns: [
@@ -2067,6 +2071,11 @@ function showUserDetailsModal(userData) {
 function confirmSubmit(event) {
     event.preventDefault();
     
+    // Get the current mode (admin or user)
+    const mode = document.getElementById('form-mode')?.value || 'user';
+    const entityType = mode === 'admin' ? 'administrator' : 'surveyor';
+    const entityTypeCap = mode === 'admin' ? 'Administrator' : 'Surveyor';
+    
     // Helper function to get user-friendly field labels
     function getFieldLabel(fieldName) {
         const labels = {
@@ -2216,8 +2225,8 @@ function confirmSubmit(event) {
     }
     
     swalWithBootstrapButtons.fire({
-        title: "Create New Surveyor?",
-        text: "Please confirm to create a new surveyor account!",
+        title: `Create New ${entityTypeCap}?`,
+        text: `Please confirm to create a new ${entityType} account!`,
         icon: "question",
         showCancelButton: true,
         confirmButtonText: "Yes, create it!",

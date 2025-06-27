@@ -89,8 +89,9 @@ Route::prefix('admin')->group(function () {
         Route::patch('/customers/{id}', [CustomerController::class, 'update'])->name('admin.customers.update');
         Route::get('/customers/check-email-availability', [CustomerController::class, 'checkEmailAvailability'])->name('admin.customers.check-email-availability');
         
-        // Admin management routes
-        Route::get('/admins/create', [App\Http\Controllers\Admin\AdminManagementController::class, 'create'])->name('admin.admins.create');
+        // Admin management routes - using same view as users
+        Route::get('/admins/create', [App\Http\Controllers\Admin\UserManagementController::class, 'create'])->defaults('mode', 'admin')->name('admin.admins.create');
+        Route::get('/admins/data', [App\Http\Controllers\Admin\AdminManagementController::class, 'data'])->name('admin.admins.data');
         Route::post('/admins', [App\Http\Controllers\Admin\AdminManagementController::class, 'store'])->name('admin.admins.store');
         Route::get('/check-email-availability', [App\Http\Controllers\Admin\AdminManagementController::class, 'checkEmailAvailability'])->name('admin.check-email-availability');
         Route::get('/check-name-availability', [App\Http\Controllers\Admin\AdminManagementController::class, 'checkNameAvailability'])->name('admin.check-name-availability');
@@ -158,7 +159,7 @@ Route::prefix('admin')->group(function () {
         // Survey deployment settings update route
         Route::patch('surveys/{survey}/update-deployment', [\App\Http\Controllers\Admin\SurveyController::class, 'updateDeployment'])
             ->name('admin.surveys.update-deployment');
-        Route::get('/users/create', [\App\Http\Controllers\Admin\UserManagementController::class, 'create'])->name('admin.users.create');
+        Route::get('/users/create', [\App\Http\Controllers\Admin\UserManagementController::class, 'create'])->defaults('mode', 'user')->name('admin.users.create');
         Route::post('/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('admin.users.store');
         Route::get('/users/data', [\App\Http\Controllers\Admin\UserManagementController::class, 'data'])->name('admin.users.data');
         
