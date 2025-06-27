@@ -716,7 +716,7 @@ function generatePDF() {
     
     // Create header content for PDF (Logo + Customer Info)
     const headerContent = `
-        <div class="pdf-header" style="margin-bottom: 20px;">
+        <div class="pdf-header" style="margin-bottom: 20px; padding-top: 7px;">
             <div class="header-logo" style="text-align: center; margin-bottom: 10px;">
                 <img src="${logoPath}" alt="${surveyTitleText} Logo" style="max-width: 150px; max-height: 60px; height: auto;">
             </div>
@@ -926,7 +926,7 @@ function generatePDF() {
     
     // Configure PDF options
     const opt = {
-        margin: [0.3, 0.3, 0.5, 0.3], // top, right, bottom, left - extra bottom margin for page numbers
+        margin: [0.5, 0.3, 0.5, 0.3], // top, right, bottom, left - extra bottom margin for page numbers
         filename: `${surveyTitle}_${accountName}_Response.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { 
