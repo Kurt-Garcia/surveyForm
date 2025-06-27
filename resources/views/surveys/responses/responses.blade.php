@@ -38,7 +38,12 @@
                                     <div class="response-container shadow-sm hover-lift">
                                         <div class="d-flex align-items-center response-row">
                                             <div class="response-info flex-grow-1">
-                                                <h5 class="mb-1">{{ $response->account_name }}</h5>
+                                                @php
+                                                    $customer = DB::table('TBLCUSTOMER')->where('CUSTNAME', $response->account_name)->first();
+                                                    $custcode = $customer ? $customer->CUSTCODE : '';
+                                                    $displayAccountName = $custcode ? $custcode . ' - ' . $response->account_name : $response->account_name;
+                                                @endphp
+                                                <h5 class="mb-1">{{ $displayAccountName }}</h5>
                                                 <div class="d-flex align-items-center">
                                                     <span class="badge bg-light text-dark me-2">{{ $response->account_type }}</span>
                                                     <span class="text-muted small">

@@ -128,7 +128,12 @@
                                                 <td class="ps-4">
                                                     <div class="d-flex align-items-center">
                                                         <div>
-                                                            <h6 class="mb-0 fw-semibold">{{ $response->account_name }}</h6>
+                                                            @php
+                                                                $customer = DB::table('TBLCUSTOMER')->where('CUSTNAME', $response->account_name)->first();
+                                                                $custcode = $customer ? $customer->CUSTCODE : '';
+                                                                $displayAccountName = $custcode ? $custcode . ' - ' . $response->account_name : $response->account_name;
+                                                            @endphp
+                                                            <h6 class="mb-0 fw-semibold">{{ $displayAccountName }}</h6>
                                                         </div>
                                                     </div>
                                                 </td>
