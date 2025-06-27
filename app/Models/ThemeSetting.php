@@ -61,7 +61,7 @@ class ThemeSetting extends Model
     }
 
     /**
-     * Set this theme as active and deactivate all others for the same admin
+     * Set this theme as active and deactivate all others for the current admin
      */
     public function setAsActive()
     {
@@ -69,25 +69,21 @@ class ThemeSetting extends Model
         \Illuminate\Support\Facades\DB::beginTransaction();
         
         try {
-            // If this is an admin-specific theme, only deactivate other themes for the same admin
-            if ($this->admin_id) {
-                self::where('id', '!=', $this->id)
-                    ->where('admin_id', $this->admin_id)
-                    ->update(['is_active' => false]);
-            } else {
-                // If this is a global theme being activated, we need to get the current admin
-                // from the session/auth and deactivate their admin-specific themes
-                $admin = \Illuminate\Support\Facades\Auth::guard('admin')->user();
-                if ($admin) {
-                    self::where('admin_id', $admin->id)
-                        ->update(['is_active' => false]);
-                }
-                
-                // Also deactivate other global themes
-                self::where('id', '!=', $this->id)
-                    ->whereNull('admin_id')
-                    ->update(['is_active' => false]);
+            $admin = \Illuminate\Support\Facades\Auth::guard('admin')->user();
+            
+            if (!$admin) {
+                throw new \Exception('No authenticated admin found');
             }
+            
+            // Deactivate ALL themes that could be active for this admin:
+            // 1. Admin-specific themes created by this admin
+            // 2. Global/default themes (admin_id is null)
+            self::where('id', '!=', $this->id)
+                ->where(function($query) use ($admin) {
+                    $query->where('admin_id', $admin->id)  // Admin's own themes
+                          ->orWhereNull('admin_id');        // Global themes
+                })
+                ->update(['is_active' => false]);
             
             // Activate this theme
             $this->is_active = true;

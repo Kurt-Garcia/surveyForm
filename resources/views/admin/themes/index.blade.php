@@ -87,7 +87,7 @@
                             </div>
 
                             <!-- Theme Actions -->
-                            <div class="theme-actions">
+                            <div class="theme-actions {{ $theme->admin_id === null && !$theme->is_active ? 'default-theme-inactive' : '' }}">
                                 @if(!$theme->is_active)
                                 <form action="{{ route('admin.themes.activate', $theme->id) }}" method="POST">
                                     @csrf
@@ -112,7 +112,7 @@
                                     </form>
                                     @endif
                                 @else
-                                    <!-- For global themes, show info about being default -->
+                                    <!-- For default themes, show info about being default -->
                                     <div class="default-theme-info">
                                         <small class="text-muted">
                                             <i class="bi bi-info-circle me-1"></i>
@@ -393,6 +393,16 @@
     text-align: center;
     border: 1px solid rgba(108, 117, 125, 0.2);
     grid-column: 1 / -1; /* Span all columns */
+}
+
+/* For default themes with only activate button, make it span full width */
+.theme-actions.default-theme-inactive {
+    grid-template-columns: 1fr !important;
+}
+
+.theme-actions.default-theme-inactive .activate-btn {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
 }
 
 .activate-btn {
