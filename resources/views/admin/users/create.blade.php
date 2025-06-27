@@ -357,14 +357,80 @@
     #modalUserDetailsTable {
         table-layout: fixed !important;
         width: 100% !important;
+        margin: 0 !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+    }
+    
+    /* Prevent any layout shifts during modal initialization */
+    .modal-body-scrollable {
+        overflow-x: hidden !important;
+    }
+    
+    .modal-body-scrollable .table-container-full-width {
+        transition: none !important; /* Disable transitions that might cause FOUC */
+        overflow-x: hidden !important;
+    }
+    
+    /* Ensure DataTables wrapper doesn't cause layout shifts */
+    .modal-body-scrollable .dataTables_wrapper {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Prevent table from shifting during initialization */
+    .modal-body-scrollable .dataTables_wrapper .table {
+        margin-bottom: 0 !important;
+    }
+    
+    /* Prevent table container from flashing - ensure consistent padding */
+    .modal-body-scrollable .table-container-full-width {
+        padding: 0 15px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Ensure table is styled consistently before DataTables loads */
+    #modalUserDetailsTable thead th {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+        color: white !important;
+        font-weight: 600 !important;
+        border: none !important;
+        padding: 1rem 0.75rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 10 !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+    
+    #modalUserDetailsTable tbody td {
+        padding: 1rem 0.75rem !important;
+        border-bottom: 1px solid #f1f3f5 !important;
+        vertical-align: middle !important;
+        background: white !important;
+        transition: all 0.3s ease;
+    }
+    
+    #modalUserDetailsTable tbody tr {
+        background: white !important;
+        transition: all 0.3s ease;
+    }
+    
+    #modalUserDetailsTable tbody tr:hover {
+        background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.05) 0%, rgba(var(--secondary-color-rgb), 0.05) 100%) !important;
+        transform: translateX(5px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     
     #modalUserDetailsTable tbody {
-        transition: opacity 0.2s ease;
+        background: white !important;
     }
     
     #modalUserDetailsTable.dt-processing tbody {
-        opacity: 0.5;
+        opacity: 0.7;
     }
     
     /* Ensure smooth DataTable initialization */
@@ -786,7 +852,7 @@
         
         /* Add padding to table container instead */
         .modal-body-scrollable .table-container-full-width {
-            padding: 0 0.75rem 0.75rem 0.75rem !important; /* Reduce padding */
+            padding: 0 15px !important; /* Consistent with desktop */
         }
         
         .modal-footer {
@@ -1750,12 +1816,28 @@ function showUserDetailsModal(userData) {
     modalElement.addEventListener('shown.bs.modal', function () {
         // Only initialize DataTable if there are sites to display
         if (sites.length > 0) {
-            // Ensure table is ready and hide content initially to prevent flashing
+            // Pre-set table container styling to prevent FOUC
+            const tableContainer = $('.table-container-full-width');
             const table = $('#modalUserDetailsTable');
             const tbody = table.find('tbody');
             
-            // Set table to fixed layout and temporarily hide content
-            table.css('table-layout', 'fixed');
+            // Ensure consistent container styling from the start
+            tableContainer.css({
+                'padding': '0 15px',
+                'margin': '0',
+                'box-sizing': 'border-box'
+            });
+            
+            // Set table to fixed layout and prepare for DataTables
+            table.css({
+                'table-layout': 'fixed',
+                'width': '100%',
+                'margin': '0',
+                'border-collapse': 'separate',
+                'border-spacing': '0'
+            });
+            
+            // Hide content initially to prevent flashing, but keep structure
             tbody.css('opacity', '0');
             
             // Ensure all table rows beyond the first 5 are hidden initially
@@ -1798,14 +1880,35 @@ function showUserDetailsModal(userData) {
                     },
                     dom: 'rt<"d-none"<"info-holder"i><"paginate-holder"p>>',
                 preInit: function() {
-                    // Ensure table is stable before DataTables initialization
-                    $('#modalUserDetailsTable').css('table-layout', 'fixed');
+                    // Ensure table and container are stable before DataTables initialization
+                    const table = $('#modalUserDetailsTable');
+                    const tableContainer = $('.table-container-full-width');
+                    
+                    // Lock container styling to prevent shifts
+                    tableContainer.css({
+                        'padding': '0 15px',
+                        'margin': '0',
+                        'box-sizing': 'border-box',
+                        'transition': 'none'
+                    });
+                    
+                    // Lock table styling
+                    table.css({
+                        'table-layout': 'fixed',
+                        'width': '100%',
+                        'margin': '0'
+                    });
                 },
                     initComplete: function() {
-                        // Show table content smoothly now that DataTables is initialized
-                        $('#modalUserDetailsTable tbody').animate({
-                            opacity: 1
-                        }, 200);
+                        // Show table content immediately without animation to prevent FOUC
+                        $('#modalUserDetailsTable tbody').css('opacity', '1');
+                        
+                        // Ensure table container maintains consistent styling
+                        $('.table-container-full-width').css({
+                            'padding': '0 15px',
+                            'margin': '0',
+                            'box-sizing': 'border-box'
+                        });
                         
                         // Create custom search input in the fixed container
                         const searchContainer = $('#modal-search-container');
