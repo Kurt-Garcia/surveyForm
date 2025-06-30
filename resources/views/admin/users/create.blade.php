@@ -237,20 +237,25 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0" id="usersTable">
-                            <thead class="table-light">
+                        <table id="usersTable" class="table modern-table table-hover w-100">
+                            <thead>
                                 <tr>
-                                    <th class="ps-4 fw-semibold text-dark border-0">Name</th>
-                                    <th class="fw-semibold text-dark border-0">Email</th>
-                                    <th class="fw-semibold text-dark border-0">Contact</th>
-                                    <th class="fw-semibold text-dark border-0">SBU</th>
-                                    <th class="fw-semibold text-dark border-0">Site</th>
-                                    <th class="pe-4 fw-semibold text-dark border-0">Created</th>
+                                    @if($mode === 'admin')
+                                        <th>Name</th>
+                                        <th>SBU</th>
+                                        <th>Sites</th>
+                                        <th>Created</th>
+                                    @else
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Contact</th>
+                                        <th>SBU</th>
+                                        <th>Sites</th>
+                                        <th>Created</th>
+                                    @endif
                                 </tr>
                             </thead>
-                            <tbody>
-                                <!-- DataTables will populate this -->
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                     </div>
                 </div>
@@ -1501,12 +1506,57 @@ function initializeUsersTable() {
     const mode = '{{ $mode }}';
     const dataUrl = mode === 'admin' ? '{{ route("admin.admins.data") }}' : '{{ route("admin.users.data") }}';
     
-    $('#usersTable').DataTable({
-        ajax: {
-            url: dataUrl,
-            dataSrc: 'data'
-        },
-        columns: [
+    // Define columns based on mode
+    let columns;
+    if (mode === 'admin') {
+        columns = [
+            { 
+                data: null,
+                render: function(data, type, row) {
+                    // Concatenate name, email, and contact number
+                    const name = data.name || '-';
+                    const email = data.email ? `<br><small class='text-muted'><i class="bi bi-envelope me-1"></i>${data.email}</small>` : '';
+                    const contact = data.contact_number ? `<br><small class='text-muted'><i class="bi bi-telephone me-1"></i>${data.contact_number}</small>` : '';
+                    return `<h6 class="mb-0 fw-semibold">${name}</h6>${email}${contact}`;
+                }
+            },
+            { 
+                data: 'sbu_name',
+                render: function(data) {
+                    return `<span class="badge bg-info rounded-pill">${data}</span>`;
+                }
+            },
+            { 
+                data: 'site_name',
+                render: function(data, type, row) {
+                    if (!data || data === 'N/A') return '<span class="text-muted">No site assigned</span>';
+                    const siteCount = row.site_count || 0;
+                    const sites = row.sites || [];
+                    if (siteCount <= 1) {
+                        let badgesHtml = '';
+                        sites.forEach(site => {
+                            badgesHtml += `<span class="badge bg-secondary me-1">${site.name}</span>`;
+                        });
+                        return badgesHtml || '<span class="text-muted">No sites</span>';
+                    } else {
+                        let limitedBadges = '';
+                        sites.slice(0, 1).forEach(site => {
+                            limitedBadges += `<span class="badge bg-secondary me-1">${site.name}</span>`;
+                        });
+                        return `${limitedBadges}<span class="badge bg-primary more-sites-badge">+${siteCount - 1} more</span>`;
+                    }
+                },
+                className: 'site-column'
+            },
+            { 
+                data: 'created_at',
+                render: function(data) {
+                    return `<small class="text-muted"><i class="bi bi-calendar me-1"></i>${data}</small>`;
+                }
+            }
+        ];
+    } else {
+        columns = [
             { 
                 data: 'name',
                 render: function(data, type, row) {
@@ -1535,44 +1585,20 @@ function initializeUsersTable() {
                 data: 'site_name',
                 render: function(data, type, row) {
                     if (!data || data === 'N/A') return '<span class="text-muted">No site assigned</span>';
-                    
                     const siteCount = row.site_count || 0;
                     const sites = row.sites || [];
-                    
                     if (siteCount <= 1) {
-                        // Show all sites as badges
                         let badgesHtml = '';
                         sites.forEach(site => {
-                            badgesHtml += `
-                                <span class="badge bg-secondary site-badge me-1 mb-1" 
-                                      style="font-size: 0.75rem; padding: 4px 8px;">
-                                    ${site.name}
-                                </span>
-                            `;
+                            badgesHtml += `<span class="badge bg-secondary me-1">${site.name}</span>`;
                         });
                         return badgesHtml || '<span class="text-muted">No sites</span>';
                     } else {
-                        // Show limited sites and make row clickable
                         let limitedBadges = '';
                         sites.slice(0, 1).forEach(site => {
-                            limitedBadges += `
-                                <span class="badge bg-secondary site-badge me-1 mb-1" 
-                                      style="font-size: 0.75rem; padding: 4px 8px;">
-                                    ${site.name}
-                                </span>
-                            `;
+                            limitedBadges += `<span class="badge bg-secondary me-1">${site.name}</span>`;
                         });
-                        
-                        return `
-                            <div class="sites-display">
-                                ${limitedBadges}
-                                <span class="badge bg-primary more-sites-badge" 
-                                      style="font-size: 0.75rem; padding: 4px 8px; cursor: pointer;"
-                                      title="Click to view all ${siteCount} sites">
-                                    +${siteCount - 1} more
-                                </span>
-                            </div>
-                        `;
+                        return `${limitedBadges}<span class="badge bg-primary more-sites-badge">+${siteCount - 1} more</span>`;
                     }
                 },
                 className: 'site-column'
@@ -1583,11 +1609,19 @@ function initializeUsersTable() {
                     return `<small class="text-muted"><i class="bi bi-calendar me-1"></i>${data}</small>`;
                 }
             }
-        ],
+        ];
+    }
+
+    $('#usersTable').DataTable({
+        ajax: {
+            url: dataUrl,
+            dataSrc: 'data'
+        },
+        columns: columns,
         pageLength: 10,
         lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
         responsive: true,
-        order: [[5, 'desc']], // Sort by created date
+        order: [[columns.length - 1, 'desc']], // Sort by created date
         language: {
             search: "<i class='bi bi-search'></i>",
             searchPlaceholder: "Search surveyors...",
@@ -1611,30 +1645,30 @@ function initializeUsersTable() {
                     {
                         extend: 'copy',
                         text: '<i class="bi bi-clipboard me-1"></i> Copy',
-                        exportOptions: { columns: [0, 1, 2, 3, 4, 5] }
+                        exportOptions: { columns: [...Array(columns.length).keys()] }
                     },
                     {
                         extend: 'csv',
                         text: '<i class="bi bi-filetype-csv me-1"></i> CSV',
-                        exportOptions: { columns: [0, 1, 2, 3, 4, 5] },
+                        exportOptions: { columns: [...Array(columns.length).keys()] },
                         title: 'Survey Users List'
                     },
                     {
                         extend: 'excel',
                         text: '<i class="bi bi-file-earmark-excel me-1"></i> Excel',
-                        exportOptions: { columns: [0, 1, 2, 3, 4, 5] },
+                        exportOptions: { columns: [...Array(columns.length).keys()] },
                         title: 'Survey Users List'
                     },
                     {
                         extend: 'pdf',
                         text: '<i class="bi bi-file-earmark-pdf me-1"></i> PDF',
-                        exportOptions: { columns: [0, 1, 2, 3, 4, 5] },
+                        exportOptions: { columns: [...Array(columns.length).keys()] },
                         title: 'Survey Users List'
                     },
                     {
                         extend: 'print',
                         text: '<i class="bi bi-printer me-1"></i> Print',
-                        exportOptions: { columns: [0, 1, 2, 3, 4, 5] },
+                        exportOptions: { columns: [...Array(columns.length).keys()] },
                         title: 'Survey Users List'
                     }
                 ]
@@ -1644,11 +1678,9 @@ function initializeUsersTable() {
             // Update total users count
             const info = this.api().page.info();
             document.getElementById('totalUsers').textContent = info.recordsTotal;
-            
             // Style the search input
             $('.dataTables_filter input').addClass('form-control');
             $('.dataTables_filter label').addClass('position-relative');
-            
             // Style the length select
             $('.dataTables_length select').addClass('form-select');
         },
@@ -2002,7 +2034,7 @@ function showUserDetailsModal(userData) {
                         adjustModalForMobile();
                         $(window).on('resize', adjustModalForMobile);
                         
-                        // Mobile modal height adjustment - ensure pagination and footer are visible
+                        // Modal height adjustment - ensure pagination and footer are visible
                         function adjustModalHeight() {
                             const windowHeight = $(window).height();
                             const windowWidth = $(window).width();
