@@ -19,11 +19,18 @@
                 </div>
                 <div class="card-body p-5">
                     @if (session('success'))
-                        <div class="alert alert-success">
-                            {{ session('success') }}
-                        </div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: @json(session('success')),
+                                    confirmButtonText: 'OK'
+                                });
+                            });
+                        </script>
                     @endif
-                    <form method="POST" action="{{ route('profile.update') }}" id="profileForm">
+                    <form method="POST" action="{{ route('profile.update') }}" id="profileForm" onsubmit="return confirmProfileUpdate(event)">
                         @csrf
                         @method('PUT')
                         <div class="mb-4">
@@ -85,6 +92,27 @@
 </div>
 
 <script>
+function confirmProfileUpdate(event) {
+    event.preventDefault();
+    Swal.fire({
+        title: "Confirm Profile Update",
+        text: "Are you sure you want to save these changes?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, save changes!",
+        cancelButtonText: "No, cancel!",
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Enable the submit button before submitting
+            const submitButton = document.querySelector('#profileForm button[type="submit"]');
+            submitButton.disabled = false;
+            event.target.submit();
+        }
+    });
+    return false;
+}
+
 function confirmPasswordChange(event) {
     event.preventDefault();
     Swal.fire({
