@@ -79,4 +79,17 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Profile updated successfully!');
     }
+
+    public function checkCurrentPassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+        ]);
+        $guard = Auth::guard('admin')->check() ? 'admin' : 'web';
+        $user = $guard === 'admin'
+            ? \App\Models\Admin::find(Auth::guard($guard)->id())
+            : \App\Models\User::find(Auth::guard($guard)->id());
+        $isValid = \Illuminate\Support\Facades\Hash::check($request->current_password, $user->password);
+        return response()->json(['valid' => $isValid]);
+    }
 }

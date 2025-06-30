@@ -97,6 +97,9 @@ function confirmPasswordChange(event) {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
+            // Enable the submit button before submitting
+            const submitButton = document.querySelector('#passwordForm button[type="submit"]');
+            submitButton.disabled = false;
             event.target.submit();
         }
     });
@@ -123,11 +126,57 @@ function checkPasswordMatch() {
         submitButton.disabled = true;
     }
 }
+
+function checkCurrentPassword() {
+    const currentPassword = document.getElementById('current_password').value;
+    const currentPasswordInput = document.getElementById('current_password');
+    const submitButton = document.querySelector('#passwordForm button[type="submit"]');
+    let messageElem = document.getElementById('current-password-message');
+    if (!messageElem) {
+        messageElem = document.createElement('div');
+        messageElem.id = 'current-password-message';
+        currentPasswordInput.parentNode.appendChild(messageElem);
+    }
+    if (currentPassword.length === 0) {
+        messageElem.innerHTML = '';
+        messageElem.className = '';
+        submitButton.disabled = false;
+        return;
+    }
+    fetch("{{ route('profile.checkCurrentPassword') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+        },
+        body: JSON.stringify({ current_password: currentPassword })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.valid) {
+            messageElem.innerHTML = '<i class="bi bi-check-circle me-2"></i>Current password is correct';
+            messageElem.className = 'text-success small mt-2';
+            submitButton.disabled = false;
+        } else {
+            messageElem.innerHTML = '<i class="bi bi-x-circle me-2"></i>Current password is incorrect';
+            messageElem.className = 'text-danger small mt-2';
+            submitButton.disabled = true;
+        }
+    })
+    .catch(() => {
+        messageElem.innerHTML = '<i class="bi bi-x-circle me-2"></i>Error checking password';
+        messageElem.className = 'text-danger small mt-2';
+        submitButton.disabled = true;
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('password_confirmation');
+    const currentPasswordInput = document.getElementById('current_password');
     passwordInput.addEventListener('input', checkPasswordMatch);
     confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+    currentPasswordInput.addEventListener('input', checkCurrentPassword);
 });
 </script>
 
