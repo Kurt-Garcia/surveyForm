@@ -49,10 +49,11 @@ Route::get('/test-disable-user/{id}', function($id) {
     return 'User not found';
 });
 
-// Password change routes - accessible by both users and admins
+// Profile routes
 Route::middleware(['auth:web,admin', 'account.status'])->group(function () {
-    Route::get('/password/change', [ChangePasswordController::class, 'showChangePasswordForm'])->name('password.change');
-    Route::post('/password/change', [ChangePasswordController::class, 'changePassword']);
+    Route::get('/profile', [\App\Http\Controllers\Auth\ProfileController::class, 'showProfileForm'])->name('profile');
+    Route::put('/profile', [\App\Http\Controllers\Auth\ProfileController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/profile/password', [\App\Http\Controllers\Auth\ProfileController::class, 'changePassword'])->name('profile.password');
 });
 
 Route::middleware(['auth', 'account.status'])->group(function () {
