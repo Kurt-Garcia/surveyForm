@@ -35,10 +35,13 @@
             @endif
 
             <!-- Theme Cards -->
+            @php
+                $admin = Auth::guard('admin')->user();
+            @endphp
             <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-5 mb-5">
                 @foreach($themes as $theme)
                 <div class="col theme-card-container">
-                    <div class="card theme-card h-100 {{ $theme->is_active ? 'active' : '' }}">
+                    <div class="card theme-card h-100 {{ $activeTheme && $activeTheme->id === $theme->id ? 'active' : '' }}">
                         <div class="theme-status-indicator" style="background-color: {{ $theme->primary_color }};"></div>
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <div>
@@ -47,7 +50,7 @@
                                     <small class="text-muted"><i class="bi bi-globe me-1"></i>Default Theme</small>
                                 @endif
                             </div>
-                            @if($theme->is_active)
+                            @if($activeTheme && $activeTheme->id === $theme->id)
                                 <span class="badge active-badge"><i class="bi bi-check-circle-fill me-1"></i>Active</span>
                             @endif
                         </div>
@@ -87,22 +90,21 @@
                             </div>
 
                             <!-- Theme Actions -->
-                            <div class="theme-actions {{ $theme->admin_id === null && !$theme->is_active ? 'default-theme-inactive' : '' }}">
-                                @if(!$theme->is_active)
-                                <form action="{{ route('admin.themes.activate', $theme->id) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="btn btn-action activate-btn">
-                                        <i class="bi bi-check-circle me-2"></i>Activate Theme
-                                    </button>
-                                </form>
-                                @endif
-                                
+                            <div class="theme-actions {{ $theme->admin_id === null && !($activeTheme && $activeTheme->id === $theme->id) ? 'default-theme-inactive' : '' }}">
                                 @if($theme->admin_id !== null)
+                                    @if(!($activeTheme && $activeTheme->id === $theme->id))
+                                    <form action="{{ route('admin.themes.activate', $theme->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="btn btn-action activate-btn">
+                                            <i class="bi bi-check-circle me-2"></i>Activate Theme
+                                        </button>
+                                    </form>
+                                    @endif
                                     <!-- Only show edit/delete for admin-created themes -->
                                     <a href="{{ route('admin.themes.edit', $theme->id) }}" class="btn btn-action edit-btn">
                                         <i class="bi bi-pencil-square me-2"></i>Edit Theme
                                     </a>
-                                    @if(!$theme->is_active)
+                                    @if(!($activeTheme && $activeTheme->id === $theme->id))
                                     <form action="{{ route('admin.themes.destroy', $theme->id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
@@ -112,13 +114,21 @@
                                     </form>
                                     @endif
                                 @else
-                                    <!-- For default themes, show info about being default -->
+                                    @if(!($activeTheme && $activeTheme->id === $theme->id))
+                                    <form action="{{ route('admin.themes.activate', $theme->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="btn btn-action activate-btn">
+                                            <i class="bi bi-check-circle me-2"></i>Activate Theme
+                                        </button>
+                                    </form>
+                                    @else
                                     <div class="default-theme-info">
                                         <small class="text-muted">
                                             <i class="bi bi-info-circle me-1"></i>
                                             This is a default theme and cannot be edited or deleted.
                                         </small>
                                     </div>
+                                    @endif
                                 @endif
                             </div>
                         </div>

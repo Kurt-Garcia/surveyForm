@@ -33,7 +33,10 @@ class ThemeController extends Controller
           ->orderBy('created_at', 'asc')
           ->get();
         
-        return view('admin.themes.index', compact('themes'));
+        // Get the active theme for this admin (could be default or custom)
+        $activeTheme = ThemeSetting::getActiveTheme($admin->id);
+        
+        return view('admin.themes.index', compact('themes', 'activeTheme'));
     }
 
     /**

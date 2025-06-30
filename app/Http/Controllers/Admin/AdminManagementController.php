@@ -185,14 +185,15 @@ class AdminManagementController extends Controller
             $sbus = $admin->sbus;
             $sbuNames = $sbus->pluck('name')->join(', ') ?: 'No SBU assigned';
             
-            // Get all sites from all SBUs
-            $allSites = $sbus->flatMap(function ($sbu) {
-                return $sbu->sites;
-            })->unique('id');
-            
-            $siteCount = $allSites->count();
-            $sites = $allSites->map(function ($site) {
-                return ['id' => $site->id, 'name' => $site->name];
+            // FIX: Only show sites actually assigned to the admin, with SBU eager loaded
+            $assignedSites = $admin->sites()->with('sbu')->get();
+            $siteCount = $assignedSites->count();
+            $sites = $assignedSites->map(function ($site) {
+                return [
+                    'id' => $site->id,
+                    'name' => $site->name,
+                    'sbu_name' => $site->sbu ? $site->sbu->name : 'Unknown SBU',
+                ];
             })->values()->toArray();
 
             return [
@@ -201,7 +202,7 @@ class AdminManagementController extends Controller
                 'email' => $admin->email,
                 'contact_number' => $admin->contact_number,
                 'sbu_name' => $sbuNames,
-                'site_name' => $siteCount > 0 ? $allSites->first()->name : 'N/A',
+                'site_name' => $siteCount > 0 ? $assignedSites->first()->name : 'N/A',
                 'site_count' => $siteCount,
                 'sites' => $sites,
                 'created_at' => $admin->created_at->format('M d, Y'),
