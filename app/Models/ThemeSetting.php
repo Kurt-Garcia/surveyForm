@@ -61,34 +61,23 @@ class ThemeSetting extends Model
     }
 
     /**
-     * Set this theme as active and deactivate all others for the current admin
+     * Set this theme as active and deactivate all others for the current admin only
      */
     public function setAsActive()
     {
-        // Begin transaction
         \Illuminate\Support\Facades\DB::beginTransaction();
-        
         try {
             $admin = \Illuminate\Support\Facades\Auth::guard('admin')->user();
-            
             if (!$admin) {
                 throw new \Exception('No authenticated admin found');
             }
-            
-            // Deactivate ALL themes that could be active for this admin:
-            // 1. Admin-specific themes created by this admin
-            // 2. Global/default themes (admin_id is null)
-            self::where('id', '!=', $this->id)
-                ->where(function($query) use ($admin) {
-                    $query->where('admin_id', $admin->id)  // Admin's own themes
-                          ->orWhereNull('admin_id');        // Global themes
-                })
+            // Deactivate only this admin's themes
+            self::where('admin_id', $admin->id)
+                ->where('id', '!=', $this->id)
                 ->update(['is_active' => false]);
-            
             // Activate this theme
             $this->is_active = true;
             $this->save();
-            
             \Illuminate\Support\Facades\DB::commit();
             return true;
         } catch (\Exception $e) {
