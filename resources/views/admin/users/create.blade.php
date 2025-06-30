@@ -1066,6 +1066,9 @@ const swalWithBootstrapButtons = Swal.mixin({
     buttonsStyling: false
 });
 
+// Pass current admin ID from backend (ensure this is set in your controller)
+const currentAdminId = @json(auth()->user()->id);
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize DataTables for existing users
     initializeUsersTable();
@@ -1615,7 +1618,16 @@ function initializeUsersTable() {
     $('#usersTable').DataTable({
         ajax: {
             url: dataUrl,
-            dataSrc: 'data'
+            dataSrc: function(json) {
+                // Only filter in admin mode
+                if (mode === 'admin') {
+                    // Exclude the current admin from the table
+                    return json.data.filter(function(row) {
+                        return row.id !== currentAdminId;
+                    });
+                }
+                return json.data;
+            }
         },
         columns: columns,
         pageLength: 10,
