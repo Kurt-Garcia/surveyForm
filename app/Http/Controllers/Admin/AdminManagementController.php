@@ -166,9 +166,20 @@ class AdminManagementController extends Controller
      */
     public function data(): JsonResponse
     {
-        $admins = Admin::with(['sbus.sites'])
-            ->select(['id', 'name', 'email', 'contact_number', 'created_at'])
-            ->get();
+        $currentAdmin = auth('admin')->user();
+
+        // Only Seeder admin can see all admins, others see only those they created (including themselves)
+        if ($currentAdmin->is_seeder) {
+            $admins = Admin::with(['sbus.sites'])
+                ->select(['id', 'name', 'email', 'contact_number', 'created_at'])
+                ->get();
+        } else {
+            $admins = Admin::with(['sbus.sites'])
+                ->where('created_by', $currentAdmin->id)
+                ->orWhere('id', $currentAdmin->id)
+                ->select(['id', 'name', 'email', 'contact_number', 'created_at'])
+                ->get();
+        }
 
         $data = $admins->map(function ($admin) {
             $sbus = $admin->sbus;
@@ -325,6 +336,8 @@ class AdminManagementController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'contact_number' => $contactNumber,
+            'created_by' => auth('admin')->id(),
+            'is_seeder' => false,
         ]);
 
         // Attach all selected SBUs to the admin

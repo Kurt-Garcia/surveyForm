@@ -21,6 +21,8 @@ class Admin extends Authenticatable
         'status',
         'disabled_reason',
         'disabled_at',
+        'created_by',
+        'is_seeder',
     ];
 
     protected $hidden = [
@@ -112,5 +114,21 @@ class Admin extends Authenticatable
     public function themes()
     {
         return $this->hasMany(\App\Models\ThemeSetting::class);
+    }
+
+    /**
+     * The admin who created this admin.
+     */
+    public function creator()
+    {
+        return $this->belongsTo(Admin::class, 'created_by');
+    }
+
+    /**
+     * Admins created by this admin.
+     */
+    public function createdAdmins()
+    {
+        return $this->hasMany(Admin::class, 'created_by');
     }
 }
