@@ -351,7 +351,13 @@
                 </div>
                 <div><i class="fas fa-map-marker-alt"></i> Site: 
                     @if(isset($user) && $user->sites->count() > 0)
-                        {{ $user->sites->pluck('name')->join(', ') }}
+                        @if($user->sites->count() == 1)
+                            {{ $user->sites->first()->name }}
+                        @else
+                            <span title="{{ $user->sites->pluck('name')->join(', ') }}">
+                                {{ $user->sites->first()->name }} +{{ $user->sites->count() - 1 }} More...
+                            </span>
+                        @endif
                     @else
                         Not Assigned
                     @endif
