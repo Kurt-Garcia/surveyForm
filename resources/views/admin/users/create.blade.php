@@ -398,8 +398,8 @@
     
     /* Ensure table is styled consistently before DataTables loads */
     #modalUserDetailsTable thead th {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-        color: white !important;
+        background: #f8f9fa !important;
+        color: #495057 !important;
         font-weight: 600 !important;
         border: none !important;
         padding: 1rem 0.75rem !important;
@@ -777,8 +777,8 @@
     }
 
     .modern-table thead th {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-        color: white !important;
+        background: #f8f9fa !important;
+        color: #495057 !important;
         font-weight: 600 !important;
         border: none !important;
         padding: 1rem 0.75rem !important; /* Reduce horizontal padding */
