@@ -26,8 +26,8 @@ class DatabaseSeeder extends Seeder
 
         // Create the test user without sbu_id and site_id
         $user = User::factory()->create([
-            'name' => 'Monkey D. Luffy',
-            'email' => 'pirateKing@gmail.com',
+            'name' => 'Juan De La Cruz',
+            'email' => 'delacruzjuan@gmail.com',
             'contact_number' => '09123456789',
             'password' => bcrypt('admin123'),
             'created_by' => 1,
