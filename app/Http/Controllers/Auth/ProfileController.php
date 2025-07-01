@@ -18,7 +18,15 @@ class ProfileController extends Controller
     {
         $guard = Auth::guard('admin')->check() ? 'admin' : 'web';
         $isAdmin = $guard === 'admin';
-        return view('auth.passwords.profile', compact('isAdmin'));
+        
+        // Load the user with relationships
+        if ($guard === 'web') {
+            $user = \App\Models\User::with(['sbus', 'sites'])->find(Auth::guard($guard)->id());
+        } else {
+            $user = \App\Models\Admin::with(['sbus', 'sites'])->find(Auth::guard($guard)->id());
+        }
+        
+        return view('auth.passwords.profile', compact('isAdmin', 'user'));
     }
 
     public function changePassword(Request $request)
