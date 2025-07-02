@@ -24,27 +24,27 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
         ]);
 
-        // Create the test user without sbu_id and site_id
-        $user = User::factory()->create([
-            'name' => 'Juan De La Cruz',
-            'email' => 'delacruzjuan@gmail.com',
-            'contact_number' => '09123456789',
-            'password' => bcrypt('admin123'),
-            'created_by' => 1,
-        ]);
+        // // Create the test user without sbu_id and site_id
+        // $user = User::factory()->create([
+        //     'name' => 'Juan De La Cruz',
+        //     'email' => 'delacruzjuan@gmail.com',
+        //     'contact_number' => '09123456789',
+        //     'password' => bcrypt('admin123'),
+        //     'created_by' => 1,
+        // ]);
 
-        // Get the first SBU and its sites to assign to the user
-        $firstSbu = \App\Models\Sbu::first();
-        if ($firstSbu) {
-            // Attach the user to the first SBU
-            $user->sbus()->attach($firstSbu->id);
+        // // Get the first SBU and its sites to assign to the user
+        // $firstSbu = \App\Models\Sbu::first();
+        // if ($firstSbu) {
+        //     // Attach the user to the first SBU
+        //     $user->sbus()->attach($firstSbu->id);
             
-            // Attach the user to the first site of that SBU
-            $firstSite = $firstSbu->sites()->first();
-            if ($firstSite) {
-                $user->sites()->attach($firstSite->id);
-            }
-        }
+        //     // Attach the user to the first site of that SBU
+        //     $firstSite = $firstSbu->sites()->first();
+        //     if ($firstSite) {
+        //         $user->sites()->attach($firstSite->id);
+        //     }
+        // }
 
         // Seed the Developer
         $this->call([

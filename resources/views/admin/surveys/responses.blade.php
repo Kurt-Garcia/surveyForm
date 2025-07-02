@@ -19,7 +19,7 @@
 
             <!-- Summary Cards -->
             <div class="row g-4 mb-4">
-                <div class="col-md-4">
+                <div class="col-lg-3 col-md-6">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-body">
                             <h5 class="text-color fw-bold mb-3"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Response Rate</h5>
@@ -28,7 +28,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-lg-3 col-md-6">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-body">
                             <h5 class="text-color fw-bold mb-3"><i class="bi bi-calendar-fill text-success me-2"></i>Latest Response</h5>
@@ -39,12 +39,26 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-lg-3 col-md-6">
                     <div class="card border-0 shadow-sm h-100">
                         <div class="card-body">
                             <h5 class="text-color fw-bold mb-3"><i class="bi bi-person-fill text-info me-2"></i>Unique Respondents</h5>
                             <div class="display-6 text-info mb-2">{{ $responses->unique('account_name')->count() }}</div>
                             <p class="text-muted">Individual participants</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="card border-0 shadow-sm h-100 report-card">
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <div class="report-icon mb-3">
+                                <i class="bi bi-file-earmark-text-fill text-warning display-5"></i>
+                            </div>
+                            <h5 class="text-color fw-bold mb-3">Generate Report</h5>
+                            <a href="{{ route('admin.surveys.report', $survey->id) }}" 
+                               class="btn btn-warning btn-lg rounded-pill px-4 report-btn">
+                                <i class="bi bi-download me-2"></i>View Report
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -441,6 +455,42 @@
 
             .card:hover {
                 transform: translateY(-5px);
+            }
+            
+            /* Report Card Styling */
+            .report-card {
+                background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+                border: 1px solid #ffd93d;
+                transition: all 0.3s ease;
+            }
+            
+            .report-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
+            }
+            
+            .report-icon {
+                transition: transform 0.3s ease;
+            }
+            
+            .report-card:hover .report-icon {
+                transform: scale(1.1) rotate(5deg);
+            }
+            
+            .report-btn {
+                background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);
+                border: none;
+                color: #fff;
+                font-weight: 600;
+                box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+                transition: all 0.3s ease;
+            }
+            
+            .report-btn:hover {
+                background: linear-gradient(135deg, #ff8f00 0%, #e65100 100%);
+                color: #fff;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
             }
             
             /* Modern Table Styling */
