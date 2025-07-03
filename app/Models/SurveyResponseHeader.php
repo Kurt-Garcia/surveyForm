@@ -14,6 +14,7 @@ class SurveyResponseHeader extends Model
     protected $fillable = [
         'survey_id',
         'admin_id',
+        'user_site_id',
         'account_name',
         'account_type',
         'date',
@@ -40,6 +41,11 @@ class SurveyResponseHeader extends Model
     public function admin(): BelongsTo
     {
         return $this->belongsTo(Admin::class);
+    }
+
+    public function userSite(): BelongsTo
+    {
+        return $this->belongsTo(Site::class, 'user_site_id');
     }
 
     public function details(): HasMany

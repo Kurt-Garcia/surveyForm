@@ -123,10 +123,24 @@ class SurveyResponseController extends Controller
 
         DB::beginTransaction();
         try {
+            // Get user's site information if authenticated
+            $userSiteId = null;
+            if (Auth::check()) {
+                // Get the user's primary site (first site they have access to)
+                $userSites = Auth::user()->sites;
+                if ($userSites->isNotEmpty()) {
+                    $userSiteId = $userSites->first()->id;
+                }
+            } elseif ($siteId = session('site_id')) {
+                // Use site from session if available (for public surveys)
+                $userSiteId = $siteId;
+            }
+
             // Create header record
             $header = SurveyResponseHeader::create([
                 'survey_id' => $validated['survey_id'],
                 'admin_id' => $survey->admin_id,
+                'user_site_id' => $userSiteId, // Store the surveyor's site
                 'account_name' => $validated['account_name'],
                 'account_type' => $validated['account_type'],
                 'date' => $validated['date'],

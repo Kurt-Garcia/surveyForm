@@ -178,37 +178,20 @@ class SurveyResponseController extends Controller
     {
         $siteAnalytics = [];
         
-        // Get unique admin IDs from responses to determine which sites actually have responses
-        $adminIds = $responses->pluck('admin_id')->unique()->filter();
+        // Get unique site IDs from responses based on surveyor's site (user_site_id)
+        $responseSiteIds = $responses->pluck('user_site_id')->unique()->filter();
         
-        if ($adminIds->isEmpty()) {
-            return $siteAnalytics; // No responses to analyze
+        if ($responseSiteIds->isEmpty()) {
+            // No site information available, fallback to original logic or show empty
+            return $siteAnalytics;
         }
         
-        // Get all sites that have admins who submitted responses
-        $sitesWithResponses = collect();
-        foreach ($adminIds as $adminId) {
-            $admin = Admin::find($adminId);
-            if ($admin && $admin->sites) {
-                $adminSites = $admin->sites;
-                foreach ($adminSites as $site) {
-                    // Only include sites that are part of this survey
-                    if ($survey->sites->contains('id', $site->id)) {
-                        $sitesWithResponses->push($site);
-                    }
-                }
-            }
-        }
-        
-        // Remove duplicates based on site ID
-        $sitesWithResponses = $sitesWithResponses->unique('id');
+        // Get sites that actually have responses based on surveyor sites
+        $sitesWithResponses = \App\Models\Site::whereIn('id', $responseSiteIds)->get();
         
         foreach ($sitesWithResponses as $site) {
-            // Get responses from admins who have access to this site
-            $siteAdminIds = DB::table('admin_site')
-                ->where('site_id', $site->id)
-                ->pluck('admin_id');
-            $siteResponses = $responses->whereIn('admin_id', $siteAdminIds);
+            // Get responses from surveyors who belong to this site
+            $siteResponses = $responses->where('user_site_id', $site->id);
             
             if ($siteResponses->count() == 0) {
                 continue; // Skip sites with no responses
@@ -267,37 +250,20 @@ class SurveyResponseController extends Controller
     {
         $npsData = [];
         
-        // Get unique admin IDs from responses to determine which sites actually have responses
-        $adminIds = $responses->pluck('admin_id')->unique()->filter();
+        // Get unique site IDs from responses based on surveyor's site (user_site_id)
+        $responseSiteIds = $responses->pluck('user_site_id')->unique()->filter();
         
-        if ($adminIds->isEmpty()) {
-            return $npsData; // No responses to analyze
+        if ($responseSiteIds->isEmpty()) {
+            // No site information available, fallback or show empty
+            return $npsData;
         }
         
-        // Get all sites that have admins who submitted responses
-        $sitesWithResponses = collect();
-        foreach ($adminIds as $adminId) {
-            $admin = Admin::find($adminId);
-            if ($admin && $admin->sites) {
-                $adminSites = $admin->sites;
-                foreach ($adminSites as $site) {
-                    // Only include sites that are part of this survey
-                    if ($survey->sites->contains('id', $site->id)) {
-                        $sitesWithResponses->push($site);
-                    }
-                }
-            }
-        }
-        
-        // Remove duplicates based on site ID
-        $sitesWithResponses = $sitesWithResponses->unique('id');
+        // Get sites that actually have responses based on surveyor sites
+        $sitesWithResponses = \App\Models\Site::whereIn('id', $responseSiteIds)->get();
         
         foreach ($sitesWithResponses as $site) {
-            // Get responses from admins who have access to this site
-            $siteAdminIds = DB::table('admin_site')
-                ->where('site_id', $site->id)
-                ->pluck('admin_id');
-            $siteResponses = $responses->whereIn('admin_id', $siteAdminIds);
+            // Get responses from surveyors who belong to this site
+            $siteResponses = $responses->where('user_site_id', $site->id);
             
             if ($siteResponses->count() == 0) {
                 continue; // Skip sites with no responses

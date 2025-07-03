@@ -424,6 +424,7 @@ class TestDataSeeder extends Seeder
                 $header = SurveyResponseHeader::create([
                     'survey_id' => $survey->id,
                     'admin_id' => $admin->id,
+                    'user_site_id' => null, // For test data, we'll leave this null for now
                     'account_name' => $accountName,
                     'account_type' => $accountType,
                     'date' => $responseDate,

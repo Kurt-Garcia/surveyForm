@@ -40,11 +40,13 @@ class SurveyResponseSeeder extends Seeder
     }    private function createSurveyResponse($faker, $survey, $users)
     {
         $admins = \App\Models\Admin::where('status', 1)->get();
+        $sites = \App\Models\Site::all();
         
         // Create response header
         $responseHeader = SurveyResponseHeader::create([
             'survey_id' => $survey->id,
             'admin_id' => $admins->isNotEmpty() ? $admins->random()->id : null,
+            'user_site_id' => $sites->isNotEmpty() ? $sites->random()->id : null,
             'account_name' => $faker->name,
             'account_type' => $faker->randomElement(['Customer', 'Employee', 'Partner', 'Visitor']),
             'date' => $faker->dateTimeBetween('-3 months', 'now')->format('Y-m-d'),
