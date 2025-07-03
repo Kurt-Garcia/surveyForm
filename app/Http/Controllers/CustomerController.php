@@ -15,11 +15,22 @@ class CustomerController extends Controller
     public function autocomplete(Request $request)
     {
         $term = $request->get('term');
-        $results = DB::table('TBLCUSTOMER')
-            ->where('CUSTNAME', 'like', '%' . $term . '%')
-            ->orWhere('CUSTCODE', 'like', '%' . $term . '%')
-            ->limit(20)
-            ->get(['CUSTCODE as custcode', 'CUSTNAME as label', 'CUSTNAME as value', 'CUSTTYPE as custtype']);
+        $siteIds = $request->get('site_ids'); // Array of site IDs from the user
+        
+        $query = DB::table('TBLCUSTOMER')
+            ->where(function($q) use ($term) {
+                $q->where('CUSTNAME', 'like', '%' . $term . '%')
+                  ->orWhere('CUSTCODE', 'like', '%' . $term . '%');
+            });
+            
+        // Filter by site_ids if provided
+        if (!empty($siteIds) && is_array($siteIds)) {
+            $query->whereIn('site_id', $siteIds);
+        }
+            
+        $results = $query->limit(20)
+            ->get(['CUSTCODE as custcode', 'CUSTNAME as label', 'CUSTNAME as value', 'CUSTTYPE as custtype', 'site_id']);
+            
         return response()->json($results);
     }
     
@@ -29,10 +40,17 @@ class CustomerController extends Controller
     public function lookupByCode(Request $request)
     {
         $code = $request->get('code');
+        $siteIds = $request->get('site_ids'); // Array of site IDs from the user
         
-        $customer = DB::table('TBLCUSTOMER')
-            ->where('CUSTCODE', $code)
-            ->first(['CUSTCODE as custcode', 'CUSTNAME as custname', 'CUSTTYPE as custtype']);
+        $query = DB::table('TBLCUSTOMER')
+            ->where('CUSTCODE', $code);
+            
+        // Filter by site_ids if provided
+        if (!empty($siteIds) && is_array($siteIds)) {
+            $query->whereIn('site_id', $siteIds);
+        }
+            
+        $customer = $query->first(['CUSTCODE as custcode', 'CUSTNAME as custname', 'CUSTTYPE as custtype', 'site_id']);
             
         if ($customer) {
             return response()->json([

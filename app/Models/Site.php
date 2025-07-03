@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Site extends Model
 {
@@ -22,6 +23,11 @@ class Site extends Model
     public function admins(): BelongsToMany
     {
         return $this->belongsToMany(Admin::class, 'admin_site', 'site_id', 'admin_id')->withTimestamps();
+    }
+
+    public function customers(): HasMany
+    {
+        return $this->hasMany(Customer::class);
     }
 
     public function isMainSite(): bool

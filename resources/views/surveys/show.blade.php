@@ -437,6 +437,18 @@
 
 <script>
 $(document).ready(function() {
+    // User's site IDs for filtering customers
+    let userSiteIds = @json($userSiteIds ?? []);
+    
+    // Validate that userSiteIds is an array
+    if (!Array.isArray(userSiteIds)) {
+        console.warn('User site IDs not available, customers will not be filtered by site');
+        userSiteIds = [];
+    }
+    
+    // Debug log to show which site IDs are being used for filtering
+    console.log('Filtering customers by site IDs:', userSiteIds);
+    
     // Auto-hide notification after 2 seconds
     if ($('#infoNotification').length) {
         setTimeout(function() {
@@ -901,7 +913,8 @@ $(document).ready(function() {
                 url: '{{ route('customers.autocomplete') }}',
                 dataType: 'json',
                 data: {
-                    term: request.term
+                    term: request.term,
+                    site_ids: userSiteIds // Pass user's site IDs for filtering
                 },
                 success: function(data) {
                     // Format the autocomplete items to display both code and name
@@ -943,7 +956,10 @@ $(document).ready(function() {
             $.ajax({
                 url: '{{ route('customers.lookup-by-code') }}',
                 dataType: 'json',
-                data: { code: input },
+                data: { 
+                    code: input,
+                    site_ids: userSiteIds // Pass user's site IDs for filtering
+                },
                 success: function(response) {
                     if (response.success && response.customer) {
                         // Display the customer name and update account type

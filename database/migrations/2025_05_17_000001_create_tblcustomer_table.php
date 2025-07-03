@@ -11,6 +11,7 @@ return new class extends Migration
     {
         Schema::create('TBLCUSTOMER', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('site_id')->constrained('sites')->onDelete('cascade');
             $table->string('MDCODE');
             $table->string('CUSTCODE');
             $table->string('CUSTNAME');
@@ -48,6 +49,10 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        // Ensure sites are seeded before importing customers
+        $seeder = new \Database\Seeders\SbuAndSiteSeeder();
+        $seeder->run();
+
         // Import data from CSV file
         $csvFile = fopen(public_path('sample_custlist.csv'), 'r');
         $firstLine = true;
@@ -59,40 +64,41 @@ return new class extends Migration
             }
 
             DB::table('TBLCUSTOMER')->insert([
-                'MDCODE' => $data[0],
-                'CUSTCODE' => $data[1],
-                'CUSTNAME' => $data[2],
-                'CONTACTCELLNUMBER' => $data[3],
-                'CONTACTPERSON' => $data[4],
-                'CONTACTLANDLINE' => $data[5],
-                'ADDRESS' => $data[6],
-                'FREQUENCYCATEGORY' => $data[7],
-                'MCPDAY' => $data[8],
-                'MCPSCHEDULE' => $data[9],
-                'GEOLOCATION' => $data[10],
-                'LASTUPDATED' => $data[11],
-                'LASTPURCHASE' => $data[12],
-                'LATITUDE' => $data[13],
-                'LONGITUDE' => $data[14],
-                'STOREIMAGE' => $data[15],
-                'SYNCSTAT' => $data[16],
-                'DATES_TAMP' => $data[17],
-                'TIME_STAMP' => $data[18],
-                'ISLOCKON' => $data[19],
-                'PRICECODE' => $data[20],
-                'STOREIMAGE2' => $data[21],
-                'CUSTTYPE' => $data[22],
-                'ISVISIT' => $data[23],
-                'DEFAULTORDTYPE' => $data[24],
-                'CITYMUNCODE' => $data[25],
-                'REGION' => $data[26],
-                'PROVINCE' => $data[27],
-                'MUNICIPALITY' => $data[28],
-                'BARANGAY' => $data[29],
-                'AREA' => $data[30],
-                'WAREHOUSE' => $data[31],
-                'KASOSYO' => $data[32],
-                'EMAIL' => $data[33],
+                'site_id' => $data[0],
+                'MDCODE' => $data[1],
+                'CUSTCODE' => $data[2],
+                'CUSTNAME' => $data[3],
+                'CONTACTCELLNUMBER' => $data[4],
+                'CONTACTPERSON' => $data[5],
+                'CONTACTLANDLINE' => $data[6],
+                'ADDRESS' => $data[7],
+                'FREQUENCYCATEGORY' => $data[8],
+                'MCPDAY' => $data[9],
+                'MCPSCHEDULE' => $data[10],
+                'GEOLOCATION' => $data[11],
+                'LASTUPDATED' => $data[12],
+                'LASTPURCHASE' => $data[13],
+                'LATITUDE' => $data[14],
+                'LONGITUDE' => $data[15],
+                'STOREIMAGE' => $data[16],
+                'SYNCSTAT' => $data[17],
+                'DATES_TAMP' => $data[18],
+                'TIME_STAMP' => $data[19],
+                'ISLOCKON' => $data[20],
+                'PRICECODE' => $data[21],
+                'STOREIMAGE2' => $data[22],
+                'CUSTTYPE' => $data[23],
+                'ISVISIT' => $data[24],
+                'DEFAULTORDTYPE' => $data[25],
+                'CITYMUNCODE' => $data[26],
+                'REGION' => $data[27],
+                'PROVINCE' => $data[28],
+                'MUNICIPALITY' => $data[29],
+                'BARANGAY' => $data[30],
+                'AREA' => $data[31],
+                'WAREHOUSE' => $data[32],
+                'KASOSYO' => $data[33],
+                'EMAIL' => $data[34],
                 'created_at' => now(),
                 'updated_at' => now()
             ]);

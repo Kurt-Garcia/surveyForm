@@ -115,6 +115,14 @@ class UserSurveyController extends Controller
         // Get the active theme for the survey's admin
         $activeTheme = \App\Models\ThemeSetting::getActiveTheme($survey->admin_id);
         
+        // Get user's site IDs for filtering customers
+        $userSiteIds = [];
+        if (Auth::check()) {
+            $userSiteIds = Auth::user()->sites->pluck('id')->toArray();
+        } elseif ($sessionSiteIds = session('user_site_ids')) {
+            $userSiteIds = $sessionSiteIds;
+        }
+        
         return view('surveys.show', compact(
             'survey', 
             'questions', 
@@ -122,7 +130,8 @@ class UserSurveyController extends Controller
             'allowResubmit',
             'prefillAccountName',
             'prefillAccountType',
-            'activeTheme'
+            'activeTheme',
+            'userSiteIds'
         ));
     }
 
