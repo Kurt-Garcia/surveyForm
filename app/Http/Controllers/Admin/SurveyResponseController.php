@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
 use App\Models\Survey;
 use App\Models\SurveyResponseHeader;
 use App\Models\SurveyResponseDetail;
@@ -167,10 +168,41 @@ class SurveyResponseController extends Controller
     {
         $siteAnalytics = [];
         
-        foreach ($survey->sites as $site) {
-            // For demo purposes, distribute responses randomly across sites
-            // In a real system, you'd have a site_id field in responses
-            $siteResponses = $responses->random(min($responses->count(), rand(10, 50)));
+        // Get unique admin IDs from responses to determine which sites actually have responses
+        $adminIds = $responses->pluck('admin_id')->unique()->filter();
+        
+        if ($adminIds->isEmpty()) {
+            return $siteAnalytics; // No responses to analyze
+        }
+        
+        // Get all sites that have admins who submitted responses
+        $sitesWithResponses = collect();
+        foreach ($adminIds as $adminId) {
+            $admin = Admin::find($adminId);
+            if ($admin && $admin->sites) {
+                $adminSites = $admin->sites;
+                foreach ($adminSites as $site) {
+                    // Only include sites that are part of this survey
+                    if ($survey->sites->contains('id', $site->id)) {
+                        $sitesWithResponses->push($site);
+                    }
+                }
+            }
+        }
+        
+        // Remove duplicates based on site ID
+        $sitesWithResponses = $sitesWithResponses->unique('id');
+        
+        foreach ($sitesWithResponses as $site) {
+            // Get responses from admins who have access to this site
+            $siteAdminIds = DB::table('admin_site')
+                ->where('site_id', $site->id)
+                ->pluck('admin_id');
+            $siteResponses = $responses->whereIn('admin_id', $siteAdminIds);
+            
+            if ($siteResponses->count() == 0) {
+                continue; // Skip sites with no responses
+            }
             
             $analytics = [
                 'site_name' => $site->name,
@@ -225,9 +257,41 @@ class SurveyResponseController extends Controller
     {
         $npsData = [];
         
-        foreach ($survey->sites as $site) {
-            // For demo purposes, simulate NPS calculation
-            $siteResponses = $responses->random(min($responses->count(), rand(10, 50)));
+        // Get unique admin IDs from responses to determine which sites actually have responses
+        $adminIds = $responses->pluck('admin_id')->unique()->filter();
+        
+        if ($adminIds->isEmpty()) {
+            return $npsData; // No responses to analyze
+        }
+        
+        // Get all sites that have admins who submitted responses
+        $sitesWithResponses = collect();
+        foreach ($adminIds as $adminId) {
+            $admin = Admin::find($adminId);
+            if ($admin && $admin->sites) {
+                $adminSites = $admin->sites;
+                foreach ($adminSites as $site) {
+                    // Only include sites that are part of this survey
+                    if ($survey->sites->contains('id', $site->id)) {
+                        $sitesWithResponses->push($site);
+                    }
+                }
+            }
+        }
+        
+        // Remove duplicates based on site ID
+        $sitesWithResponses = $sitesWithResponses->unique('id');
+        
+        foreach ($sitesWithResponses as $site) {
+            // Get responses from admins who have access to this site
+            $siteAdminIds = DB::table('admin_site')
+                ->where('site_id', $site->id)
+                ->pluck('admin_id');
+            $siteResponses = $responses->whereIn('admin_id', $siteAdminIds);
+            
+            if ($siteResponses->count() == 0) {
+                continue; // Skip sites with no responses
+            }
             
             $npsScores = $siteResponses->pluck('recommendation')->map(function($score) {
                 // Convert 1-10 scale recommendation to NPS categories

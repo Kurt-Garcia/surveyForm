@@ -12,7 +12,7 @@
                 <strong>SBU:</strong> 
                 @foreach($survey->sbus as $sbu){{ $sbu->name }}@if(!$loop->last), @endif @endforeach
                 | <strong>Total Responses:</strong> {{ $totalResponses }}
-                | <strong>Sites:</strong> {{ $survey->sites->count() }}
+                | <strong>Sites with Responses:</strong> {{ count($siteAnalytics) }}
             </p>
         </div>
     </div>
@@ -83,8 +83,8 @@
                 </div>
                 <div class="col-md-3 mb-3">
                     <div class="border rounded p-3 h-100">
-                        <div class="h2 text-success mb-2">{{ $survey->sites->count() }}</div>
-                        <h6 class="text-muted mb-0">Sites Covered</h6>
+                        <div class="h2 text-success mb-2">{{ count($siteAnalytics) }}</div>
+                        <h6 class="text-muted mb-0">Sites with Responses</h6>
                     </div>
                 </div>
                 <div class="col-md-3 mb-3">
@@ -172,35 +172,39 @@
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-header bg-white py-3">
             <h4 class="text-primary mb-0 fw-bold"><i class="fas fa-building me-2"></i>Sites Overview</h4>
+            <p class="text-muted small mb-0">Sites with survey responses</p>
         </div>
         <div class="card-body">
-            <div class="row">
-                @foreach($survey->sites as $site)
-                <div class="col-md-4 mb-3">
-                    <div class="card border-left-primary h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-grow-1">
-                                    <h6 class="text-primary mb-1">{{ $site->name }}</h6>
-                                    <p class="text-muted small mb-1">{{ $site->sbu->name }}</p>
-                                    <span class="badge {{ $site->is_main ? 'bg-primary' : 'bg-secondary' }}">
-                                        {{ $site->is_main ? 'Main Site' : 'Sub Site' }}
-                                    </span>
-                                </div>
-                                <div class="text-end">
-                                    @php
-                                        $siteData = collect($siteAnalytics)->firstWhere('site_name', $site->name);
-                                        $respondentCount = $siteData ? $siteData['respondent_count'] : 0;
-                                    @endphp
-                                    <div class="text-primary h5 mb-0">{{ $respondentCount }}</div>
-                                    <small class="text-muted">Respondents</small>
+            @if(count($siteAnalytics) > 0)
+                <div class="row">
+                    @foreach($siteAnalytics as $siteData)
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-left-primary h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <h6 class="text-primary mb-1">{{ $siteData['site_name'] }}</h6>
+                                        <p class="text-muted small mb-1">{{ $siteData['sbu_name'] }}</p>
+                                        <span class="badge {{ $siteData['is_main'] ? 'bg-primary' : 'bg-secondary' }}">
+                                            {{ $siteData['is_main'] ? 'Main Site' : 'Sub Site' }}
+                                        </span>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="text-primary h5 mb-0">{{ $siteData['respondent_count'] }}</div>
+                                        <small class="text-muted">Respondents</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    @endforeach
                 </div>
-                @endforeach
-            </div>
+            @else
+                <div class="text-center py-4">
+                    <i class="fas fa-building fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No sites have survey responses yet</p>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -327,6 +331,7 @@
                             <th>SBU</th>
                             <th class="text-center">Total Respondents</th>
                             <th class="text-center">Promoters (9-10)</th>
+                            <th class="text-center">Passives (7-8)</th>
                             <th class="text-center">Detractors (0-6)</th>
                             <th class="text-center">NPS Score</th>
                             <th class="text-center">Status</th>
@@ -341,6 +346,13 @@
                             <td class="text-center">
                                 <span class="badge bg-success">{{ $nps['promoters'] }}</span>
                                 <small class="text-muted">({{ $nps['total_respondents'] > 0 ? round(($nps['promoters']/$nps['total_respondents'])*100, 1) : 0 }}%)</small>
+                            </td>
+                            <td class="text-center">
+                                @php
+                                    $passives = $nps['total_respondents'] - $nps['promoters'] - $nps['detractors'];
+                                @endphp
+                                <span class="badge bg-info">{{ $passives }}</span>
+                                <small class="text-muted">({{ $nps['total_respondents'] > 0 ? round(($passives/$nps['total_respondents'])*100, 1) : 0 }}%)</small>
                             </td>
                             <td class="text-center">
                                 <span class="badge bg-danger">{{ $nps['detractors'] }}</span>
@@ -976,11 +988,8 @@ function exportDetailedExcel() {
             ['QMS Target Achievement', surveyData.hitPercentage + '%', '≥ 70%', surveyData.hitPercentage >= 70 ? 'EXCELLENT' : surveyData.hitPercentage >= 50 ? 'GOOD' : 'NEEDS IMPROVEMENT'],
             ['Average NPS Score', surveyData.avgNPS, '≥ 50', surveyData.avgNPS >= 70 ? 'EXCELLENT' : surveyData.avgNPS >= 50 ? 'GOOD' : 'NEEDS IMPROVEMENT'],
             [''],
-            ['BUSINESS UNIT COVERAGE'],
-            ['SBUs Included:', surveyData.sbus.join(', ')],
-            ['Total Sites Evaluated:', surveyData.sites.length],
-            ['Main Sites:', surveyData.sites.filter(s => s.is_main).length],
-            ['Sub Sites:', surveyData.sites.filter(s => !s.is_main).length],
+            ['BUSINESS UNIT COVERAGE'],        ['SBUs with Responses:', surveyData.sbus.join(', ')],
+        ['Sites with Responses:', surveyData.siteAnalytics.length],
             [''],
             ['OVERALL PERFORMANCE SUMMARY'],
             ['Sites Meeting QMS Target:', `${surveyData.siteAnalytics.filter(s => s.qms_target_status === 'HIT').length} out of ${surveyData.siteAnalytics.length}`],
