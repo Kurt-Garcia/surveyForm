@@ -161,7 +161,7 @@
                     <div class="p-3 border rounded bg-success text-white h-100">
                         <div class="h5 mb-2">QMS Target</div>
                         <h6 class="mb-1">HIT</h6>
-                        <small>≥ 4.0 (VS or E)</small>
+                        <small>4.0 (VS or E)</small>
                     </div>
                 </div>
             </div>
