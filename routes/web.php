@@ -144,6 +144,10 @@ Route::prefix('admin')->group(function () {
             ->name('admin.surveys.responses.index');
         Route::get('surveys/{survey}/report', [\App\Http\Controllers\Admin\SurveyResponseController::class, 'report'])
             ->name('admin.surveys.report');
+        Route::get('surveys/{survey}/export-excel', [\App\Http\Controllers\Admin\SurveyResponseController::class, 'exportExcel'])
+            ->name('admin.surveys.export.excel');
+        Route::get('surveys/{survey}/export-detailed-excel', [\App\Http\Controllers\Admin\SurveyResponseController::class, 'exportDetailedExcel'])
+            ->name('admin.surveys.export.detailed');
         Route::get('surveys/{survey}/unique-respondents', [\App\Http\Controllers\Admin\SurveyResponseController::class, 'uniqueRespondents'])
             ->name('admin.surveys.unique-respondents');
         Route::get('surveys/{survey}/responses/{account_name}', [\App\Http\Controllers\Admin\SurveyResponseController::class, 'show'])

@@ -9,6 +9,9 @@ use App\Models\SurveyResponseHeader;
 use App\Models\SurveyResponseDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Exports\SurveyReportExport;
+use App\Exports\DetailedSurveyReportExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SurveyResponseController extends Controller
 {
@@ -140,6 +143,11 @@ class SurveyResponseController extends Controller
         $uniqueRespondents = $responses->unique('account_name')->count();
         $completionRate = $totalResponses > 0 ? 100 : 0;
         
+        // Calculate hit percentage and average NPS
+        $hitSites = collect($siteAnalytics)->where('qms_target_status', 'HIT')->count();
+        $hitPercentage = count($siteAnalytics) > 0 ? round(($hitSites / count($siteAnalytics)) * 100, 1) : 0;
+        $avgNPS = collect($npsData)->avg('nps_score') ?? 0;
+        
         // Response distribution by date
         $responsesByDate = $responses->groupBy(function($response) {
             return $response->date->format('Y-m-d');
@@ -160,7 +168,9 @@ class SurveyResponseController extends Controller
             'responsesByDate',
             'responsesByType',
             'siteAnalytics',
-            'npsData'
+            'npsData',
+            'hitPercentage',
+            'avgNPS'
         ));
     }
 
@@ -331,5 +341,111 @@ class SurveyResponseController extends Controller
         if ($rating >= 3.0) return 'S';
         if ($rating >= 2.0) return 'NI';
         return 'P';
+    }
+
+    public function exportExcel(Survey $survey)
+    {
+        // Get the same data as the report method
+        $survey->load(['sbus', 'sites.sbu', 'questions']);
+        
+        $responses = SurveyResponseHeader::where('survey_id', $survey->id)
+            ->orderBy('date', 'desc')
+            ->get();
+        
+        $questions = $survey->questions;
+        
+        // Get response statistics for each question
+        $statistics = [];
+        foreach ($questions as $question) {
+            $stats = DB::table('survey_response_details as d')
+                ->join('survey_response_headers as h', 'h.id', '=', 'd.header_id')
+                ->where('h.survey_id', $survey->id)
+                ->where('d.question_id', $question->id)
+                ->select('d.response', DB::raw('count(*) as count'))
+                ->groupBy('d.response')
+                ->get()
+                ->pluck('count', 'response')
+                ->toArray();
+            
+            $statistics[$question->id] = [
+                'question' => $question->text,
+                'type' => $question->type,
+                'responses' => $stats
+            ];
+        }
+
+        // Calculate site-based analytics
+        $siteAnalytics = $this->calculateSiteAnalytics($survey, $responses, $questions);
+        
+        // Calculate NPS for each site
+        $npsData = $this->calculateNPS($survey, $responses);
+        
+        $totalResponses = $responses->count();
+        
+        $export = new SurveyReportExport(
+            $survey,
+            $siteAnalytics,
+            $npsData,
+            $questions,
+            $totalResponses,
+            $statistics
+        );
+        
+        $filename = 'Customer_Satisfaction_Survey_' . str_replace(' ', '_', $survey->title) . '_' . date('Y-m-d') . '.xlsx';
+        
+        return Excel::download($export, $filename);
+    }
+
+    public function exportDetailedExcel(Survey $survey)
+    {
+        // Get the same data as the report method
+        $survey->load(['sbus', 'sites.sbu', 'questions']);
+        
+        $responses = SurveyResponseHeader::where('survey_id', $survey->id)
+            ->orderBy('date', 'desc')
+            ->get();
+        
+        $questions = $survey->questions;
+        
+        // Get response statistics for each question
+        $statistics = [];
+        foreach ($questions as $question) {
+            $stats = DB::table('survey_response_details as d')
+                ->join('survey_response_headers as h', 'h.id', '=', 'd.header_id')
+                ->where('h.survey_id', $survey->id)
+                ->where('d.question_id', $question->id)
+                ->select('d.response', DB::raw('count(*) as count'))
+                ->groupBy('d.response')
+                ->get()
+                ->pluck('count', 'response')
+                ->toArray();
+            
+            $statistics[$question->id] = [
+                'question' => $question->text,
+                'type' => $question->type,
+                'responses' => $stats
+            ];
+        }
+
+        // Calculate site-based analytics
+        $siteAnalytics = $this->calculateSiteAnalytics($survey, $responses, $questions);
+        
+        // Calculate NPS for each site
+        $npsData = $this->calculateNPS($survey, $responses);
+        
+        $totalResponses = $responses->count();
+        
+        $export = new DetailedSurveyReportExport(
+            $survey,
+            $siteAnalytics,
+            $npsData,
+            $questions,
+            $totalResponses,
+            $statistics
+        );
+        
+        $filename = 'Detailed_Customer_Satisfaction_Survey_' . str_replace(' ', '_', $survey->title) . '_' . date('Y-m-d') . '.xlsx';
+        
+        return Excel::download($export, $filename);
     }
 }
