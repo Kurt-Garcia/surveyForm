@@ -183,7 +183,7 @@
     
     <!-- NPS Score Row -->
     <tr>
-        <td>Based on QMS Target (9-10) Promoter</td>
+        <td> </td>
         @foreach($npsData as $nps)
             <td>{{ $nps['nps_score'] }}</td>
         @endforeach
@@ -191,7 +191,7 @@
     
     <!-- NPS Status Row -->
     <tr>
-        <td></td>
+        <td>Based on QMS Target (9-10) Promoter</td>
         @foreach($npsData as $nps)
             <td>{{ $nps['status'] }}</td>
         @endforeach
