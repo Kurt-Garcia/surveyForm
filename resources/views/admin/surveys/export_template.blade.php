@@ -132,7 +132,7 @@
     
     <!-- Overall Rating Numeric Values Row -->
     <tr>
-        <td> </td>
+        <td></td>
         @foreach($siteAnalytics as $site)
             <td>{{ number_format($site['overall_rating'], 2) }}</td>
         @endforeach
@@ -181,9 +181,17 @@
         <td colspan="{{ count($siteAnalytics) + 1 }}">Net Promoter Score</td>
     </tr>
     
+    <!-- NPS Legend Row showing detractors, passives, promoters -->
+    <tr>
+        <td>0-6 || 7-8 || 9-10</td>
+        @foreach($npsData as $nps)
+            <td></td>
+        @endforeach
+    </tr>
+    
     <!-- NPS Score Row -->
     <tr>
-        <td> </td>
+        <td></td>
         @foreach($npsData as $nps)
             <td>{{ $nps['nps_score'] }}</td>
         @endforeach
@@ -204,7 +212,7 @@
     
     <!-- FEEDBACKS Header -->
     <tr>
-        <td colspan="{{ count($siteAnalytics) + 1 }}">FEEDBACKS</td>
+        <td colspan="{{ count($siteAnalytics) + 1 }}">Feedback</td>
     </tr>
     
     <!-- Empty Row -->

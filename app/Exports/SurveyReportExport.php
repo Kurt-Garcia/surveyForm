@@ -14,6 +14,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Font;
+use PhpOffice\PhpSpreadsheet\Style\Color;
 
 class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, WithEvents
 {
@@ -52,7 +53,7 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
         $lastColumn = chr(66 + $siteCount - 1); // B + site count - 1
         
         return [
-            // Title row - Blue background (#0066CC) with white text - matches sample
+            // Title row - Blue background (#0066CC) with white text - matches sample exactly
             1 => [
                 'font' => ['bold' => true, 'size' => 18, 'color' => ['rgb' => 'FFFFFF'], 'name' => 'Arial'],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
@@ -106,35 +107,10 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
     {
         $widths = ['A' => 60]; // Question/label column wider like sample
         
-        // Site columns - dynamic width based on company name length
+        // Site columns - match the sample exact width
         $siteCount = count($this->siteAnalytics);
         for ($i = 0; $i < $siteCount; $i++) {
-            $site = $this->siteAnalytics[$i];
-            $sbuName = $site['sbu_name'] ?? '';
-            $siteName = $site['site_name'] ?? '';
-            
-            // Determine full company name based on SBU prefix
-            $fullCompanyName = '';
-            if (stripos($sbuName, 'FUI') !== false) {
-                $fullCompanyName = 'Fast Unimerchants Inc.';
-            } elseif (stripos($sbuName, 'FDC') !== false) {
-                $fullCompanyName = 'Fast Distribution Corporation';
-            }
-            
-            // Calculate width based on the longest content in the column
-            $companyNameLength = strlen($fullCompanyName);
-            $sbuNameLength = strlen($sbuName); // This will include MNC, NAI, Shell, etc.
-            $siteNameLength = strlen($siteName);
-            
-            // Get the maximum length among all content in this column
-            $maxLength = max($companyNameLength, $sbuNameLength, $siteNameLength);
-            
-            // Set minimum width of 15, but expand if content is longer
-            // Each character approximately needs 1.2 units of width
-            $calculatedWidth = max(15, $maxLength * 1.2);
-            
-            // Cap the maximum width to prevent extremely wide columns
-            $widths[chr(66 + $i)] = min($calculatedWidth, 40); // Increased max to 40 for longer SBU names
+            $widths[chr(66 + $i)] = 25; // Fixed width to match sample
         }
         
         return $widths;
@@ -147,6 +123,10 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
                 $sheet = $event->sheet->getDelegate();
                 $siteCount = count($this->siteAnalytics);
                 $lastColumn = chr(66 + $siteCount - 1);
+                
+                // Set row heights to match sample exactly
+                $sheet->getRowDimension(1)->setRowHeight(40); // Title row
+                $sheet->getRowDimension(2)->setRowHeight(24); // Subtitle row
                 
                 // Merge title and subtitle cells
                 $sheet->mergeCells("A1:{$lastColumn}1");
@@ -168,276 +148,351 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
                 
                 // Style question rows with borders - white background like sample
                 for ($row = $questionStartRow; $row <= $questionEndRow; $row++) {
-                    $sheet->getStyle("A{$row}:{$lastColumn}{$row}")->applyFromArray([
-                        'borders' => [
-                            'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]
-                        ],
+                    // Set row height to match sample exactly
+                    $sheet->getRowDimension($row)->setRowHeight(21);
+                    
+                    // Question text styling - left aligned with borders
+                    $sheet->getStyle("A{$row}")->applyFromArray([
+                        'font' => ['bold' => false, 'size' => 10, 'name' => 'Arial'],
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
                         'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
-                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-                        'font' => ['size' => 10, 'name' => 'Arial']
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                     ]);
                     
-                    // Left align question text in column A
-                    $sheet->getStyle("A{$row}")->applyFromArray([
-                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER]
+                    // Answer cells styling - centered with borders
+                    $sheet->getStyle("B{$row}:{$lastColumn}{$row}")->applyFromArray([
+                        'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                        'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                     ]);
                 }
                 
-                // Rating scale row styling - yellow background like sample
+                // Empty row after questions
+                $emptyRow = $questionEndRow + 1;
+                
+                // Rating scale row styling - match sample exactly
                 $ratingRow = $questionEndRow + 2;
                 $sheet->mergeCells("A{$ratingRow}:{$lastColumn}{$ratingRow}");
                 $sheet->getStyle("A{$ratingRow}:{$lastColumn}{$ratingRow}")->applyFromArray([
-                    'font' => ['size' => 10, 'name' => 'Arial'],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFF00']], // Yellow background
+                    'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFF99']], // Light yellow background like sample
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
 
-                // Rating range legend row styling - yellow background, centered --------------------------------
+                // Rating range legend row styling - same yellow background, centered
                 $ratingRangeRow = $ratingRow + 1;
                 $sheet->mergeCells("A{$ratingRangeRow}:{$lastColumn}{$ratingRangeRow}");
                 $sheet->getStyle("A{$ratingRangeRow}:{$lastColumn}{$ratingRangeRow}")->applyFromArray([
-                    'font' => ['size' => 10, 'name' => 'Arial'],
+                    'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FBDB93']], // Yellow background
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFF99']], // Light yellow background like sample
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
+                
+                // Empty row before overall rating
+                $emptyRowBeforeOverall = $ratingRangeRow + 1;
                 
                 // Overall rating section header - Blue background like sample
                 $overallHeaderRow = $ratingRangeRow + 2;
                 $sheet->mergeCells("A{$overallHeaderRow}:{$lastColumn}{$overallHeaderRow}");
                 $sheet->getStyle("A{$overallHeaderRow}:{$lastColumn}{$overallHeaderRow}")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF'], 'name' => 'Arial'],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '0066CC']], // Same blue as title
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '0066CC']], // Blue background like sample
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
+                $sheet->getRowDimension($overallHeaderRow)->setRowHeight(21);
                 
                 // Overall rating values row - white background
                 $overallValueRow = $overallHeaderRow + 1;
-                $sheet->getStyle("A{$overallValueRow}:{$lastColumn}{$overallValueRow}")->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']]
+                // First cell empty but with border
+                $sheet->getStyle("A{$overallValueRow}")->applyFromArray([
+                    'font' => ['bold' => false, 'size' => 10, 'name' => 'Arial'],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
                 
-                // Left align overall rating label
-                $sheet->getStyle("A{$overallValueRow}")->applyFromArray([
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER]
+                // Rating values cells
+                $sheet->getStyle("B{$overallValueRow}:{$lastColumn}{$overallValueRow}")->applyFromArray([
+                    'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
                 
                 // Overall rating labels row (P, NI, S, VS, E) - white background with color coding
                 $overallLabelsRow = $overallValueRow + 1;
-                $sheet->getStyle("A{$overallLabelsRow}:{$lastColumn}{$overallLabelsRow}")->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                // First cell empty but with border
+                $sheet->getStyle("A{$overallLabelsRow}")->applyFromArray([
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
                 
-                // Color code rating labels based on performance
+                // Color code rating labels based on performance - Match sample exactly
                 for ($i = 0; $i < $siteCount; $i++) {
                     $col = chr(66 + $i);
-                    $rating = $this->siteAnalytics[$i]['overall_rating'] ?? 0;
+                    $site = $this->siteAnalytics[$i];
+                    $rating = $site['overall_rating'];
+                    $color = 'FFFFFF'; // Default white
                     
-                    // Determine color based on rating ranges
+                    // Color coding based on rating ranges
                     if ($rating >= 1 && $rating < 2) {
                         $color = 'FF0000'; // Red for Poor (P)
                     } elseif ($rating >= 2 && $rating < 3) {
-                        $color = 'FFA500'; // Orange for Needs Improvement (NI)
+                        $color = 'FFC000'; // Orange for Needs Improvement (NI)
                     } elseif ($rating >= 3 && $rating < 4) {
                         $color = 'FFFF00'; // Yellow for Satisfactory (S)
                     } elseif ($rating >= 4 && $rating < 5) {
-                        $color = '90EE90'; // Light Green for Very Satisfactory (VS)
+                        $color = '92D050'; // Light green for Very Satisfactory (VS)
                     } elseif ($rating == 5) {
-                        $color = '00FF00'; // Green for Excellent (E)
-                    } else {
-                        $color = 'FFFFFF'; // White for N/A
+                        $color = '00B050'; // Dark green for Excellent (E)
                     }
                     
                     $sheet->getStyle("{$col}{$overallLabelsRow}")->applyFromArray([
+                        'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '000000'], 'name' => 'Arial'],
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                         'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => $color]],
-                        'font' => ['color' => ['rgb' => '000000'], 'bold' => true, 'name' => 'Arial']
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                     ]);
                 }
                 
                 // QMS Target status row with color coding - match sample colors exactly
                 $qmsRow = $overallLabelsRow + 1;
-                $sheet->getStyle("A{$qmsRow}:{$lastColumn}{$qmsRow}")->applyFromArray([
+                $sheet->getStyle("A{$qmsRow}")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
                 
                 // Color code QMS status - use exact colors from sample
                 for ($i = 0; $i < $siteCount; $i++) {
                     $col = chr(66 + $i);
-                    $status = $this->siteAnalytics[$i]['qms_target_status'] ?? 'MISS';
-                    $color = $status === 'HIT' ? '00FF00' : 'FF0000'; // Pure green for HIT, Pure red for MISS like sample
+                    $site = $this->siteAnalytics[$i];
+                    $status = $site['qms_target_status'] ?? '';
+                    
+                    // Color based on status
+                    $color = 'FFFFFF'; // Default white
+                    $textColor = '000000'; // Default black text
+                    
+                    if (strtoupper($status) === 'HIT') {
+                        $color = '00B050'; // Green for HIT
+                        $textColor = 'FFFFFF'; // White text
+                    } elseif (strtoupper($status) === 'MISS') {
+                        $color = 'FF0000'; // Red for MISS
+                        $textColor = 'FFFFFF'; // White text
+                    }
+                    
                     $sheet->getStyle("{$col}{$qmsRow}")->applyFromArray([
+                        'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => $textColor], 'name' => 'Arial'],
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                         'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => $color]],
-                        'font' => ['color' => ['rgb' => '000000'], 'bold' => true, 'name' => 'Arial'] // Black text like sample
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                     ]);
                 }
                 
+                // Empty row before NPS
+                $emptyRowBeforeNPS = $qmsRow + 1;
+                
                 // NPS Section header - blue background like sample
-                $npsHeaderRow = $qmsRow + 3;
+                $npsHeaderRow = $qmsRow + 2;
                 $sheet->mergeCells("A{$npsHeaderRow}:{$lastColumn}{$npsHeaderRow}");
                 $sheet->getStyle("A{$npsHeaderRow}:{$lastColumn}{$npsHeaderRow}")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF'], 'name' => 'Arial'],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '0066CC']], // Same blue as other headers
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '0066CC']], // Blue background like sample
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
+                ]);
+                $sheet->getRowDimension($npsHeaderRow)->setRowHeight(21);
+                
+                // NPS legend row - showing detractors, passives, promoters
+                $npsLegendRow = $npsHeaderRow + 1;
+                $sheet->getStyle("A{$npsLegendRow}")->applyFromArray([
+                    'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
                 
-                // NPS scores row - white background
-                $npsScoreRow = $npsHeaderRow + 1;
-                $sheet->getStyle("A{$npsScoreRow}:{$lastColumn}{$npsScoreRow}")->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']]
-                ]);
+                // Add the NPS legend text with colored formatting
+                $sheet->setCellValue("A{$npsLegendRow}", "0-6 || 7-8 || 9-10");
                 
-                // Left align NPS label
+                // Apply separate colors to each part of the NPS legend
+                $richText = new \PhpOffice\PhpSpreadsheet\RichText\RichText();
+                
+                $detractors = $richText->createTextRun("0-6 ");
+                $detractors->getFont()->setBold(true)->setSize(10)->setColor(new Color(Color::COLOR_RED));
+                
+                $separator1 = $richText->createTextRun("|| ");
+                $separator1->getFont()->setBold(true)->setSize(10)->setColor(new Color(Color::COLOR_BLACK));
+                
+                $passives = $richText->createTextRun("7-8");
+                $passives->getFont()->setBold(true)->setSize(10)->setColor(new Color(Color::COLOR_YELLOW));
+                
+                $separator2 = $richText->createTextRun(" || ");
+                $separator2->getFont()->setBold(true)->setSize(10)->setColor(new Color(Color::COLOR_BLACK));
+                
+                $promoters = $richText->createTextRun("9-10");
+                $promoters->getFont()->setBold(true)->setSize(10)->setColor(new Color(Color::COLOR_GREEN));
+                
+                $sheet->getCell("A{$npsLegendRow}")->setValue($richText);
+                
+                // Empty cells in the NPS legend row
+                $sheet->getStyle("B{$npsLegendRow}:{$lastColumn}{$npsLegendRow}")->applyFromArray([
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
+                ]);
+                $sheet->getRowDimension($npsLegendRow)->setRowHeight(21);
+                
+                // NPS scores row - white background
+                $npsScoreRow = $npsLegendRow + 1;
                 $sheet->getStyle("A{$npsScoreRow}")->applyFromArray([
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER]
+                    'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
                 
                 // NPS status row with color coding - match sample colors
                 $npsStatusRow = $npsScoreRow + 1;
-                $sheet->getStyle("A{$npsStatusRow}:{$lastColumn}{$npsStatusRow}")->applyFromArray([
+                $sheet->getStyle("A{$npsStatusRow}")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
                 
                 // Color code NPS status - use exact colors from sample
                 for ($i = 0; $i < count($this->npsData); $i++) {
                     $col = chr(66 + $i);
-                    $status = $this->npsData[$i]['status'] ?? 'MISS';
-                    $color = $status === 'HIT' ? '00FF00' : ($status === 'Borderline' ? 'FFFF00' : 'FF0000'); // Green, Yellow, Red
+                    $nps = $this->npsData[$i];
+                    $status = $nps['status'] ?? '';
+                    
+                    // Color based on status
+                    $color = 'FFFFFF'; // Default white
+                    $textColor = '000000'; // Default black text
+                    
+                    if (strtoupper($status) === 'HIT') {
+                        $color = '00B050'; // Green for HIT
+                        $textColor = 'FFFFFF'; // White text
+                    } elseif (strtoupper($status) === 'MISS') {
+                        $color = 'FF0000'; // Red for MISS
+                        $textColor = 'FFFFFF'; // White text
+                    }
+                    
                     $sheet->getStyle("{$col}{$npsStatusRow}")->applyFromArray([
+                        'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => $textColor], 'name' => 'Arial'],
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                         'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => $color]],
-                        'font' => ['color' => ['rgb' => '000000'], 'bold' => true, 'name' => 'Arial'] // Black text like sample
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                     ]);
                 }
+                
+                // Empty row before feedback section
+                $emptyRowBeforeFeedback = $npsStatusRow + 1;
                 
                 // Feedback section header - red background like sample
                 $feedbackHeaderRow = $npsStatusRow + 3;
                 $sheet->mergeCells("A{$feedbackHeaderRow}:{$lastColumn}{$feedbackHeaderRow}");
                 $sheet->getStyle("A{$feedbackHeaderRow}:{$lastColumn}{$feedbackHeaderRow}")->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => '000000'], 'name' => 'Arial'], // Black text
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FF0000']], // Red background like sample
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF'], 'name' => 'Arial'],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'C00000']], // Dark red background like sample
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
+                $sheet->getRowDimension($feedbackHeaderRow)->setRowHeight(23);
+                
+                // Empty row after feedback header
+                $emptyRowAfterFeedbackHeader = $feedbackHeaderRow + 1;
                 
                 // Positive feedback header row - green background like sample
                 $positiveFeedbackRow = $feedbackHeaderRow + 2;
                 $sheet->getStyle("A{$positiveFeedbackRow}:{$lastColumn}{$positiveFeedbackRow}")->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 11, 'color' => ['rgb' => '000000'], 'name' => 'Arial'], // Black text
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '00FF00']], // Pure green like sample
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '92D050']], // Light green like sample
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
                 
-                // Left align positive feedback label
-                $sheet->getStyle("A{$positiveFeedbackRow}")->applyFromArray([
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER]
-                ]);
-                
-                // Style positive feedback data rows (5 rows) - white background
+                // Style positive feedback data rows (5 rows) - white background with borders
                 for ($i = 1; $i <= 5; $i++) {
                     $row = $positiveFeedbackRow + $i;
-                    $sheet->getStyle("A{$row}:{$lastColumn}{$row}")->applyFromArray([
-                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]],
-                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-                        'font' => ['size' => 10, 'name' => 'Arial'],
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']]
+                    $sheet->getStyle("A{$row}")->applyFromArray([
+                        'font' => ['bold' => false, 'size' => 10, 'name' => 'Arial'],
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                     ]);
                     
-                    // Left align feedback text in column A
-                    $sheet->getStyle("A{$row}")->applyFromArray([
-                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER]
+                    // Count cells for each site
+                    $sheet->getStyle("B{$row}:{$lastColumn}{$row}")->applyFromArray([
+                        'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                     ]);
                 }
+                
+                // Empty rows after positive feedback
+                $emptyRow1AfterPositive = $positiveFeedbackRow + 6;
+                $emptyRow2AfterPositive = $emptyRow1AfterPositive + 1;
                 
                 // Areas for improvement header row - yellow background like sample
                 $improvementHeaderRow = $positiveFeedbackRow + 8; // 5 feedback rows + 2 empty rows + 1
-                $sheet->getStyle("A{$improvementHeaderRow}:{$lastColumn}{$improvementHeaderRow}")->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 11, 'color' => ['rgb' => '000000'], 'name' => 'Arial'], // Black text
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFF00']], // Pure yellow like sample
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                $sheet->getStyle("A{$improvementHeaderRow}")->applyFromArray([
+                    'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFF00']], // Yellow like sample
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
                 
-                // Left align improvement label
-                $sheet->getStyle("A{$improvementHeaderRow}")->applyFromArray([
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER]
+                // Site names in improvement header row
+                $sheet->getStyle("B{$improvementHeaderRow}:{$lastColumn}{$improvementHeaderRow}")->applyFromArray([
+                    'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFF00']], // Yellow like sample
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
                 
-                // Style improvement data rows (5 rows) - white background
+                // Style improvement data rows (5 rows) - white background with borders
                 for ($i = 1; $i <= 5; $i++) {
                     $row = $improvementHeaderRow + $i;
-                    $sheet->getStyle("A{$row}:{$lastColumn}{$row}")->applyFromArray([
-                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]],
-                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-                        'font' => ['size' => 10, 'name' => 'Arial'],
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']]
+                    $sheet->getStyle("A{$row}")->applyFromArray([
+                        'font' => ['bold' => false, 'size' => 10, 'name' => 'Arial'],
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                     ]);
                     
-                    // Left align improvement text in column A
-                    $sheet->getStyle("A{$row}")->applyFromArray([
-                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER]
+                    // Count cells for each site
+                    $sheet->getStyle("B{$row}:{$lastColumn}{$row}")->applyFromArray([
+                        'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                     ]);
                 }
                 
-                // Signature section - match sample styling
+                // Empty rows before signature
+                $emptyRow1BeforeSign = $improvementHeaderRow + 6;
+                $emptyRow2BeforeSign = $emptyRow1BeforeSign + 1;
+                $emptyRow3BeforeSign = $emptyRow2BeforeSign + 1;
+                
+                // Signature section header - match sample styling
                 $signatureHeaderRow = $improvementHeaderRow + 9; // 5 improvement rows + 3 empty rows + 1
                 $sheet->mergeCells("A{$signatureHeaderRow}:{$lastColumn}{$signatureHeaderRow}");
                 $sheet->getStyle("A{$signatureHeaderRow}:{$lastColumn}{$signatureHeaderRow}")->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 12, 'name' => 'Arial'],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER]
+                    'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
                 
-                // Signature names and titles - Arial font like sample
-                $signatureNameRow = $signatureHeaderRow + 4;
-                $signatureTitleRow = $signatureNameRow + 1;
+                // Empty rows for signature space
+                $signatureSpaceRow1 = $signatureHeaderRow + 1;
+                $signatureSpaceRow2 = $signatureSpaceRow1 + 1;
+                $signatureSpaceRow3 = $signatureSpaceRow2 + 1;
                 
-                $sheet->getStyle("A{$signatureNameRow}:{$lastColumn}{$signatureNameRow}")->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 11, 'name' => 'Arial'],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_TOP],
-                    'borders' => ['top' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
-                ]);
+                // Names row
+                $namesRow = $signatureSpaceRow3 + 1;
                 
-                $sheet->getStyle("A{$signatureTitleRow}:{$lastColumn}{$signatureTitleRow}")->applyFromArray([
-                    'font' => ['size' => 10, 'italic' => true, 'name' => 'Arial'],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER]
-                ]);
-                
-                // Set row heights for better appearance - match sample
-                $sheet->getRowDimension(1)->setRowHeight(30); // Title row height like sample (22.8pt)
-                $sheet->getRowDimension(2)->setRowHeight(18); // Subtitle row height like sample (13.8pt)
-                for ($row = $questionStartRow; $row <= $questionEndRow; $row++) {
-                    $sheet->getRowDimension($row)->setRowHeight(16); // Standard question row height
-                }
-                
-                // Set print settings
-                $sheet->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
-                $sheet->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
-                $sheet->getPageSetup()->setFitToWidth(1);
-                $sheet->getPageSetup()->setFitToHeight(0);
-                
-                // Set print margins
-                $sheet->getPageMargins()->setTop(0.5);
-                $sheet->getPageMargins()->setRight(0.5);
-                $sheet->getPageMargins()->setBottom(0.5);
-                $sheet->getPageMargins()->setLeft(0.5);
-                
-                // Set header and footer
-                $sheet->getHeaderFooter()->setOddHeader('&C&"Arial,Bold"CUSTOMER SATISFACTION SURVEY');
-                $sheet->getHeaderFooter()->setOddFooter('&L&D &T&R&P');
+                // Titles row
+                $titlesRow = $namesRow + 1;
             }
         ];
     }
