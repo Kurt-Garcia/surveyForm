@@ -14,17 +14,54 @@
         <td colspan="{{ count($siteAnalytics) + 1 }}"></td>
     </tr>
     
-    <!-- Company Header Row -->
+    <!-- Company Full Names Row -->
     <tr>
         <td></td>
-        @foreach($siteAnalytics as $index => $site)
-            @if($index == count($siteAnalytics) - 2)
-                <td>FAST Unimerchants Inc.</td>
-            @elseif($index == count($siteAnalytics) - 1)
-                <td>FUI MNC</td>
-            @else
-                <td></td>
-            @endif
+        @foreach($siteAnalytics as $site)
+            @php
+                $sbuName = $site['sbu_name'] ?? '';
+                $fullCompanyName = '';
+                if (stripos($sbuName, 'FUI') !== false) {
+                    $fullCompanyName = 'Fast Unimerchants Inc.';
+                } elseif (stripos($sbuName, 'FDC') !== false) {
+                    $fullCompanyName = 'Fast Distribution Corporation';
+                }
+            @endphp
+            <td>{{ $fullCompanyName }}</td>
+        @endforeach
+    </tr>
+    
+    <!-- Company Acronyms Row -->
+    <tr>
+        <td></td>
+        @foreach($siteAnalytics as $site)
+            @php
+                $sbuName = $site['sbu_name'] ?? '';
+                $siteName = $site['site_name'] ?? '';
+                
+                // Create the full SBU identifier by combining SBU name with site suffix
+                $fullSbuName = $sbuName;
+                
+                // Extract potential suffixes from site name (looking at the beginning of the site name)
+                if ($siteName) {
+                    // Common patterns for suffixes - check if site name starts with these patterns
+                    if (stripos($siteName, 'MNC') === 0) {
+                        $fullSbuName = $sbuName . ' MNC';
+                    } elseif (stripos($siteName, 'NAI') === 0) {
+                        $fullSbuName = $sbuName . ' NAI';
+                    } elseif (stripos($siteName, 'Shell') === 0) {
+                        $fullSbuName = $sbuName . ' Shell';
+                    } elseif (stripos($siteName, 'Luzon') === 0) {
+                        $fullSbuName = $sbuName . ' Luzon';
+                    } elseif (stripos($siteName, 'Visayas') === 0) {
+                        $fullSbuName = $sbuName . ' Visayas';
+                    } elseif (stripos($siteName, 'Mindanao') === 0) {
+                        $fullSbuName = $sbuName . ' Mindanao';
+                    }
+                    // Add more patterns as needed
+                }
+            @endphp
+            <td>{{ $fullSbuName }}</td>
         @endforeach
     </tr>
     
@@ -88,11 +125,36 @@
         <td colspan="{{ count($siteAnalytics) + 1 }}">Overall Rating</td>
     </tr>
     
-    <!-- Overall Rating Row -->
+    <!-- Overall Rating Numeric Values Row -->
     <tr>
         <td>Based on QMS Target (Very Satisfactory)</td>
         @foreach($siteAnalytics as $site)
             <td>{{ number_format($site['overall_rating'], 2) }}</td>
+        @endforeach
+    </tr>
+    
+    <!-- Overall Rating Labels Row -->
+    <tr>
+        <td></td>
+        @foreach($siteAnalytics as $site)
+            @php
+                $rating = $site['overall_rating'];
+                $ratingLabel = '';
+                if ($rating >= 1 && $rating < 2) {
+                    $ratingLabel = 'P';
+                } elseif ($rating >= 2 && $rating < 3) {
+                    $ratingLabel = 'NI';
+                } elseif ($rating >= 3 && $rating < 4) {
+                    $ratingLabel = 'S';
+                } elseif ($rating >= 4 && $rating < 5) {
+                    $ratingLabel = 'VS';
+                } elseif ($rating == 5) {
+                    $ratingLabel = 'E';
+                } else {
+                    $ratingLabel = 'N/A';
+                }
+            @endphp
+            <td>{{ $ratingLabel }}</td>
         @endforeach
     </tr>
     

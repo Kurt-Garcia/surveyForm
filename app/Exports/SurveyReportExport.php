@@ -68,7 +68,7 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
                 'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
             ],
             
-            // Company header row - White background with borders
+            // Full company names row - White background with borders
             4 => [
                 'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
@@ -76,8 +76,16 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
                 'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
             ],
             
+            // Company acronyms row - White background with borders
+            5 => [
+                'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
+                'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
+            ],
+            
             // Site headers row - White background with borders
-            6 => [
+            7 => [
                 'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
@@ -85,7 +93,7 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
             ],
             
             // Respondents row - White background with borders
-            7 => [
+            8 => [
                 'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
@@ -98,10 +106,35 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
     {
         $widths = ['A' => 60]; // Question/label column wider like sample
         
-        // Site columns - consistent width like sample
+        // Site columns - dynamic width based on company name length
         $siteCount = count($this->siteAnalytics);
         for ($i = 0; $i < $siteCount; $i++) {
-            $widths[chr(66 + $i)] = 15; // B, C, D, etc. - match sample column widths
+            $site = $this->siteAnalytics[$i];
+            $sbuName = $site['sbu_name'] ?? '';
+            $siteName = $site['site_name'] ?? '';
+            
+            // Determine full company name based on SBU prefix
+            $fullCompanyName = '';
+            if (stripos($sbuName, 'FUI') !== false) {
+                $fullCompanyName = 'Fast Unimerchants Inc.';
+            } elseif (stripos($sbuName, 'FDC') !== false) {
+                $fullCompanyName = 'Fast Distribution Corporation';
+            }
+            
+            // Calculate width based on the longest content in the column
+            $companyNameLength = strlen($fullCompanyName);
+            $sbuNameLength = strlen($sbuName); // This will include MNC, NAI, Shell, etc.
+            $siteNameLength = strlen($siteName);
+            
+            // Get the maximum length among all content in this column
+            $maxLength = max($companyNameLength, $sbuNameLength, $siteNameLength);
+            
+            // Set minimum width of 15, but expand if content is longer
+            // Each character approximately needs 1.2 units of width
+            $calculatedWidth = max(15, $maxLength * 1.2);
+            
+            // Cap the maximum width to prevent extremely wide columns
+            $widths[chr(66 + $i)] = min($calculatedWidth, 40); // Increased max to 40 for longer SBU names
         }
         
         return $widths;
@@ -120,20 +153,17 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
                 $sheet->mergeCells("A2:{$lastColumn}2");
                 $sheet->mergeCells("A3:{$lastColumn}3"); // Empty row
                 
-                // Company header merge (assuming last two columns for company info)
-                if ($siteCount >= 2) {
-                    $companyStartCol = chr(66 + $siteCount - 2);
-                    $sheet->mergeCells("{$companyStartCol}4:{$lastColumn}4");
-                }
+                // No need to merge company names and acronyms - each site has its own
+                // Company full names are in row 4, acronyms in row 5
                 
                 // Empty row merge
-                $sheet->mergeCells("A5:{$lastColumn}5");
+                $sheet->mergeCells("A6:{$lastColumn}6");
                 
                 // Get question rows for styling
                 $ratingQuestions = $this->questions->filter(function($q) {
                     return $q->type === 'radio' || $q->type === 'star';
                 });
-                $questionStartRow = 8;
+                $questionStartRow = 9;
                 $questionEndRow = $questionStartRow + $ratingQuestions->count() - 1;
                 
                 // Style question rows with borders - white background like sample
@@ -187,8 +217,42 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER]
                 ]);
                 
+                // Overall rating labels row (P, NI, S, VS, E) - white background with color coding
+                $overallLabelsRow = $overallValueRow + 1;
+                $sheet->getStyle("A{$overallLabelsRow}:{$lastColumn}{$overallLabelsRow}")->applyFromArray([
+                    'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
+                ]);
+                
+                // Color code rating labels based on performance
+                for ($i = 0; $i < $siteCount; $i++) {
+                    $col = chr(66 + $i);
+                    $rating = $this->siteAnalytics[$i]['overall_rating'] ?? 0;
+                    
+                    // Determine color based on rating ranges
+                    if ($rating >= 1 && $rating < 2) {
+                        $color = 'FF0000'; // Red for Poor (P)
+                    } elseif ($rating >= 2 && $rating < 3) {
+                        $color = 'FFA500'; // Orange for Needs Improvement (NI)
+                    } elseif ($rating >= 3 && $rating < 4) {
+                        $color = 'FFFF00'; // Yellow for Satisfactory (S)
+                    } elseif ($rating >= 4 && $rating < 5) {
+                        $color = '90EE90'; // Light Green for Very Satisfactory (VS)
+                    } elseif ($rating == 5) {
+                        $color = '00FF00'; // Green for Excellent (E)
+                    } else {
+                        $color = 'FFFFFF'; // White for N/A
+                    }
+                    
+                    $sheet->getStyle("{$col}{$overallLabelsRow}")->applyFromArray([
+                        'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => $color]],
+                        'font' => ['color' => ['rgb' => '000000'], 'bold' => true, 'name' => 'Arial']
+                    ]);
+                }
+                
                 // QMS Target status row with color coding - match sample colors exactly
-                $qmsRow = $overallValueRow + 1;
+                $qmsRow = $overallLabelsRow + 1;
                 $sheet->getStyle("A{$qmsRow}:{$lastColumn}{$qmsRow}")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],

@@ -187,7 +187,7 @@ class SurveyResponseController extends Controller
         }
         
         // Get sites that actually have responses based on surveyor sites
-        $sitesWithResponses = \App\Models\Site::whereIn('id', $responseSiteIds)->get();
+        $sitesWithResponses = \App\Models\Site::with('sbu')->whereIn('id', $responseSiteIds)->get();
         
         foreach ($sitesWithResponses as $site) {
             // Get responses from surveyors who belong to this site
@@ -259,7 +259,7 @@ class SurveyResponseController extends Controller
         }
         
         // Get sites that actually have responses based on surveyor sites
-        $sitesWithResponses = \App\Models\Site::whereIn('id', $responseSiteIds)->get();
+        $sitesWithResponses = \App\Models\Site::with('sbu')->whereIn('id', $responseSiteIds)->get();
         
         foreach ($sitesWithResponses as $site) {
             // Get responses from surveyors who belong to this site
