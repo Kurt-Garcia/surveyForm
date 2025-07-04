@@ -115,6 +115,11 @@
         <td colspan="{{ count($siteAnalytics) + 1 }}">1- Poor (P)  2 - Needs Improvement (NI)  3 - Satisfactory (S)  4 - Very Satisfactory (VS)  5 - Excellent (E)</td>
     </tr>
     
+    <!-- Rating Range Legend -->
+    <tr>
+        <td colspan="{{ count($siteAnalytics) + 1 }}">1 - 1.99 (P) | 2 - 2.99 (NI) | 3 - 3.99 (S) | 4 - 4.99 (VS) | 5 - (E)</td>
+    </tr>
+
     <!-- Empty Row -->
     <tr>
         <td colspan="{{ count($siteAnalytics) + 1 }}"></td>

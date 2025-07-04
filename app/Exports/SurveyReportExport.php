@@ -192,9 +192,19 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFF00']], // Yellow background
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
+
+                // Rating range legend row styling - yellow background, centered --------------------------------
+                $ratingRangeRow = $ratingRow + 1;
+                $sheet->mergeCells("A{$ratingRangeRow}:{$lastColumn}{$ratingRangeRow}");
+                $sheet->getStyle("A{$ratingRangeRow}:{$lastColumn}{$ratingRangeRow}")->applyFromArray([
+                    'font' => ['size' => 10, 'name' => 'Arial'],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FBDB93']], // Yellow background
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
+                ]);
                 
                 // Overall rating section header - Blue background like sample
-                $overallHeaderRow = $ratingRow + 3;
+                $overallHeaderRow = $ratingRangeRow + 2;
                 $sheet->mergeCells("A{$overallHeaderRow}:{$lastColumn}{$overallHeaderRow}");
                 $sheet->getStyle("A{$overallHeaderRow}:{$lastColumn}{$overallHeaderRow}")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF'], 'name' => 'Arial'],
