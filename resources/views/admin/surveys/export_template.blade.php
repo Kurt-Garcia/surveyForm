@@ -132,7 +132,7 @@
     
     <!-- Overall Rating Numeric Values Row -->
     <tr>
-        <td>Based on QMS Target (Very Satisfactory)</td>
+        <td> </td>
         @foreach($siteAnalytics as $site)
             <td>{{ number_format($site['overall_rating'], 2) }}</td>
         @endforeach
@@ -165,7 +165,7 @@
     
     <!-- QMS Target Status -->
     <tr>
-        <td></td>
+        <td>Based on QMS Target (Very Satisfactory)</td>
         @foreach($siteAnalytics as $site)
             <td>{{ $site['qms_target_status'] }}</td>
         @endforeach
