@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Survey extends Model
 {
-    protected $fillable = ['title', 'admin_id', 'is_active', 'total_questions', 'logo'];
+    protected $fillable = ['title', 'admin_id', 'is_active', 'total_questions', 'logo', 'department_logo'];
 
     protected $casts = [
         'is_active' => 'boolean'

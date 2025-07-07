@@ -172,6 +172,30 @@
                             </div>
                         </div>
 
+                        <div class="form-group row mb-4">
+                            <label for="department_logo" class="col-md-3 col-form-label">{{ __('Department Logo') }}</label>
+                            <div class="col-md-9">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="department-logo-preview-container" style="display: none;">
+                                        <img id="departmentLogoPreview" src="#" alt="Department Logo Preview" style="max-width: 100px; max-height: 100px; object-fit: contain;">
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <input type="file" 
+                                            class="form-control @error('department_logo') is-invalid @enderror" 
+                                            id="department_logo" 
+                                            name="department_logo" 
+                                            accept="image/*">
+                                        <small class="text-muted">Department logo for consent form (top right corner). Recommended size: 200x200px. Max file size: 2MB</small>
+                                        @error('department_logo')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         @if($sbus->count() > 0)
                         <!-- Bulk Question Creation Feature -->
                         <div class="card shadow-sm mb-4" style="border: 2px solid #e3f2fd; background: linear-gradient(135deg, #f8f9fc 0%, #e3f2fd 100%);">
@@ -583,8 +607,13 @@
         const file = e.target.files[0];
         if (file) {
             if (file.size > 2 * 1024 * 1024) { // 2MB limit
-                alert('File size must be less than 2MB');
+                swalWithBootstrapButtons.fire({
+                    title: "File too large!",
+                    text: "Logo image must be less than 2MB. Please choose a smaller file.",
+                    icon: "error"
+                });
                 this.value = '';
+                document.querySelector('.logo-preview-container').style.display = 'none';
                 return;
             }
             
@@ -597,6 +626,33 @@
             reader.readAsDataURL(file);
         } else {
             document.querySelector('.logo-preview-container').style.display = 'none';
+        }
+    });
+
+    // Department Logo preview functionality
+    document.getElementById('department_logo').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                swalWithBootstrapButtons.fire({
+                    title: "File too large!",
+                    text: "Department logo image must be less than 2MB. Please choose a smaller file.",
+                    icon: "error"
+                });
+                this.value = '';
+                document.querySelector('.department-logo-preview-container').style.display = 'none';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('departmentLogoPreview');
+                preview.src = e.target.result;
+                document.querySelector('.department-logo-preview-container').style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        } else {
+            document.querySelector('.department-logo-preview-container').style.display = 'none';
         }
     });
 

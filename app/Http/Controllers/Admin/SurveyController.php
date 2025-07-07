@@ -50,6 +50,7 @@ class SurveyController extends Controller
             'site_ids' => 'required|array|min:1',
             'site_ids.*' => 'exists:sites,id',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'department_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'questions' => 'required|array|min:1',
             'questions.*.text' => 'required|string|max:255',
             'questions.*.type' => 'required|string|in:text,radio,star,select',
@@ -69,12 +70,18 @@ class SurveyController extends Controller
             if ($request->hasFile('logo')) {
                 $logoPath = $request->file('logo')->store('survey-logos', 'public');
             }
+            
+            $departmentLogoPath = null;
+            if ($request->hasFile('department_logo')) {
+                $departmentLogoPath = $request->file('department_logo')->store('survey-logos', 'public');
+            }
 
             $survey = Survey::create([
                 'title' => ucfirst($request->title),
                 'admin_id' => Auth::guard('admin')->id(),
                 'is_active' => true,
-                'logo' => $logoPath
+                'logo' => $logoPath,
+                'department_logo' => $departmentLogoPath
             ]);
             
             // Attach SBUs to the survey
@@ -169,24 +176,49 @@ class SurveyController extends Controller
             }
             return redirect()->back()->with('success', 'Logo removed successfully!');
         }
+        
+        if ($request->has('remove_department_logo')) {
+            // Remove existing department logo if it exists
+            if ($survey->department_logo) {
+                Storage::disk('public')->delete($survey->department_logo);
+                $survey->update(['department_logo' => null]);
+            }
+            return redirect()->back()->with('success', 'Department logo removed successfully!');
+        }
 
         $request->validate([
-            'logo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'department_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         try {
-            // Remove old logo if exists
-            if ($survey->logo) {
-                Storage::disk('public')->delete($survey->logo);
+            // Update main logo if provided
+            if ($request->hasFile('logo')) {
+                // Remove old logo if exists
+                if ($survey->logo) {
+                    Storage::disk('public')->delete($survey->logo);
+                }
+
+                // Store new logo
+                $logoPath = $request->file('logo')->store('survey-logos', 'public');
+                $survey->update(['logo' => $logoPath]);
+            }
+            
+            // Update department logo if provided
+            if ($request->hasFile('department_logo')) {
+                // Remove old department logo if exists
+                if ($survey->department_logo) {
+                    Storage::disk('public')->delete($survey->department_logo);
+                }
+
+                // Store new department logo
+                $departmentLogoPath = $request->file('department_logo')->store('survey-logos', 'public');
+                $survey->update(['department_logo' => $departmentLogoPath]);
             }
 
-            // Store new logo
-            $logoPath = $request->file('logo')->store('survey-logos', 'public');
-            $survey->update(['logo' => $logoPath]);
-
-            return redirect()->back()->with('success', 'Logo updated successfully!');
+            return redirect()->back()->with('success', 'Logos updated successfully!');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to update logo. Please try again.');
+            return redirect()->back()->with('error', 'Failed to update logos. Please try again.');
         }
     }
 
