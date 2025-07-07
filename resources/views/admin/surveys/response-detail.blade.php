@@ -563,13 +563,6 @@ function printWithPrintJS() {
                     const displaySpan = responseDiv.querySelector('span.ms-2.fw-bold');
                     const displayValue = displaySpan ? displaySpan.textContent.trim() : `${selectedNumber} / 5`;
                     
-                    console.log('Radio Debug Info:', {
-                        selectedNumber: selectedNumber,
-                        displayValue: displayValue,
-                        checkedRadio: checkedRadio,
-                        radioDisplay: radioDisplay
-                    });
-                    
                     responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
                     responseHTML += '<div style="display: flex; gap: 10px; margin-right: 15px;">';
                     
@@ -732,10 +725,10 @@ function printWithPrintJS() {
             }
         `,
         onLoadingStart: function () {
-            console.log('Print loading started');
+            // Print started
         },
         onLoadingEnd: function () {
-            console.log('Print loading ended');
+            // Print complete
         }
     });
     } catch (error) {
