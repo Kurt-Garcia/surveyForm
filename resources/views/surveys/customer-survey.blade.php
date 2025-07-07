@@ -169,6 +169,38 @@
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     }
+    
+    /* Improvement areas styling */
+    .improvement-category {
+        border-radius: 8px;
+        padding: 12px;
+        transition: all 0.3s ease;
+    }
+    
+    .improvement-category:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+    
+    .improvement-category .form-check-label.fw-bold {
+        font-size: 1.05rem;
+    }
+    
+    .improvement-category .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .improvement-category .form-check-input:disabled {
+        opacity: 0.5;
+    }
+    
+    #summary-improvement-details .list-group-item {
+        border-left: 3px solid var(--primary-color);
+    }
+    
+    #summary-improvement-details .fas.fa-angle-right {
+        color: var(--primary-color) !important;
+    }
 </style>
 
 <div class="survey-wrapper">
@@ -326,9 +358,143 @@
             </div>
 
             <div class="comments-section mt-5">
-                <h2 class="section-title font-theme-heading">Additional Feedback</h2>
-                <textarea class="modern-textarea font-theme" name="comments" rows="5" placeholder="We value your thoughts. Please share any additional feedback..." maxlength="150"></textarea>
-                <div class="validation-message" id="comments_error"></div>
+                <h2 class="section-title font-theme-heading">Areas for Improvement Suggestions</h2>
+                <p class="mb-3 font-theme">Select all that apply:</p>
+                
+                <div class="improvement-areas mb-4 font-theme">
+                    <!-- Product/Service Quality -->
+                    <div class="improvement-category mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="product_quality" name="improvement_areas[]" value="product_quality">
+                            <label class="form-check-label fw-bold" for="product_quality">
+                                🧾 Product / Service Quality
+                            </label>
+                        </div>
+                        <div class="ms-4 mt-2">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="product_availability" name="improvement_details[]" value="We hope products are always available. Some items are often out of stock.">
+                                <label class="form-check-label" for="product_availability">
+                                    We hope products are always available. Some items are often out of stock.
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="product_expiration" name="improvement_details[]" value="Please monitor product expiration dates more carefully. We sometimes receive items that are near expiry.">
+                                <label class="form-check-label" for="product_expiration">
+                                    Please monitor product expiration dates more carefully. We sometimes receive items that are near expiry.
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="product_damage" name="improvement_details[]" value="Some products arrive with dents, leaks, or damaged packaging. Kindly ensure all items are in good condition.">
+                                <label class="form-check-label" for="product_damage">
+                                    Some products arrive with dents, leaks, or damaged packaging. Kindly ensure all items are in good condition.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Delivery & Logistics -->
+                    <div class="improvement-category mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="delivery_logistics" name="improvement_areas[]" value="delivery_logistics">
+                            <label class="form-check-label fw-bold" for="delivery_logistics">
+                                🚚 Delivery & Logistics
+                            </label>
+                        </div>
+                        <div class="ms-4 mt-2">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="delivery_time" name="improvement_details[]" value="We'd appreciate it if deliveries consistently arrive on time, as promised.">
+                                <label class="form-check-label" for="delivery_time">
+                                    We'd appreciate it if deliveries consistently arrive on time, as promised.
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="missing_items" name="improvement_details[]" value="There have been a few instances of missing items in our deliveries. Please double-check orders for completeness.">
+                                <label class="form-check-label" for="missing_items">
+                                    There have been a few instances of missing items in our deliveries. Please double-check orders for completeness.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sales & Customer Service -->
+                    <div class="improvement-category mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="customer_service" name="improvement_areas[]" value="customer_service">
+                            <label class="form-check-label fw-bold" for="customer_service">
+                                👩‍💼 Sales & Customer Service
+                            </label>
+                        </div>
+                        <div class="ms-4 mt-2">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="response_time" name="improvement_details[]" value="It would be helpful if our concerns or follow-ups were responded to more quickly.">
+                                <label class="form-check-label" for="response_time">
+                                    It would be helpful if our concerns or follow-ups were responded to more quickly.
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="clear_communication" name="improvement_details[]" value="We appreciate clear communication. Kindly ensure that all interactions remain polite and professional.">
+                                <label class="form-check-label" for="clear_communication">
+                                    We appreciate clear communication. Kindly ensure that all interactions remain polite and professional.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Timeliness -->
+                    <div class="improvement-category mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="timeliness" name="improvement_areas[]" value="timeliness">
+                            <label class="form-check-label fw-bold" for="timeliness">
+                                🕐 Timeliness
+                            </label>
+                        </div>
+                        <div class="ms-4 mt-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="schedule_adherence" name="improvement_details[]" value="Please try to follow the agreed delivery or visit schedule to avoid disruptions in our store operations.">
+                                <label class="form-check-label" for="schedule_adherence">
+                                    Please try to follow the agreed delivery or visit schedule to avoid disruptions in our store operations.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Returns / BO Handling -->
+                    <div class="improvement-category mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="returns_handling" name="improvement_areas[]" value="returns_handling">
+                            <label class="form-check-label fw-bold" for="returns_handling">
+                                🔁 Returns / BO Handling
+                            </label>
+                        </div>
+                        <div class="ms-4 mt-2">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="return_process" name="improvement_details[]" value="I hope the return process can be made quicker and more convenient.">
+                                <label class="form-check-label" for="return_process">
+                                    I hope the return process can be made quicker and more convenient.
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="bo_coordination" name="improvement_details[]" value="Please improve coordination when it comes to picking up bad order items.">
+                                <label class="form-check-label" for="bo_coordination">
+                                    Please improve coordination when it comes to picking up bad order items.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Others -->
+                    <div class="improvement-category">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="others" name="improvement_areas[]" value="others">
+                            <label class="form-check-label fw-bold" for="others">
+                                ✍️ Others (please specify)
+                            </label>
+                        </div>
+                        <div class="ms-4 mt-2">
+                            <textarea class="modern-textarea font-theme" name="other_comments" rows="3" placeholder="Please specify other areas for improvement..."></textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="form-footer">
@@ -361,6 +527,36 @@ $(document).ready(function() {
     // Show consent modal when page loads
     const consentModal = new bootstrap.Modal(document.getElementById('consentModal'));
     consentModal.show();
+    
+    // Handle improvement areas checkbox interactions
+    $('input[name="improvement_areas[]"]').on('change', function() {
+        const categoryId = $(this).attr('id');
+        const isChecked = $(this).prop('checked');
+        
+        // Find all detail checkboxes under this category
+        const detailsContainer = $(this).closest('.improvement-category').find('.ms-4');
+        
+        // Enable/disable child checkboxes based on parent state
+        detailsContainer.find('input[type="checkbox"]').prop('disabled', !isChecked);
+        
+        // If unchecking the parent, also uncheck all children
+        if (!isChecked) {
+            detailsContainer.find('input[type="checkbox"]').prop('checked', false);
+        }
+        
+        // Special handling for "Others" text area
+        if (categoryId === 'others') {
+            detailsContainer.find('textarea').prop('disabled', !isChecked);
+            if (!isChecked) {
+                detailsContainer.find('textarea').val('');
+            }
+        }
+    });
+    
+    // Initialize the state of all detail checkboxes and text areas
+    $('input[name="improvement_areas[]"]').each(function() {
+        $(this).trigger('change');
+    });
     
     // Enable the continue button only when the accept checkbox is selected
     $('#consentAccept, #consentDecline').on('change', function() {
@@ -460,7 +656,6 @@ $(document).ready(function() {
         $('#summary-account-type').text(data.account_type);
         $('#summary-date').text(data.date);
         $('#summary-recommendation').text(data.recommendation);
-        $('#summary-comments').text(data.comments || 'No additional comments provided.');
         
         // Clear and update responses
         const responsesContainer = $('#summary-responses');
@@ -703,9 +898,22 @@ $(document).ready(function() {
                         account_type: $('#account_type').val(),
                         date: $('#date').val(),
                         recommendation: $('#survey-number').val(),
-                        comments: $('textarea[name="comments"]').val(),
-                        responses: {}
+                        responses: {},
+                        // Add improvement areas data
+                        improvementAreas: [],
+                        improvementDetails: [],
+                        otherComments: $('textarea[name="other_comments"]').val()
                     };
+                    
+                    // Collect selected improvement areas
+                    $('input[name="improvement_areas[]"]:checked').each(function() {
+                        surveyData.improvementAreas.push($(this).val());
+                    });
+                    
+                    // Collect selected improvement details
+                    $('input[name="improvement_details[]"]:checked').each(function() {
+                        surveyData.improvementDetails.push($(this).val());
+                    });
                     
                     // Save question responses
                     $('.question-card').each(function() {
@@ -883,7 +1091,52 @@ function updateResponseSummary(data) {
     $('#summary-account-type').text(data.account_type);
     $('#summary-date').text(data.date);
     $('#summary-recommendation').text(data.recommendation);
-    $('#summary-comments').text(data.comments || 'No additional comments provided.');
+    
+    // Add improvement areas to summary
+    const improvementDetailsContainer = $('#summary-improvement-details');
+    if (improvementDetailsContainer.length > 0) {
+        improvementDetailsContainer.empty();
+        
+        // Check if we have improvement areas data
+        if (data.improvementAreas && data.improvementAreas.length > 0) {
+            const areasMap = {
+                'product_quality': '🧾 Product / Service Quality',
+                'delivery_logistics': '🚚 Delivery & Logistics',
+                'customer_service': '👩‍💼 Sales & Customer Service',
+                'timeliness': '🕐 Timeliness',
+                'returns_handling': '🔁 Returns / BO Handling',
+                'others': '✍️ Others'
+            };
+            
+            // Create list of improvement areas
+            const areasList = $('<ul class="list-group list-group-flush"></ul>');
+            
+            data.improvementAreas.forEach(area => {
+                const areaItem = $(`<li class="list-group-item bg-light"><strong>${areasMap[area] || area}</strong></li>`);
+                areasList.append(areaItem);
+            });
+            
+            // Add improvement details if available
+            if (data.improvementDetails && data.improvementDetails.length > 0) {
+                const detailsList = $('<ul class="list-unstyled ms-3 mt-2"></ul>');
+                
+                data.improvementDetails.forEach(detail => {
+                    detailsList.append(`<li><i class="fas fa-angle-right me-2 text-primary"></i>${detail}</li>`);
+                });
+                
+                // Add "Other" comments if specified
+                if (data.otherComments && data.improvementAreas.includes('others')) {
+                    detailsList.append(`<li><i class="fas fa-angle-right me-2 text-primary"></i>${data.otherComments}</li>`);
+                }
+                
+                areasList.append($('<li class="list-group-item"></li>').append(detailsList));
+            }
+            
+            improvementDetailsContainer.append(areasList);
+        } else {
+            improvementDetailsContainer.html('<p>No improvement areas selected.</p>');
+        }
+    }
     
     // Clear and update responses
     const responsesContainer = $('#summary-responses');
@@ -1014,9 +1267,9 @@ function showResponseSummaryModal() {
                         <p>How likely to recommend: <span id="summary-recommendation"></span>/10</p>
                     </div>
                     
-                    <h5 class="border-bottom pb-2 font-theme-heading">Additional Comments</h5>
-                    <div class="mb-4">
-                        <p id="summary-comments" style="word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;"></p>
+                    <h5 class="border-bottom pb-2 font-theme-heading">Areas for Improvement</h5>
+                    <div id="summary-improvement-details" class="mb-4">
+                        <!-- Improvement details will be dynamically inserted here -->
                     </div>
                 </div>
             </div>
