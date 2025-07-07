@@ -148,7 +148,8 @@ class UserSurveyController extends Controller
                 'account_name' => 'required|string|max:255',
                 'account_type' => 'required|string|max:255',
                 'date' => 'required|date',
-                'recommendation' => 'required|integer|min:1|max:10'
+                'recommendation' => 'required|integer|min:1|max:10',
+                'details_categories_map' => 'nullable|string'
             ]);
             
             // Start a database transaction
@@ -190,8 +191,33 @@ class UserSurveyController extends Controller
                 $detailsByCategory = [];
                 
                 if ($request->has('improvement_details') && is_array($request->improvement_details)) {
-                    // Use the service to map details to categories
-                    $detailsByCategory = SurveyImprovementService::mapDetailsToCategories($request->improvement_details);
+                    // Use direct mapping from details_categories_map if available
+                    if ($request->has('details_categories_map')) {
+                        try {
+                            $detailsCategoriesMap = json_decode($request->details_categories_map, true);
+                            if (is_array($detailsCategoriesMap)) {
+                                foreach ($detailsCategoriesMap as $item) {
+                                    $category = $item['category'] ?? null;
+                                    $detail = $item['detail'] ?? null;
+                                    
+                                    if ($category && $detail) {
+                                        if (!isset($detailsByCategory[$category])) {
+                                            $detailsByCategory[$category] = [];
+                                        }
+                                        $detailsByCategory[$category][] = $detail;
+                                    }
+                                }
+                            }
+                        } catch (\Exception $e) {
+                            // Log the error but continue with fallback
+                            Log::warning("Error parsing details_categories_map: " . $e->getMessage());
+                        }
+                    }
+                    
+                    // If direct mapping isn't available or didn't work, fall back to service method
+                    if (empty($detailsByCategory)) {
+                        $detailsByCategory = SurveyImprovementService::mapDetailsToCategories($request->improvement_details);
+                    }
                 }
                 
                 // Process each improvement area
@@ -414,8 +440,33 @@ class UserSurveyController extends Controller
                 $detailsByCategory = [];
                 
                 if ($request->has('improvement_details') && is_array($request->improvement_details)) {
-                    // Use the service to map details to categories
-                    $detailsByCategory = SurveyImprovementService::mapDetailsToCategories($request->improvement_details);
+                    // Use direct mapping from details_categories_map if available
+                    if ($request->has('details_categories_map')) {
+                        try {
+                            $detailsCategoriesMap = json_decode($request->details_categories_map, true);
+                            if (is_array($detailsCategoriesMap)) {
+                                foreach ($detailsCategoriesMap as $item) {
+                                    $category = $item['category'] ?? null;
+                                    $detail = $item['detail'] ?? null;
+                                    
+                                    if ($category && $detail) {
+                                        if (!isset($detailsByCategory[$category])) {
+                                            $detailsByCategory[$category] = [];
+                                        }
+                                        $detailsByCategory[$category][] = $detail;
+                                    }
+                                }
+                            }
+                        } catch (\Exception $e) {
+                            // Log the error but continue with fallback
+                            \Illuminate\Support\Facades\Log::warning("Error parsing details_categories_map: " . $e->getMessage());
+                        }
+                    }
+                    
+                    // If direct mapping isn't available or didn't work, fall back to service method
+                    if (empty($detailsByCategory)) {
+                        $detailsByCategory = SurveyImprovementService::mapDetailsToCategories($request->improvement_details);
+                    }
                 }
                 
                 // Process each improvement area

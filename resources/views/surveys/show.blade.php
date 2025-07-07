@@ -416,19 +416,19 @@
                         </div>
                         <div class="ms-4 mt-2">
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" id="product_availability" name="improvement_details[]" value="We hope products are always available. Some items are often out of stock.">
+                                <input class="form-check-input" type="checkbox" id="product_availability" name="improvement_details[]" value="We hope products are always available. Some items are often out of stock." data-category="product_quality">
                                 <label class="form-check-label" for="product_availability">
                                     We hope products are always available. Some items are often out of stock.
                                 </label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" id="product_expiration" name="improvement_details[]" value="Please monitor product expiration dates more carefully. We sometimes receive items that are near expiry.">
+                                <input class="form-check-input" type="checkbox" id="product_expiration" name="improvement_details[]" value="Please monitor product expiration dates more carefully. We sometimes receive items that are near expiry." data-category="product_quality">
                                 <label class="form-check-label" for="product_expiration">
                                     Please monitor product expiration dates more carefully. We sometimes receive items that are near expiry.
                                 </label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="product_damage" name="improvement_details[]" value="Some products arrive with dents, leaks, or damaged packaging. Kindly ensure all items are in good condition.">
+                                <input class="form-check-input" type="checkbox" id="product_damage" name="improvement_details[]" value="Some products arrive with dents, leaks, or damaged packaging. Kindly ensure all items are in good condition." data-category="product_quality">
                                 <label class="form-check-label" for="product_damage">
                                     Some products arrive with dents, leaks, or damaged packaging. Kindly ensure all items are in good condition.
                                 </label>
@@ -446,13 +446,13 @@
                         </div>
                         <div class="ms-4 mt-2">
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" id="delivery_time" name="improvement_details[]" value="We'd appreciate it if deliveries consistently arrive on time, as promised.">
+                                <input class="form-check-input" type="checkbox" id="delivery_time" name="improvement_details[]" value="We'd appreciate it if deliveries consistently arrive on time, as promised." data-category="delivery_logistics">
                                 <label class="form-check-label" for="delivery_time">
                                     We'd appreciate it if deliveries consistently arrive on time, as promised.
                                 </label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="missing_items" name="improvement_details[]" value="There have been a few instances of missing items in our deliveries. Please double-check orders for completeness.">
+                                <input class="form-check-input" type="checkbox" id="missing_items" name="improvement_details[]" value="There have been a few instances of missing items in our deliveries. Please double-check orders for completeness." data-category="delivery_logistics">
                                 <label class="form-check-label" for="missing_items">
                                     There have been a few instances of missing items in our deliveries. Please double-check orders for completeness.
                                 </label>
@@ -470,13 +470,13 @@
                         </div>
                         <div class="ms-4 mt-2">
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" id="response_time" name="improvement_details[]" value="It would be helpful if our concerns or follow-ups were responded to more quickly.">
+                                <input class="form-check-input" type="checkbox" id="response_time" name="improvement_details[]" value="It would be helpful if our concerns or follow-ups were responded to more quickly." data-category="customer_service">
                                 <label class="form-check-label" for="response_time">
                                     It would be helpful if our concerns or follow-ups were responded to more quickly.
                                 </label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="clear_communication" name="improvement_details[]" value="We appreciate clear communication. Kindly ensure that all interactions remain polite and professional.">
+                                <input class="form-check-input" type="checkbox" id="clear_communication" name="improvement_details[]" value="We appreciate clear communication. Kindly ensure that all interactions remain polite and professional." data-category="customer_service">
                                 <label class="form-check-label" for="clear_communication">
                                     We appreciate clear communication. Kindly ensure that all interactions remain polite and professional.
                                 </label>
@@ -494,7 +494,7 @@
                         </div>
                         <div class="ms-4 mt-2">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="schedule_adherence" name="improvement_details[]" value="Please try to follow the agreed delivery or visit schedule to avoid disruptions in our store operations.">
+                                <input class="form-check-input" type="checkbox" id="schedule_adherence" name="improvement_details[]" value="Please try to follow the agreed delivery or visit schedule to avoid disruptions in our store operations." data-category="timeliness">
                                 <label class="form-check-label" for="schedule_adherence">
                                     Please try to follow the agreed delivery or visit schedule to avoid disruptions in our store operations.
                                 </label>
@@ -512,13 +512,13 @@
                         </div>
                         <div class="ms-4 mt-2">
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" id="return_process" name="improvement_details[]" value="I hope the return process can be made quicker and more convenient.">
+                                <input class="form-check-input" type="checkbox" id="return_process" name="improvement_details[]" value="I hope the return process can be made quicker and more convenient." data-category="returns_handling">
                                 <label class="form-check-label" for="return_process">
                                     I hope the return process can be made quicker and more convenient.
                                 </label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="bo_coordination" name="improvement_details[]" value="Please improve coordination when it comes to picking up bad order items.">
+                                <input class="form-check-input" type="checkbox" id="bo_coordination" name="improvement_details[]" value="Please improve coordination when it comes to picking up bad order items." data-category="returns_handling">
                                 <label class="form-check-label" for="bo_coordination">
                                     Please improve coordination when it comes to picking up bad order items.
                                 </label>
@@ -1051,6 +1051,32 @@ $(document).ready(function() {
         // First validate the form
         if (!validateForm()) {
             return false;
+        }
+        
+        // Enhance the form data to include data-category attributes for improvement details
+        // This will help the backend associate details with the correct categories
+        const detailsWithCategories = [];
+        $('input[name="improvement_details[]"]:checked').each(function() {
+            const detail = $(this).val();
+            const category = $(this).data('category');
+            if (category) {
+                detailsWithCategories.push({
+                    detail: detail,
+                    category: category
+                });
+            }
+        });
+        
+        // Add this data to a hidden field
+        if (!$('#details_categories_map').length) {
+            $('<input>').attr({
+                type: 'hidden',
+                id: 'details_categories_map',
+                name: 'details_categories_map',
+                value: JSON.stringify(detailsWithCategories)
+            }).appendTo('#surveyForm');
+        } else {
+            $('#details_categories_map').val(JSON.stringify(detailsWithCategories));
         }
         
         // Show SweetAlert2 confirmation before submission
