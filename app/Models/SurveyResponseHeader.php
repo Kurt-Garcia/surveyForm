@@ -52,10 +52,14 @@ class SurveyResponseHeader extends Model
         return $this->hasMany(SurveyResponseDetail::class, 'header_id');
     }
     
-    public function improvementAreas(): HasMany
-    {
-        return $this->hasMany(SurveyImprovementArea::class, 'header_id');
-    }
+    /**
+     * @deprecated This relationship is deprecated as the table has been removed.
+     * Use improvementCategories() instead.
+     */
+    // public function improvementAreas(): HasMany
+    // {
+    //     return $this->hasMany(SurveyImprovementArea::class, 'header_id');
+    // }
     
     public function improvementCategories(): HasMany
     {

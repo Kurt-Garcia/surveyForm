@@ -79,7 +79,7 @@ class SurveyResponseController extends Controller
 
         $response = SurveyResponseHeader::where('survey_id', $survey->id)
             ->where('account_name', $account_name)
-            ->with(['details.question', 'improvementAreas'])
+            ->with(['details.question', 'improvementCategories.details'])
             ->firstOrFail();
 
         // Get the responses for compatibility with admin view

@@ -53,7 +53,7 @@ class SurveyResponseController extends Controller
     {
         $header = SurveyResponseHeader::where('survey_id', $survey->id)
             ->where('account_name', $accountName)
-            ->with(['details.question'])
+            ->with(['details.question', 'improvementCategories.details'])
             ->firstOrFail();
 
         $responses = $header->details;
