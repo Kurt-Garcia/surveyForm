@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Survey;
 use App\Models\SurveyResponseHeader;
 use App\Models\SurveyResponseDetail;
+use App\Models\SurveyImprovementArea;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -74,7 +75,7 @@ class SurveyResponseController extends Controller
 
         $response = SurveyResponseHeader::where('survey_id', $survey->id)
             ->where('account_name', $account_name)
-            ->with('details.question')
+            ->with(['details.question', 'improvementAreas'])
             ->firstOrFail();
 
         // Get the responses for compatibility with admin view
@@ -96,7 +97,9 @@ class SurveyResponseController extends Controller
             'date' => 'required|date',
             'responses' => 'required|array',
             'recommendation' => 'required|integer|between:1,10',
-            'comments' => 'required|string'
+            'improvement_areas' => 'nullable|array',
+            'improvement_details' => 'nullable|array',
+            'other_comments' => 'nullable|string'
         ]);
 
         // Check if user has already responded
@@ -145,8 +148,62 @@ class SurveyResponseController extends Controller
                 'account_type' => $validated['account_type'],
                 'date' => $validated['date'],
                 'recommendation' => $validated['recommendation'],
-                'comments' => $validated['comments']
+                'allow_resubmit' => false
             ]);
+            
+            // Save improvement areas
+            if ($request->has('improvement_areas') && is_array($request->improvement_areas)) {
+                // Create a map to associate improvement details with their categories
+                $detailsByCategory = [];
+                
+                // Process improvement details if present
+                if ($request->has('improvement_details') && is_array($request->improvement_details)) {
+                    foreach ($request->improvement_details as $detail) {
+                        // For each checkbox, determine its category
+                        $category = null;
+                        
+                        // Map each detail to its parent category
+                        if (strpos($detail, 'product') !== false) {
+                            $category = 'product_quality';
+                        } elseif (strpos($detail, 'delivery') !== false) {
+                            $category = 'delivery_logistics';
+                        } elseif (strpos($detail, 'service') !== false || strpos($detail, 'sales') !== false) {
+                            $category = 'customer_service';
+                        } elseif (strpos($detail, 'time') !== false) {
+                            $category = 'timeliness';
+                        } elseif (strpos($detail, 'return') !== false || strpos($detail, 'BO') !== false) {
+                            $category = 'returns_handling';
+                        }
+                        
+                        if ($category) {
+                            if (!isset($detailsByCategory[$category])) {
+                                $detailsByCategory[$category] = [];
+                            }
+                            $detailsByCategory[$category][] = $detail;
+                        }
+                    }
+                }
+                
+                // Process each improvement area
+                foreach ($request->improvement_areas as $areaCategory) {
+                    $isOther = ($areaCategory === 'others');
+                    $otherComments = $isOther ? ($request->other_comments ?? '') : null;
+                    
+                    // Get details for this category
+                    $areaDetails = isset($detailsByCategory[$areaCategory]) 
+                        ? implode("\n", $detailsByCategory[$areaCategory]) 
+                        : null;
+                        
+                    // Create improvement area record
+                    SurveyImprovementArea::create([
+                        'header_id' => $header->id,
+                        'area_category' => $areaCategory,
+                        'area_details' => $areaDetails,
+                        'is_other' => $isOther,
+                        'other_comments' => $otherComments
+                    ]);
+                }
+            }
 
             // Create detail records for each response
             foreach ($validQuestionIds as $questionId) {

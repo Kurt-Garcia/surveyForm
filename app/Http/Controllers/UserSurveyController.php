@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Survey;
 use App\Models\SurveyResponseHeader;
 use App\Models\SurveyResponseDetail;
+use App\Models\SurveyImprovementArea;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -178,7 +179,9 @@ class UserSurveyController extends Controller
             'date' => 'required|date',
             'responses' => 'required|array',
             'recommendation' => 'required|integer|between:1,10',
-            'comments' => 'nullable|string',
+            'improvement_areas' => 'nullable|array',
+            'improvement_details' => 'nullable|array',
+            'other_comments' => 'nullable|string',
             'start_time' => 'nullable',
             'end_time' => 'nullable'
         ]);
@@ -225,7 +228,6 @@ class UserSurveyController extends Controller
                 'start_time' => $request->start_time ? \Carbon\Carbon::parse($request->start_time) : null,
                 'end_time' => $request->end_time ? \Carbon\Carbon::parse($request->end_time) : null,
                 'recommendation' => $validated['recommendation'],
-                'comments' => $validated['comments'] ?? '',
                 'allow_resubmit' => false
             ]);
 
@@ -236,6 +238,60 @@ class UserSurveyController extends Controller
                     'question_id' => $questionId,
                     'response' => $response
                 ]);
+            }
+            
+            // Save improvement areas
+            if ($request->has('improvement_areas') && is_array($request->improvement_areas)) {
+                // Create a map to associate improvement details with their categories
+                $detailsByCategory = [];
+                
+                // Process improvement details if present
+                if ($request->has('improvement_details') && is_array($request->improvement_details)) {
+                    foreach ($request->improvement_details as $detail) {
+                        // For each checkbox, determine its category
+                        $category = null;
+                        
+                        // Map each detail to its parent category
+                        if (strpos($detail, 'product') !== false) {
+                            $category = 'product_quality';
+                        } elseif (strpos($detail, 'delivery') !== false) {
+                            $category = 'delivery_logistics';
+                        } elseif (strpos($detail, 'service') !== false || strpos($detail, 'sales') !== false) {
+                            $category = 'customer_service';
+                        } elseif (strpos($detail, 'time') !== false) {
+                            $category = 'timeliness';
+                        } elseif (strpos($detail, 'return') !== false || strpos($detail, 'BO') !== false) {
+                            $category = 'returns_handling';
+                        }
+                        
+                        if ($category) {
+                            if (!isset($detailsByCategory[$category])) {
+                                $detailsByCategory[$category] = [];
+                            }
+                            $detailsByCategory[$category][] = $detail;
+                        }
+                    }
+                }
+                
+                // Process each improvement area
+                foreach ($request->improvement_areas as $areaCategory) {
+                    $isOther = ($areaCategory === 'others');
+                    $otherComments = $isOther ? ($request->other_comments ?? '') : null;
+                    
+                    // Get details for this category
+                    $areaDetails = isset($detailsByCategory[$areaCategory]) 
+                        ? implode("\n", $detailsByCategory[$areaCategory]) 
+                        : null;
+                        
+                    // Create improvement area record
+                    SurveyImprovementArea::create([
+                        'header_id' => $header->id,
+                        'area_category' => $areaCategory,
+                        'area_details' => $areaDetails,
+                        'is_other' => $isOther,
+                        'other_comments' => $otherComments
+                    ]);
+                }
             }
 
             DB::commit();
@@ -374,7 +430,9 @@ class UserSurveyController extends Controller
             'date' => 'required|date',
             'responses' => 'required|array',
             'recommendation' => 'required|integer|between:1,10',
-            'comments' => 'nullable|string',
+            'improvement_areas' => 'nullable|array',
+            'improvement_details' => 'nullable|array',
+            'other_comments' => 'nullable|string',
             'start_time' => 'nullable',
             'end_time' => 'nullable'
         ]);
@@ -421,7 +479,6 @@ class UserSurveyController extends Controller
                 'start_time' => $request->start_time ? \Carbon\Carbon::parse($request->start_time) : null,
                 'end_time' => $request->end_time ? \Carbon\Carbon::parse($request->end_time) : null,
                 'recommendation' => $validated['recommendation'],
-                'comments' => $validated['comments'] ?? '',
                 'allow_resubmit' => false
             ]);
 
@@ -432,6 +489,60 @@ class UserSurveyController extends Controller
                     'question_id' => $questionId,
                     'response' => $response
                 ]);
+            }
+            
+            // Save improvement areas
+            if ($request->has('improvement_areas') && is_array($request->improvement_areas)) {
+                // Create a map to associate improvement details with their categories
+                $detailsByCategory = [];
+                
+                // Process improvement details if present
+                if ($request->has('improvement_details') && is_array($request->improvement_details)) {
+                    foreach ($request->improvement_details as $detail) {
+                        // For each checkbox, determine its category
+                        $category = null;
+                        
+                        // Map each detail to its parent category
+                        if (strpos($detail, 'product') !== false) {
+                            $category = 'product_quality';
+                        } elseif (strpos($detail, 'delivery') !== false) {
+                            $category = 'delivery_logistics';
+                        } elseif (strpos($detail, 'service') !== false || strpos($detail, 'sales') !== false) {
+                            $category = 'customer_service';
+                        } elseif (strpos($detail, 'time') !== false) {
+                            $category = 'timeliness';
+                        } elseif (strpos($detail, 'return') !== false || strpos($detail, 'BO') !== false) {
+                            $category = 'returns_handling';
+                        }
+                        
+                        if ($category) {
+                            if (!isset($detailsByCategory[$category])) {
+                                $detailsByCategory[$category] = [];
+                            }
+                            $detailsByCategory[$category][] = $detail;
+                        }
+                    }
+                }
+                
+                // Process each improvement area
+                foreach ($request->improvement_areas as $areaCategory) {
+                    $isOther = ($areaCategory === 'others');
+                    $otherComments = $isOther ? ($request->other_comments ?? '') : null;
+                    
+                    // Get details for this category
+                    $areaDetails = isset($detailsByCategory[$areaCategory]) 
+                        ? implode("\n", $detailsByCategory[$areaCategory]) 
+                        : null;
+                        
+                    // Create improvement area record
+                    SurveyImprovementArea::create([
+                        'header_id' => $header->id,
+                        'area_category' => $areaCategory,
+                        'area_details' => $areaDetails,
+                        'is_other' => $isOther,
+                        'other_comments' => $otherComments
+                    ]);
+                }
             }
 
             DB::commit();

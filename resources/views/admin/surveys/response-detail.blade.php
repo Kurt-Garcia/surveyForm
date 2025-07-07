@@ -240,11 +240,49 @@ function confirmResubmission() {
                             </div>
                         </div>
 
-                        <!-- Comments -->
+                        <!-- Comments section removed as we now use improvement areas instead -->
+
+                        <!-- Improvement Areas -->
                         <div class="response-item mb-4 p-3 bg-light rounded">
                             <div class="mb-2">
-                                <label class="text-muted">Additional Comments</label>
-                                <p class="fw-bold mb-0">{{ $header->comments }}</p>
+                                <label class="text-muted">Areas for Improvement</label>
+                                @php
+                                    $improvementAreas = $header->improvementAreas;
+                                    $areasMap = [
+                                        'product_quality' => 'Product/Service Quality',
+                                        'delivery_logistics' => 'Delivery & Logistics',
+                                        'customer_service' => 'Sales & Customer Service',
+                                        'timeliness' => 'Timeliness',
+                                        'returns_handling' => 'Returns/BO Handling',
+                                        'others' => 'Others'
+                                    ];
+                                @endphp
+                                
+                                @if($improvementAreas->count() > 0)
+                                    <div class="mt-2">
+                                        @foreach($improvementAreas as $area)
+                                            <div class="mb-3">
+                                                <h6 class="fw-bold">{{ $areasMap[$area->area_category] ?? $area->area_category }}</h6>
+                                                
+                                                @if($area->area_details)
+                                                    <ul class="mb-2">
+                                                        @foreach(explode("\n", $area->area_details) as $detail)
+                                                            <li>{{ $detail }}</li>
+                                                        @endforeach
+                                                    </ul>
+                                                @endif
+                                                
+                                                @if($area->is_other && $area->other_comments)
+                                                    <div class="ps-3 py-2 border-start border-primary">
+                                                        <p class="mb-0"><strong>Other Comments:</strong> {{ $area->other_comments }}</p>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <p class="fw-bold mb-0">None provided</p>
+                                @endif
                             </div>
                         </div>
                     </div>

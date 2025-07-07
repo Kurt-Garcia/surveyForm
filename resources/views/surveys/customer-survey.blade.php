@@ -877,112 +877,141 @@ $(document).ready(function() {
         }).then((result) => {
             if (result.isConfirmed) {
                 // User confirmed, proceed with submission
-                const formData = $(this).serialize();
-        $.ajax({
-            url: $(this).attr('action'),
-            type: 'POST',
-            data: formData,
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    // Show success message with SweetAlert2
-                    swalWithBootstrapButtons.fire({
-                        title: "Thank You!",
-                        text: "Your survey has been successfully submitted.",
-                        icon: "success"
-                    });
-                    
-                    // Save form data for response summary
-                    const surveyData = {
-                        account_name: $('#account_name').val(),
-                        account_type: $('#account_type').val(),
-                        date: $('#date').val(),
-                        recommendation: $('#survey-number').val(),
-                        responses: {},
-                        // Add improvement areas data
-                        improvementAreas: [],
-                        improvementDetails: [],
-                        otherComments: $('textarea[name="other_comments"]').val()
-                    };
-                    
-                    // Collect selected improvement areas
-                    $('input[name="improvement_areas[]"]:checked').each(function() {
-                        surveyData.improvementAreas.push($(this).val());
-                    });
-                    
-                    // Collect selected improvement details
-                    $('input[name="improvement_details[]"]:checked').each(function() {
-                        surveyData.improvementDetails.push($(this).val());
-                    });
-                    
-                    // Save question responses
-                    $('.question-card').each(function() {
-                        const questionId = $(this).data('question-id');
-                        const response = $(`input[name="responses[${questionId}]"]:checked`).val();
-                        if (response) {
-                            surveyData.responses[questionId] = response;
-                        }
-                    });
-                    
-                    // Save submission data in localStorage
-                    localStorage.setItem(submissionKey, 'true');
-                    localStorage.setItem(surveyDataKey, JSON.stringify(surveyData));
-                    
-                    // Update response summary with form data
-                    updateResponseSummary(surveyData);
-                    
-                    // Use dedicated function to display thank you message
-                    displayThankYouMessage();
-                }
-            },
-            error: function(xhr) {
-                // Show error message with SweetAlert2
-                swalWithBootstrapButtons.fire({
-                    title: "Error!",
-                    text: "There was a problem submitting your survey. Please check your inputs and try again.",
-                    icon: "error"
+                const formData = new FormData(this);
+                
+                // Add improvement areas data
+                const improvementAreas = [];
+                const improvementDetails = [];
+                
+                $('input[name="improvement_areas[]"]:checked').each(function() {
+                    improvementAreas.push($(this).val());
                 });
                 
-                // Try to parse validation errors from server response
-                let errors = {};
-                if (xhr.responseJSON && xhr.responseJSON.errors) {
-                    errors = xhr.responseJSON.errors;
-                }
-                // Remove previous error states
-                $('.modern-input, .modern-select, .modern-star-rating, .modern-rating-group, .modern-rating-group-display').removeClass('input-error error');
-                $('.validation-message').text('');
-                $('#validationAlertContainer').removeClass('d-none');
-                let errorListHtml = '';
-                // Highlight fields and show messages
-                if (Object.keys(errors).length > 0) {
-                    Object.keys(errors).forEach(function(key) {
-                        // For question responses, key will be like responses.12
-                        if (key.startsWith('responses.')) {
-                            const qid = key.split('.')[1];
-                            $(`#question_${qid}_error`).text(message).addClass('text-danger');
-                            $(`.question-card[data-question-id="${qid}"]`).addClass('has-error');
-                            $(`.question-card[data-question-id="${qid}"] .modern-rating-group, .question-card[data-question-id="${qid}"] .modern-rating-group-display, .question-card[data-question-id="${qid}"] .modern-star-rating`).addClass('input-error error');
-                        } else {
-                            // For normal fields
-                            $('#' + key).addClass('input-error');
-                            $('#' + key + '_error').text(errors[key][0]);
-                        }
-                        errorListHtml += `<li>${errors[key][0]}</li>`;
-                    });
-                } else {
-                    // Fallback generic error
-                    errorListHtml = '<li>There was an error submitting the form. Please try again.</li>';
-                }
-                $('#validationErrorsList ul').html(errorListHtml);
-            },
-            error: function() {
-                swalWithBootstrapButtons.fire({
-                    title: "Error!",
-                    text: "There was an error submitting the form. Please try again.",
-                    icon: "error"
+                $('input[name="improvement_details[]"]:checked').each(function() {
+                    improvementDetails.push($(this).val());
                 });
-            }
-        });
+                
+                // Add arrays to form data
+                improvementAreas.forEach(area => {
+                    formData.append('improvement_areas[]', area);
+                });
+                
+                improvementDetails.forEach(detail => {
+                    formData.append('improvement_details[]', detail);
+                });
+                
+                // Add other comments if "others" is checked
+                if (improvementAreas.includes('others')) {
+                    formData.append('other_comments', $('textarea[name="other_comments"]').val());
+                }
+                
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Show success message with SweetAlert2
+                            swalWithBootstrapButtons.fire({
+                                title: "Thank You!",
+                                text: "Your survey has been successfully submitted.",
+                                icon: "success"
+                            });
+                            
+                            // Save form data for response summary
+                            const surveyData = {
+                                account_name: $('#account_name').val(),
+                                account_type: $('#account_type').val(),
+                                date: $('#date').val(),
+                                recommendation: $('#survey-number').val(),
+                                responses: {},
+                                // Add improvement areas data
+                                improvementAreas: [],
+                                improvementDetails: [],
+                                otherComments: $('textarea[name="other_comments"]').val()
+                            };
+                            
+                            // Collect selected improvement areas
+                            $('input[name="improvement_areas[]"]:checked').each(function() {
+                                surveyData.improvementAreas.push($(this).val());
+                            });
+                            
+                            // Collect selected improvement details
+                            $('input[name="improvement_details[]"]:checked').each(function() {
+                                surveyData.improvementDetails.push($(this).val());
+                            });
+                            
+                            // Save question responses
+                            $('.question-card').each(function() {
+                                const questionId = $(this).data('question-id');
+                                const response = $(`input[name="responses[${questionId}]"]:checked`).val();
+                                if (response) {
+                                    surveyData.responses[questionId] = response;
+                                }
+                            });
+                            
+                            // Save submission data in localStorage
+                            localStorage.setItem(submissionKey, 'true');
+                            localStorage.setItem(surveyDataKey, JSON.stringify(surveyData));
+                            
+                            // Update response summary with form data
+                            updateResponseSummary(surveyData);
+                            
+                            // Use dedicated function to display thank you message
+                            displayThankYouMessage();
+                        }
+                    },
+                    error: function(xhr) {
+                        // Show error message with SweetAlert2
+                        swalWithBootstrapButtons.fire({
+                            title: "Error!",
+                            text: "There was a problem submitting your survey. Please check your inputs and try again.",
+                            icon: "error"
+                        });
+                        
+                        // Try to parse validation errors from server response
+                        let errors = {};
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            errors = xhr.responseJSON.errors;
+                        }
+                        // Remove previous error states
+                        $('.modern-input, .modern-select, .modern-star-rating, .modern-rating-group, .modern-rating-group-display').removeClass('input-error error');
+                        $('.validation-message').text('');
+                        $('#validationAlertContainer').removeClass('d-none');
+                        let errorListHtml = '';
+                        // Highlight fields and show messages
+                        if (Object.keys(errors).length > 0) {
+                            Object.keys(errors).forEach(function(key) {
+                                // For question responses, key will be like responses.12
+                                if (key.startsWith('responses.')) {
+                                    const qid = key.split('.')[1];
+                                    $(`#question_${qid}_error`).text(message).addClass('text-danger');
+                                    $(`.question-card[data-question-id="${qid}"]`).addClass('has-error');
+                                    $(`.question-card[data-question-id="${qid}"] .modern-rating-group, .question-card[data-question-id="${qid}"] .modern-rating-group-display, .question-card[data-question-id="${qid}"] .modern-star-rating`).addClass('input-error error');
+                                } else {
+                                    // For normal fields
+                                    $('#' + key).addClass('input-error');
+                                    $('#' + key + '_error').text(errors[key][0]);
+                                }
+                                errorListHtml += `<li>${errors[key][0]}</li>`;
+                            });
+                        } else {
+                            // Fallback generic error
+                            errorListHtml = '<li>There was an error submitting the form. Please try again.</li>';
+                        }
+                        $('#validationErrorsList ul').html(errorListHtml);
+                    },
+                    error: function() {
+                        swalWithBootstrapButtons.fire({
+                            title: "Error!",
+                            text: "There was an error submitting the form. Please try again.",
+                            icon: "error"
+                        });
+                    }
+                });
             } else if (result.dismiss === Swal.DismissReason.cancel) {
                 // User cancelled the submission
                 swalWithBootstrapButtons.fire({

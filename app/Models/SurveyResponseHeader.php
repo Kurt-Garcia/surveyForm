@@ -21,7 +21,6 @@ class SurveyResponseHeader extends Model
         'start_time',
         'end_time',
         'recommendation',
-        'comments',
         'allow_resubmit'
     ];
 
@@ -51,6 +50,11 @@ class SurveyResponseHeader extends Model
     public function details(): HasMany
     {
         return $this->hasMany(SurveyResponseDetail::class, 'header_id');
+    }
+    
+    public function improvementAreas(): HasMany
+    {
+        return $this->hasMany(SurveyImprovementArea::class, 'header_id');
     }
 
     public static function hasResponded($surveyId, $accountName): bool
