@@ -141,90 +141,31 @@ class UserSurveyController extends Controller
 
     public function store(Request $request, Survey $survey)
     {
-        // Verify the user has access to one of the survey's sites
-        $hasAccess = false;
-        
-        if (Auth::check()) {
-            // Get all site IDs the user has access to
-            $userSiteIds = Auth::user()->sites->pluck('id')->toArray();
-            
-            if (!empty($userSiteIds)) {
-                // Check if survey is deployed to any of the user's sites
-                $hasAccess = $survey->isAvailableForAnySite($userSiteIds);
-            }
-        } elseif ($userSiteIds = session('user_site_ids')) {
-            // Fallback to session if available
-            $hasAccess = $survey->isAvailableForAnySite($userSiteIds);
-        }
-        
-        if (!$hasAccess) {
-            return response()->json([
-                'error' => 'You do not have access to submit this survey.'
-            ], 403);
-        }
-        
-        // Check if user has already responded
-        $existingResponse = SurveyResponseHeader::where('survey_id', $survey->id)
-            ->where('account_name', $request->account_name)
-            ->first();
-
-        if ($existingResponse) {
-            if (!$existingResponse->allow_resubmit) {
-                return response()->json([
-                    'error' => 'You have already submitted this survey.'
-                ], 422);
-            }
-        }
-
-        $validated = $request->validate([
-            'account_name' => 'required|string',
-            'account_type' => 'required|string',
-            'date' => 'required|date',
-            'responses' => 'required|array',
-            'recommendation' => 'required|integer|between:1,10',
-            'improvement_areas' => 'nullable|array',
-            'improvement_details' => 'nullable|array',
-            'other_comments' => 'nullable|string',
-            'start_time' => 'nullable',
-            'end_time' => 'nullable'
-        ]);
-
-        // Get required questions and validate them
-        $requiredQuestions = $survey->questions()->where('required', true)->get();
-        foreach ($requiredQuestions as $question) {
-            if (!isset($request->responses[$question->id]) || empty($request->responses[$question->id])) {
-                return response()->json([
-                    'error' => "Question '{$question->text}' is required."
-                ], 422);
-            }
-        }
-
-        DB::beginTransaction();
         try {
-            // If resubmission is allowed, delete previous response
-            if ($existingResponse) {
-                $existingResponse->details()->delete();
-                $existingResponse->delete();
-            }
-
-            // Get user's site information if authenticated
+            // Validate required fields
+            $validated = $request->validate([
+                'survey_id' => 'required|exists:surveys,id',
+                'account_name' => 'required|string|max:255',
+                'account_type' => 'required|string|max:255',
+                'date' => 'required|date',
+                'recommendation' => 'required|integer|min:1|max:10'
+            ]);
+            
+            // Start a database transaction
+            DB::beginTransaction();
+            
+            // Get the user's site ID if logged in, null if guest
             $userSiteId = null;
             if (Auth::check()) {
-                // Get the user's primary site (first site they have access to)
-                $userSites = Auth::user()->sites;
-                if ($userSites->isNotEmpty()) {
-                    $userSiteId = $userSites->first()->id;
-                }
-            } elseif ($siteId = session('site_id')) {
-                // Use site from session if available (for public surveys)
-                $userSiteId = $siteId;
+                // Get the user's primary site
+                $userSiteId = Auth::user()->sites->first()->id ?? null;
             }
-
+            
             // Create header record
             $header = SurveyResponseHeader::create([
-                'survey_id' => $survey->id,
+                'survey_id' => $validated['survey_id'],
                 'admin_id' => $survey->admin_id,
-                'user_site_id' => $userSiteId, // Store the surveyor's site
+                'user_site_id' => $userSiteId,
                 'account_name' => $validated['account_name'],
                 'account_type' => $validated['account_type'],
                 'date' => $validated['date'],
@@ -245,35 +186,12 @@ class UserSurveyController extends Controller
             
             // Save improvement areas
             if ($request->has('improvement_areas') && is_array($request->improvement_areas)) {
-                // Create a map to associate improvement details with their categories
+                // Process improvement details if present
                 $detailsByCategory = [];
                 
-                // Process improvement details if present
                 if ($request->has('improvement_details') && is_array($request->improvement_details)) {
-                    foreach ($request->improvement_details as $detail) {
-                        // For each checkbox, determine its category
-                        $category = null;
-                        
-                        // Map each detail to its parent category
-                        if (strpos($detail, 'product') !== false) {
-                            $category = 'product_quality';
-                        } elseif (strpos($detail, 'delivery') !== false) {
-                            $category = 'delivery_logistics';
-                        } elseif (strpos($detail, 'service') !== false || strpos($detail, 'sales') !== false) {
-                            $category = 'customer_service';
-                        } elseif (strpos($detail, 'time') !== false) {
-                            $category = 'timeliness';
-                        } elseif (strpos($detail, 'return') !== false || strpos($detail, 'BO') !== false) {
-                            $category = 'returns_handling';
-                        }
-                        
-                        if ($category) {
-                            if (!isset($detailsByCategory[$category])) {
-                                $detailsByCategory[$category] = [];
-                            }
-                            $detailsByCategory[$category][] = $detail;
-                        }
-                    }
+                    // Use the service to map details to categories
+                    $detailsByCategory = SurveyImprovementService::mapDetailsToCategories($request->improvement_details);
                 }
                 
                 // Process each improvement area
@@ -492,35 +410,12 @@ class UserSurveyController extends Controller
             
             // Save improvement areas
             if ($request->has('improvement_areas') && is_array($request->improvement_areas)) {
-                // Create a map to associate improvement details with their categories
+                // Process improvement details if present
                 $detailsByCategory = [];
                 
-                // Process improvement details if present
                 if ($request->has('improvement_details') && is_array($request->improvement_details)) {
-                    foreach ($request->improvement_details as $detail) {
-                        // For each checkbox, determine its category
-                        $category = null;
-                        
-                        // Map each detail to its parent category
-                        if (strpos($detail, 'product') !== false) {
-                            $category = 'product_quality';
-                        } elseif (strpos($detail, 'delivery') !== false) {
-                            $category = 'delivery_logistics';
-                        } elseif (strpos($detail, 'service') !== false || strpos($detail, 'sales') !== false) {
-                            $category = 'customer_service';
-                        } elseif (strpos($detail, 'time') !== false) {
-                            $category = 'timeliness';
-                        } elseif (strpos($detail, 'return') !== false || strpos($detail, 'BO') !== false) {
-                            $category = 'returns_handling';
-                        }
-                        
-                        if ($category) {
-                            if (!isset($detailsByCategory[$category])) {
-                                $detailsByCategory[$category] = [];
-                            }
-                            $detailsByCategory[$category][] = $detail;
-                        }
-                    }
+                    // Use the service to map details to categories
+                    $detailsByCategory = SurveyImprovementService::mapDetailsToCategories($request->improvement_details);
                 }
                 
                 // Process each improvement area

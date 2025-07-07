@@ -161,30 +161,8 @@ class SurveyResponseController extends Controller
                 
                 // Process improvement details if present
                 if ($request->has('improvement_details') && is_array($request->improvement_details)) {
-                    foreach ($request->improvement_details as $detail) {
-                        // For each checkbox, determine its category
-                        $category = null;
-                        
-                        // Map each detail to its parent category
-                        if (strpos($detail, 'product') !== false) {
-                            $category = 'product_quality';
-                        } elseif (strpos($detail, 'delivery') !== false) {
-                            $category = 'delivery_logistics';
-                        } elseif (strpos($detail, 'service') !== false || strpos($detail, 'sales') !== false) {
-                            $category = 'customer_service';
-                        } elseif (strpos($detail, 'time') !== false) {
-                            $category = 'timeliness';
-                        } elseif (strpos($detail, 'return') !== false || strpos($detail, 'BO') !== false) {
-                            $category = 'returns_handling';
-                        }
-                        
-                        if ($category) {
-                            if (!isset($detailsByCategory[$category])) {
-                                $detailsByCategory[$category] = [];
-                            }
-                            $detailsByCategory[$category][] = $detail;
-                        }
-                    }
+                    // Use the service to map details to categories
+                    $detailsByCategory = SurveyImprovementService::mapDetailsToCategories($request->improvement_details);
                 }
                 
                 // Process each improvement area
