@@ -314,7 +314,7 @@
             <div class="form-grid {{ $isCustomerMode ? 'font-theme' : '' }}">
                 <div class="form-field">
                     <label for="account_name" class="form-label {{ $isCustomerMode ? 'font-theme' : '' }}">Account Name</label>
-                    <input type="text" class="modern-input {{ $isCustomerMode ? 'font-theme' : '' }}" id="account_name" name="account_name" value="{{ $prefillAccountName ?? '' }}" placeholder="Enter customer name or code">
+                    <input type="text" class="modern-input {{ $isCustomerMode ? 'font-theme' : '' }}" id="account_name" name="account_name" value="{{ $prefillAccountName ?? '' }}" placeholder="Enter customer name or code"{{ $isCustomerMode ? ' readonly' : '' }}>
                     <div id="customer_name_display" class="customer-name-display mt-1"></div>
                     <div class="validation-message" id="account_name_error"></div>
                 </div>
@@ -739,7 +739,9 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+@if(!$isCustomerMode)
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+@endif
 
 <!-- SweetAlert2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -901,7 +903,8 @@ $(document).ready(function() {
     const thankYouModal = new bootstrap.Modal(document.getElementById('responseModal'));
     const summaryModal = new bootstrap.Modal(document.getElementById('responseSummaryModal'));
     
-    // Show Copy Link button when both account name and account type have values
+    @if(!$isCustomerMode)
+    // Show Copy Link button when both account name and account type have values (Surveyor mode only)
     function updateCopyLinkVisibility() {
         const accountName = $('#account_name').val().trim();
         const accountType = $('#account_type').val().trim();
@@ -982,6 +985,7 @@ $(document).ready(function() {
             $('#copySuccess').addClass('d-none');
         }, 3000);
     });
+    @endif
     
     // Function to validate all inputs and display errors
     function validateForm() {
@@ -1553,7 +1557,8 @@ $(document).ready(function() {
         $('#errorMessage').addClass('d-none');
     });
     
-    // Autocomplete for account_name
+    @if(!$isCustomerMode)
+    // Autocomplete for account_name (Surveyor mode only)
     $('#account_name').autocomplete({
         source: function(request, response) {
             $.ajax({
@@ -1588,8 +1593,10 @@ $(document).ready(function() {
         // Trigger search on focus to show all suggestions
         $(this).autocomplete('search', '');
     });
+    @endif
     
-    // Add code to lookup customer by code when entered
+    @if(!$isCustomerMode)
+    // Add code to lookup customer by code when entered (Surveyor mode only)
     $('#account_name').on('input', function() {
         const input = $(this).val().trim();
         // Clear the customer name display when input is empty
@@ -1630,6 +1637,7 @@ $(document).ready(function() {
             $('#customer_name_display').html('').hide();
         }
     });
+    @endif
 });
 
 function showResponseSummaryModal() {
