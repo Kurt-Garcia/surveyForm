@@ -1232,7 +1232,8 @@ $(document).ready(function() {
                                 recommendation: $('#survey-number').val(),
                                 responses: {},
                                 improvementAreas: [],
-                                improvementDetails: []
+                                improvementDetails: [],
+                                other_comments: $('textarea[name="other_comments"]').val()
                             };
                             
                             // Collect survey responses
@@ -1346,114 +1347,39 @@ $(document).ready(function() {
                     $('#successMessage').removeClass('d-none');
                     $('#errorMessage').addClass('d-none');
                     
-                    // Populate account information
-                    $('#summary-account-name').text(formData.get('account_name'));
-                    $('#summary-account-type').text(formData.get('account_type'));
-                    $('#summary-date').text(formData.get('date'));
-                    
-                    // Populate survey responses with appropriate styling
-                    const responsesHtml = surveyResponses.map(response => {
-                        let ratingHtml = '';
-                        if (response.type === 'star') {
-                            ratingHtml = Array.from({length: 5}, (_, i) => {
-                                const starClass = i < response.rating ? 'text-warning' : 'text-muted';
-                                return `<i class="fas fa-star ${starClass}"></i>`;
-                            }).join('');
-                            ratingHtml += `<span class="ms-2">${response.rating}/5</span>`;
-                        } else {
-                            const ratingText = {
-                                1: 'Poor',
-                                2: 'Needs Improvement',
-                                3: 'Satisfactory',
-                                4: 'Very Satisfactory',
-                                5: 'Excellent'
-                            }[response.rating];
-                            ratingHtml = `
-                                <div class="rating-display d-flex align-items-center flex-wrap">
-                                    <div class="modern-rating-group me-3 mb-2">
-                                        ${Array.from({length: 5}, (_, i) => {
-                                            const isSelected = i + 1 == response.rating; // Only highlight the exact selected rating
-                                            return `<div class="modern-radio-display ${isSelected ? 'selected' : ''}">${i + 1}</div>`;
-                                        }).join('')}
-                                    </div>
-                                    <span class="rating-text">${ratingText}</span>
-                                </div>
-                            `;
-                        }
-
-                        return `
-                            <div class="response-item mb-3 p-3 bg-light rounded">
-                                <div class="question-text mb-2 fw-bold">${response.questionText}</div>
-                                <div class="rating-wrapper">
-                                    ${ratingHtml}
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                    
-                    $('#summary-responses').html(responsesHtml);
-                    
-                    // Populate recommendation score
-                    $('#summary-recommendation').text(formData.get('recommendation'));
-                    
-                    // Collect and display improvement areas
-                    const improvementDetailsContainer = $('#summary-improvement-details');
-                    improvementDetailsContainer.empty();
-                    
-                    // Get selected improvement areas
-                    const selectedAreas = [];
-                    const selectedDetails = [];
-                    const otherComments = formData.get('other_comments');
-                    
-                    // Map for area display names
-                    const areasMap = {
-                        'product_quality': '🧾 Product / Service Quality',
-                        'delivery_logistics': '🚚 Delivery & Logistics',
-                        'customer_service': '👩‍💼 Sales & Customer Service',
-                        'timeliness': '🕐 Timeliness',
-                        'returns_handling': '🔁 Returns / BO Handling',
-                        'others': '✍️ Others'
+                    // Use unified response summary function
+                    const surveyData = {
+                        account_name: formData.get('account_name'),
+                        account_type: formData.get('account_type'),
+                        date: formData.get('date'),
+                        recommendation: formData.get('recommendation'),
+                        responses: {},
+                        improvementAreas: [],
+                        improvementDetails: [],
+                        other_comments: formData.get('other_comments')
                     };
                     
-                    // Collect selected improvement areas
-                    document.querySelectorAll('input[name="improvement_areas[]"]:checked').forEach(checkbox => {
-                        selectedAreas.push(checkbox.value);
-                    });
-                    
-                    // Collect selected improvement details
-                    document.querySelectorAll('input[name="improvement_details[]"]:checked').forEach(checkbox => {
-                        selectedDetails.push(checkbox.value);
-                    });
-                    
-                    if (selectedAreas.length > 0) {
-                        // Create list of improvement areas
-                        const areasList = $('<ul class="list-group list-group-flush"></ul>');
-                        
-                        selectedAreas.forEach(area => {
-                            const areaItem = $(`<li class="list-group-item bg-light"><strong>${areasMap[area] || area}</strong></li>`);
-                            areasList.append(areaItem);
-                        });
-                        
-                        // Add improvement details if available
-                        if (selectedDetails.length > 0) {
-                            const detailsList = $('<ul class="list-unstyled ms-3 mt-2"></ul>');
-                            
-                            selectedDetails.forEach(detail => {
-                                detailsList.append(`<li><i class="fas fa-angle-right me-2 text-primary"></i>${detail}</li>`);
-                            });
-                            
-                            // Add "Other" comments if specified
-                            if (otherComments && selectedAreas.includes('others')) {
-                                detailsList.append(`<li><i class="fas fa-angle-right me-2 text-primary"></i>${otherComments}</li>`);
-                            }
-                            
-                            areasList.append($('<li class="list-group-item"></li>').append(detailsList));
+                    // Collect survey responses
+                    $('.question-card').each(function() {
+                        const questionId = $(this).data('question-id');
+                        const rating = $(`input[name="responses[${questionId}]"]:checked`).val();
+                        if (rating) {
+                            surveyData.responses[questionId] = rating;
                         }
-                        
-                        improvementDetailsContainer.append(areasList);
-                    } else {
-                        improvementDetailsContainer.html('<p>No improvement areas selected.</p>');
-                    }
+                    });
+                    
+                    // Collect improvement areas
+                    $('input[name="improvement_areas[]"]:checked').each(function() {
+                        surveyData.improvementAreas.push($(this).val());
+                    });
+                    
+                    // Collect improvement details
+                    $('input[name="improvement_details[]"]:checked').each(function() {
+                        surveyData.improvementDetails.push($(this).val());
+                    });
+                    
+                    // Update response summary using unified function
+                    updateResponseSummary(surveyData);
                     
                     // Show thank you message with animation without hiding the form
                     $('.thank-you-message').css('display', 'flex').addClass('show');
@@ -1678,6 +1604,100 @@ function updateResponseSummary(data) {
     $('#summary-date').text(data.date);
     $('#summary-recommendation').text(data.recommendation);
     
+    // Clear and update responses
+    const responsesContainer = $('#summary-responses');
+    responsesContainer.empty();
+    
+    $('.question-card').each(function() {
+        const questionId = $(this).data('question-id');
+        const questionText = $(this).find('.question-text').contents().first().text().trim();
+        const response = data.responses ? data.responses[questionId] : null;
+        const questionType = $(this).find('.question-input').children('div').first().hasClass('modern-star-rating') ? 'star' : 'radio';
+        
+        if (response) {
+            let ratingHtml = '';
+            
+            if (questionType === 'star') {
+                ratingHtml = Array.from({length: 5}, (_, i) => {
+                    const starClass = i < response ? 'text-warning' : 'text-muted';
+                    return `<i class="fas fa-star ${starClass}"></i>`;
+                }).join('');
+                ratingHtml += `<span class="ms-2">${response}/5</span>`;
+            } else {
+                const ratingText = {
+                    1: 'Poor',
+                    2: 'Needs Improvement', 
+                    3: 'Satisfactory',
+                    4: 'Very Satisfactory',
+                    5: 'Excellent'
+                }[response];
+                ratingHtml = `
+                    <div class="rating-display d-flex align-items-center flex-wrap">
+                        <div class="modern-rating-group me-3 mb-2">
+                            ${Array.from({length: 5}, (_, i) => {
+                                const isSelected = i + 1 == response;
+                                return `<div class="modern-radio-display ${isSelected ? 'selected' : ''}">${i + 1}</div>`;
+                            }).join('')}
+                        </div>
+                        <span class="rating-text">${ratingText}</span>
+                    </div>
+                `;
+            }
+            
+            responsesContainer.append(`
+                <div class="response-item mb-3 p-3 bg-light rounded">
+                    <div class="question-text mb-2 fw-bold">${questionText}</div>
+                    <div class="rating-wrapper">
+                        ${ratingHtml}
+                    </div>
+                </div>
+            `);
+        }
+    });
+    
+    // Add responsive styles for radio buttons if not already added
+    if (!$('#responsive-radio-styles').length) {
+        $('<style id="responsive-radio-styles">').html(`
+            .modern-radio-display {
+                width: 35px; height: 35px; border-radius: 50%;
+                display: flex; align-items: center; justify-content: center;
+                border: 2px solid var(--primary-color); color: var(--primary-color);
+                margin-right: 8px; font-weight: 600; font-size: 14px;
+                background-color: white;
+            }
+            .modern-radio-display.selected {
+                background-color: var(--primary-color); color: white;
+            }
+            
+            @media (max-width: 576px) {
+                .modern-rating-group {
+                    flex-wrap: wrap;
+                    justify-content: flex-start;
+                    gap: 5px;
+                }
+                
+                .modern-radio-display {
+                    width: 30px;
+                    height: 30px;
+                    font-size: 12px;
+                    margin-right: 3px;
+                    margin-bottom: 3px;
+                }
+                
+                .rating-text {
+                    font-size: 12px;
+                    width: 100%;
+                    margin-top: 5px;
+                }
+                
+                .rating-display {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+            }
+        `).appendTo('head');
+    }
+    
     // Add improvement areas to summary
     const improvementDetailsContainer = $('#summary-improvement-details');
     if (improvementDetailsContainer.length > 0) {
@@ -1687,12 +1707,11 @@ function updateResponseSummary(data) {
         if (data.improvementAreas && data.improvementAreas.length > 0) {
             const areasMap = {
                 'product_quality': '🧾 Product / Service Quality',
-                'customer_service': '👨‍💼 Customer Service',
-                'delivery': '🚚 Delivery',
-                'pricing': '💰 Pricing',
-                'communication': '📞 Communication',
-                'facilities': '🏢 Facilities',
-                'others': '🔧 Others'
+                'delivery_logistics': '🚚 Delivery & Logistics',
+                'customer_service': '👩‍💼 Sales & Customer Service',
+                'timeliness': '🕐 Timeliness',
+                'returns_handling': '🔁 Returns / BO Handling',
+                'others': '✍️ Others'
             };
             
             // Create list of improvement areas
@@ -1719,64 +1738,20 @@ function updateResponseSummary(data) {
                 areasList.append(detailsList);
             }
             
+            // Add "Other" comments if specified
+            if (data.other_comments && data.improvementAreas.includes('others')) {
+                const otherComments = $(`<li class="list-group-item d-flex align-items-center ps-4">
+                    <i class="fas fa-angle-right me-2" style="font-size: 0.8rem;"></i>
+                    ${data.other_comments}
+                </li>`);
+                areasList.append(otherComments);
+            }
+            
             improvementDetailsContainer.append(areasList);
         } else {
-            improvementDetailsContainer.html('<p>No improvement areas selected.</p>');
+            improvementDetailsContainer.html('<p class="text-muted">No improvement areas selected.</p>');
         }
     }
-    
-    // Clear and update responses
-    const responsesContainer = $('#summary-responses');
-    responsesContainer.empty();
-    
-    $('.question-card').each(function() {
-        const questionId = $(this).data('question-id');
-        const questionText = $(this).find('.question-text').contents().first().text().trim();
-        const response = data.responses ? data.responses[questionId] : null;
-        const questionType = $(this).find('.question-input').children('div').first().hasClass('modern-star-rating') ? 'star' : 'radio';
-        
-        if (response) {
-            let ratingHtml = '';
-            
-            if (questionType === 'star') {
-                ratingHtml += `<span class="ms-2">${response}/5</span>`;
-            } else {
-                // For radio buttons, create numbered circles
-                for (let i = 1; i <= 5; i++) {
-                    const isSelected = i == response;
-                    ratingHtml += `<div class="modern-radio-display ${isSelected ? 'selected' : ''}">${i}</div>`;
-                }
-            }
-            
-            responsesContainer.append(`
-                <div class="response-item border-bottom py-3">
-                    <div class="question-text fw-bold mb-2">${questionText}</div>
-                    <div class="rating-display d-flex align-items-center">
-                        <div class="modern-rating-group d-flex">
-                            ${ratingHtml}
-                        </div>
-                        <span class="rating-text ms-3">Rating: ${response}/5</span>
-                    </div>
-                </div>
-            `);
-            
-            // Add responsive styles for radio buttons if not already added
-            if (!$('#responsive-radio-styles').length) {
-                $('<style id="responsive-radio-styles">').html(`
-                    .modern-radio-display {
-                        width: 35px; height: 35px; border-radius: 50%;
-                        display: flex; align-items: center; justify-content: center;
-                        border: 2px solid var(--primary-color); color: var(--primary-color);
-                        margin-right: 8px; font-weight: 600; font-size: 14px;
-                        background-color: white;
-                    }
-                    .modern-radio-display.selected {
-                        background-color: var(--primary-color); color: white;
-                    }
-                `).appendTo('head');
-            }
-        }
-    });
 }
 @endif
 
