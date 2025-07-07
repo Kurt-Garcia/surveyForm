@@ -1,4 +1,4 @@
-@extends('layouts.app-user')
+@extends($isCustomerMode ? 'layouts.customer' : 'layouts.app-user')
 
 @section('title', $survey->title)
 
@@ -14,6 +14,11 @@
         --secondary-color: {{ isset($activeTheme) ? $activeTheme->secondary_color : '#2C3E50' }};
         --accent-color: {{ isset($activeTheme) ? $activeTheme->accent_color : '#F1C40F' }};
         --button-hover-color: {{ isset($activeTheme) ? ($activeTheme->button_hover_color ?? '#B71C1C') : '#B71C1C' }};
+        @if($isCustomerMode)
+        --text-color: {{ isset($activeTheme) ? $activeTheme->text_color : '#333' }};
+        --body-font: '{{ isset($activeTheme) ? $activeTheme->body_font : "Inter" }}', sans-serif;
+        --heading-font: '{{ isset($activeTheme) ? $activeTheme->heading_font : "Inter" }}', sans-serif;
+        @endif
     }
 
     /* Hide thank-you message by default */
@@ -244,7 +249,7 @@
     @if($hasResponded)
         <div class="container">
             @if($allowResubmit)
-                <div class="notification-card warning" id="warningNotification">
+                <div class="notification-card warning {{ $isCustomerMode ? 'font-theme' : '' }}" id="warningNotification">
                     <i class="fas fa-info-circle me-2"></i>
                     <p>You have previously submitted this survey, but resubmission has been enabled by an administrator. You may submit a new response.</p>
                     <button type="button" class="notification-close" onclick="closeNotification('warningNotification')">
@@ -252,7 +257,7 @@
                     </button>
                 </div>
             @else
-                <div class="notification-card info" id="infoNotification">
+                <div class="notification-card info {{ $isCustomerMode ? 'font-theme' : '' }}" id="infoNotification">
                     <i class="fas fa-info-circle me-2"></i>
                     <p>You have already submitted this survey. You can view the questions, but submitting again with the same account name will not be allowed.</p>
                     <button type="button" class="notification-close" onclick="closeNotification('infoNotification')">
@@ -265,15 +270,17 @@
 
     <div class="survey-container">
         <div class="survey-header">
+            @if(!$isCustomerMode)
             <a href="javascript:void(0);" class="close-button" id="closeFormButton" data-bs-toggle="tooltip" data-bs-placement="top" title="Go Back To Home">
                 <i class="fas fa-times"></i>
             </a>
+            @endif
             @if($survey->logo)
             <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="survey-logo">
             @else
             <img src="{{ asset('img/logo.JPG') }}" alt="Default Logo" class="survey-logo">
             @endif
-            <h1 class="survey-title">{{ strtoupper($survey->title) }}</h1>
+            <h1 class="survey-title {{ $isCustomerMode ? 'font-theme-heading' : '' }}">{{ strtoupper($survey->title) }}</h1>
             
             @if($survey->sbus->count() > 0 || $survey->sites->count() > 0)
             <div class="survey-metadata">
@@ -293,7 +300,7 @@
             @endif
         </div>
 
-        <form id="surveyForm" method="POST" action="{{ route('surveys.store', $survey) }}" class="modern-form">
+        <form id="surveyForm" method="POST" action="{{ $isCustomerMode ? route('customer.survey.submit', $survey) : route('surveys.store', $survey) }}" class="modern-form">
             @csrf
             <input type="hidden" name="survey_id" value="{{ $survey->id }}">
             <input type="hidden" name="start_time" id="start_time">
@@ -304,45 +311,47 @@
                 <h6><i class="fas fa-exclamation-triangle me-2"></i>Please Fill In All Required Fields!</h6>
             </div>
             
-            <div class="form-grid">
+            <div class="form-grid {{ $isCustomerMode ? 'font-theme' : '' }}">
                 <div class="form-field">
-                    <label for="account_name" class="form-label font-theme">Account Name</label>
-                    <input type="text" class="modern-input font-theme" id="account_name" name="account_name" value="{{ $prefillAccountName ?? '' }}" placeholder="Enter customer name or code">
+                    <label for="account_name" class="form-label {{ $isCustomerMode ? 'font-theme' : '' }}">Account Name</label>
+                    <input type="text" class="modern-input {{ $isCustomerMode ? 'font-theme' : '' }}" id="account_name" name="account_name" value="{{ $prefillAccountName ?? '' }}" placeholder="Enter customer name or code">
                     <div id="customer_name_display" class="customer-name-display mt-1"></div>
                     <div class="validation-message" id="account_name_error"></div>
                 </div>
                 <div class="form-field">
-                    <label for="account_type" class="form-label font-theme">Account Type</label>
-                    <input type="text" class="modern-input font-theme" id="account_type" name="account_type" value="{{ $prefillAccountType ?? '' }}" readonly>
+                    <label for="account_type" class="form-label {{ $isCustomerMode ? 'font-theme' : '' }}">Account Type</label>
+                    <input type="text" class="modern-input {{ $isCustomerMode ? 'font-theme' : '' }}" id="account_type" name="account_type" value="{{ $prefillAccountType ?? '' }}" readonly>
                     <div class="validation-message" id="account_type_error"></div>
                 </div>
                 <div class="form-field">
-                    <label for="date" class="form-label font-theme">Date</label>
-                    <input type="date" class="modern-input font-theme" id="date" name="date" value="{{ date('Y-m-d') }}">
+                    <label for="date" class="form-label {{ $isCustomerMode ? 'font-theme' : '' }}">Date</label>
+                    <input type="date" class="modern-input {{ $isCustomerMode ? 'font-theme' : '' }}" id="date" name="date" value="{{ date('Y-m-d') }}">
                     <div class="validation-message" id="date_error"></div>
                 </div>
             </div>
 
+            @if(!$isCustomerMode)
             <div id="copyLinkSection" class="mb-4 d-none">
                 <button type="button" id="copyLinkBtn" class="btn btn-outline-primary">
                     <i class="fas fa-link me-2"></i>Copy Link for Customer
                 </button>
                 <span id="copySuccess" class="text-success ms-2 d-none"><i class="fas fa-check-circle"></i> Link copied!</span>
             </div>
+            @endif
 
             <div class="survey-section">
-                <h2 class="section-title">Satisfaction Level</h2>
-                <div class="rating-legend">
-                    <span class="rating-item font-theme">1 - Poor</span>
-                    <span class="rating-item font-theme">2 - Needs Improvement</span>
-                    <span class="rating-item font-theme">3 - Satisfactory</span>
-                    <span class="rating-item font-theme">4 - Very Satisfactory</span>
-                    <span class="rating-item font-theme">5 - Excellent</span>
+                <h2 class="section-title {{ $isCustomerMode ? 'font-theme-heading' : '' }}">Satisfaction Level</h2>
+                <div class="rating-legend {{ $isCustomerMode ? 'font-theme' : '' }}">
+                    <span class="rating-item {{ $isCustomerMode ? 'font-theme' : '' }}">1 - Poor</span>
+                    <span class="rating-item {{ $isCustomerMode ? 'font-theme' : '' }}">2 - Needs Improvement</span>
+                    <span class="rating-item {{ $isCustomerMode ? 'font-theme' : '' }}">3 - Satisfactory</span>
+                    <span class="rating-item {{ $isCustomerMode ? 'font-theme' : '' }}">4 - Very Satisfactory</span>
+                    <span class="rating-item {{ $isCustomerMode ? 'font-theme' : '' }}">5 - Excellent</span>
                 </div>
 
-                <div class="questions-container">
+                <div class="questions-container {{ $isCustomerMode ? 'font-theme' : '' }}">
                     @foreach($questions as $question)
-                    <div class="question-card font-theme" data-question-id="{{ $question->id }}">
+                    <div class="question-card {{ $isCustomerMode ? 'font-theme' : '' }}" data-question-id="{{ $question->id }}">
                         <div class="question-text">
                             {{ $question->text }}
                             @if($question->required)
@@ -388,8 +397,8 @@
             </div>
 
             <div class="recommendation-section mt-5">
-                <h2 class="section-title">Recommendation</h2>
-                <div class="recommendation-container font-theme">
+                <h2 class="section-title {{ $isCustomerMode ? 'font-theme-heading' : '' }}">Recommendation</h2>
+                <div class="recommendation-container {{ $isCustomerMode ? 'font-theme' : '' }}">
                     <p>How likely is it that you would recommend our company to a friend or colleague?</p>
                     <select id="survey-number" name="recommendation" class="modern-select">
                         <option value="" disabled selected>Select a rating</option>
@@ -402,10 +411,10 @@
             </div>
 
             <div class="comments-section mt-5">
-                <h2 class="section-title">Areas for Improvement Suggestions</h2>
-                <p class="mb-3">Select all that apply:</p>
+                <h2 class="section-title {{ $isCustomerMode ? 'font-theme-heading' : '' }}">Areas for Improvement Suggestions</h2>
+                <p class="mb-3 {{ $isCustomerMode ? 'font-theme' : '' }}">Select all that apply:</p>
                 
-                <div class="improvement-areas mb-4">
+                <div class="improvement-areas mb-4 {{ $isCustomerMode ? 'font-theme' : '' }}">
                     <!-- Product/Service Quality -->
                     <div class="improvement-category mb-3">
                         <div class="form-check">
@@ -535,7 +544,7 @@
                             </label>
                         </div>
                         <div class="ms-4 mt-2">
-                            <textarea class="modern-textarea font-theme" name="other_comments" rows="3" placeholder="Please specify other areas for improvement..."></textarea>
+                            <textarea class="modern-textarea {{ $isCustomerMode ? 'font-theme' : '' }}" name="other_comments" rows="3" placeholder="Please specify other areas for improvement..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -556,7 +565,16 @@
                 </button>
             </div>
             
-            <div class="thank-you-message">
+            <div class="thank-you-message {{ $isCustomerMode ? 'font-theme-heading' : '' }}">
+                @if($isCustomerMode)
+                <h3>THANK YOU!</h3>
+                <h3>WE APPRECIATE YOUR FEEDBACK!</h3>
+                <p>Your input helps us serve you better.</p>
+                <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()" style="background-color: var(--secondary-color); border-color: var(--accent-color); color: white;">
+                    <span>View Response</span>
+                    <i class="fas fa-eye ms-2"></i>
+                </button>
+                @else
                 <div class="message-content mb-3">
                     <h3 class="mb-1">WE APPRECIATE YOUR FEEDBACK!</h3>
                     <p>Your input helps us serve you better.</p>
@@ -564,6 +582,9 @@
                 <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()" style="background-color: var(--secondary-color); border-color: var(--accent-color); color: white;">
                     <span>View Response</span>
                     <i class="fas fa-eye ms-2"></i>
+                </button>
+                @endif
+            </div>
                 </button>
             </div>
         </form>
@@ -600,7 +621,7 @@
 <!-- Response Summary Modal -->
 <div class="modal fade" id="responseSummaryModal" tabindex="-1" aria-labelledby="responseSummaryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content font-theme">
+        <div class="modal-content {{ $isCustomerMode ? 'font-theme' : '' }}">
             <div class="modal-header" style="background-color: var(--primary-color); color: white; border-bottom: 2px solid var(--primary-color);">
                 <h5 class="modal-title" id="responseSummaryModalLabel">Survey Response Summary</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -649,7 +670,7 @@
 <!-- Consent Modal -->
 <div class="modal fade" id="consentModal" tabindex="-1" aria-labelledby="consentModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
+        <div class="modal-content {{ $isCustomerMode ? 'font-theme' : '' }}">
             <div class="modal-header bg-light py-3">
                 <div class="row w-100">
                     <div class="col-4 text-start">
@@ -725,6 +746,50 @@
 
 <script>
 $(document).ready(function() {
+    @if($isCustomerMode)
+    // Customer-specific logic
+    const surveyId = {{ $survey->id }};
+    const accountName = $('#account_name').val();
+    const submissionKey = `survey_${surveyId}_${accountName}_submitted`;
+    const surveyDataKey = `survey_${surveyId}_${accountName}_data`;
+    
+    // Check if resubmission is allowed from PHP variable
+    const allowResubmit = {{ $allowResubmit ? 'true' : 'false' }};
+    
+    // Only show the thank you message if the survey was submitted AND resubmission is not allowed
+    if (localStorage.getItem(submissionKey) === 'true' && !allowResubmit) {
+        // Use dedicated function to display thank you message and hide form
+        displayThankYouMessage();
+        
+        // Retrieve saved data and update summary
+        const savedData = JSON.parse(localStorage.getItem(surveyDataKey) || '{}');
+        if (Object.keys(savedData).length > 0) {
+            updateResponseSummary(savedData);
+        }
+    } else {
+        // Make sure the thank-you-message is hidden when the form is shown
+        $('.thank-you-message').removeClass('show').hide();
+        
+        // If survey was not submitted OR resubmission is allowed, show the form
+        // For resubmission, we need to clear the previous submission flag
+        if (allowResubmit && localStorage.getItem(submissionKey) === 'true') {
+            // Keep the data but reset the submission flag to allow resubmission
+            localStorage.removeItem(submissionKey);
+        }
+        
+        // Initialize start time when the form is first loaded
+        const startTime = new Date();
+        $('#start_time').val(startTime.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
+    }
+    
+    // Function to close notification
+    window.closeNotification = function(notificationId) {
+        $(`#${notificationId}`).fadeOut();
+    };
+    @else
+    // Surveyor-specific logic
+    @endif
+    
     // Show consent modal when page loads
     const consentModal = new bootstrap.Modal(document.getElementById('consentModal'));
     consentModal.show();
@@ -926,13 +991,21 @@ $(document).ready(function() {
         // Clear previous error messages
         $('.validation-message').text('');
         $('#validationErrorsList ul').empty();
+        @if($isCustomerMode)
+        $('.modern-input, .modern-select, .modern-textarea, .modern-rating-group, .modern-rating-group-display, .modern-star-rating').removeClass('input-error error');
+        @else
         $('.modern-input, .modern-select, .modern-textarea, .modern-rating-group, .modern-star-rating').removeClass('error');
+        @endif
         $('.question-card').removeClass('has-error');
         
         // Validate account name
         if (!$('#account_name').val().trim()) {
             isValid = false;
+            @if($isCustomerMode)
+            $('#account_name').addClass('input-error error');
+            @else
             $('#account_name').addClass('error');
+            @endif
             $('#account_name').parent().addClass('has-error');
             $('#account_name_error').text('Account name is required').addClass('text-danger');
             errorList.push('Account name is required');
@@ -941,7 +1014,11 @@ $(document).ready(function() {
         // Validate account type
         if (!$('#account_type').val().trim()) {
             isValid = false;
+            @if($isCustomerMode)
+            $('#account_type').addClass('input-error error');
+            @else
             $('#account_type').addClass('error');
+            @endif
             $('#account_type').parent().addClass('has-error');
             $('#account_type_error').text('Account type is required').addClass('text-danger');
             errorList.push('Account type is required');
@@ -950,8 +1027,13 @@ $(document).ready(function() {
         // Validate date
         if (!$('#date').val()) {
             isValid = false;
+            @if($isCustomerMode)
+            $('#date').addClass('input-error error');
+            @else
             $('#date').addClass('error');
-            $('#date_error').text('Date is required');
+            @endif
+            $('#date').parent().addClass('has-error');
+            $('#date_error').text('Date is required').addClass('text-danger');
             errorList.push('Date is required');
         }
         
@@ -961,15 +1043,32 @@ $(document).ready(function() {
             const questionId = $(this).data('question-id');
             const isRequired = $(this).find('.badge.required').length > 0;
             const questionText = $(this).find('.question-text').contents().first().text().trim();
-            const hasResponse = $(this).find('input[type=radio]:checked').length > 0 || $(this).find('input[type=checkbox]:checked').length > 0 || $(this).find('select').val();
+            const hasResponse = $(`input[name="responses[${questionId}]"]:checked`).length > 0;
             if (isRequired && !hasResponse) {
                 isValid = false;
                 $(this).addClass('has-error');
-                $(this).find('.validation-message').text('This question is required').addClass('text-danger');
-                errorList.push('Question: ' + questionText + ' is required');
-                requiredQuestionsEmpty = true;
+                $(`#question_${questionId}_error`).text('This question requires an answer').addClass('text-danger');
+                errorList.push(`Question "${questionText}" requires an answer`);
+                @if($isCustomerMode)
+                $(this).find('.modern-rating-group, .modern-rating-group-display, .modern-star-rating').addClass('input-error error');
+                @else
+                $(this).find('.modern-rating-group, .modern-star-rating').addClass('error');
+                @endif
             }
         });
+        
+        // Validate recommendation
+        if (!$('#survey-number').val()) {
+            isValid = false;
+            @if($isCustomerMode)
+            $('#survey-number').addClass('input-error error');
+            @else
+            $('#survey-number').addClass('error');
+            @endif
+            $('#survey-number').parent().addClass('has-error');
+            $('#recommendation_error').text('Recommendation is required').addClass('text-danger');
+            errorList.push('Recommendation is required');
+        }
         
         // Show validation errors summary if any
         if (!isValid) {
@@ -1090,15 +1189,115 @@ $(document).ready(function() {
         });
         
         swalWithBootstrapButtons.fire({
-            title: "Submit Survey?",
+            title: "{{ $isCustomerMode ? 'Are you sure?' : 'Submit Survey?' }}",
             text: "Please confirm if you want to submit this survey. You won't be able to modify your answers after submission!",
-            icon: "question",
+            icon: "{{ $isCustomerMode ? 'warning' : 'question' }}",
             showCancelButton: true,
             confirmButtonText: "Yes, submit it!",
             cancelButtonText: "No, cancel!",
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
+                @if($isCustomerMode)
+                // Customer mode - Handle different submission logic
+                // Set end time
+                const endTime = new Date();
+                $('#end_time').val(endTime.toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
+                
+                // Calculate duration in minutes
+                const startTime = new Date($('#start_time').val());
+                const durationInMinutes = Math.round((endTime - startTime) / (1000 * 60));
+                $('#duration').val(durationInMinutes);
+
+                // AJAX form submission for customer
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    headers: {
+                        'X-CSRF-TOKEN': $('input[name="_token"]').val()
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Store submission data in localStorage
+                            const surveyData = {
+                                account_name: $('#account_name').val(),
+                                account_type: $('#account_type').val(),
+                                date: $('#date').val(),
+                                recommendation: $('#survey-number').val(),
+                                responses: {},
+                                improvementAreas: [],
+                                improvementDetails: []
+                            };
+                            
+                            // Collect survey responses
+                            $('.question-card').each(function() {
+                                const questionId = $(this).data('question-id');
+                                const rating = $(`input[name="responses[${questionId}]"]:checked`).val();
+                                if (rating) {
+                                    surveyData.responses[questionId] = rating;
+                                }
+                            });
+                            
+                            // Collect improvement areas
+                            $('input[name="improvement_areas[]"]:checked').each(function() {
+                                surveyData.improvementAreas.push($(this).val());
+                            });
+                            
+                            // Collect improvement details
+                            $('input[name="improvement_details[]"]:checked').each(function() {
+                                surveyData.improvementDetails.push($(this).val());
+                            });
+                            
+                            // Store data in localStorage
+                            const surveyId = {{ $survey->id }};
+                            const accountName = $('#account_name').val();
+                            localStorage.setItem(`survey_${surveyId}_${accountName}_submitted`, 'true');
+                            localStorage.setItem(`survey_${surveyId}_${accountName}_data`, JSON.stringify(surveyData));
+                            
+                            // Show success message and then thank you page
+                            Swal.fire({
+                                title: 'Thank You!',
+                                text: 'Your survey has been successfully submitted.',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                // Update response summary with collected data
+                                updateResponseSummary(surveyData);
+                                
+                                // Use dedicated function to display thank you message
+                                displayThankYouMessage();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: response.message || 'An error occurred while submitting the survey.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'An error occurred while submitting the survey.';
+                        
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        } else if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = Object.values(xhr.responseJSON.errors).flat();
+                            errorMessage = errors.join(', ');
+                        }
+                        
+                        Swal.fire({
+                            title: 'Error!',
+                            text: errorMessage,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+                @else
+                // Surveyor mode - Original logic
                 // Continue with form submission
                 // Record end time
                 $('#end_time').val(new Date().toLocaleString('en-US', { timeZone: 'Asia/Singapore' }));
@@ -1337,6 +1536,7 @@ $(document).ready(function() {
                 thankYouModal.show();
             }
         });
+                @endif
             } else if (result.dismiss === Swal.DismissReason.cancel) {
                 // User cancelled the submission
                 swalWithBootstrapButtons.fire({
@@ -1433,15 +1633,151 @@ $(document).ready(function() {
 });
 
 function showResponseSummaryModal() {
+    @if($isCustomerMode)
+    // Show response summary modal directly for customer mode
+    $('#responseSummaryModal').modal('show');
+    @else
     $('#responseModal').modal('hide');
     $('#responseSummaryModal').modal('show');
+    @endif
 }
+
+@if($isCustomerMode)
+/**
+ * Display thank you message and hide all form content
+ * Dedicated function to ensure consistent behavior across the application
+ */
+function displayThankYouMessage() {
+    // Hide form content keeping only logo, title, and footer
+    $('.form-grid, .survey-section, .recommendation-section, .comments-section').hide();
+    $('.form-footer').hide();
+    
+    // Show thank you message
+    $('.thank-you-message').addClass('show').css('display', 'flex');
+    
+    // Create and show a simple footer if needed
+    if ($('.survey-footer').length === 0) {
+        $('<div class="survey-footer mt-5 text-center font-theme">').html(`
+            <p class="text-muted small">© ${new Date().getFullYear()} ${$('.survey-title').text()}. All rights reserved.</p>
+        `).insertAfter('.thank-you-message');
+    }
+}
+
+// Function to update response summary
+function updateResponseSummary(data) {
+    $('#summary-account-name').text(data.account_name);
+    $('#summary-account-type').text(data.account_type);
+    $('#summary-date').text(data.date);
+    $('#summary-recommendation').text(data.recommendation);
+    
+    // Add improvement areas to summary
+    const improvementDetailsContainer = $('#summary-improvement-details');
+    if (improvementDetailsContainer.length > 0) {
+        improvementDetailsContainer.empty();
+        
+        // Check if we have improvement areas data
+        if (data.improvementAreas && data.improvementAreas.length > 0) {
+            const areasMap = {
+                'product_quality': '🧾 Product / Service Quality',
+                'customer_service': '👨‍💼 Customer Service',
+                'delivery': '🚚 Delivery',
+                'pricing': '💰 Pricing',
+                'communication': '📞 Communication',
+                'facilities': '🏢 Facilities',
+                'others': '🔧 Others'
+            };
+            
+            // Create list of improvement areas
+            const areasList = $('<ul class="list-group list-group-flush"></ul>');
+            
+            data.improvementAreas.forEach(area => {
+                const areaItem = $(`<li class="list-group-item d-flex align-items-center">
+                    <i class="fas fa-angle-right me-2"></i>
+                    ${areasMap[area] || area}
+                </li>`);
+                areasList.append(areaItem);
+            });
+            
+            // Add improvement details if available
+            if (data.improvementDetails && data.improvementDetails.length > 0) {
+                const detailsList = $('<ul class="list-group list-group-flush mt-2"></ul>');
+                data.improvementDetails.forEach(detail => {
+                    const detailItem = $(`<li class="list-group-item d-flex align-items-center ps-4">
+                        <i class="fas fa-angle-right me-2" style="font-size: 0.8rem;"></i>
+                        ${detail}
+                    </li>`);
+                    detailsList.append(detailItem);
+                });
+                areasList.append(detailsList);
+            }
+            
+            improvementDetailsContainer.append(areasList);
+        } else {
+            improvementDetailsContainer.html('<p>No improvement areas selected.</p>');
+        }
+    }
+    
+    // Clear and update responses
+    const responsesContainer = $('#summary-responses');
+    responsesContainer.empty();
+    
+    $('.question-card').each(function() {
+        const questionId = $(this).data('question-id');
+        const questionText = $(this).find('.question-text').contents().first().text().trim();
+        const response = data.responses ? data.responses[questionId] : null;
+        const questionType = $(this).find('.question-input').children('div').first().hasClass('modern-star-rating') ? 'star' : 'radio';
+        
+        if (response) {
+            let ratingHtml = '';
+            
+            if (questionType === 'star') {
+                ratingHtml += `<span class="ms-2">${response}/5</span>`;
+            } else {
+                // For radio buttons, create numbered circles
+                for (let i = 1; i <= 5; i++) {
+                    const isSelected = i == response;
+                    ratingHtml += `<div class="modern-radio-display ${isSelected ? 'selected' : ''}">${i}</div>`;
+                }
+            }
+            
+            responsesContainer.append(`
+                <div class="response-item border-bottom py-3">
+                    <div class="question-text fw-bold mb-2">${questionText}</div>
+                    <div class="rating-display d-flex align-items-center">
+                        <div class="modern-rating-group d-flex">
+                            ${ratingHtml}
+                        </div>
+                        <span class="rating-text ms-3">Rating: ${response}/5</span>
+                    </div>
+                </div>
+            `);
+            
+            // Add responsive styles for radio buttons if not already added
+            if (!$('#responsive-radio-styles').length) {
+                $('<style id="responsive-radio-styles">').html(`
+                    .modern-radio-display {
+                        width: 35px; height: 35px; border-radius: 50%;
+                        display: flex; align-items: center; justify-content: center;
+                        border: 2px solid var(--primary-color); color: var(--primary-color);
+                        margin-right: 8px; font-weight: 600; font-size: 14px;
+                        background-color: white;
+                    }
+                    .modern-radio-display.selected {
+                        background-color: var(--primary-color); color: white;
+                    }
+                `).appendTo('head');
+            }
+        }
+    });
+}
+@endif
 
 function closeNotification(id) {
     document.getElementById(id).style.display = 'none';
 }
 
 // Close form button with SweetAlert2 confirmation
+@if(!$isCustomerMode)
 $(document).ready(function() {
     $('#closeFormButton').on('click', function(e) {
         e.preventDefault();
@@ -1471,6 +1807,7 @@ $(document).ready(function() {
         });
     });
 });
+@endif
 </script>
 
 <style>
@@ -1587,6 +1924,17 @@ $(document).ready(function() {
 .font-theme{
     font-family: var(--body-font);
 }
+
+@if($isCustomerMode)
+.font-theme-heading{
+    font-family: var(--heading-font);
+}
+
+.input-error {
+    border: 2px solid #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25);
+}
+@endif
 </style>
 @endsection
 

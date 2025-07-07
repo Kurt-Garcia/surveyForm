@@ -136,7 +136,7 @@ class UserSurveyController extends Controller
             'prefillAccountType',
             'activeTheme',
             'userSiteIds'
-        ));
+        ))->with('isCustomerMode', false);
     }
 
     public function store(Request $request, Survey $survey)
@@ -308,15 +308,19 @@ class UserSurveyController extends Controller
         // Get the active theme for the survey's admin
         $activeTheme = \App\Models\ThemeSetting::getActiveTheme($survey->admin_id);
         
-        return view('surveys.customer-survey', compact(
+        // Customer mode doesn't need user site IDs but we'll set an empty array for consistency
+        $userSiteIds = [];
+        
+        return view('surveys.show', compact(
             'survey', 
             'questions', 
             'hasResponded', 
             'allowResubmit',
             'prefillAccountName',
             'prefillAccountType',
-            'activeTheme'
-        ));
+            'activeTheme',
+            'userSiteIds'
+        ))->with('isCustomerMode', true);
     }
 
     /**
