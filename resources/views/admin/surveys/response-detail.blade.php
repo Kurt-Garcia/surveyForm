@@ -391,12 +391,13 @@ function confirmResubmission() {
 <script>
 // Print.js function
 function printWithPrintJS() {
-    // Get the survey responses
-    const responses = document.querySelectorAll('.response-item');
-    const questionsArray = Array.from(responses).filter(item => 
-        !item.querySelector('label').textContent.includes('Recommendation Score') && 
-        !item.querySelector('label').textContent.includes('Additional Comments')
-    );
+    try {
+        // Get the survey responses
+        const responses = document.querySelectorAll('.response-item');
+        const questionsArray = Array.from(responses).filter(item => 
+            !item.querySelector('label').textContent.includes('Recommendation Score') && 
+            !item.querySelector('label').textContent.includes('Additional Comments')
+        );
     
     // Get actual values from the page
     const surveyTitle = "{{ strtoupper($survey->title) }}";
@@ -504,8 +505,19 @@ function printWithPrintJS() {
             const questionClone = question.cloneNode(true);
             
             // Get question content
-            const questionLabel = questionClone.querySelector('label').textContent;
-            const questionText = questionClone.querySelector('h5').textContent;
+            let questionLabel = '';
+            let questionText = '';
+            try {
+                const labelElement = questionClone.querySelector('label');
+                questionLabel = labelElement ? labelElement.textContent : 'Question Label';
+                
+                const textElement = questionClone.querySelector('h5');
+                questionText = textElement ? textElement.textContent : 'Question Text';
+            } catch (error) {
+                console.error('Error getting question content:', error);
+                questionLabel = 'Question Label';
+                questionText = 'Question Text';
+            }
             
             // Get response content based on type
             let responseHTML = '';
@@ -514,89 +526,133 @@ function printWithPrintJS() {
             // Check if it's radio type
             const radioDisplay = responseDiv.querySelector('.radio-display');
             if (radioDisplay) {
-                // First try to get the selected value from the checked radio input
-                const checkedRadio = radioDisplay.querySelector('input[type="radio"]:checked');
-                let selectedNumber = 0;
-                
-                if (checkedRadio) {
-                    // Use the checked radio button's adjacent label text or find which position it is
-                    const radioInputs = radioDisplay.querySelectorAll('input[type="radio"]');
-                    radioInputs.forEach((radio, index) => {
-                        if (radio.checked) {
-                            selectedNumber = index + 1; // Radio buttons are 1-indexed
-                        }
-                    });
-                } else {
-                    // Fallback: Find the span with the actual selected value (format: "X / 5")
-                    const selectedValueSpan = responseDiv.querySelector('span.ms-2.fw-bold');
-                    let selectedValue = '';
-                    if (selectedValueSpan) {
-                        selectedValue = selectedValueSpan.textContent.trim();
+                try {
+                    // First try to get the selected value from the checked radio input
+                    const checkedRadio = radioDisplay.querySelector('input[type="radio"]:checked');
+                    let selectedNumber = 0;
+                    
+                    if (checkedRadio) {
+                        // Use the checked radio button's adjacent label text or find which position it is
+                        const radioInputs = radioDisplay.querySelectorAll('input[type="radio"]');
+                        radioInputs.forEach((radio, index) => {
+                            if (radio.checked) {
+                                selectedNumber = index + 1; // Radio buttons are 1-indexed
+                            }
+                        });
                     } else {
-                        // Second fallback: look for any span in the responseDiv
-                        const anySpan = responseDiv.querySelector('span');
-                        selectedValue = anySpan ? anySpan.textContent.trim() : '';
+                        // Fallback: Find the span with the actual selected value (format: "X / 5")
+                        const selectedValueSpan = responseDiv.querySelector('span.ms-2.fw-bold');
+                        let selectedValue = '';
+                        if (selectedValueSpan) {
+                            selectedValue = selectedValueSpan.textContent.trim();
+                        } else {
+                            // Second fallback: look for any span in the responseDiv
+                            const anySpan = responseDiv.querySelector('span');
+                            selectedValue = anySpan ? anySpan.textContent.trim() : '';
+                        }
+                        
+                        // Extract the number from "X / 5" format or just use the number if it's only a number
+                        if (typeof selectedValue === 'string' && selectedValue.includes('/')) {
+                            selectedNumber = parseInt(selectedValue.split('/')[0].trim()) || 0;
+                        } else {
+                            selectedNumber = parseInt(selectedValue) || 0;
+                        }
                     }
                     
-                    // Extract the number from "X / 5" format or just use the number if it's only a number
-                    if (selectedValue.includes('/')) {
-                        selectedNumber = parseInt(selectedValue.split('/')[0].trim()) || 0;
-                    } else {
-                        selectedNumber = parseInt(selectedValue) || 0;
+                    // Get the display value for the print
+                    const displaySpan = responseDiv.querySelector('span.ms-2.fw-bold');
+                    const displayValue = displaySpan ? displaySpan.textContent.trim() : `${selectedNumber} / 5`;
+                    
+                    console.log('Radio Debug Info:', {
+                        selectedNumber: selectedNumber,
+                        displayValue: displayValue,
+                        checkedRadio: checkedRadio,
+                        radioDisplay: radioDisplay
+                    });
+                    
+                    responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
+                    responseHTML += '<div style="display: flex; gap: 10px; margin-right: 15px;">';
+                    
+                    // Generate 5 radio buttons (1-5) using actual input elements like the working version
+                    for (let i = 1; i <= 5; i++) {
+                        const checked = (i === selectedNumber) ? 'checked' : '';
+                        responseHTML += `<div style="display: flex; align-items: center; gap: 3px;">
+                            <input type="radio" style="margin-right: 3px;" ${checked} disabled>
+                            <label style="font-size: 8pt;">${i}</label>
+                        </div>`;
                     }
+                    
+                    responseHTML += '</div>';
+                    responseHTML += `<span style="font-weight: bold; font-size: 10pt;">${displayValue}</span>`;
+                    responseHTML += '</div>';
+                } catch (error) {
+                    console.error('Error processing radio buttons:', error);
+                    // Fallback for radio buttons
+                    responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
+                    responseHTML += '<div style="display: flex; gap: 10px; margin-right: 15px;">';
+                    
+                    for (let i = 1; i <= 5; i++) {
+                        responseHTML += `<div style="display: flex; align-items: center; gap: 3px;">
+                            <input type="radio" style="margin-right: 3px;" disabled>
+                            <label style="font-size: 8pt;">${i}</label>
+                        </div>`;
+                    }
+                    
+                    responseHTML += '</div>';
+                    responseHTML += `<span style="font-weight: bold; font-size: 10pt;">0 / 5</span>`;
+                    responseHTML += '</div>';
                 }
-                
-                // Get the display value for the print
-                const displaySpan = responseDiv.querySelector('span.ms-2.fw-bold');
-                const displayValue = displaySpan ? displaySpan.textContent.trim() : `${selectedNumber} / 5`;
-                
-                console.log('Radio Debug Info:', {
-                    selectedNumber: selectedNumber,
-                    displayValue: displayValue,
-                    checkedRadio: checkedRadio,
-                    radioDisplay: radioDisplay
-                });
-                
-                responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
-                responseHTML += '<div style="display: flex; gap: 10px; margin-right: 15px;">';
-                
-                // Generate 5 radio buttons (1-5) using actual input elements like the working version
-                for (let i = 1; i <= 5; i++) {
-                    const checked = (i === selectedNumber) ? 'checked' : '';
-                    responseHTML += `<div style="display: flex; align-items: center; gap: 3px;">
-                        <input type="radio" style="margin-right: 3px;" ${checked} disabled>
-                        <label style="font-size: 8pt;">${i}</label>
-                    </div>`;
-                }
-                
-                responseHTML += '</div>';
-                responseHTML += `<span style="font-weight: bold; font-size: 10pt;">${displayValue}</span>`;
-                responseHTML += '</div>';
             }
             
             // Check if it's star type
             const ratingDisplay = responseDiv.querySelector('.rating-display');
             if (ratingDisplay) {
-                const stars = ratingDisplay.querySelectorAll('.bi-star-fill');
-                const selectedValue = responseDiv.querySelector('span').textContent;
-                
-                responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
-                responseHTML += '<div style="display: flex; gap: 2px; margin-right: 15px;">';
-                
-                stars.forEach((star) => {
-                    const isSelected = star.classList.contains('text-warning');
-                    responseHTML += `<span style="font-size: 12pt; color: ${isSelected ? '#ffc107' : '#6c757d'};">★</span>`;
-                });
-                
-                responseHTML += '</div>';
-                responseHTML += `<span style="font-weight: bold; font-size: 10pt;">${selectedValue}</span>`;
-                responseHTML += '</div>';
+                try {
+                    const stars = ratingDisplay.querySelectorAll('.bi-star-fill');
+                    let selectedValue = '0 / 5';
+                    const valueSpan = responseDiv.querySelector('span');
+                    
+                    if (valueSpan) {
+                        selectedValue = valueSpan.textContent;
+                    }
+                    
+                    responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
+                    responseHTML += '<div style="display: flex; gap: 2px; margin-right: 15px;">';
+                    
+                    stars.forEach((star) => {
+                        const isSelected = star.classList.contains('text-warning');
+                        responseHTML += `<span style="font-size: 12pt; color: ${isSelected ? '#ffc107' : '#6c757d'};">★</span>`;
+                    });
+                    
+                    responseHTML += '</div>';
+                    responseHTML += `<span style="font-weight: bold; font-size: 10pt;">${selectedValue}</span>`;
+                    responseHTML += '</div>';
+                } catch (error) {
+                    console.error('Error processing star rating:', error);
+                    
+                    // Fallback for star ratings
+                    responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
+                    responseHTML += '<div style="display: flex; gap: 2px; margin-right: 15px;">';
+                    
+                    for (let i = 1; i <= 5; i++) {
+                        responseHTML += `<span style="font-size: 12pt; color: #6c757d;">★</span>`;
+                    }
+                    
+                    responseHTML += '</div>';
+                    responseHTML += `<span style="font-weight: bold; font-size: 10pt;">0 / 5</span>`;
+                    responseHTML += '</div>';
+                }
             }
             
             // Check if it's text/textarea
             const textResponse = responseDiv.querySelector('p');
             if (textResponse && !radioDisplay && !ratingDisplay) {
-                responseHTML = `<div style="font-weight: bold; font-size: 10pt; margin-top: 8px;">${textResponse.textContent}</div>`;
+                try {
+                    responseHTML = `<div style="font-weight: bold; font-size: 10pt; margin-top: 8px;">${textResponse.textContent}</div>`;
+                } catch (error) {
+                    console.error('Error processing text response:', error);
+                    responseHTML = `<div style="font-weight: bold; font-size: 10pt; margin-top: 8px;">No text response available</div>`;
+                }
             }
             
             // Adjust spacing - smaller on last page to fit footer perfectly
@@ -682,6 +738,10 @@ function printWithPrintJS() {
             console.log('Print loading ended');
         }
     });
+    } catch (error) {
+        console.error('Error in print function:', error);
+        alert('An error occurred while preparing the print. Please try again.');
+    }
 }
 </script>
 
@@ -848,8 +908,19 @@ function generatePDF() {
             const questionClone = question.cloneNode(true);
             
             // Get question content
-            const questionLabel = questionClone.querySelector('label').textContent;
-            const questionText = questionClone.querySelector('h5').textContent;
+            let questionLabel = '';
+            let questionText = '';
+            try {
+                const labelElement = questionClone.querySelector('label');
+                questionLabel = labelElement ? labelElement.textContent : 'Question Label';
+                
+                const textElement = questionClone.querySelector('h5');
+                questionText = textElement ? textElement.textContent : 'Question Text';
+            } catch (error) {
+                console.error('Error getting question content:', error);
+                questionLabel = 'Question Label';
+                questionText = 'Question Text';
+            }
             
             // Get response content based on type
             let responseHTML = '';
@@ -858,75 +929,134 @@ function generatePDF() {
             // Check if it's radio type
             const radioDisplay = responseDiv.querySelector('.radio-display');
             if (radioDisplay) {
-                const checkedRadio = radioDisplay.querySelector('input[type="radio"]:checked');
+                // Add debug to troubleshoot
+                let debugInfo = {};
                 let selectedNumber = 0;
+                let displayValue = '0 / 5';
                 
-                if (checkedRadio) {
-                    const radioInputs = radioDisplay.querySelectorAll('input[type="radio"]');
-                    radioInputs.forEach((radio, index) => {
-                        if (radio.checked) {
-                            selectedNumber = index + 1;
-                        }
-                    });
-                } else {
-                    const selectedValueSpan = responseDiv.querySelector('span.ms-2.fw-bold');
-                    let selectedValue = '';
-                    if (selectedValueSpan) {
-                        selectedValue = selectedValueSpan.textContent.trim();
+                try {
+                    const checkedRadio = radioDisplay.querySelector('input[type="radio"]:checked');
+                    debugInfo.checkedRadio = checkedRadio;
+                    
+                    if (checkedRadio) {
+                        const radioInputs = radioDisplay.querySelectorAll('input[type="radio"]');
+                        radioInputs.forEach((radio, index) => {
+                            if (radio.checked) {
+                                selectedNumber = index + 1;
+                            }
+                        });
                     } else {
-                        const anySpan = responseDiv.querySelector('span');
-                        selectedValue = anySpan ? anySpan.textContent.trim() : '';
+                        const selectedValueSpan = responseDiv.querySelector('span.ms-2.fw-bold');
+                        let selectedValue = '';
+                        
+                        if (selectedValueSpan) {
+                            selectedValue = selectedValueSpan.textContent.trim();
+                        } else {
+                            const anySpan = responseDiv.querySelector('span');
+                            selectedValue = anySpan ? anySpan.textContent.trim() : '';
+                        }
+                        
+                        // Make sure selectedValue is a string before using string methods
+                        if (typeof selectedValue === 'string' && selectedValue.includes('/')) {
+                            selectedNumber = parseInt(selectedValue.split('/')[0].trim()) || 0;
+                        } else {
+                            selectedNumber = parseInt(selectedValue) || 0;
+                        }
                     }
                     
-                    if (selectedValue.includes('/')) {
-                        selectedNumber = parseInt(selectedValue.split('/')[0].trim()) || 0;
-                    } else {
-                        selectedNumber = parseInt(selectedValue) || 0;
+                    const displaySpan = responseDiv.querySelector('span.ms-2.fw-bold');
+                    displayValue = displaySpan ? displaySpan.textContent.trim() : `${selectedNumber} / 5`;
+                    
+                    // Add debug info
+                    debugInfo.selectedNumber = selectedNumber;
+                    debugInfo.displayValue = displayValue;
+                    debugInfo.radioDisplay = radioDisplay;
+                    console.log('Radio Debug Info:', debugInfo);
+                    
+                    responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
+                    responseHTML += '<div style="display: flex; gap: 10px; margin-right: 15px;">';
+                    
+                    for (let i = 1; i <= 5; i++) {
+                        const checked = (i === selectedNumber) ? 'checked' : '';
+                        responseHTML += `<div style="display: flex; align-items: center; gap: 3px;">
+                            <input type="radio" style="margin-right: 3px;" ${checked} disabled>
+                            <label style="font-size: 8pt;">${i}</label>
+                        </div>`;
                     }
+                    
+                    responseHTML += '</div>';
+                    responseHTML += `<span style="font-weight: bold; font-size: 10pt;">${displayValue}</span>`;
+                    responseHTML += '</div>';
+                } catch (error) {
+                    console.error('Error processing radio display:', error);
+                    
+                    // Fallback response HTML in case of error
+                    responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
+                    responseHTML += '<div style="display: flex; gap: 10px; margin-right: 15px;">';
+                    
+                    for (let i = 1; i <= 5; i++) {
+                        const checked = (i === selectedNumber) ? 'checked' : '';
+                        responseHTML += `<div style="display: flex; align-items: center; gap: 3px;">
+                            <input type="radio" style="margin-right: 3px;" ${checked} disabled>
+                            <label style="font-size: 8pt;">${i}</label>
+                        </div>`;
+                    }
+                    
+                    responseHTML += '</div>';
+                    responseHTML += `<span style="font-weight: bold; font-size: 10pt;">${displayValue}</span>`;
+                    responseHTML += '</div>';
                 }
-                
-                const displaySpan = responseDiv.querySelector('span.ms-2.fw-bold');
-                const displayValue = displaySpan ? displaySpan.textContent.trim() : `${selectedNumber} / 5`;
-                
-                responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
-                responseHTML += '<div style="display: flex; gap: 10px; margin-right: 15px;">';
-                
-                for (let i = 1; i <= 5; i++) {
-                    const checked = (i === selectedNumber) ? 'checked' : '';
-                    responseHTML += `<div style="display: flex; align-items: center; gap: 3px;">
-                        <input type="radio" style="margin-right: 3px;" ${checked} disabled>
-                        <label style="font-size: 8pt;">${i}</label>
-                    </div>`;
-                }
-                
-                responseHTML += '</div>';
-                responseHTML += `<span style="font-weight: bold; font-size: 10pt;">${displayValue}</span>`;
-                responseHTML += '</div>';
             }
             
             // Check if it's star type
             const ratingDisplay = responseDiv.querySelector('.rating-display');
             if (ratingDisplay) {
-                const stars = ratingDisplay.querySelectorAll('.bi-star-fill');
-                const selectedValue = responseDiv.querySelector('span').textContent;
-                
-                responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
-                responseHTML += '<div style="display: flex; gap: 2px; margin-right: 15px;">';
-                
-                stars.forEach((star) => {
-                    const isSelected = star.classList.contains('text-warning');
-                    responseHTML += `<span style="font-size: 12pt; color: ${isSelected ? '#ffc107' : '#6c757d'};">★</span>`;
-                });
-                
-                responseHTML += '</div>';
-                responseHTML += `<span style="font-weight: bold; font-size: 10pt;">${selectedValue}</span>`;
-                responseHTML += '</div>';
+                try {
+                    const stars = ratingDisplay.querySelectorAll('.bi-star-fill');
+                    let selectedValue = '0 / 5';
+                    const valueSpan = responseDiv.querySelector('span');
+                    
+                    if (valueSpan) {
+                        selectedValue = valueSpan.textContent;
+                    }
+                    
+                    responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
+                    responseHTML += '<div style="display: flex; gap: 2px; margin-right: 15px;">';
+                    
+                    stars.forEach((star) => {
+                        const isSelected = star.classList.contains('text-warning');
+                        responseHTML += `<span style="font-size: 12pt; color: ${isSelected ? '#ffc107' : '#6c757d'};">★</span>`;
+                    });
+                    
+                    responseHTML += '</div>';
+                    responseHTML += `<span style="font-weight: bold; font-size: 10pt;">${selectedValue}</span>`;
+                    responseHTML += '</div>';
+                } catch (error) {
+                    console.error('Error processing star rating in PDF:', error);
+                    
+                    // Fallback for star ratings
+                    responseHTML = '<div style="display: flex; align-items: center; margin-top: 8px;">';
+                    responseHTML += '<div style="display: flex; gap: 2px; margin-right: 15px;">';
+                    
+                    for (let i = 1; i <= 5; i++) {
+                        responseHTML += `<span style="font-size: 12pt; color: #6c757d;">★</span>`;
+                    }
+                    
+                    responseHTML += '</div>';
+                    responseHTML += `<span style="font-weight: bold; font-size: 10pt;">0 / 5</span>`;
+                    responseHTML += '</div>';
+                }
             }
             
             // Check if it's text/textarea
             const textResponse = responseDiv.querySelector('p');
             if (textResponse && !radioDisplay && !ratingDisplay) {
-                responseHTML = `<div style="font-weight: bold; font-size: 10pt; margin-top: 8px;">${textResponse.textContent}</div>`;
+                try {
+                    responseHTML = `<div style="font-weight: bold; font-size: 10pt; margin-top: 8px;">${textResponse.textContent}</div>`;
+                } catch (error) {
+                    console.error('Error processing text response in PDF:', error);
+                    responseHTML = `<div style="font-weight: bold; font-size: 10pt; margin-top: 8px;">No text response available</div>`;
+                }
             }
             
             // Adjust spacing for last page to ensure footer fits
