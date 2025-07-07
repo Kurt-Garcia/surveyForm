@@ -56,6 +56,11 @@ class SurveyResponseHeader extends Model
     {
         return $this->hasMany(SurveyImprovementArea::class, 'header_id');
     }
+    
+    public function improvementCategories(): HasMany
+    {
+        return $this->hasMany(SurveyImprovementCategory::class, 'header_id');
+    }
 
     public static function hasResponded($surveyId, $accountName): bool
     {

@@ -7,6 +7,9 @@ use App\Models\Survey;
 use App\Models\SurveyResponseHeader;
 use App\Models\SurveyResponseDetail;
 use App\Models\SurveyImprovementArea;
+use App\Models\SurveyImprovementCategory;
+use App\Models\SurveyImprovementDetail;
+use App\Services\SurveyImprovementService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -188,20 +191,16 @@ class SurveyResponseController extends Controller
                 foreach ($request->improvement_areas as $areaCategory) {
                     $isOther = ($areaCategory === 'others');
                     $otherComments = $isOther ? ($request->other_comments ?? '') : null;
+                    $details = isset($detailsByCategory[$areaCategory]) ? $detailsByCategory[$areaCategory] : null;
                     
-                    // Get details for this category
-                    $areaDetails = isset($detailsByCategory[$areaCategory]) 
-                        ? implode("\n", $detailsByCategory[$areaCategory]) 
-                        : null;
-                        
-                    // Create improvement area record
-                    SurveyImprovementArea::create([
-                        'header_id' => $header->id,
-                        'area_category' => $areaCategory,
-                        'area_details' => $areaDetails,
-                        'is_other' => $isOther,
-                        'other_comments' => $otherComments
-                    ]);
+                    // Use the service to create improvement areas with details
+                    SurveyImprovementService::createImprovementAreaWithDetails(
+                        $header->id,
+                        $areaCategory,
+                        $details,
+                        $isOther,
+                        $otherComments
+                    );
                 }
             }
 

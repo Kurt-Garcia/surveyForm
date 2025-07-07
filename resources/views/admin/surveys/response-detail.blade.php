@@ -247,7 +247,7 @@ function confirmResubmission() {
                             <div class="mb-2">
                                 <label class="text-muted">Areas for Improvement</label>
                                 @php
-                                    $improvementAreas = $header->improvementAreas;
+                                    $improvementCategories = $header->improvementCategories;
                                     $areasMap = [
                                         'product_quality' => 'Product/Service Quality',
                                         'delivery_logistics' => 'Delivery & Logistics',
@@ -258,23 +258,23 @@ function confirmResubmission() {
                                     ];
                                 @endphp
                                 
-                                @if($improvementAreas->count() > 0)
+                                @if($improvementCategories->count() > 0)
                                     <div class="mt-2">
-                                        @foreach($improvementAreas as $area)
+                                        @foreach($improvementCategories as $category)
                                             <div class="mb-3">
-                                                <h6 class="fw-bold">{{ $areasMap[$area->area_category] ?? $area->area_category }}</h6>
+                                                <h6 class="fw-bold">{{ $areasMap[$category->category_name] ?? $category->category_name }}</h6>
                                                 
-                                                @if($area->area_details)
+                                                @if($category->details->count() > 0)
                                                     <ul class="mb-2">
-                                                        @foreach(explode("\n", $area->area_details) as $detail)
-                                                            <li>{{ $detail }}</li>
+                                                        @foreach($category->details as $detail)
+                                                            <li>{{ $detail->detail_text }}</li>
                                                         @endforeach
                                                     </ul>
                                                 @endif
                                                 
-                                                @if($area->is_other && $area->other_comments)
+                                                @if($category->is_other && $category->other_comments)
                                                     <div class="ps-3 py-2 border-start border-primary">
-                                                        <p class="mb-0"><strong>Other Comments:</strong> {{ $area->other_comments }}</p>
+                                                        <p class="mb-0"><strong>Other Comments:</strong> {{ $category->other_comments }}</p>
                                                     </div>
                                                 @endif
                                             </div>
