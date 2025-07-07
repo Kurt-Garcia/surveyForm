@@ -21,6 +21,59 @@
         box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25);
     }
     
+    /* Consent modal styles */
+    #consentModal .modal-header {
+        border-bottom: 2px solid var(--primary-color);
+    }
+    
+    #consentModal .modal-title {
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    #consentModal .text-muted {
+        font-size: 1.1rem;
+    }
+    
+    #consentModal ol li {
+        padding: 8px 0;
+    }
+    
+    #consentModal .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    #consentModal #consentContinueBtn {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        transition: all 0.3s ease;
+    }
+    
+    #consentModal #consentContinueBtn:hover {
+        background-color: var(--button-hover-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    #consentModal #consentContinueBtn:disabled {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    /* Survey disabled overlay */
+    .survey-disabled-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        z-index: 1050;
+    }
+    
     /* Survey metadata styling */
     .survey-metadata {
         margin-top: 10px;
@@ -299,11 +352,68 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
 <!-- SweetAlert2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(document).ready(function() {
+    // Show consent modal when page loads
+    const consentModal = new bootstrap.Modal(document.getElementById('consentModal'));
+    consentModal.show();
+    
+    // Enable the continue button only when the accept checkbox is selected
+    $('#consentAccept, #consentDecline').on('change', function() {
+        $('#consentContinueBtn').prop('disabled', false);
+        
+        // If both are checked, uncheck the other one
+        if (this.id === 'consentAccept' && $(this).is(':checked')) {
+            $('#consentDecline').prop('checked', false);
+        }
+        if (this.id === 'consentDecline' && $(this).is(':checked')) {
+            $('#consentAccept').prop('checked', false);
+        }
+    });
+    
+    // Handle continue button click based on consent choice
+    $('#consentContinueBtn').on('click', function() {
+        const acceptChecked = $('#consentAccept').is(':checked');
+        const declineChecked = $('#consentDecline').is(':checked');
+        
+        if (!acceptChecked && !declineChecked) {
+            // No option selected
+            Swal.fire({
+                title: 'Selection Required',
+                text: 'Please select whether you accept or decline the terms.',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        
+        if (acceptChecked) {
+            // User accepted - close modal and allow access to the survey
+            consentModal.hide();
+        } else if (declineChecked) {
+            // User declined - show message and disable form
+            consentModal.hide();
+            
+            // Show SweetAlert2 message
+            Swal.fire({
+                title: 'Survey Access Denied',
+                text: 'You must accept the terms and conditions to proceed with the survey.',
+                icon: 'info',
+                confirmButtonText: 'Understood'
+            }).then((result) => {
+                // Disable the form elements
+                $('#surveyForm :input').prop('disabled', true);
+                
+                // Add overlay to indicate survey is not accessible
+                $('body').append('<div class="survey-disabled-overlay d-flex align-items-center justify-content-center"><div class="text-center p-4 bg-white rounded shadow"><i class="fas fa-lock fa-3x text-warning mb-3"></i><h4>Survey Access Denied</h4><p>You must accept the terms and conditions to access this survey.</p><button class="btn btn-primary mt-3" onclick="window.location.reload()">Try Again</button></div></div>');
+            });
+        }
+    });
+
     // Check if the survey was already submitted
     const surveyId = {{ $survey->id }};
     const accountName = $('#account_name').val();
@@ -917,7 +1027,75 @@ function showResponseSummaryModal() {
     </div>
 </div>
 
-@endsection
+<!-- Consent Modal -->
+<div class="modal fade" id="consentModal" tabindex="-1" aria-labelledby="consentModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content font-theme">
+            <div class="modal-header bg-light py-3">
+                <div class="row w-100">
+                    <div class="col-4 text-start">
+                        @if($survey->logo)
+                        <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="img-fluid" style="max-height: 60px;">
+                        @else
+                        <img src="{{ asset('img/logo.JPG') }}" alt="Default Logo" class="img-fluid" style="max-height: 60px;">
+                        @endif
+                    </div>
+                    <div class="col-4"></div>
+                    <div class="col-4 text-end">
+                        @if($survey->department_logo)
+                        <img src="{{ asset('storage/' . $survey->department_logo) }}" alt="Department Logo" class="img-fluid" style="max-height: 60px;">
+                        @elseif($survey->logo)
+                        <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="img-fluid" style="max-height: 60px;">
+                        @else
+                        <img src="{{ asset('img/logo.JPG') }}" alt="Default Logo" class="img-fluid" style="max-height: 60px;">
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <h4 class="modal-title fw-bold font-theme-heading" id="consentModalLabel">Survey Consent Statement</h4>
+                    <h5 class="text-muted font-theme">Customer Satisfaction Survey</h5>
+                </div>
+
+                <p class="mb-4 font-theme">We appreciate your participation in this customer satisfaction survey and your willingness to share your thoughts. Your insights will assist us in enhancing our services, and client satisfaction.</p>
+                <p class="mb-4 font-theme">By completing this survey, you acknowledge and agree to the following:</p>
+                
+                <ol class="mb-4 font-theme">
+                    <li class="mb-3"><strong>Voluntary Participation.</strong> This survey is entirely voluntary. You may skip the question or close the survey at any time.</li>
+                    <li class="mb-3"><strong>Purpose of the Survey.</strong> To gather valuable feedback from our customers to evaluate and enhance our service quality.</li>
+                    <li class="mb-3"><strong>Collection of Personal Information.</strong> Your name, phone number, and email address might be requested for channel identification purposes.</li>
+                    <li class="mb-3"><strong>Confidentiality and Data Use.</strong> All personal data and responses will be treated with utmost confidentiality and used exclusively for internal evaluation and improvement. Your information will not be shared with third parties without your consent.</li>
+                    <li class="mb-3"><strong>Data Protection.</strong> We are committed to protecting your privacy and handling your personal information in accordance with the applicable data privacy laws and our company's data protection policies.</li>
+                </ol>
+                
+                <p class="font-theme">If you agree with the terms above, please proceed by completing the survey sent via text/email.</p>
+                
+                <div class="mt-4 d-flex flex-column align-items-center">
+                    <div class="form-check mb-3 w-100 text-center">
+                        <input class="form-check-input" type="checkbox" name="consentAccept" id="consentAccept" value="accept">
+                        <label class="form-check-label font-theme" for="consentAccept">
+                            <strong>I accept the terms and conditions</strong>
+                        </label>
+                    </div>
+                    <div class="form-check mb-3 w-100 text-center">
+                        <input class="form-check-input" type="checkbox" name="consentDecline" id="consentDecline" value="decline">
+                        <label class="form-check-label font-theme" for="consentDecline">
+                            <strong>I do not accept the terms and conditions</strong>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-primary px-4 py-2 font-theme-heading" id="consentContinueBtn" disabled>Continue</button>
+            </div>
+            <div class="text-center pb-3">
+                <p class="m-0 font-theme">Thank you for your valuable feedback.</p>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section('scripts')
 <script>
