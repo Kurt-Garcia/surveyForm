@@ -1451,11 +1451,7 @@ $(document).ready(function() {
                 $(this).addClass('has-error');
                 $(`#question_${questionId}_error`).text('This question requires an answer').addClass('text-danger');
                 errorList.push(`Question "${questionText}" requires an answer`);
-                @if($isCustomerMode)
-                $(this).find('.modern-rating-group, .modern-rating-group-display, .modern-star-rating').addClass('input-error error');
-                @else
-                $(this).find('.modern-rating-group, .modern-star-rating').addClass('error');
-                @endif
+                // Don't add error styling to radio buttons - only show red background on question card
             }
         });
         
@@ -1572,7 +1568,7 @@ $(document).ready(function() {
         const questionId = $(this).attr('name').match(/\d+/)[0];
         $(`#question_${questionId}_error`).text('');
         $(this).closest('.question-card').removeClass('has-error');
-        $(this).closest('.modern-rating-group, .modern-star-rating').removeClass('error');
+        // Don't remove error styling from radio buttons since we're not adding it
         
         // Check if all required fields are filled to hide the validation alert
         if ($('.error, .has-error').length === 0) {
