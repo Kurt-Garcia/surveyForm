@@ -1540,21 +1540,30 @@ $(document).ready(function() {
     
     // Live validation on input change
     $('.modern-input, .modern-select, .modern-textarea').on('input change', function() {
-        if ($(this).val().trim()) {
+        // Remove error styling immediately when user starts typing/changing
+        @if($isCustomerMode)
+        $(this).removeClass('input-error error');
+        @else
+        $(this).removeClass('error');
+        @endif
+        const fieldId = $(this).attr('id');
+        if (fieldId) {
+            $(`#${fieldId}_error`).text('').removeClass('text-danger');
+        }
+        
+        // Special handling for account_name - also clear account_type errors when account_name is filled
+        if (fieldId === 'account_name' && $(this).val().trim()) {
             @if($isCustomerMode)
-            $(this).removeClass('input-error error');
+            $('#account_type').removeClass('input-error error');
             @else
-            $(this).removeClass('error');
+            $('#account_type').removeClass('error');
             @endif
-            const fieldId = $(this).attr('id');
-            if (fieldId) {
-                $(`#${fieldId}_error`).text('').removeClass('text-danger');
-            }
-            
-            // Check if all required fields are filled to hide the validation alert
-            if ($('.error, .has-error').length === 0) {
-                $('#validationAlertContainer').addClass('d-none');
-            }
+            $('#account_type_error').text('').removeClass('text-danger');
+        }
+        
+        // Check if all required fields are filled to hide the validation alert
+        if ($('.error, .has-error').length === 0) {
+            $('#validationAlertContainer').addClass('d-none');
         }
     });
     
@@ -1573,18 +1582,17 @@ $(document).ready(function() {
     
     // Add live validation for recommendation select
     $('#survey-number').on('change', function() {
-        if ($(this).val()) {
-            @if($isCustomerMode)
-            $(this).removeClass('input-error error');
-            @else
-            $(this).removeClass('error');
-            @endif
-            $('#recommendation_error').text('').removeClass('text-danger');
-            
-            // Check if all required fields are filled to hide the validation alert
-            if ($('.error, .has-error').length === 0) {
-                $('#validationAlertContainer').addClass('d-none');
-            }
+        // Remove error styling immediately when user makes a selection
+        @if($isCustomerMode)
+        $(this).removeClass('input-error error');
+        @else
+        $(this).removeClass('error');
+        @endif
+        $('#recommendation_error').text('').removeClass('text-danger');
+        
+        // Check if all required fields are filled to hide the validation alert
+        if ($('.error, .has-error').length === 0) {
+            $('#validationAlertContainer').addClass('d-none');
         }
     });
 
@@ -1989,7 +1997,25 @@ $(document).ready(function() {
         select: function(event, ui) {
             $('#account_name').val(ui.item.value);
             $('#account_type').val(ui.item.custtype); // Set account type automatically
+            
+            // Clear error styling from both account_name and account_type when auto-filled
+            @if($isCustomerMode)
+            $('#account_name').removeClass('input-error error');
+            $('#account_type').removeClass('input-error error');
+            @else
+            $('#account_name').removeClass('error');
+            $('#account_type').removeClass('error');
+            @endif
+            $('#account_name_error').text('').removeClass('text-danger');
+            $('#account_type_error').text('').removeClass('text-danger');
+            
             updateCopyLinkVisibility(); // Show copy link button immediately
+            
+            // Check if all required fields are filled to hide the validation alert
+            if ($('.error, .has-error').length === 0) {
+                $('#validationAlertContainer').addClass('d-none');
+            }
+            
             return false;
         }
     }).focus(function() {
@@ -2022,7 +2048,24 @@ $(document).ready(function() {
                         // Display the customer name and update account type
                         $('#customer_name_display').html(`<span class="text-success"><i class="fas fa-check-circle"></i> ${response.customer.custname}</span>`).show();
                         $('#account_type').val(response.customer.custtype);
+                        
+                        // Clear error styling from both account_name and account_type when auto-filled
+                        @if($isCustomerMode)
+                        $('#account_name').removeClass('input-error error');
+                        $('#account_type').removeClass('input-error error');
+                        @else
+                        $('#account_name').removeClass('error');
+                        $('#account_type').removeClass('error');
+                        @endif
+                        $('#account_name_error').text('').removeClass('text-danger');
+                        $('#account_type_error').text('').removeClass('text-danger');
+                        
                         updateCopyLinkVisibility();
+                        
+                        // Check if all required fields are filled to hide the validation alert
+                        if ($('.error, .has-error').length === 0) {
+                            $('#validationAlertContainer').addClass('d-none');
+                        }
                     } else {
                         // Show 'No Data Found!' if no match found
                         $('#customer_name_display').html('<span class="text-danger">No Data Found!</span>').show();
