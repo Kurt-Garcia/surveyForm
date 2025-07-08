@@ -844,7 +844,7 @@
                             </label>
                         </div>
                         <div class="ms-4 mt-2">
-                            <textarea class="modern-textarea {{ $isCustomerMode ? 'font-theme' : '' }}" name="other_comments" rows="3" placeholder="Please specify other areas for improvement..."></textarea>
+                            <textarea class="modern-textarea {{ $isCustomerMode ? 'font-theme' : '' }}" name="other_comments" rows="3" placeholder="Please specify other areas for improvement..." maxlength="200"></textarea>
                         </div>
                     </div>
                 </div>
