@@ -562,6 +562,34 @@
         border-color: #dc3545;
     }
     
+    /* Error styling for form fields */
+    .modern-input.error,
+    .modern-select.error,
+    .modern-textarea.error {
+        border: 2px solid #dc3545 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        background-color: rgba(220, 53, 69, 0.05) !important;
+    }
+    
+    .modern-input.error:focus,
+    .modern-select.error:focus,
+    .modern-textarea.error:focus {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+    }
+    
+    /* Validation message styling */
+    .validation-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+    
+    .validation-message:empty {
+        display: none;
+    }
+    
     #summary-improvement-details .list-group-item {
         border-left: 3px solid var(--primary-color);
     }
@@ -1383,7 +1411,6 @@ $(document).ready(function() {
             @else
             $('#account_name').addClass('error');
             @endif
-            $('#account_name').parent().addClass('has-error');
             $('#account_name_error').text('Account name is required').addClass('text-danger');
             errorList.push('Account name is required');
         }
@@ -1396,7 +1423,6 @@ $(document).ready(function() {
             @else
             $('#account_type').addClass('error');
             @endif
-            $('#account_type').parent().addClass('has-error');
             $('#account_type_error').text('Account type is required').addClass('text-danger');
             errorList.push('Account type is required');
         }
@@ -1409,7 +1435,6 @@ $(document).ready(function() {
             @else
             $('#date').addClass('error');
             @endif
-            $('#date').parent().addClass('has-error');
             $('#date_error').text('Date is required').addClass('text-danger');
             errorList.push('Date is required');
         }
@@ -1442,7 +1467,6 @@ $(document).ready(function() {
             @else
             $('#survey-number').addClass('error');
             @endif
-            $('#survey-number').parent().addClass('has-error');
             $('#recommendation_error').text('Recommendation is required').addClass('text-danger');
             errorList.push('Recommendation is required');
         }
@@ -1517,11 +1541,14 @@ $(document).ready(function() {
     // Live validation on input change
     $('.modern-input, .modern-select, .modern-textarea').on('input change', function() {
         if ($(this).val().trim()) {
+            @if($isCustomerMode)
+            $(this).removeClass('input-error error');
+            @else
             $(this).removeClass('error');
-            $(this).parent().removeClass('has-error');
+            @endif
             const fieldId = $(this).attr('id');
             if (fieldId) {
-                $(`#${fieldId}_error`).text('');
+                $(`#${fieldId}_error`).text('').removeClass('text-danger');
             }
             
             // Check if all required fields are filled to hide the validation alert
@@ -1547,9 +1574,12 @@ $(document).ready(function() {
     // Add live validation for recommendation select
     $('#survey-number').on('change', function() {
         if ($(this).val()) {
+            @if($isCustomerMode)
+            $(this).removeClass('input-error error');
+            @else
             $(this).removeClass('error');
-            $(this).parent().removeClass('has-error');
-            $('#recommendation_error').text('');
+            @endif
+            $('#recommendation_error').text('').removeClass('text-danger');
             
             // Check if all required fields are filled to hide the validation alert
             if ($('.error, .has-error').length === 0) {
