@@ -542,28 +542,27 @@ function printWithPrintJS() {
     
     // Create pages with 5 questions each
     const questionsPerPage = 5;
-    const totalPages = Math.ceil(questionsArray.length / questionsPerPage);
+    const totalQuestionPages = Math.ceil(questionsArray.length / questionsPerPage);
+    const totalPages = totalQuestionPages + 1; // Add 1 for the separate improvement areas page
     
     let printHTML = '<div style="font-family: Arial, sans-serif; font-size: 9pt; line-height: 1.4;">';
     
-    for (let page = 0; page < totalPages; page++) {
+    // Generate question pages
+    for (let page = 0; page < totalQuestionPages; page++) {
         const startIndex = page * questionsPerPage;
         const endIndex = Math.min(startIndex + questionsPerPage, questionsArray.length);
         const pageQuestions = questionsArray.slice(startIndex, endIndex);
-        const isLastPage = (page === totalPages - 1);
         
-        // Start page - use flexbox only on last page for footer positioning
+        // Start page
         const pageStyle = page > 0 ? 'page-break-before: always;' : '';
-        const heightStyle = isLastPage ? 'display: flex; flex-direction: column; min-height: 95vh;' : '';
         
-        printHTML += `<div class="print-page" style="${pageStyle} ${heightStyle}">`;
+        printHTML += `<div class="print-page" style="${pageStyle}">`;
         
         // Add header to every page
         printHTML += headerContent;
         
-        // Add questions for this page - flex-shrink for last page to allow footer positioning
-        const contentStyle = isLastPage ? 'margin: 5px 0; flex-shrink: 0;' : 'margin: 20px 0;';
-        printHTML += `<div class="questions-content" style="${contentStyle}">`;
+        // Add questions for this page
+        printHTML += `<div class="questions-content" style="margin: 20px 0;">`;
         
         pageQuestions.forEach((question) => {
             const questionClone = question.cloneNode(true);
@@ -711,21 +710,15 @@ function printWithPrintJS() {
                 }
             }
             
-            // Adjust spacing - smaller on last page to fit footer perfectly
-            const questionMargin = isLastPage ? '6px' : '22px';
-            const questionPadding = isLastPage ? '8px' : '18px';
-            const labelMargin = isLastPage ? '2px' : '6px';
-            const textMargin = isLastPage ? '4px' : '12px';
-            
             // Build question HTML
             printHTML += `
-                <div style="border: 1px solid #eee; margin-bottom: ${questionMargin}; padding: ${questionPadding}; background-color: #f9f9f9; page-break-inside: avoid;">
-                    <div style="margin-bottom: ${labelMargin};">
-                        <div style="font-size: 8pt; color: #666; margin-bottom: ${labelMargin};">${questionLabel}</div>
-                        <div style="font-size: 10pt; font-weight: bold; margin-bottom: ${textMargin};">${questionText}</div>
+                <div style="border: 1px solid #eee; margin-bottom: 22px; padding: 18px; background-color: #f9f9f9; page-break-inside: avoid;">
+                    <div style="margin-bottom: 6px;">
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 6px;">${questionLabel}</div>
+                        <div style="font-size: 10pt; font-weight: bold; margin-bottom: 12px;">${questionText}</div>
                     </div>
                     <div>
-                        <div style="font-size: 8pt; color: #666; margin-bottom: ${labelMargin};">Response</div>
+                        <div style="font-size: 8pt; color: #666; margin-bottom: 6px;">Response</div>
                         ${responseHTML}
                     </div>
                 </div>
@@ -733,16 +726,14 @@ function printWithPrintJS() {
         });
         
         printHTML += '</div>'; // Close questions-content
-        
-        // Add footer only on the last page - only improvement areas now
-        if (isLastPage) {
-            // Add flexible spacer to push footer to bottom - ensure proper spacing
-            printHTML += '<div style="flex: 1 1 auto;"></div>';
-            printHTML += improvementAreasHTML;
-        }
-        
         printHTML += '</div>'; // Close print-page
     }
+    
+    // Add a separate page for improvement areas only
+    printHTML += `<div class="print-page" style="page-break-before: always;">`;
+    printHTML += headerContent;
+    printHTML += improvementAreasHTML;
+    printHTML += '</div>'; // Close improvement areas page
     
     printHTML += '</div>'; // Close main container
     
@@ -990,7 +981,8 @@ function generatePDF() {
     
     // Create pages with 5 questions each
     const questionsPerPage = 5;
-    const totalPages = Math.ceil(questionsArray.length / questionsPerPage);
+    const totalQuestionPages = Math.ceil(questionsArray.length / questionsPerPage);
+    const totalPages = totalQuestionPages + 1; // Add 1 for the separate improvement areas page
     
     // Prepare PDF content
     const pdfContainer = document.createElement('div');
@@ -1005,24 +997,22 @@ function generatePDF() {
     
     let pdfHTML = '';
     
-    for (let page = 0; page < totalPages; page++) {
+    // Generate question pages
+    for (let page = 0; page < totalQuestionPages; page++) {
         const startIndex = page * questionsPerPage;
         const endIndex = Math.min(startIndex + questionsPerPage, questionsArray.length);
         const pageQuestions = questionsArray.slice(startIndex, endIndex);
-        const isLastPage = (page === totalPages - 1);
         
         // Start page with page break for subsequent pages
         const pageStyle = page > 0 ? 'page-break-before: always; ' : '';
-        const heightStyle = isLastPage ? 'display: flex; flex-direction: column; height: 270mm; box-sizing: border-box;' : '';
         
-        pdfHTML += `<div class="pdf-page" style="${pageStyle}${heightStyle}">`;
+        pdfHTML += `<div class="pdf-page" style="${pageStyle}">`;
         
         // Add header to every page
         pdfHTML += headerContent;
         
         // Add questions for this page
-        const contentStyle = isLastPage ? 'flex-shrink: 0;' : '';
-        pdfHTML += `<div class="questions-content" style="${contentStyle}">`;
+        pdfHTML += `<div class="questions-content">`;
         
         pageQuestions.forEach((question) => {
             const questionClone = question.cloneNode(true);
@@ -1179,13 +1169,9 @@ function generatePDF() {
                 }
             }
             
-            // Adjust spacing for last page to ensure footer fits
-            const questionMargin = isLastPage ? '8px' : '15px';
-            const questionPadding = isLastPage ? '10px' : '15px';
-            
             // Build question HTML
             pdfHTML += `
-                <div style="border: 1px solid #eee; margin-bottom: ${questionMargin}; padding: ${questionPadding}; background-color: #f9f9f9;">
+                <div style="border: 1px solid #eee; margin-bottom: 15px; padding: 15px; background-color: #f9f9f9;">
                     <div style="margin-bottom: 8px;">
                         <div style="font-size: 8pt; color: #666; margin-bottom: 4px;">${questionLabel}</div>
                         <div style="font-size: 11pt; font-weight: bold; margin-bottom: 8px;">${questionText}</div>
@@ -1199,15 +1185,14 @@ function generatePDF() {
         });
         
         pdfHTML += '</div>'; // Close questions-content
-        
-        // Add footer only on the last page - only improvement areas now
-        if (isLastPage) {
-            pdfHTML += '<div style="flex: 1; min-height: 30px;"></div>';
-            pdfHTML += improvementAreasHTML;
-        }
-        
         pdfHTML += '</div>'; // Close pdf-page
     }
+    
+    // Add a separate page for improvement areas only
+    pdfHTML += `<div class="pdf-page" style="page-break-before: always;">`;
+    pdfHTML += headerContent;
+    pdfHTML += improvementAreasHTML;
+    pdfHTML += '</div>'; // Close improvement areas page
     
     pdfContainer.innerHTML = pdfHTML;
     document.body.appendChild(pdfContainer);
