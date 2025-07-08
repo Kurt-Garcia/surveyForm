@@ -28,46 +28,346 @@
         visibility: hidden;
     }
     
-    /* Consent modal styles */
+    /* Enhanced Consent Modal Styles */
+    #consentModal {
+        backdrop-filter: blur(10px);
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    #consentModal .modal-dialog {
+        max-width: 900px;
+        margin: 1rem auto;
+    }
+    
+    #consentModal .modal-content {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    }
+    
     #consentModal .modal-header {
-        border-bottom: 2px solid var(--primary-color);
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border: none;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
     
-    #consentModal .modal-title {
-        color: var(--primary-color);
-        margin-bottom: 0.5rem;
+    #consentModal .modal-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" patternUnits="userSpaceOnUse" width="10" height="10"><circle cx="5" cy="5" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+        opacity: 0.3;
     }
     
-    #consentModal .text-muted {
+    #consentModal .header-logos {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    #consentModal .header-logo-left {
+        flex: 1;
+        text-align: left;
+    }
+    
+    #consentModal .header-logo-right {
+        flex: 1;
+        text-align: right;
+    }
+    
+    #consentModal .header-logo {
+        max-height: 70px;
+        width: auto;
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        transition: transform 0.3s ease;
+    }
+    
+    #consentModal .header-logo:hover {
+        transform: scale(1.05);
+    }
+    
+    #consentModal .header-title {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        margin: 0;
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    #consentModal .header-title h4 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        letter-spacing: 0.5px;
+    }
+    
+    #consentModal .header-title h5 {
+        font-size: 1.2rem;
+        font-weight: 500;
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+        letter-spacing: 0.3px;
+    }
+    
+    #consentModal .modal-body {
+        padding: 3rem;
+        line-height: 1.6;
+        color: #2c3e50;
+    }
+    
+    #consentModal .consent-intro {
+        background: linear-gradient(135deg, #e8f4f8, #f1f8ff);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        border-left: 5px solid var(--primary-color);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    #consentModal .consent-intro p {
+        margin-bottom: 1rem;
         font-size: 1.1rem;
+        color: #34495e;
     }
     
-    #consentModal ol li {
-        padding: 8px 0;
+    #consentModal .consent-terms {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
     }
     
-    #consentModal .form-check-input:checked {
-        background-color: var(--primary-color);
+    #consentModal .consent-terms ol {
+        padding-left: 0;
+        counter-reset: term-counter;
+    }
+    
+    #consentModal .consent-terms li {
+        list-style: none;
+        position: relative;
+        padding: 1.5rem 0 1.5rem 4rem;
+        margin-bottom: 1rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        border-left: 4px solid var(--primary-color);
+        transition: all 0.3s ease;
+        counter-increment: term-counter;
+    }
+    
+    #consentModal .consent-terms li:hover {
+        background: #f1f3f4;
+        transform: translateX(5px);
+    }
+    
+    #consentModal .consent-terms li::before {
+        content: counter(term-counter);
+        position: absolute;
+        left: 1rem;
+        top: 1.5rem;
+        width: 2rem;
+        height: 2rem;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    
+    #consentModal .consent-terms li strong {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+    
+    #consentModal .consent-actions {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    #consentModal .consent-checkbox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 1rem 0;
+        position: relative;
+        cursor: pointer;
+        padding: 1rem;
+        border-radius: 8px;
+        transition: background-color 0.3s ease;
+    }
+    
+    #consentModal .consent-checkbox:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    #consentModal .modern-checkbox {
+        position: relative;
+        display: inline-block;
+        margin-right: 1rem;
+        z-index: 10;
+    }
+    
+    #consentModal .modern-checkbox input[type="checkbox"] {
+        opacity: 0;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        margin: 0;
+        cursor: pointer;
+        z-index: 15;
+    }
+    
+    #consentModal .modern-checkbox .checkbox-design {
+        width: 24px;
+        height: 24px;
+        border: 2px solid var(--primary-color);
+        border-radius: 6px;
+        background: white;
+        position: relative;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        z-index: 5;
+    }
+    
+    #consentModal .modern-checkbox .checkbox-design::after {
+        content: '';
+        position: absolute;
+        left: 7px;
+        top: 3px;
+        width: 6px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    #consentModal .modern-checkbox input[type="checkbox"]:checked + .checkbox-design {
+        background: var(--primary-color);
         border-color: var(--primary-color);
+        transform: scale(1.1);
+    }
+    
+    #consentModal .modern-checkbox input[type="checkbox"]:checked + .checkbox-design::after {
+        opacity: 1;
+    }
+    
+    #consentModal .consent-checkbox label {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #2c3e50;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+    
+    #consentModal .consent-checkbox.accept label {
+        color: #27ae60;
+    }
+    
+    #consentModal .consent-checkbox.decline label {
+        color: #e74c3c;
+    }
+    
+    #consentModal .modal-footer {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border: none;
+        padding: 2rem 3rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
     
     #consentModal #consentContinueBtn {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border: none;
+        color: white;
+        padding: 1rem 3rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
         transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    #consentModal #consentContinueBtn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s;
+    }
+    
+    #consentModal #consentContinueBtn:hover::before {
+        left: 100%;
     }
     
     #consentModal #consentContinueBtn:hover {
-        background-color: var(--button-hover-color);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
     }
     
     #consentModal #consentContinueBtn:disabled {
-        background-color: #6c757d;
-        border-color: #6c757d;
+        background: #6c757d;
         transform: none;
-        box-shadow: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        cursor: not-allowed;
+    }
+    
+    #consentModal #consentContinueBtn:disabled::before {
+        display: none;
+    }
+    
+    #consentModal .footer-note {
+        margin-top: 1rem;
+        font-style: italic;
+        color: #6c757d;
+        font-size: 1rem;
+    }
+    
+    /* Animation for modal entrance */
+    #consentModal.fade .modal-dialog {
+        transform: translate(0, -50px);
+        transition: transform 0.3s ease-out;
+    }
+    
+    #consentModal.fade.show .modal-dialog {
+        transform: translate(0, 0);
     }
     
     /* Survey disabled overlay */
@@ -667,71 +967,92 @@
     </div>
 </div>
 
-<!-- Consent Modal -->
+<!-- Enhanced Consent Modal -->
 <div class="modal fade" id="consentModal" tabindex="-1" aria-labelledby="consentModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content {{ $isCustomerMode ? 'font-theme' : '' }}">
-            <div class="modal-header bg-light py-3">
-                <div class="row w-100">
-                    <div class="col-4 text-start">
+            <div class="modal-header">
+                <div class="header-logos">
+                    <div class="header-logo-left">
                         @if($survey->logo)
-                        <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="img-fluid" style="max-height: 60px;">
+                        <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="header-logo">
                         @else
-                        <img src="{{ asset('img/logo.JPG') }}" alt="Default Logo" class="img-fluid" style="max-height: 60px;">
+                        <img src="{{ asset('img/logo.JPG') }}" alt="Default Logo" class="header-logo">
                         @endif
                     </div>
-                    <div class="col-4"></div>
-                    <div class="col-4 text-end">
+                    <div class="header-title">
+                        <h4 id="consentModalLabel">Survey Consent Statement</h4>
+                        <h5>Customer Satisfaction Survey</h5>
+                    </div>
+                    <div class="header-logo-right">
                         @if($survey->department_logo)
-                        <img src="{{ asset('storage/' . $survey->department_logo) }}" alt="Department Logo" class="img-fluid" style="max-height: 60px;">
+                        <img src="{{ asset('storage/' . $survey->department_logo) }}" alt="Department Logo" class="header-logo">
                         @elseif($survey->logo)
-                        <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="img-fluid" style="max-height: 60px;">
+                        <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="header-logo">
                         @else
-                        <img src="{{ asset('img/logo.JPG') }}" alt="Default Logo" class="img-fluid" style="max-height: 60px;">
+                        <img src="{{ asset('img/logo.JPG') }}" alt="Default Logo" class="header-logo">
                         @endif
                     </div>
                 </div>
             </div>
 
-            <div class="modal-body p-4">
-                <div class="text-center mb-4">
-                    <h4 class="modal-title fw-bold" id="consentModalLabel">Survey Consent Statement</h4>
-                    <h5 class="text-muted">Customer Satisfaction Survey</h5>
+            <div class="modal-body">
+                <div class="consent-intro">
+                    <p><strong>Dear Valued Customer,</strong></p>
+                    <p>We appreciate your participation in this customer satisfaction survey and your willingness to share your thoughts. Your insights will assist us in enhancing our services and client satisfaction.</p>
+                    <p><strong>By completing this survey, you acknowledge and agree to the following terms:</strong></p>
                 </div>
 
-                <p class="mb-4">We appreciate your participation in this customer satisfaction survey and your willingness to share your thoughts. Your insights will assist us in enhancing our services, and client satisfaction.</p>
-                <p class="mb-4">By completing this survey, you acknowledge and agree to the following:</p>
-                
-                <ol class="mb-4">
-                    <li class="mb-3"><strong>Voluntary Participation.</strong> This survey is entirely voluntary. You may skip the question or close the survey at any time.</li>
-                    <li class="mb-3"><strong>Purpose of the Survey.</strong> To gather valuable feedback from our customers to evaluate and enhance our service quality.</li>
-                    <li class="mb-3"><strong>Collection of Personal Information.</strong> Your name, phone number, and email address might be requested for channel identification purposes.</li>
-                    <li class="mb-3"><strong>Confidentiality and Data Use.</strong> All personal data and responses will be treated with utmost confidentiality and used exclusively for internal evaluation and improvement. Your information will not be shared with third parties without your consent.</li>
-                    <li class="mb-3"><strong>Data Protection.</strong> We are committed to protecting your privacy and handling your personal information in accordance with the applicable data privacy laws and our company's data protection policies.</li>
-                </ol>
-                
-                <p>If you agree with the terms above, please proceed by completing the survey sent via text/email.</p>
-                
-                <div class="mt-4 d-flex flex-column align-items-center">
-                    <div class="form-check mb-3 w-100 text-center">
-                        <input class="form-check-input" type="checkbox" name="consentAccept" id="consentAccept" value="accept">
-                        <label class="form-check-label" for="consentAccept">
-                            <strong>I accept the terms and conditions</strong>
+                <div class="consent-terms">
+                    <ol>
+                        <li>
+                            <strong>Voluntary Participation.</strong> This survey is entirely voluntary. You may skip questions or close the survey at any time without any consequences.
+                        </li>
+                        <li>
+                            <strong>Purpose of the Survey.</strong> To gather valuable feedback from our customers to evaluate and enhance our service quality and customer experience.
+                        </li>
+                        <li>
+                            <strong>Collection of Personal Information.</strong> Your name, phone number, and email address might be requested for channel identification and follow-up purposes only.
+                        </li>
+                        <li>
+                            <strong>Confidentiality and Data Use.</strong> All personal data and responses will be treated with utmost confidentiality and used exclusively for internal evaluation and improvement. Your information will not be shared with third parties without your explicit consent.
+                        </li>
+                        <li>
+                            <strong>Data Protection.</strong> We are committed to protecting your privacy and handling your personal information in accordance with applicable data privacy laws and our company's data protection policies.
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="consent-actions">
+                    <p class="mb-4"><strong>Please indicate your consent to proceed with the survey:</strong></p>
+                    
+                    <div class="consent-checkbox accept">
+                        <div class="modern-checkbox">
+                            <input type="checkbox" id="consentAccept" name="consentAccept" value="accept">
+                            <div class="checkbox-design"></div>
+                        </div>
+                        <label for="consentAccept">
+                            <i class="fas fa-check-circle me-2"></i>I accept the terms and conditions and consent to participate
                         </label>
                     </div>
-                    <div class="form-check mb-3 w-100 text-center">
-                        <input class="form-check-input" type="checkbox" name="consentDecline" id="consentDecline" value="decline">
-                        <label class="form-check-label" for="consentDecline">
-                            <strong>I do not accept the terms and conditions</strong>
+                    
+                    <div class="consent-checkbox decline">
+                        <div class="modern-checkbox">
+                            <input type="checkbox" id="consentDecline" name="consentDecline" value="decline">
+                            <div class="checkbox-design"></div>
+                        </div>
+                        <label for="consentDecline">
+                            <i class="fas fa-times-circle me-2"></i>I do not accept the terms and conditions
                         </label>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-primary px-4 py-2" id="consentContinueBtn" disabled>Continue</button>
-            </div>
-            <div class="text-center pb-3">
-                <p class="m-0">Thank you for your valuable feedback.</p>
+
+            <div class="modal-footer">
+                <button type="button" id="consentContinueBtn" disabled>
+                    <i class="fas fa-arrow-right me-2"></i>Continue to Survey
+                </button>
+                <p class="footer-note">Thank you for your valuable time and feedback.</p>
             </div>
         </div>
     </div>
@@ -1576,28 +1897,7 @@ function showResponseSummaryModal() {
     @endif
 }
 
-@if($isCustomerMode)
-/**
- * Display thank you message and hide all form content
- * Dedicated function to ensure consistent behavior across the application
- */
-function displayThankYouMessage() {
-    // Hide form content keeping only logo, title, and footer
-    $('.form-grid, .survey-section, .recommendation-section, .comments-section').hide();
-    $('.form-footer').hide();
-    
-    // Show thank you message
-    $('.thank-you-message').addClass('show').css('display', 'flex');
-    
-    // Create and show a simple footer if needed
-    if ($('.survey-footer').length === 0) {
-        $('<div class="survey-footer mt-5 text-center font-theme">').html(`
-            <p class="text-muted small">© ${new Date().getFullYear()} ${$('.survey-title').text()}. All rights reserved.</p>
-        `).insertAfter('.thank-you-message');
-    }
-}
-
-// Function to update response summary
+// Function to update response summary - Available for both customer and surveyor modes
 function updateResponseSummary(data) {
     $('#summary-account-name').text(data.account_name);
     $('#summary-account-type').text(data.account_type);
@@ -1751,6 +2051,27 @@ function updateResponseSummary(data) {
         } else {
             improvementDetailsContainer.html('<p class="text-muted">No improvement areas selected.</p>');
         }
+    }
+}
+
+@if($isCustomerMode)
+/**
+ * Display thank you message and hide all form content
+ * Dedicated function to ensure consistent behavior across the application
+ */
+function displayThankYouMessage() {
+    // Hide form content keeping only logo, title, and footer
+    $('.form-grid, .survey-section, .recommendation-section, .comments-section').hide();
+    $('.form-footer').hide();
+    
+    // Show thank you message
+    $('.thank-you-message').addClass('show').css('display', 'flex');
+    
+    // Create and show a simple footer if needed
+    if ($('.survey-footer').length === 0) {
+        $('<div class="survey-footer mt-5 text-center font-theme">').html(`
+            <p class="text-muted small">© ${new Date().getFullYear()} ${$('.survey-title').text()}. All rights reserved.</p>
+        `).insertAfter('.thank-you-message');
     }
 }
 @endif
