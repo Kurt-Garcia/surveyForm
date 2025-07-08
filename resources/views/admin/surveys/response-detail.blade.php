@@ -396,7 +396,12 @@ function printWithPrintJS() {
         const responses = document.querySelectorAll('.response-item');
         const questionsArray = Array.from(responses).filter(item => 
             !item.querySelector('label').textContent.includes('Recommendation Score') && 
-            !item.querySelector('label').textContent.includes('Additional Comments')
+            !item.querySelector('label').textContent.includes('Areas for Improvement')
+        );
+        
+        // Get improvement areas separately
+        const improvementAreasItem = Array.from(responses).find(item => 
+            item.querySelector('label').textContent.includes('Areas for Improvement')
         );
     
     // Get actual values from the page
@@ -462,19 +467,78 @@ function printWithPrintJS() {
         </div>
     `;
     
-    // Create footer content (Recommendation Score + Comments) - More compact version
-    const footerContent = `
-        <div style="border: 1px solid #ddd; padding: 8px; background-color: #f9f9f9; margin-top: 10px;">
-            <div style="margin-bottom: 8px;">
-                <div style="font-size: 8pt; color: #666; margin-bottom: 2px;">Recommendation Score</div>
-                <div style="font-size: 10pt; font-weight: bold;">${recommendation} / 10</div>
+    // Footer content removed - recommendation score moved to improvement areas section
+    const footerContent = ``;
+    
+    // Process improvement areas for print
+    let improvementAreasHTML = '';
+    if (improvementAreasItem) {
+        // Extract improvement areas content more carefully
+        const improvementContent = improvementAreasItem.querySelector('div:last-child');
+        let improvementText = '';
+        
+        if (improvementContent) {
+            // Get all category headers (h6 elements) and their content
+            const categories = improvementContent.querySelectorAll('h6');
+            const lists = improvementContent.querySelectorAll('ul');
+            const comments = improvementContent.querySelectorAll('div.ps-3');
+            
+            let categoriesHTML = '';
+            
+            // Process each category
+            categories.forEach((category, index) => {
+                categoriesHTML += `<div style="margin-bottom: 8px;">`;
+                categoriesHTML += `<div style="font-size: 9pt; font-weight: bold; margin-bottom: 4px;">${category.textContent}</div>`;
+                
+                // Add list items if they exist
+                if (lists[index]) {
+                    const listItems = lists[index].querySelectorAll('li');
+                    if (listItems.length > 0) {
+                        categoriesHTML += `<ul style="margin: 0; padding-left: 15px; font-size: 8pt;">`;
+                        listItems.forEach(item => {
+                            categoriesHTML += `<li style="margin-bottom: 2px;">${item.textContent}</li>`;
+                        });
+                        categoriesHTML += `</ul>`;
+                    }
+                }
+                
+                categoriesHTML += `</div>`;
+            });
+            
+            // Add other comments if they exist
+            comments.forEach(comment => {
+                const commentText = comment.textContent.trim();
+                if (commentText) {
+                    categoriesHTML += `<div style="margin-bottom: 8px; padding-left: 10px; border-left: 2px solid #007bff; font-size: 8pt;">${commentText}</div>`;
+                }
+            });
+            
+            // If no categories found, try to get the whole content
+            if (categoriesHTML === '') {
+                const fallbackContent = improvementContent.textContent.trim();
+                if (fallbackContent && fallbackContent !== 'None provided') {
+                    categoriesHTML = `<div style="font-size: 9pt;">${fallbackContent}</div>`;
+                } else {
+                    categoriesHTML = `<div style="font-size: 9pt;">None provided</div>`;
+                }
+            }
+            
+            improvementText = categoriesHTML;
+        } else {
+            improvementText = '<div style="font-size: 9pt;">None provided</div>';
+        }
+        
+        improvementAreasHTML = `
+            <div style="border: 1px solid #ddd; padding: 8px; background-color: #f9f9f9; margin-top: 10px;">
+                <div style="margin-top: 1px; padding-top: 8px; border-bottom: 1px solid #ddd;">
+                    <div style="font-size: 8pt; color: #666; margin-bottom: 2px;">Recommendation Score</div>
+                    <div style="font-size: 10pt; font-weight: bold;">${recommendation} / 10</div>
+                </div>
+                <div style="font-size: 8pt; color: #666; margin-bottom: 4px; margin-top: 20px;">Areas for Improvement</div>
+                <div>${improvementText}</div>
             </div>
-            <div>
-                <div style="font-size: 8pt; color: #666; margin-bottom: 2px;">Additional Comments</div>
-                <div style="font-size: 10pt; font-weight: bold; word-wrap: break-word;">${comments}</div>
-            </div>
-        </div>
-    `;
+        `;
+    }
     
     // Create pages with 5 questions each
     const questionsPerPage = 5;
@@ -518,7 +582,6 @@ function printWithPrintJS() {
                 questionLabel = 'Question Label';
                 questionText = 'Question Text';
             }
-            
             // Get response content based on type
             let responseHTML = '';
             const responseDiv = questionClone.querySelector('div:last-child');
@@ -550,7 +613,7 @@ function printWithPrintJS() {
                             const anySpan = responseDiv.querySelector('span');
                             selectedValue = anySpan ? anySpan.textContent.trim() : '';
                         }
-                        
+                            
                         // Extract the number from "X / 5" format or just use the number if it's only a number
                         if (typeof selectedValue === 'string' && selectedValue.includes('/')) {
                             selectedNumber = parseInt(selectedValue.split('/')[0].trim()) || 0;
@@ -671,11 +734,11 @@ function printWithPrintJS() {
         
         printHTML += '</div>'; // Close questions-content
         
-        // Add footer only on the last page - stick to bottom with flexbox
+        // Add footer only on the last page - only improvement areas now
         if (isLastPage) {
             // Add flexible spacer to push footer to bottom - ensure proper spacing
             printHTML += '<div style="flex: 1 1 auto;"></div>';
-            printHTML += footerContent;
+            printHTML += improvementAreasHTML;
         }
         
         printHTML += '</div>'; // Close print-page
@@ -765,7 +828,12 @@ function generatePDF() {
     const responses = document.querySelectorAll('.response-item');
     const questionsArray = Array.from(responses).filter(item => 
         !item.querySelector('label').textContent.includes('Recommendation Score') && 
-        !item.querySelector('label').textContent.includes('Additional Comments')
+        !item.querySelector('label').textContent.includes('Areas for Improvement')
+    );
+    
+    // Get improvement areas separately
+    const improvementAreasItem = Array.from(responses).find(item => 
+        item.querySelector('label').textContent.includes('Areas for Improvement')
     );
     
     // Get actual values from the page
@@ -847,19 +915,78 @@ function generatePDF() {
         </div>
     `;
     
-    // Create footer content (Recommendation Score + Comments)
-    const footerContent = `
-        <div style="border: 1px solid #ddd; padding: 8px; background-color: #f9f9f9; margin-top: auto; font-size: 8pt; page-break-inside: avoid;">
-            <div style="margin-bottom: 6px;">
-                <div style="font-size: 7pt; color: #666; margin-bottom: 2px;">Recommendation Score</div>
-                <div style="font-size: 9pt; font-weight: bold;">${recommendation} / 10</div>
+    // Footer content removed - recommendation score moved to improvement areas section
+    const footerContent = ``;
+    
+    // Process improvement areas for PDF
+    let improvementAreasHTML = '';
+    if (improvementAreasItem) {
+        // Extract improvement areas content more carefully
+        const improvementContent = improvementAreasItem.querySelector('div:last-child');
+        let improvementText = '';
+        
+        if (improvementContent) {
+            // Get all category headers (h6 elements) and their content
+            const categories = improvementContent.querySelectorAll('h6');
+            const lists = improvementContent.querySelectorAll('ul');
+            const comments = improvementContent.querySelectorAll('div.ps-3');
+            
+            let categoriesHTML = '';
+            
+            // Process each category
+            categories.forEach((category, index) => {
+                categoriesHTML += `<div style="margin-bottom: 6px;">`;
+                categoriesHTML += `<div style="font-size: 8pt; font-weight: bold; margin-bottom: 3px;">${category.textContent}</div>`;
+                
+                // Add list items if they exist
+                if (lists[index]) {
+                    const listItems = lists[index].querySelectorAll('li');
+                    if (listItems.length > 0) {
+                        categoriesHTML += `<ul style="margin: 0; padding-left: 12px; font-size: 7pt;">`;
+                        listItems.forEach(item => {
+                            categoriesHTML += `<li style="margin-bottom: 1px;">${item.textContent}</li>`;
+                        });
+                        categoriesHTML += `</ul>`;
+                    }
+                }
+                
+                categoriesHTML += `</div>`;
+            });
+            
+            // Add other comments if they exist
+            comments.forEach(comment => {
+                const commentText = comment.textContent.trim();
+                if (commentText) {
+                    categoriesHTML += `<div style="margin-bottom: 6px; padding-left: 8px; border-left: 2px solid #007bff; font-size: 7pt;">${commentText}</div>`;
+                }
+            });
+            
+            // If no categories found, try to get the whole content
+            if (categoriesHTML === '') {
+                const fallbackContent = improvementContent.textContent.trim();
+                if (fallbackContent && fallbackContent !== 'None provided') {
+                    categoriesHTML = `<div style="font-size: 8pt;">${fallbackContent}</div>`;
+                } else {
+                    categoriesHTML = `<div style="font-size: 8pt;">None provided</div>`;
+                }
+            }
+            
+            improvementText = categoriesHTML;
+        } else {
+            improvementText = '<div style="font-size: 8pt;">None provided</div>';
+        }
+        
+        improvementAreasHTML = `
+            <div style="border: 1px solid #ddd; padding: 8px; background-color: #f9f9f9; margin-top: 10px; font-size: 8pt; page-break-inside: avoid;">
+                <div style="margin-top: 1px; padding-top: 8px; border-bottom: 1px solid #ddd;">
+                    <div style="font-size: 7pt; color: #666; margin-bottom: 2px;">Recommendation Score</div>
+                    <div style="font-size: 9pt; font-weight: bold;">${recommendation} / 10</div>
+                </div>
+                <div style="font-size: 7pt; color: #666; margin-bottom: 3px; margin-top: 20px;">Areas for Improvement</div>
+                <div>${improvementText}</div>
             </div>
-            <div>
-                <div style="font-size: 7pt; color: #666; margin-bottom: 2px;">Additional Comments</div>
-                <div style="font-size: 9pt; font-weight: bold; word-wrap: break-word;">${comments}</div>
-            </div>
-        </div>
-    `;
+        `;
+    }
     
     // Create pages with 5 questions each
     const questionsPerPage = 5;
@@ -1073,10 +1200,10 @@ function generatePDF() {
         
         pdfHTML += '</div>'; // Close questions-content
         
-        // Add footer only on the last page
+        // Add footer only on the last page - only improvement areas now
         if (isLastPage) {
             pdfHTML += '<div style="flex: 1; min-height: 30px;"></div>';
-            pdfHTML += footerContent;
+            pdfHTML += improvementAreasHTML;
         }
         
         pdfHTML += '</div>'; // Close pdf-page
