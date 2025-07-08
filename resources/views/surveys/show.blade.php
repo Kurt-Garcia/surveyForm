@@ -536,6 +536,32 @@
         opacity: 0.5;
     }
     
+    /* Error styling for improvement areas */
+    .improvement-category.has-error {
+        background-color: rgba(220, 53, 69, 0.1);
+        border: 2px solid #dc3545;
+    }
+    
+    .improvement-category.has-error .form-check-input.error {
+        border-color: #dc3545;
+    }
+    
+    .improvement-category.has-error textarea.error {
+        border-color: #dc3545;
+    }
+    
+    /* Error styling for improvement areas container */
+    .improvement-areas.has-error {
+        border: 2px solid #dc3545;
+        border-radius: 8px;
+        padding: 15px;
+        background-color: rgba(220, 53, 69, 0.05);
+    }
+    
+    .improvement-areas.has-error .improvement-category {
+        border-color: #dc3545;
+    }
+    
     #summary-improvement-details .list-group-item {
         border-left: 3px solid var(--primary-color);
     }
@@ -714,6 +740,9 @@
                 <h2 class="section-title {{ $isCustomerMode ? 'font-theme-heading' : '' }}">Areas for Improvement Suggestions</h2>
                 <p class="mb-3 {{ $isCustomerMode ? 'font-theme' : '' }}">Select all that apply:</p>
                 
+                <!-- Error message container for improvement areas -->
+                <div id="improvement_areas_error" class="validation-message mb-2"></div>
+                
                 <div class="improvement-areas mb-4 {{ $isCustomerMode ? 'font-theme' : '' }}">
                     <!-- Product/Service Quality -->
                     <div class="improvement-category mb-3">
@@ -743,6 +772,7 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="validation-message" id="product_quality_error"></div>
                     </div>
                     
                     <!-- Delivery & Logistics -->
@@ -767,6 +797,7 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="validation-message" id="delivery_logistics_error"></div>
                     </div>
                     
                     <!-- Sales & Customer Service -->
@@ -791,6 +822,7 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="validation-message" id="customer_service_error"></div>
                     </div>
                     
                     <!-- Timeliness -->
@@ -809,6 +841,7 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="validation-message" id="timeliness_error"></div>
                     </div>
                     
                     <!-- Returns / BO Handling -->
@@ -833,6 +866,7 @@
                                 </label>
                             </div>
                         </div>
+                        <div class="validation-message" id="returns_handling_error"></div>
                     </div>
                     
                     <!-- Others -->
@@ -846,6 +880,7 @@
                         <div class="ms-4 mt-2">
                             <textarea class="modern-textarea {{ $isCustomerMode ? 'font-theme' : '' }}" name="other_comments" rows="3" placeholder="Please specify other areas for improvement..." maxlength="200"></textarea>
                         </div>
+                        <div class="validation-message" id="others_error"></div>
                     </div>
                 </div>
             </div>
@@ -1117,16 +1152,34 @@ $(document).ready(function() {
     $('input[name="improvement_areas[]"]').on('change', function() {
         const categoryId = $(this).attr('id');
         const isChecked = $(this).prop('checked');
+        const categoryContainer = $(this).closest('.improvement-category');
         
         // Find all detail checkboxes under this category
-        const detailsContainer = $(this).closest('.improvement-category').find('.ms-4');
+        const detailsContainer = categoryContainer.find('.ms-4');
         
         // Enable/disable child checkboxes based on parent state
         detailsContainer.find('input[type="checkbox"]').prop('disabled', !isChecked);
         
-        // If unchecking the parent, also uncheck all children
+        // If unchecking the parent, also uncheck all children and clear errors
         if (!isChecked) {
             detailsContainer.find('input[type="checkbox"]').prop('checked', false);
+            // Clear validation errors when unchecking category
+            categoryContainer.removeClass('has-error');
+            categoryContainer.find('input[name="improvement_details[]"]').removeClass('error');
+            categoryContainer.find('textarea').removeClass('error');
+            $(`#${categoryId}_error`).text('').removeClass('text-danger');
+        }
+        
+        // Check if at least one improvement area is selected to clear the main error
+        const improvementAreasChecked = $('input[name="improvement_areas[]"]:checked').length;
+        if (improvementAreasChecked > 0) {
+            $('.improvement-areas').removeClass('has-error');
+            $('#improvement_areas_error').text('').removeClass('text-danger');
+            
+            // Check if all required fields are filled to hide the validation alert
+            if ($('.error, .has-error').length === 0) {
+                $('#validationAlertContainer').addClass('d-none');
+            }
         }
         
         // Special handling for "Others" text area
@@ -1318,6 +1371,9 @@ $(document).ready(function() {
         $('.modern-input, .modern-select, .modern-textarea, .modern-rating-group, .modern-star-rating').removeClass('error');
         @endif
         $('.question-card').removeClass('has-error');
+        $('.improvement-category').removeClass('has-error');
+        $('.improvement-areas').removeClass('has-error');
+        $('[id$="_error"]').text('').removeClass('text-danger');
         
         // Validate account name
         if (!$('#account_name').val().trim()) {
@@ -1390,6 +1446,48 @@ $(document).ready(function() {
             $('#recommendation_error').text('Recommendation is required').addClass('text-danger');
             errorList.push('Recommendation is required');
         }
+
+        // Validate that at least one improvement area is selected
+        const improvementAreasChecked = $('input[name="improvement_areas[]"]:checked').length;
+        if (improvementAreasChecked === 0) {
+            isValid = false;
+            $('.improvement-areas').addClass('has-error');
+            $('#improvement_areas_error').text('Please select at least one area for improvement').addClass('text-danger');
+            errorList.push('Please select at least one area for improvement');
+        } else {
+            $('.improvement-areas').removeClass('has-error');
+            $('#improvement_areas_error').text('').removeClass('text-danger');
+        }
+
+        // Validate improvement areas - if category is checked, at least one detail must be selected
+        $('input[name="improvement_areas[]"]:checked').each(function() {
+            const categoryId = $(this).attr('id');
+            const categoryLabel = $(this).next('label').text().trim();
+            const categoryContainer = $(this).closest('.improvement-category');
+            
+            // Skip validation for "others" category as it has a textarea instead of checkboxes
+            if (categoryId === 'others') {
+                const otherComments = categoryContainer.find('textarea[name="other_comments"]').val().trim();
+                if (!otherComments) {
+                    isValid = false;
+                    categoryContainer.addClass('has-error');
+                    categoryContainer.find('textarea[name="other_comments"]').addClass('error');
+                    $(`#${categoryId}_error`).text('Please specify details for this category').addClass('text-danger');
+                    errorList.push(`Please specify details for "${categoryLabel}"`);
+                }
+                return;
+            }
+            
+            // For other categories, check if at least one detail is selected
+            const detailsChecked = categoryContainer.find('input[name="improvement_details[]"]:checked').length;
+            if (detailsChecked === 0) {
+                isValid = false;
+                categoryContainer.addClass('has-error');
+                categoryContainer.find('input[name="improvement_details[]"]').addClass('error');
+                $(`#${categoryId}_error`).text('Please select at least one detail for this category').addClass('text-danger');
+                errorList.push(`Please select at least one detail for "${categoryLabel}"`);
+            }
+        });
         
         // Show validation errors summary if any
         if (!isValid) {
@@ -1452,6 +1550,38 @@ $(document).ready(function() {
             $(this).removeClass('error');
             $(this).parent().removeClass('has-error');
             $('#recommendation_error').text('');
+            
+            // Check if all required fields are filled to hide the validation alert
+            if ($('.error, .has-error').length === 0) {
+                $('#validationAlertContainer').addClass('d-none');
+            }
+        }
+    });
+
+    // Live validation for improvement areas
+    $('input[name="improvement_details[]"], textarea[name="other_comments"]').on('change input', function() {
+        const categoryContainer = $(this).closest('.improvement-category');
+        const categoryCheckbox = categoryContainer.find('input[name="improvement_areas[]"]');
+        const categoryId = categoryCheckbox.attr('id');
+        
+        if (categoryCheckbox.is(':checked')) {
+            // For "others" category, check if textarea has content
+            if (categoryId === 'others') {
+                const otherComments = categoryContainer.find('textarea[name="other_comments"]').val().trim();
+                if (otherComments) {
+                    categoryContainer.removeClass('has-error');
+                    categoryContainer.find('textarea[name="other_comments"]').removeClass('error');
+                    $(`#${categoryId}_error`).text('').removeClass('text-danger');
+                }
+            } else {
+                // For other categories, check if at least one detail is selected
+                const detailsChecked = categoryContainer.find('input[name="improvement_details[]"]:checked').length;
+                if (detailsChecked > 0) {
+                    categoryContainer.removeClass('has-error');
+                    categoryContainer.find('input[name="improvement_details[]"]').removeClass('error');
+                    $(`#${categoryId}_error`).text('').removeClass('text-danger');
+                }
+            }
             
             // Check if all required fields are filled to hide the validation alert
             if ($('.error, .has-error').length === 0) {
@@ -1660,7 +1790,7 @@ $(document).ready(function() {
                         text: "Your survey has been successfully submitted.",
                         icon: "success"
                     });
-                    
+                       
                     $('#successMessage').removeClass('d-none');
                     $('#errorMessage').addClass('d-none');
                     
@@ -1684,7 +1814,7 @@ $(document).ready(function() {
                             surveyData.responses[questionId] = rating;
                         }
                     });
-                    
+                      
                     // Collect improvement areas
                     $('input[name="improvement_areas[]"]:checked').each(function() {
                         surveyData.improvementAreas.push($(this).val());
