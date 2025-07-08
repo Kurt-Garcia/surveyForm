@@ -741,133 +741,84 @@
             return;
         }
         
-        swalWithBootstrapButtons.fire({
-            title: "Create Bulk Questions?",
-            text: `Are you sure you want to create ${count} questions with ${type === 'radio' ? 'Radio Button' : 'Star Rating'} type${required ? ' (all required)' : ''}?`,
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonText: `Yes, create ${count} questions!`,
-            cancelButtonText: "No, cancel!",
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const container = document.getElementById('questions-container');
-                let startIndex = container.children.length;
-                let questionsCreated = 0;
-                
-                // Create questions with staggered animation
-                for (let i = 0; i < count; i++) {
-                    setTimeout(() => {
-                        const questionIndex = startIndex + i;
-                        const questionDiv = document.createElement('div');
-                        questionDiv.className = 'card shadow-sm mb-3 question-card bulk-created';
-                        questionDiv.style.opacity = '0';
-                        questionDiv.style.transform = 'translateY(20px)';
-                        
-                        const typeDisplayName = type === 'radio' ? 'Radio Button' : 'Star Rating';
-                        
-                        questionDiv.innerHTML = `
-                            <div class="card-body p-4">
-                                <div class="row align-items-center">
-                                    <div class="col-md-8">
-                                        <h5 class="mb-3">
-                                            Question ${questionIndex + 1}
-                                            <span class="badge bg-success ms-2 fs-6">
-                                                <i class="fas fa-bolt me-1"></i>Bulk Created
-                                            </span>
-                                        </h5>
-                                        <div class="position-relative">
-                                            <input type="text" class="form-control form-control-lg mb-3 question-text-input" 
-                                                name="questions[${questionIndex}][text]" 
-                                                placeholder="Enter your question here" required
-                                                data-question-index="${questionIndex}">
-                                            <div class="question-validation-spinner position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
-                                                <div class="spinner-border spinner-border-sm text-warning" role="status">
-                                                    <span class="visually-hidden">Checking...</span>
-                                                </div>
-                                            </div>
-                                            <div class="question-validation-icon position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
-                                                <i class="fas fa-check text-success"></i>
-                                            </div>
-                                        </div>
-                                        <div class="question-validation-message" style="display: none; margin-top: -0.75rem; margin-bottom: 0.75rem;"></div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <select class="form-select form-select-lg mb-3" 
-                                                    name="questions[${questionIndex}][type]" required>
-                                                    <option value="" disabled>Select answer type</option>
-                                                    <option value="radio" ${type === 'radio' ? 'selected' : ''}>Radio Button</option>
-                                                    <option value="star" ${type === 'star' ? 'selected' : ''}>Star Rating</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-check form-switch">
-                                                    <input type="hidden" name="questions[${questionIndex}][required]" value="0">
-                                                    <input class="form-check-input" type="checkbox" 
-                                                        id="required${questionIndex}"
-                                                        name="questions[${questionIndex}][required]"
-                                                        value="1" ${required ? 'checked' : ''}>
-                                                    <label class="form-check-label" for="required${questionIndex}">
-                                                        Required Question
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
+        const container = document.getElementById('questions-container');
+        let startIndex = container.children.length;
+        
+        // Create questions immediately without animation
+        for (let i = 0; i < count; i++) {
+            const questionIndex = startIndex + i;
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'card shadow-sm mb-3 question-card';
+            
+            const typeDisplayName = type === 'radio' ? 'Radio Button' : 'Star Rating';
+            
+            questionDiv.innerHTML = `
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="mb-3">Question ${questionIndex + 1}</h5>
+                            <div class="position-relative">
+                                <input type="text" class="form-control form-control-lg mb-3 question-text-input" 
+                                    name="questions[${questionIndex}][text]" 
+                                    placeholder="Enter your question here" required
+                                    data-question-index="${questionIndex}">
+                                <div class="question-validation-spinner position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                    <div class="spinner-border spinner-border-sm text-warning" role="status">
+                                        <span class="visually-hidden">Checking...</span>
                                     </div>
-                                    <div class="col-md-4 text-end">
-                                        <button type="button" class="btn btn-outline-danger btn-lg" 
-                                            onclick="removeQuestion(this)">
-                                            <i class="fas fa-trash-alt me-2"></i>Remove
-                                        </button>
+                                </div>
+                                <div class="question-validation-icon position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                    <i class="fas fa-check text-success"></i>
+                                </div>
+                            </div>
+                            <div class="question-validation-message" style="display: none; margin-top: -0.75rem; margin-bottom: 0.75rem;"></div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <select class="form-select form-select-lg mb-3" 
+                                        name="questions[${questionIndex}][type]" required>
+                                        <option value="" disabled ${type ? '' : 'selected'}>Select answer type</option>
+                                        <option value="radio" ${type === 'radio' ? 'selected' : ''}>Radio Button</option>
+                                        <option value="star" ${type === 'star' ? 'selected' : ''}>Star Rating</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input type="hidden" name="questions[${questionIndex}][required]" value="0">
+                                        <input class="form-check-input" type="checkbox" 
+                                            id="required${questionIndex}"
+                                            name="questions[${questionIndex}][required]"
+                                            value="1" ${required ? 'checked' : ''}>
+                                        <label class="form-check-label" for="required${questionIndex}">
+                                            Required Question
+                                        </label>
                                     </div>
                                 </div>
                             </div>
-                        `;
-                        
-                        container.appendChild(questionDiv);
-                        
-                        // Animate the question into view
-                        setTimeout(() => {
-                            questionDiv.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-                            questionDiv.style.opacity = '1';
-                            questionDiv.style.transform = 'translateY(0)';
-                            
-                            // Add real-time validation for the new question
-                            const questionInput = questionDiv.querySelector('.question-text-input');
-                            addQuestionValidation(questionInput);
-                        }, 50);
-                        
-                        questionsCreated++;
-                        
-                        // Show success message when all questions are created
-                        if (questionsCreated === count) {
-                            setTimeout(() => {
-                                swalWithBootstrapButtons.fire({
-                                    title: "Success!",
-                                    text: `Successfully created ${count} questions with ${typeDisplayName} type.`,
-                                    icon: "success",
-                                    timer: 2000,
-                                    timerProgressBar: true
-                                });
-                                
-                                // Remove bulk-created badges and styling after 3 seconds
-                                setTimeout(() => {
-                                    document.querySelectorAll('.bulk-created .badge').forEach(badge => {
-                                        badge.style.opacity = '0';
-                                        badge.style.transform = 'scale(0)';
-                                        setTimeout(() => badge.remove(), 300);
-                                    });
-                                    document.querySelectorAll('.bulk-created').forEach(card => {
-                                        card.classList.remove('bulk-created');
-                                        card.style.border = '';
-                                        card.style.boxShadow = '';
-                                    });
-                                }, 3000);
-                            }, 300);
-                        }
-                    }, i * 150); // Stagger the creation by 150ms each
-                }
-            }
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button type="button" class="btn btn-outline-danger btn-lg" 
+                                onclick="removeQuestion(this)">
+                                <i class="fas fa-trash-alt me-2"></i>Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(questionDiv);
+            
+            // Add real-time validation for the new question
+            const questionInput = questionDiv.querySelector('.question-text-input');
+            addQuestionValidation(questionInput);
+        }
+        
+        // Show success message
+        swalWithBootstrapButtons.fire({
+            title: "Questions Created!",
+            text: `Successfully created ${count} questions with ${typeDisplayName} type.`,
+            icon: "success",
+            timer: 2000,
+            showConfirmButton: false
         });
     }
     
