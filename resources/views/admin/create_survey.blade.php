@@ -173,7 +173,7 @@
                         </div>
 
                         <div class="form-group row mb-4">
-                            <label for="department_logo" class="col-md-3 col-form-label">{{ __('Department Logo') }}</label>
+                            <label for="department_logo" class="col-md-3 col-form-label">{{ __('Department Logo (Optional)') }}</label>
                             <div class="col-md-9">
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="department-logo-preview-container" style="display: none;">

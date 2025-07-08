@@ -222,6 +222,47 @@ class SurveyController extends Controller
         }
     }
 
+    public function updateDepartmentLogo(Request $request, Survey $survey)
+    {
+        // Ensure the authenticated admin owns this survey
+        if ($survey->admin_id !== Auth::guard('admin')->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($request->has('remove_department_logo')) {
+            // Remove existing department logo if it exists
+            if ($survey->department_logo) {
+                Storage::disk('public')->delete($survey->department_logo);
+                $survey->update(['department_logo' => null]);
+            }
+            return redirect()->back()->with('success', 'Department logo removed successfully!');
+        }
+
+        $request->validate([
+            'department_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        try {
+            // Update department logo if provided
+            if ($request->hasFile('department_logo')) {
+                // Remove old department logo if exists
+                if ($survey->department_logo) {
+                    Storage::disk('public')->delete($survey->department_logo);
+                }
+
+                // Store new department logo
+                $departmentLogoPath = $request->file('department_logo')->store('survey-logos', 'public');
+                $survey->update(['department_logo' => $departmentLogoPath]);
+                
+                return redirect()->back()->with('success', 'Department logo updated successfully!');
+            }
+
+            return redirect()->back()->with('error', 'Please select a department logo file to upload.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to update department logo. Please try again.');
+        }
+    }
+
     public function update(Request $request, Survey $survey)
     {
         // Ensure the authenticated admin owns this survey

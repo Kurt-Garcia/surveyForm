@@ -987,10 +987,6 @@
                     <div class="header-logo-right">
                         @if($survey->department_logo)
                         <img src="{{ asset('storage/' . $survey->department_logo) }}" alt="Department Logo" class="header-logo">
-                        @elseif($survey->logo)
-                        <img src="{{ asset('storage/' . $survey->logo) }}" alt="{{ $survey->title }} Logo" class="header-logo">
-                        @else
-                        <img src="{{ asset('img/logo.JPG') }}" alt="Default Logo" class="header-logo">
                         @endif
                     </div>
                 </div>

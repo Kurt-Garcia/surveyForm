@@ -88,6 +88,45 @@
                         </form>
                     </div>
 
+                    <!-- Department Logo Section -->
+                    <div class="mb-4 pb-4 border-bottom">
+                        <h4 class="fw-bold mb-3">Department Logo</h4>
+                        <form action="{{ route('admin.surveys.update-department-logo', $survey) }}" method="POST" enctype="multipart/form-data" class="d-flex align-items-start gap-4">
+                            @csrf
+                            @method('PATCH')
+                            
+                            <div class="logo-preview-container bg-light rounded p-3" style="width: 150px; height: 150px;">
+                                @if($survey->department_logo)
+                                    <img id="departmentLogoPreview" src="{{ asset('storage/' . $survey->department_logo) }}" alt="Department Logo" class="img-fluid" style="width: 100%; height: 100%; object-fit: contain;">
+                                @else
+                                    <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                                        <i class="bi bi-building display-4"></i>
+                                    </div>
+                                @endif
+                            </div>
+                            
+                            <div class="flex-grow-1">
+                                <div class="mb-3">
+                                    <input type="file" class="form-control @error('department_logo') is-invalid @enderror" id="department_logo" name="department_logo" accept="image/*">
+                                    <small class="text-muted d-block mt-1">Recommended size: 200x200px. Max file size: 2MB</small>
+                                    @error('department_logo')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="d-flex flex-column flex-sm-row gap-2 w-100 logo-btn-group">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-cloud-upload me-2"></i>Update Department Logo
+                                    </button>
+                                    @if($survey->department_logo)
+                                        <button type="submit" name="remove_department_logo" value="1" class="btn btn-outline-danger ms-0 ms-sm-2 mt-2 mt-sm-0">
+                                            <i class="bi bi-trash me-2"></i>Remove Department Logo
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
                     <!-- SBU and Site Edit Section -->
                     <div class="mb-4 pb-4 border-bottom">
                         <h4 class="fw-bold mb-3">Deployment Settings</h4>
@@ -882,6 +921,53 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    
+    // Handle Remove Department Logo button
+    const removeDepartmentLogoButton = document.querySelector('button[name="remove_department_logo"]');
+    if (removeDepartmentLogoButton) {
+        removeDepartmentLogoButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            const form = e.target.closest('form');
+            
+            swalWithBootstrapButtons.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this! This will remove the department logo.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, remove it!",
+                cancelButtonText: "No, cancel!",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Create a hidden input for remove_department_logo
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'remove_department_logo';
+                    hiddenInput.value = '1';
+                    form.appendChild(hiddenInput);
+                    
+                    // Clear the file input
+                    document.getElementById('department_logo').value = '';
+                    
+                    // Submit the form
+                    form.submit();
+                    
+                    // Show success message
+                    swalWithBootstrapButtons.fire({
+                        title: "Removed!",
+                        text: "Your department logo has been removed.",
+                        icon: "success"
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    swalWithBootstrapButtons.fire({
+                        title: "Cancelled",
+                        text: "Your department logo is safe :)",
+                        icon: "error"
+                    });
+                }
+            });
+        });
+    }
 });
 
 // Logo preview functionality
@@ -913,6 +999,91 @@ document.getElementById('logo').addEventListener('change', function(e) {
             if (!preview) {
                 const img = document.createElement('img');
                 img.id = 'logoPreview';
+                img.className = 'img-fluid';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'contain';
+                container.appendChild(img);
+            }
+            preview.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+// Department Logo preview functionality
+document.getElementById('department_logo').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        if (file.size > 2 * 1024 * 1024) { // 2MB limit
+            Swal.fire({
+                title: "File too large",
+                text: "File size must be less than 2MB",
+                icon: "error"
+            });
+            this.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('departmentLogoPreview');
+            const containers = document.querySelectorAll('.logo-preview-container');
+            const container = containers[1]; // Second container is for department logo
+            
+            // Remove placeholder if exists
+            const placeholder = container.querySelector('.d-flex');
+            if (placeholder) {
+                placeholder.remove();
+            }
+            
+            // Create or update preview image
+            if (!preview) {
+                const img = document.createElement('img');
+                img.id = 'departmentLogoPreview';
+                img.className = 'img-fluid';
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'contain';
+                img.alt = 'Department Logo';
+                container.appendChild(img);
+            } else {
+                preview.src = e.target.result;
+            }
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+// Department Logo preview functionality
+document.getElementById('department_logo').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        if (file.size > 2 * 1024 * 1024) { // 2MB limit
+            Swal.fire({
+                title: "File too large",
+                text: "File size must be less than 2MB",
+                icon: "error"
+            });
+            this.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('departmentLogoPreview');
+            const container = document.querySelector('.logo-preview-container');
+            
+            // Remove placeholder if exists
+            const placeholder = container.querySelector('.d-flex');
+            if (placeholder) {
+                placeholder.remove();
+            }
+            
+            // Create or update preview image
+            if (!preview) {
+                const img = document.createElement('img');
+                img.id = 'departmentLogoPreview';
                 img.className = 'img-fluid';
                 img.style.width = '100%';
                 img.style.height = '100%';

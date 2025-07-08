@@ -164,6 +164,9 @@ Route::prefix('admin')->group(function () {
         // Survey logo update route
         Route::patch('surveys/{survey}/update-logo', [\App\Http\Controllers\Admin\SurveyController::class, 'updateLogo'])
             ->name('admin.surveys.update-logo');
+        // Survey department logo update route
+        Route::patch('surveys/{survey}/update-department-logo', [\App\Http\Controllers\Admin\SurveyController::class, 'updateDepartmentLogo'])
+            ->name('admin.surveys.update-department-logo');
         // Survey deployment settings update route
         Route::patch('surveys/{survey}/update-deployment', [\App\Http\Controllers\Admin\SurveyController::class, 'updateDeployment'])
             ->name('admin.surveys.update-deployment');
