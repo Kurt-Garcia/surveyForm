@@ -494,7 +494,7 @@ function printWithPrintJS() {
                 if (lists[index]) {
                     const listItems = lists[index].querySelectorAll('li');
                     if (listItems.length > 0) {
-                        categoriesHTML += `<ul style="margin: 0; padding-left: 15px; font-size: 8pt;">`;
+                        categoriesHTML += `<ul style="margin: 0; padding-left: 15px; font-size: 9pt;">`;
                         listItems.forEach(item => {
                             categoriesHTML += `<li style="margin-bottom: 2px;">${item.textContent}</li>`;
                         });
@@ -509,7 +509,7 @@ function printWithPrintJS() {
             comments.forEach(comment => {
                 const commentText = comment.textContent.trim();
                 if (commentText) {
-                    categoriesHTML += `<div style="margin-bottom: 8px; padding-left: 10px; border-left: 2px solid #007bff; font-size: 8pt;">${commentText}</div>`;
+                    categoriesHTML += `<div style="margin-bottom: 8px; padding-left: 10px; border-left: 2px solid #007bff; font-size: 9pt;">${commentText}</div>`;
                 }
             });
             
@@ -933,7 +933,7 @@ function generatePDF() {
                 if (lists[index]) {
                     const listItems = lists[index].querySelectorAll('li');
                     if (listItems.length > 0) {
-                        categoriesHTML += `<ul style="margin: 0; padding-left: 12px; font-size: 7pt;">`;
+                        categoriesHTML += `<ul style="margin: 0; padding-left: 12px; font-size: 8pt;">`;
                         listItems.forEach(item => {
                             categoriesHTML += `<li style="margin-bottom: 1px;">${item.textContent}</li>`;
                         });
@@ -948,7 +948,7 @@ function generatePDF() {
             comments.forEach(comment => {
                 const commentText = comment.textContent.trim();
                 if (commentText) {
-                    categoriesHTML += `<div style="margin-bottom: 6px; padding-left: 8px; border-left: 2px solid #007bff; font-size: 7pt;">${commentText}</div>`;
+                    categoriesHTML += `<div style="margin-bottom: 6px; padding-left: 8px; border-left: 2px solid #007bff; font-size: 8pt;">${commentText}</div>`;
                 }
             });
             
