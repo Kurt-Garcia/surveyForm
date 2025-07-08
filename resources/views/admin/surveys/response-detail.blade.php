@@ -782,7 +782,10 @@ function printWithPrintJS() {
             // Print started
         },
         onLoadingEnd: function () {
-            // Print complete
+            // Print complete - silently refresh page to reset DOM
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 100);
         }
     });
     } catch (error) {
