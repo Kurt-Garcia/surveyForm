@@ -37,6 +37,18 @@ return [
     'consent_continue' => 'Continue to Survey',
     'consent_footer_note' => 'Thank you for your valuable time and feedback.',
     
+    // Consent terms
+    'consent_voluntary' => 'Voluntary Participation',
+    'consent_voluntary_desc' => 'Your participation in this survey is entirely voluntary. You are not required to answer all questions, and you may withdraw at any time without penalty.',
+    'consent_purpose' => 'Purpose of Survey',
+    'consent_purpose_desc' => 'The information you provide will be used solely for the purpose of improving our services and understanding customer satisfaction levels.',
+    'consent_personal_info' => 'Personal Information',
+    'consent_personal_info_desc' => 'We will collect only the information necessary for this survey. Your personal details will be kept strictly confidential and will not be shared with third parties.',
+    'consent_confidentiality' => 'Confidentiality',
+    'consent_confidentiality_desc' => 'All responses will be kept confidential and anonymous. Individual responses will not be disclosed to anyone outside our organization.',
+    'consent_data_protection' => 'Data Protection',
+    'consent_data_protection_desc' => 'Your data will be stored securely and will be used only for the stated purposes. We comply with applicable data protection regulations.',
+    
     // Language selection modal translations
     'language_selection_title' => 'Language Selection',
     'language_selection_subtitle' => 'Please select your preferred language for the survey',

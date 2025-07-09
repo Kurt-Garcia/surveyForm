@@ -37,6 +37,18 @@ return [
     'consent_continue' => 'Magpatuloy sa Survey',
     'consent_footer_note' => 'Salamat sa inyong mahalalagang oras at feedback.',
     
+    // Consent terms
+    'consent_voluntary' => 'Kusang Paglahok',
+    'consent_voluntary_desc' => 'Ang inyong paglahok sa survey na ito ay lubos na kusang-loob. Hindi kayo obligadong sagutin ang lahat ng mga katanungan, at maaari kayong umalis anumang oras nang walang parusa.',
+    'consent_purpose' => 'Layunin ng Survey',
+    'consent_purpose_desc' => 'Ang impormasyong inyong ibibigay ay gagamitin lamang para sa layuning mapabuti ang aming mga serbisyo at maunawaan ang mga antas ng kasiyahan ng customer.',
+    'consent_personal_info' => 'Personal na Impormasyon',
+    'consent_personal_info_desc' => 'Kokolektahin namin lamang ang impormasyong kinakailangan para sa survey na ito. Ang inyong mga personal na detalye ay magiging tuwiran at hindi ibabahagi sa ibang mga partido.',
+    'consent_confidentiality' => 'Pagiging Kumpidensyal',
+    'consent_confidentiality_desc' => 'Lahat ng mga sagot ay mananatiling kumpidensyal at anonymous. Ang mga indibidwal na sagot ay hindi ibubunyag sa sinuman sa labas ng aming organisasyon.',
+    'consent_data_protection' => 'Proteksyon ng Data',
+    'consent_data_protection_desc' => 'Ang inyong data ay itatago nang secure at gagamitin lamang para sa mga nabanggit na layunin. Sumusunod kami sa mga naaangkop na regulasyon sa proteksyon ng data.',
+    
     // Language selection modal translations
     'language_selection_title' => 'Pagpili ng Wika',
     'language_selection_subtitle' => 'Pakipili ang inyong gustong wika para sa survey',

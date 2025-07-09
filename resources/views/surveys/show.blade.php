@@ -1231,18 +1231,23 @@
                     <ol>
                         <li>
                             <strong>{{ __('survey.consent_voluntary') }}</strong>
+                            {{ __('survey.consent_voluntary_desc') }}
                         </li>
                         <li>
                             <strong>{{ __('survey.consent_purpose') }}</strong>
+                            {{ __('survey.consent_purpose_desc') }}
                         </li>
                         <li>
                             <strong>{{ __('survey.consent_personal_info') }}</strong>
+                            {{ __('survey.consent_personal_info_desc') }}
                         </li>
                         <li>
                             <strong>{{ __('survey.consent_confidentiality') }}</strong>
+                            {{ __('survey.consent_confidentiality_desc') }}
                         </li>
                         <li>
                             <strong>{{ __('survey.consent_data_protection') }}</strong>
+                            {{ __('survey.consent_data_protection_desc') }}
                         </li>
                     </ol>
                 </div>

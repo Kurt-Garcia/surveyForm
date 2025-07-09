@@ -37,6 +37,18 @@ return [
     'consent_continue' => 'Padayon sa Survey',
     'consent_footer_note' => 'Salamat sa imong bililhong oras ug feedback.',
     
+    // Consent terms
+    'consent_voluntary' => 'Boluntaryong Pag-apil',
+    'consent_voluntary_desc' => 'Ang imong pag-apil niini nga survey hingpit nga boluntaryo. Dili ka obligado sa pagtubag sa tanang mga pangutana, ug mahimo ka mobiya bisan unsa nga oras nga walay silot.',
+    'consent_purpose' => 'Katuyoan sa Survey',
+    'consent_purpose_desc' => 'Ang impormasyon nga imong ihatag gamiton lamang para sa katuyoan sa pagpauswag sa among mga serbisyo ug pagsabot sa mga lebel sa kasagaran sa customer.',
+    'consent_personal_info' => 'Personal nga Impormasyon',
+    'consent_personal_info_desc' => 'Kolektahon namo lamang ang impormasyon nga gikinahanglan para niini nga survey. Ang imong mga personal nga detalye magpabilin nga tago-tago ug dili ipaambit sa laing mga partido.',
+    'consent_confidentiality' => 'Pagiging Kompidensyal',
+    'consent_confidentiality_desc' => 'Ang tanang mga tubag magpabilin nga kompidensyal ug anonymous. Ang mga indibidwal nga tubag dili ibutyag sa bisan kinsa sa gawas sa among organisasyon.',
+    'consent_data_protection' => 'Proteksyon sa Data',
+    'consent_data_protection_desc' => 'Ang imong data tipigan nga luwas ug gamiton lamang para sa mga gitaho nga mga katuyoan. Mosunod kami sa mga magamit nga regulasyon sa proteksyon sa data.',
+    
     // Language selection modal translations
     'language_selection_title' => 'Pagpili og Pinulongan',
     'language_selection_subtitle' => 'Palihug pilia ang imong gusto nga pinulongan para sa survey',
