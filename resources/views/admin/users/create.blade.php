@@ -615,6 +615,113 @@
         max-width: 120px !important;
     }
 
+    /* Enhanced Main Table Pagination Styling */
+    .dataTables_wrapper .dataTables_paginate {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 0.1rem;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px 8px;
+        margin: 0 0.5px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        background: #f8f9fa;
+        color: #6c757d;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.8125rem;
+        transition: all 0.2s ease;
+        min-width: 28px;
+        height: 28px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: radial-gradient(circle, rgba(var(--primary-color-rgb), 0.2) 0%, transparent 70%);
+        transition: all 0.3s ease;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: #e9ecef;
+        color: var(--primary-color);
+        border-color: #dee2e6;
+        transform: translateY(-1px);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover::before {
+        width: 100%;
+        height: 100%;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+        font-weight: 600;
+        box-shadow: 0 1px 3px rgba(var(--primary-color-rgb), 0.3);
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current::before {
+        background: radial-gradient(circle, rgba(255,255,255, 0.2) 0%, transparent 70%);
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: #f8f9fa;
+        color: #adb5bd;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+        background: #f8f9fa;
+        color: #adb5bd;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover::before {
+        width: 0;
+        height: 0;
+    }
+
+    /* Special styling for Previous/Next buttons */
+    .dataTables_wrapper .dataTables_paginate .paginate_button.previous,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.next {
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        background: #ffffff;
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+        font-weight: 600;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.previous:hover,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.next:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+        box-shadow: 0 1px 4px rgba(var(--primary-color-rgb), 0.3);
+    }
+
     /* Modal Body Layout */
     .modal-body-fixed {
         flex-shrink: 0;
@@ -630,46 +737,124 @@
     /* Fixed Pagination Section Styling */
     .modal-pagination-fixed {
         flex-shrink: 0;
-        background: #f8f9fa !important;
-        border-top: 2px solid #e9ecef !important;
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
+        border-top: 1px solid #e9ecef !important;
+        box-shadow: 0 -1px 3px rgba(0,0,0,0.1);
     }
     
     .modal-pagination-fixed .dataTables_info {
-        font-size: 0.9rem;
+        font-size: 0.875rem;
         color: #6c757d;
         margin: 0;
+        font-weight: 500;
     }
     
     .modal-pagination-fixed .dataTables_paginate {
         margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.1rem;
     }
     
     .modal-pagination-fixed .dataTables_paginate .paginate_button {
-        padding: 6px 12px;
-        margin: 0 2px;
-        border-radius: 6px;
-        border: 1px solid #dee2e6;
-        background: white;
-        color: #495057;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3px 6px;
+        margin: 0 0.5px;
+        border: 1px solid transparent;
+        border-radius: 3px;
+        background: #ffffff;
+        color: #6c757d;
         text-decoration: none;
+        font-weight: 500;
+        font-size: 0.75rem;
         transition: all 0.2s ease;
+        min-width: 24px;
+        height: 24px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .modal-pagination-fixed .dataTables_paginate .paginate_button::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: radial-gradient(circle, rgba(var(--primary-color-rgb), 0.15) 0%, transparent 70%);
+        transition: all 0.25s ease;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
     }
     
     .modal-pagination-fixed .dataTables_paginate .paginate_button:hover {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
+        background: #f8f9fa;
+        color: var(--primary-color);
+        border-color: #dee2e6;
+        transform: translateY(-1px);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .modal-pagination-fixed .dataTables_paginate .paginate_button:hover::before {
+        width: 100%;
+        height: 100%;
     }
     
     .modal-pagination-fixed .dataTables_paginate .paginate_button.current {
         background: var(--primary-color);
         color: white;
         border-color: var(--primary-color);
+        font-weight: 600;
+        box-shadow: 0 1px 3px rgba(var(--primary-color-rgb), 0.25);
+    }
+
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.current::before {
+        background: radial-gradient(circle, rgba(255,255,255, 0.2) 0%, transparent 70%);
     }
     
     .modal-pagination-fixed .dataTables_paginate .paginate_button.disabled {
-        opacity: 0.5;
+        opacity: 0.4;
         cursor: not-allowed;
+        background: #f8f9fa;
+        color: #adb5bd;
+    }
+
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.disabled:hover {
+        background: #f8f9fa;
+        color: #adb5bd;
+        transform: none;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.disabled:hover::before {
+        width: 0;
+        height: 0;
+    }
+
+    /* Special styling for Previous/Next buttons in modal */
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.previous,
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.next {
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        background: #ffffff;
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+        font-weight: 600;
+        margin: 0 2px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.previous:hover,
+    .modal-pagination-fixed .dataTables_paginate .paginate_button.next:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+        box-shadow: 0 1px 4px rgba(var(--primary-color-rgb), 0.25);
     }
 
     /* Enhanced table row hover effect */
@@ -953,14 +1138,24 @@
         }
         
         .modal-pagination-fixed .dataTables_paginate .paginate_button {
-            padding: 4px 8px !important;
+            padding: 2px 4px !important;
+            margin: 0 0.5px !important;
+            font-size: 0.7rem !important;
+            border-radius: 2px !important;
+            min-width: 20px !important;
+            height: 20px !important;
+        }
+        
+        .modal-pagination-fixed .dataTables_paginate .paginate_button.previous,
+        .modal-pagination-fixed .dataTables_paginate .paginate_button.next {
+            width: 20px !important;
+            height: 20px !important;
             margin: 0 1px !important;
-            font-size: 0.8rem !important;
-            border-radius: 4px !important;
+            font-size: 0.65rem !important;
         }
         
         .modal-pagination-fixed .dataTables_info {
-            font-size: 0.8rem !important;
+            font-size: 0.75rem !important;
         }
         
         #modal-pagination-container {
@@ -972,6 +1167,29 @@
         #modal-info-container, 
         #modal-paginate-container {
             text-align: center !important;
+        }
+
+        /* Enhanced main table mobile pagination */
+        .dataTables_wrapper .dataTables_paginate {
+            justify-content: flex-end !important;
+            flex-wrap: wrap !important;
+            gap: 0.05rem !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 3px 6px !important;
+            margin: 0 0.5px !important;
+            font-size: 0.75rem !important;
+            min-width: 24px !important;
+            height: 24px !important;
+            border-radius: 3px !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.previous,
+        .dataTables_wrapper .dataTables_paginate .paginate_button.next {
+            width: 24px !important;
+            height: 24px !important;
+            font-size: 0.7rem !important;
         }
     }
 
@@ -997,13 +1215,23 @@
         }
         
         .modal-pagination-fixed .dataTables_paginate .paginate_button {
-            padding: 3px 6px !important;
-            margin: 0 !important;
-            font-size: 0.75rem !important;
+            padding: 1px 3px !important;
+            margin: 0 0.5px !important;
+            font-size: 0.65rem !important;
+            min-width: 18px !important;
+            height: 18px !important;
+            border-radius: 2px !important;
+        }
+
+        .modal-pagination-fixed .dataTables_paginate .paginate_button.previous,
+        .modal-pagination-fixed .dataTables_paginate .paginate_button.next {
+            width: 18px !important;
+            height: 18px !important;
+            font-size: 0.6rem !important;
         }
         
         .modal-pagination-fixed .dataTables_info {
-            font-size: 0.75rem !important;
+            font-size: 0.7rem !important;
         }
         
         .modal-pagination-fixed {
@@ -1039,19 +1267,22 @@
         .info-value {
             font-size: 0.8rem;
         }
-        
-        /* Ensure pagination buttons are properly sized on very small screens */
-        .modal-pagination-fixed .dataTables_paginate .paginate_button span {
-            display: none; /* Hide text, keep only icons */
+
+        /* Enhanced main table very small screen pagination */
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 2px 4px !important;
+            margin: 0 0.5px !important;
+            font-size: 0.7rem !important;
+            min-width: 20px !important;
+            height: 20px !important;
+            border-radius: 2px !important;
         }
-        
-        .modal-pagination-fixed .dataTables_paginate .paginate_button {
-            width: 30px !important;
-            height: 30px !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            text-align: center !important;
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.previous,
+        .dataTables_wrapper .dataTables_paginate .paginate_button.next {
+            width: 20px !important;
+            height: 20px !important;
+            font-size: 0.65rem !important;
         }
     }
 </style>
