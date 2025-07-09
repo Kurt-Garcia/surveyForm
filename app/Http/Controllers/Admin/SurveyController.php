@@ -10,6 +10,7 @@ use App\Models\Site;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class SurveyController extends Controller
@@ -53,6 +54,8 @@ class SurveyController extends Controller
             'department_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'questions' => 'required|array|min:1',
             'questions.*.text' => 'required|string|max:255',
+            'questions.*.text_tagalog' => 'nullable|string|max:255',
+            'questions.*.text_cebuano' => 'nullable|string|max:255',
             'questions.*.type' => 'required|string|in:text,radio,star,select',
             'questions.*.required' => 'boolean'
         ]);
@@ -66,6 +69,9 @@ class SurveyController extends Controller
 
         DB::beginTransaction();
         try {
+            // Debug: Log the incoming question data
+            Log::info('Survey creation - Questions data received:', $request->questions);
+            
             $logoPath = null;
             if ($request->hasFile('logo')) {
                 $logoPath = $request->file('logo')->store('survey-logos', 'public');
@@ -91,12 +97,24 @@ class SurveyController extends Controller
             $survey->sites()->attach($request->site_ids);
 
             foreach ($request->questions as $index => $questionData) {
-                $survey->questions()->create([
-                    'text' => ucfirst($questionData['text']),
+                $questionCreateData = [
+                    'text' => ucfirst(trim($questionData['text'])),
                     'type' => $questionData['type'],
                     'required' => isset($questionData['required']) ? (bool)$questionData['required'] : false,
                     'order' => $index + 1
-                ]);
+                ];
+
+                // Add Tagalog translation if provided and not empty
+                if (!empty($questionData['text_tagalog']) && trim($questionData['text_tagalog']) !== '') {
+                    $questionCreateData['text_tagalog'] = ucfirst(trim($questionData['text_tagalog']));
+                }
+
+                // Add Cebuano translation if provided and not empty
+                if (!empty($questionData['text_cebuano']) && trim($questionData['text_cebuano']) !== '') {
+                    $questionCreateData['text_cebuano'] = ucfirst(trim($questionData['text_cebuano']));
+                }
+
+                $survey->questions()->create($questionCreateData);
             }
 
             DB::commit();

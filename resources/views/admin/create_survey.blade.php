@@ -665,24 +665,62 @@
         questionDiv.style.opacity = '0';
         questionDiv.innerHTML = `
             <div class="card-body p-4">
-                <div class="row align-items-center">
+                <div class="row">
                     <div class="col-md-8">
                         <h5 class="mb-3">Question ${questionIndex + 1}</h5>
-                        <div class="position-relative">
-                            <input type="text" class="form-control form-control-lg mb-3 question-text-input" 
-                                name="questions[${questionIndex}][text]" 
-                                placeholder="Enter your question here" required
-                                data-question-index="${questionIndex}">
-                            <div class="question-validation-spinner position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
-                                <div class="spinner-border spinner-border-sm text-warning" role="status">
-                                    <span class="visually-hidden">Checking...</span>
+                        
+                        <!-- Language Tabs -->
+                        <ul class="nav nav-tabs nav-tabs-sm mb-3" id="questionLanguageTabs${questionIndex}" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="english-tab-${questionIndex}" data-bs-toggle="tab" data-bs-target="#english-${questionIndex}" type="button" role="tab" aria-controls="english-${questionIndex}" aria-selected="true">
+                                    <i class="fas fa-globe me-1"></i>English
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="tagalog-tab-${questionIndex}" data-bs-toggle="tab" data-bs-target="#tagalog-${questionIndex}" type="button" role="tab" aria-controls="tagalog-${questionIndex}" aria-selected="false">
+                                    <i class="fas fa-globe me-1"></i>Tagalog
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="cebuano-tab-${questionIndex}" data-bs-toggle="tab" data-bs-target="#cebuano-${questionIndex}" type="button" role="tab" aria-controls="cebuano-${questionIndex}" aria-selected="false">
+                                    <i class="fas fa-globe me-1"></i>Cebuano
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <!-- Language Tab Content -->
+                        <div class="tab-content mb-3" id="questionLanguageTabsContent${questionIndex}">
+                            <div class="tab-pane fade show active" id="english-${questionIndex}" role="tabpanel" aria-labelledby="english-tab-${questionIndex}">
+                                <div class="position-relative">
+                                    <input type="text" class="form-control form-control-lg question-text-input" 
+                                        name="questions[${questionIndex}][text]" 
+                                        placeholder="Enter question in English" required
+                                        data-question-index="${questionIndex}">
+                                    <div class="question-validation-spinner position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                        <div class="spinner-border spinner-border-sm text-warning" role="status">
+                                            <span class="visually-hidden">Checking...</span>
+                                        </div>
+                                    </div>
+                                    <div class="question-validation-icon position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                        <i class="fas fa-check text-success"></i>
+                                    </div>
                                 </div>
+                                <div class="question-validation-message" style="display: none; margin-top: 0.25rem;"></div>
                             </div>
-                            <div class="question-validation-icon position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
-                                <i class="fas fa-check text-success"></i>
+                            <div class="tab-pane fade" id="tagalog-${questionIndex}" role="tabpanel" aria-labelledby="tagalog-tab-${questionIndex}">
+                                <input type="text" class="form-control form-control-lg" 
+                                    name="questions[${questionIndex}][text_tagalog]" 
+                                    placeholder="Enter question in Tagalog (optional)">
+                                <small class="text-muted">If left blank, English version will be used</small>
+                            </div>
+                            <div class="tab-pane fade" id="cebuano-${questionIndex}" role="tabpanel" aria-labelledby="cebuano-tab-${questionIndex}">
+                                <input type="text" class="form-control form-control-lg" 
+                                    name="questions[${questionIndex}][text_cebuano]" 
+                                    placeholder="Enter question in Cebuano (optional)">
+                                <small class="text-muted">If left blank, English version will be used</small>
                             </div>
                         </div>
-                        <div class="question-validation-message" style="display: none; margin-top: -0.75rem; margin-bottom: 0.75rem;"></div>
+                        
                         <div class="row">
                             <div class="col-md-6">
                                 <select class="form-select form-select-lg mb-3" 
@@ -744,34 +782,73 @@
         const container = document.getElementById('questions-container');
         let startIndex = container.children.length;
         
+        // Define display name for the selected type
+        const typeDisplayName = type === 'radio' ? 'Radio Button' : 'Star Rating';
+        
         // Create questions immediately without animation
         for (let i = 0; i < count; i++) {
             const questionIndex = startIndex + i;
             const questionDiv = document.createElement('div');
             questionDiv.className = 'card shadow-sm mb-3 question-card';
             
-            const typeDisplayName = type === 'radio' ? 'Radio Button' : 'Star Rating';
-            
             questionDiv.innerHTML = `
                 <div class="card-body p-4">
-                    <div class="row align-items-center">
+                    <div class="row">
                         <div class="col-md-8">
                             <h5 class="mb-3">Question ${questionIndex + 1}</h5>
-                            <div class="position-relative">
-                                <input type="text" class="form-control form-control-lg mb-3 question-text-input" 
-                                    name="questions[${questionIndex}][text]" 
-                                    placeholder="Enter your question here" required
-                                    data-question-index="${questionIndex}">
-                                <div class="question-validation-spinner position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
-                                    <div class="spinner-border spinner-border-sm text-warning" role="status">
-                                        <span class="visually-hidden">Checking...</span>
+                            
+                            <!-- Language Tabs -->
+                            <ul class="nav nav-tabs nav-tabs-sm mb-3" id="questionLanguageTabs${questionIndex}" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="english-tab-${questionIndex}" data-bs-toggle="tab" data-bs-target="#english-${questionIndex}" type="button" role="tab" aria-controls="english-${questionIndex}" aria-selected="true">
+                                        <i class="fas fa-globe me-1"></i>English
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="tagalog-tab-${questionIndex}" data-bs-toggle="tab" data-bs-target="#tagalog-${questionIndex}" type="button" role="tab" aria-controls="tagalog-${questionIndex}" aria-selected="false">
+                                        <i class="fas fa-globe me-1"></i>Tagalog
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="cebuano-tab-${questionIndex}" data-bs-toggle="tab" data-bs-target="#cebuano-${questionIndex}" type="button" role="tab" aria-controls="cebuano-${questionIndex}" aria-selected="false">
+                                        <i class="fas fa-globe me-1"></i>Cebuano
+                                    </button>
+                                </li>
+                            </ul>
+                            
+                            <!-- Language Tab Content -->
+                            <div class="tab-content mb-3" id="questionLanguageTabsContent${questionIndex}">
+                                <div class="tab-pane fade show active" id="english-${questionIndex}" role="tabpanel" aria-labelledby="english-tab-${questionIndex}">
+                                    <div class="position-relative">
+                                        <input type="text" class="form-control form-control-lg question-text-input" 
+                                            name="questions[${questionIndex}][text]" 
+                                            placeholder="Enter question in English" required
+                                            data-question-index="${questionIndex}">
+                                        <div class="question-validation-spinner position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                            <div class="spinner-border spinner-border-sm text-warning" role="status">
+                                                <span class="visually-hidden">Checking...</span>
+                                            </div>
+                                        </div>
+                                        <div class="question-validation-icon position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                                            <i class="fas fa-check text-success"></i>
+                                        </div>
                                     </div>
+                                    <div class="question-validation-message" style="display: none; margin-top: 0.25rem;"></div>
                                 </div>
-                                <div class="question-validation-icon position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
-                                    <i class="fas fa-check text-success"></i>
+                                <div class="tab-pane fade" id="tagalog-${questionIndex}" role="tabpanel" aria-labelledby="tagalog-tab-${questionIndex}">
+                                    <input type="text" class="form-control form-control-lg" 
+                                        name="questions[${questionIndex}][text_tagalog]" 
+                                        placeholder="Enter question in Tagalog (optional)">
+                                    <small class="text-muted">If left blank, English version will be used</small>
+                                </div>
+                                <div class="tab-pane fade" id="cebuano-${questionIndex}" role="tabpanel" aria-labelledby="cebuano-tab-${questionIndex}">
+                                    <input type="text" class="form-control form-control-lg" 
+                                        name="questions[${questionIndex}][text_cebuano]" 
+                                        placeholder="Enter question in Cebuano (optional)">
+                                    <small class="text-muted">If left blank, English version will be used</small>
                                 </div>
                             </div>
-                            <div class="question-validation-message" style="display: none; margin-top: -0.75rem; margin-bottom: 0.75rem;"></div>
+                            
                             <div class="row">
                                 <div class="col-md-6">
                                     <select class="form-select form-select-lg mb-3" 
@@ -857,17 +934,32 @@
             question.innerHTML = `Question ${index + 1} ${badgeHtml}`;
         });
         
-        // Update input names to maintain correct indexing
+        // Update input names and IDs to maintain correct indexing
         const questionCards = document.querySelectorAll('.question-card');
         questionCards.forEach((card, index) => {
+            // Update text inputs for all languages
             const textInput = card.querySelector('input[name*="[text]"]');
+            const textTagalogInput = card.querySelector('input[name*="[text_tagalog]"]');
+            const textCebuanoInput = card.querySelector('input[name*="[text_cebuano]"]');
+            
+            // Update other form elements
             const typeSelect = card.querySelector('select[name*="[type]"]');
             const hiddenRequired = card.querySelector('input[type="hidden"][name*="[required]"]');
             const checkboxRequired = card.querySelector('input[type="checkbox"][name*="[required]"]');
             
+            // Update tab elements
+            const tabsContainer = card.querySelector('[id*="questionLanguageTabs"]');
+            const tabContent = card.querySelector('[id*="questionLanguageTabsContent"]');
+            
             if (textInput) {
                 textInput.name = `questions[${index}][text]`;
                 textInput.setAttribute('data-question-index', index);
+            }
+            if (textTagalogInput) {
+                textTagalogInput.name = `questions[${index}][text_tagalog]`;
+            }
+            if (textCebuanoInput) {
+                textCebuanoInput.name = `questions[${index}][text_cebuano]`;
             }
             if (typeSelect) typeSelect.name = `questions[${index}][type]`;
             if (hiddenRequired) hiddenRequired.name = `questions[${index}][required]`;
@@ -876,6 +968,54 @@
                 checkboxRequired.id = `required${index}`;
                 const label = card.querySelector(`label[for*="required"]`);
                 if (label) label.setAttribute('for', `required${index}`);
+            }
+            
+            // Update tab IDs and references
+            if (tabsContainer) {
+                tabsContainer.id = `questionLanguageTabs${index}`;
+                
+                // Update tab buttons
+                const englishTab = card.querySelector('[id*="english-tab"]');
+                const tagalogTab = card.querySelector('[id*="tagalog-tab"]');
+                const cebuanoTab = card.querySelector('[id*="cebuano-tab"]');
+                
+                if (englishTab) {
+                    englishTab.id = `english-tab-${index}`;
+                    englishTab.setAttribute('data-bs-target', `#english-${index}`);
+                    englishTab.setAttribute('aria-controls', `english-${index}`);
+                }
+                if (tagalogTab) {
+                    tagalogTab.id = `tagalog-tab-${index}`;
+                    tagalogTab.setAttribute('data-bs-target', `#tagalog-${index}`);
+                    tagalogTab.setAttribute('aria-controls', `tagalog-${index}`);
+                }
+                if (cebuanoTab) {
+                    cebuanoTab.id = `cebuano-tab-${index}`;
+                    cebuanoTab.setAttribute('data-bs-target', `#cebuano-${index}`);
+                    cebuanoTab.setAttribute('aria-controls', `cebuano-${index}`);
+                }
+            }
+            
+            if (tabContent) {
+                tabContent.id = `questionLanguageTabsContent${index}`;
+                
+                // Update tab panes
+                const englishPane = card.querySelector('[id*="english-"]:not([id*="tab"])');
+                const tagalogPane = card.querySelector('[id*="tagalog-"]:not([id*="tab"])');
+                const cebuanoPane = card.querySelector('[id*="cebuano-"]:not([id*="tab"])');
+                
+                if (englishPane) {
+                    englishPane.id = `english-${index}`;
+                    englishPane.setAttribute('aria-labelledby', `english-tab-${index}`);
+                }
+                if (tagalogPane) {
+                    tagalogPane.id = `tagalog-${index}`;
+                    tagalogPane.setAttribute('aria-labelledby', `tagalog-tab-${index}`);
+                }
+                if (cebuanoPane) {
+                    cebuanoPane.id = `cebuano-${index}`;
+                    cebuanoPane.setAttribute('aria-labelledby', `cebuano-tab-${index}`);
+                }
             }
         });
         
@@ -1097,11 +1237,30 @@
         const titleInputForm = document.getElementById('title');
         titleInputForm.value = capitalizeFirstLetter(titleInputForm.value);
 
+        // Apply capitalization and punctuation to all language versions
         const allQuestionInputs = document.querySelectorAll('input[name^="questions"][name$="[text]"]');
         allQuestionInputs.forEach(input => {
             // Apply both capitalization and punctuation check
             input.value = addPunctuationIfMissing(capitalizeFirstLetter(input.value));
-            console.log('Question updated: ' + input.value);
+            console.log('Question updated (English): ' + input.value);
+        });
+
+        // Apply capitalization and punctuation to Tagalog translations
+        const allTagalogInputs = document.querySelectorAll('input[name^="questions"][name$="[text_tagalog]"]');
+        allTagalogInputs.forEach(input => {
+            if (input.value.trim()) {
+                input.value = addPunctuationIfMissing(capitalizeFirstLetter(input.value));
+                console.log('Question updated (Tagalog): ' + input.value);
+            }
+        });
+
+        // Apply capitalization and punctuation to Cebuano translations
+        const allCebuanoInputs = document.querySelectorAll('input[name^="questions"][name$="[text_cebuano]"]');
+        allCebuanoInputs.forEach(input => {
+            if (input.value.trim()) {
+                input.value = addPunctuationIfMissing(capitalizeFirstLetter(input.value));
+                console.log('Question updated (Cebuano): ' + input.value);
+            }
         });
         
         swalWithBootstrapButtons.fire({
@@ -1114,6 +1273,14 @@
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
+                // Debug: Log all form data to console
+                const formData = new FormData(this);
+                console.log('=== FORM DATA BEING SUBMITTED ===');
+                for (let [key, value] of formData.entries()) {
+                    console.log(key + ': ' + value);
+                }
+                console.log('=== END FORM DATA ===');
+                
                 // Continue with form submission
                 this.submit();
             }
@@ -1706,6 +1873,67 @@ body.js-initialized .sbu-card {
 .select2-results__option {
     word-wrap: break-word;
     white-space: normal;
+}
+
+/* Language Tabs Styling for Questions */
+.nav-tabs-sm .nav-link {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 6px 6px 0 0;
+}
+
+.nav-tabs-sm .nav-link.active {
+    color: white;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.nav-tabs-sm .nav-link:hover:not(.active) {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.nav-tabs-sm .nav-link i {
+    font-size: 0.8rem;
+}
+
+/* Tab content styling */
+.tab-content {
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    padding: 1rem;
+    background-color: #fff;
+}
+
+.tab-pane .text-muted {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+/* Question card adjustments for tabs */
+.question-card .nav-tabs {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.question-card .tab-content {
+    margin-bottom: 0.5rem;
+}
+
+/* Mobile responsive for language tabs */
+@media (max-width: 768px) {
+    .nav-tabs-sm .nav-link {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .nav-tabs-sm .nav-link i {
+        font-size: 0.75rem;
+    }
+    
+    .tab-content {
+        padding: 0.75rem;
+    }
 }
 </style>
 @endsection

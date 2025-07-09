@@ -150,14 +150,35 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(event) {
         event.preventDefault();
         
-        // Add period if question doesn't end with punctuation
-        if (textInput.value && !/[.?!:;]$/.test(textInput.value.trim())) {
-            textInput.value = textInput.value.trim() + '.';
+        // Function to add punctuation if missing
+        function addPunctuationIfMissing(text) {
+            if (!text) return text;
+            if (!/[.?!:;]$/.test(text.trim())) {
+                return text.trim() + '.';
+            }
+            return text;
         }
         
-        // Capitalize first letter
+        // Function to capitalize first letter
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        
+        // Process English text (required)
         if (textInput.value) {
-            textInput.value = textInput.value.charAt(0).toUpperCase() + textInput.value.slice(1);
+            textInput.value = addPunctuationIfMissing(capitalizeFirstLetter(textInput.value));
+        }
+        
+        // Process Tagalog text (optional)
+        const tagalogInput = document.getElementById('text_tagalog');
+        if (tagalogInput && tagalogInput.value.trim()) {
+            tagalogInput.value = addPunctuationIfMissing(capitalizeFirstLetter(tagalogInput.value));
+        }
+        
+        // Process Cebuano text (optional)
+        const cebuanoInput = document.getElementById('text_cebuano');
+        if (cebuanoInput && cebuanoInput.value.trim()) {
+            cebuanoInput.value = addPunctuationIfMissing(capitalizeFirstLetter(cebuanoInput.value));
         }
 
         swalWithBootstrapButtons.fire({
