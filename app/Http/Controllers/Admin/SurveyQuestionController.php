@@ -18,12 +18,16 @@ class SurveyQuestionController extends Controller
     {
         $validated = $request->validate([
             'text' => 'required|string|max:255',
+            'text_tagalog' => 'nullable|string|max:255',
+            'text_cebuano' => 'nullable|string|max:255',
             'type' => 'required|string|in:radio,star',
             'required' => 'boolean'
         ]);
 
         $survey->questions()->create([
             'text' => ucfirst($validated['text']),
+            'text_tagalog' => $validated['text_tagalog'] ? ucfirst($validated['text_tagalog']) : null,
+            'text_cebuano' => $validated['text_cebuano'] ? ucfirst($validated['text_cebuano']) : null,
             'type' => $validated['type'],
             'required' => $validated['required'] ?? false,
             'order' => $survey->questions->count() + 1
@@ -42,12 +46,16 @@ class SurveyQuestionController extends Controller
     {
         $validated = $request->validate([
             'text' => 'required|string|max:255',
+            'text_tagalog' => 'nullable|string|max:255',
+            'text_cebuano' => 'nullable|string|max:255',
             'type' => 'required|string|in:radio,star',
             'required' => 'boolean'
         ]);
 
         $question->update([
             'text' => ucfirst($validated['text']),
+            'text_tagalog' => $validated['text_tagalog'] ? ucfirst($validated['text_tagalog']) : null,
+            'text_cebuano' => $validated['text_cebuano'] ? ucfirst($validated['text_cebuano']) : null,
             'type' => $validated['type'],
             'required' => $validated['required'] ?? false,
         ]);

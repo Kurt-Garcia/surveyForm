@@ -18,6 +18,14 @@ Route::get('/', function () {
 Route::get('/survey/{survey}', [UserSurveyController::class, 'customerSurvey'])->name('customer.survey');
 Route::post('/survey/{survey}/submit', [UserSurveyController::class, 'customerStore'])->name('customer.survey.submit');
 
+// Language setting route
+Route::post('/set-language', function(\Illuminate\Http\Request $request) {
+    $language = $request->input('language', 'en');
+    session(['locale' => $language]);
+    app()->setLocale($language);
+    return response()->json(['success' => true]);
+})->name('set.language');
+
 // Autocomplete route for customer names
 Route::get('/customers/autocomplete', [CustomerController::class, 'autocomplete'])->name('customers.autocomplete');
 // Customer lookup by code route

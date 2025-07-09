@@ -10,6 +10,8 @@ class SurveyQuestion extends Model
 {
     protected $fillable = [
         'text',
+        'text_tagalog',
+        'text_cebuano',
         'type',
         'survey_id',
         'required'
@@ -38,5 +40,20 @@ class SurveyQuestion extends Model
     public function responses(): HasMany
     {
         return $this->hasMany(SurveyResponseDetail::class, 'question_id');
+    }
+
+    /**
+     * Get question text based on language
+     */
+    public function getTextByLanguage($language = 'english')
+    {
+        switch ($language) {
+            case 'tagalog':
+                return $this->text_tagalog ?: $this->text;
+            case 'cebuano':
+                return $this->text_cebuano ?: $this->text;
+            default:
+                return $this->text;
+        }
     }
 }
