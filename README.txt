@@ -56,6 +56,8 @@ git push -u origin Version-16
 
 
 https://cssgridgenerator.io/
+https://prismic.io/blog/css-hover-effects
+https://www.proglobalbusinesssolutions.com/css-hover-effects/
 
 
 
