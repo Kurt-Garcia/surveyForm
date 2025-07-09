@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use App\Services\TranslationService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,7 +14,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register Translation Service
+        $this->app->singleton(TranslationService::class, function ($app) {
+            return new TranslationService();
+        });
+        
+        // Load translation helpers
+        require_once app_path('Helpers/TranslationHelper.php');
     }
 
     /**

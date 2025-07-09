@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Translation Management - Developer Portal</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.developer-dashboard {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    color: white;
+    position: relative;
+}
+
+.bg-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    50% { transform: translateY(-20px) rotate(180deg); opacity: 0.5; }
+}
+
+.dev-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 10;
+}
+
+.dev-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.form-control, .form-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    backdrop-filter: blur(10px);
+}
+
+.form-control:focus, .form-select:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    color: white;
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.form-select option {
+    background: #1a1a2e;
+    color: white;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+}
+
+.btn-outline-secondary {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    background: transparent;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+    border: 2px solid #007bff;
+    color: #007bff;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background: #007bff;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-outline-danger {
+    border: 2px solid #dc3545;
+    color: #dc3545;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-danger:hover {
+    background: #dc3545;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.875rem;
+}
+
+.table {
+    color: white;
+}
+
+.table-light {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.table-hover tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.badge {
+    padding: 0.5em 0.8em;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 6px;
+}
+
+.badge.bg-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+}
+
+.badge.bg-secondary {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: white;
+}
+
+.header-section {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.header-section h1 {
+    background: linear-gradient(135deg, #00d4ff, #007bff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.header-section p {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0;
+}
+
+.text-muted {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.text-primary {
+    color: #007bff !important;
+}
+
+.card-header {
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.form-label {
+    color: white;
+    font-weight: 500;
+}
+
+.pagination .page-link {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.pagination .page-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.pagination .page-item.active .page-link {
+    background: #007bff;
+    border-color: #007bff;
+}
+</style>
+</head>
+<body>
+
+<div class="bg-particles" id="particles"></div>
+
+<div class="developer-dashboard">
+    <div class="container-fluid px-4 py-5" style="position: relative; z-index: 10;">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10">
+                <!-- Header Section -->
+                <div class="header-section">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="display-6 fw-bold mb-2">Translation Management</h1>
+                            <p class="text-muted">Manage your application translations dynamically</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('developer.translations.create') }}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Add Translation
+                            </a>
+                            <form method="POST" action="{{ route('developer.translations.clearCache') }}" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-clockwise"></i> Clear Cache
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="dev-card mb-4">
+                    <div class="card-body">
+                        <form method="GET" action="{{ route('developer.translations.index') }}">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label for="locale" class="form-label">Language</label>
+                                    <select name="locale" id="locale" class="form-select">
+                                        <option value="">All Languages</option>
+                                        @foreach($locales as $localeOption)
+                                            <option value="{{ $localeOption }}" {{ $locale == $localeOption ? 'selected' : '' }}>
+                                                {{ strtoupper($localeOption) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="group" class="form-label">Group</label>
+                                    <select name="group" id="group" class="form-select">
+                                        <option value="">All Groups</option>
+                                        @foreach($groups as $groupOption)
+                                            <option value="{{ $groupOption }}" {{ $group == $groupOption ? 'selected' : '' }}>
+                                                {{ $groupOption }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="search" class="form-label">Search</label>
+                                    <input type="text" name="search" id="search" class="form-control" 
+                                           value="{{ $search }}" placeholder="Search key or value...">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary">Filter</button>
+                                        <a href="{{ route('developer.translations.index') }}" class="btn btn-outline-secondary">Reset</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Translations Table -->
+                <div class="dev-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            Translations 
+                            <span class="badge bg-secondary">{{ $translations->total() }}</span>
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <form method="POST" action="{{ route('developer.translations.export') }}" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-download"></i> Export to Files
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        @if($translations->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Key</th>
+                                            <th>Language</th>
+                                            <th>Group</th>
+                                            <th>Value</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($translations as $translation)
+                                            <tr>
+                                                <td>
+                                                    <code class="text-primary">{{ $translation->key }}</code>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-primary">{{ strtoupper($translation->locale) }}</span>
+                                                </td>
+                                                <td>
+                                                    @if($translation->group)
+                                                        <span class="badge bg-secondary">{{ $translation->group }}</span>
+                                                    @else
+                                                        <span class="text-muted">-</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <div class="text-truncate" style="max-width: 300px;" title="{{ $translation->value }}">
+                                                        {{ $translation->value }}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex gap-1">
+                                                        <a href="{{ route('developer.translations.edit', $translation) }}" 
+                                                           class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+                                                        <form method="POST" action="{{ route('developer.translations.destroy', $translation) }}" 
+                                                              class="d-inline" onsubmit="return confirm('Are you sure you want to delete this translation?')">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Pagination -->
+                            <div class="d-flex justify-content-center mt-4">
+                                {{ $translations->appends(request()->query())->links() }}
+                            </div>
+                        @else
+                            <div class="text-center py-5">
+                                <i class="bi bi-translate text-muted" style="font-size: 3rem;"></i>
+                                <h5 class="text-muted mt-3">No translations found</h5>
+                                <p class="text-muted">Try adjusting your filters or add a new translation.</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Create floating particles
+function createParticles() {
+    const particles = document.getElementById('particles');
+    const particleCount = 50;
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 6 + 's';
+        particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+        particles.appendChild(particle);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', createParticles);
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

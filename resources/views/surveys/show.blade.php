@@ -826,18 +826,18 @@
             
             <div class="form-grid {{ $isCustomerMode ? 'font-theme' : '' }}">
                 <div class="form-field">
-                    <label for="account_name" class="form-label {{ $isCustomerMode ? 'font-theme' : '' }}" id="account-name-label">{{ __('survey.account_name') }}</label>
+                    <label for="account_name" class="form-label {{ $isCustomerMode ? 'font-theme' : '' }}" id="account-name-label">{{ __db('account_name') }}</label>
                     <input type="text" class="modern-input {{ $isCustomerMode ? 'font-theme' : '' }}" id="account_name" name="account_name" value="{{ $prefillAccountName ?? '' }}" placeholder="Enter customer name or code"{{ $isCustomerMode ? ' readonly' : '' }}>
                     <div id="customer_name_display" class="customer-name-display mt-1"></div>
                     <div class="validation-message" id="account_name_error"></div>
                 </div>
                 <div class="form-field">
-                    <label for="account_type" class="form-label {{ $isCustomerMode ? 'font-theme' : '' }}" id="account-type-label">{{ __('survey.account_type') }}</label>
+                    <label for="account_type" class="form-label {{ $isCustomerMode ? 'font-theme' : '' }}" id="account-type-label">{{ __db('account_type') }}</label>
                     <input type="text" class="modern-input {{ $isCustomerMode ? 'font-theme' : '' }}" id="account_type" name="account_type" value="{{ $prefillAccountType ?? '' }}" readonly>
                     <div class="validation-message" id="account_type_error"></div>
                 </div>
                 <div class="form-field">
-                    <label for="date" class="form-label {{ $isCustomerMode ? 'font-theme' : '' }}" id="date-label">{{ __('survey.date') }}</label>
+                    <label for="date" class="form-label {{ $isCustomerMode ? 'font-theme' : '' }}" id="date-label">{{ __db('date') }}</label>
                     <input type="date" class="modern-input {{ $isCustomerMode ? 'font-theme' : '' }}" id="date" name="date" value="{{ date('Y-m-d') }}">
                     <div class="validation-message" id="date_error"></div>
                 </div>
@@ -853,7 +853,7 @@
             @endif
 
             <div class="survey-section">
-                <h2 class="section-title {{ $isCustomerMode ? 'font-theme-heading' : '' }}" id="satisfaction-level-title">{{ __('survey.satisfaction_level') }}</h2>
+                <h2 class="section-title {{ $isCustomerMode ? 'font-theme-heading' : '' }}" id="satisfaction-level-title">{{ __db('satisfaction_level') }}</h2>
                 <div class="rating-legend {{ $isCustomerMode ? 'font-theme' : '' }}">
                     <span class="rating-item {{ $isCustomerMode ? 'font-theme' : '' }}" id="rating-poor">1 - Poor</span>
                     <span class="rating-item {{ $isCustomerMode ? 'font-theme' : '' }}" id="rating-needs-improvement">2 - Needs Improvement</span>
@@ -868,9 +868,9 @@
                         <div class="question-text" id="question-text-{{ $question->id }}">
                             <span class="question-content">{{ $question->text }}</span>
                             @if($question->required)
-                                <span class="badge required" id="required-badge-{{ $question->id }}">{{ __('survey.required') }}</span>
+                                <span class="badge required" id="required-badge-{{ $question->id }}">{{ __db('required') }}</span>
                             @else
-                                <span class="badge optional" id="optional-badge-{{ $question->id }}">{{ __('survey.optional') }}</span>
+                                <span class="badge optional" id="optional-badge-{{ $question->id }}">{{ __db('optional') }}</span>
                             @endif
                         </div>
                         <div class="question-input">
@@ -916,11 +916,11 @@
             </div>
 
             <div class="recommendation-section mt-5">
-                <h2 class="section-title {{ $isCustomerMode ? 'font-theme-heading' : '' }}" id="recommendation-title">{{ __('survey.recommendation') }}</h2>
+                <h2 class="section-title {{ $isCustomerMode ? 'font-theme-heading' : '' }}" id="recommendation-title">{{ __db('recommendation') }}</h2>
                 <div class="recommendation-container {{ $isCustomerMode ? 'font-theme' : '' }}">
-                    <p id="recommendation-question">{{ __('survey.recommendation_question') }}</p>
+                    <p id="recommendation-question">{{ __db('recommendation_question') }}</p>
                     <select id="survey-number" name="recommendation" class="modern-select">
-                        <option value="" disabled selected id="select-rating-option">{{ __('survey.select_rating') }}</option>
+                        <option value="" disabled selected id="select-rating-option">{{ __db('select_rating') }}</option>
                         @for($i = 1; $i <= 10; $i++)
                             <option value="{{ $i }}">{{ $i }}</option>
                         @endfor
@@ -930,8 +930,8 @@
             </div>
 
             <div class="comments-section mt-5">
-                <h2 class="section-title {{ $isCustomerMode ? 'font-theme-heading' : '' }}" id="improvement-areas-title">{{ __('survey.improvement_areas') }}</h2>
-                <p class="mb-3 {{ $isCustomerMode ? 'font-theme' : '' }}" id="improvement-areas-subtitle">{{ __('survey.select_all_apply') }}</p>
+                <h2 class="section-title {{ $isCustomerMode ? 'font-theme-heading' : '' }}" id="improvement-areas-title">{{ __db('improvement_areas') }}</h2>
+                <p class="mb-3 {{ $isCustomerMode ? 'font-theme' : '' }}" id="improvement-areas-subtitle">{{ __db('select_all_apply') }}</p>
                 
                 <!-- Error message container for improvement areas -->
                 <div id="improvement_areas_error" class="validation-message mb-2"></div>
@@ -942,26 +942,26 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="product_quality" name="improvement_areas[]" value="product_quality">
                             <label class="form-check-label fw-bold" for="product_quality" id="product-quality-label">
-                                🧾 <span id="product-quality-text">{{ __('survey.product_quality') }}</span>
+                                🧾 <span id="product-quality-text">{{ __db('product_quality') }}</span>
                             </label>
                         </div>
                         <div class="ms-4 mt-2">
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" id="product_availability" name="improvement_details[]" value="availability" data-category="product_quality">
                                 <label class="form-check-label" for="product_availability" id="product-availability-label">
-                                    <span id="product-availability-text">{{ __('survey.improvement_details.product_quality.availability') }}</span>
+                                    <span id="product-availability-text">{{ __db('improvement_details.product_quality.availability') }}</span>
                                 </label>
                             </div>
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" id="product_expiration" name="improvement_details[]" value="expiration" data-category="product_quality">
                                 <label class="form-check-label" for="product_expiration" id="product-expiration-label">
-                                    <span id="product-expiration-text">{{ __('survey.improvement_details.product_quality.expiration') }}</span>
+                                    <span id="product-expiration-text">{{ __db('improvement_details.product_quality.expiration') }}</span>
                                 </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="product_damage" name="improvement_details[]" value="damage" data-category="product_quality">
                                 <label class="form-check-label" for="product_damage" id="product-damage-label">
-                                    <span id="product-damage-text">{{ __('survey.improvement_details.product_quality.damage') }}</span>
+                                    <span id="product-damage-text">{{ __db('improvement_details.product_quality.damage') }}</span>
                                 </label>
                             </div>
                         </div>
@@ -973,20 +973,20 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="delivery_logistics" name="improvement_areas[]" value="delivery_logistics">
                             <label class="form-check-label fw-bold" for="delivery_logistics" id="delivery-logistics-label">
-                                🚚 <span id="delivery-logistics-text">{{ __('survey.delivery_logistics') }}</span>
+                                🚚 <span id="delivery-logistics-text">{{ __db('delivery_logistics') }}</span>
                             </label>
                         </div>
                         <div class="ms-4 mt-2">
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" id="delivery_time" name="improvement_details[]" value="on_time" data-category="delivery_logistics">
                                 <label class="form-check-label" for="delivery_time" id="delivery-time-label">
-                                    <span id="delivery-time-text">{{ __('survey.improvement_details.delivery_logistics.on_time') }}</span>
+                                    <span id="delivery-time-text">{{ __db('improvement_details.delivery_logistics.on_time') }}</span>
                                 </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="missing_items" name="improvement_details[]" value="missing_items" data-category="delivery_logistics">
                                 <label class="form-check-label" for="missing_items" id="missing-items-label">
-                                    <span id="missing-items-text">{{ __('survey.improvement_details.delivery_logistics.missing_items') }}</span>
+                                    <span id="missing-items-text">{{ __db('improvement_details.delivery_logistics.missing_items') }}</span>
                                 </label>
                             </div>
                         </div>
@@ -998,20 +998,20 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="customer_service" name="improvement_areas[]" value="customer_service">
                             <label class="form-check-label fw-bold" for="customer_service" id="customer-service-label">
-                                👩‍💼 <span id="customer-service-text">{{ __('survey.customer_service') }}</span>
+                                👩‍💼 <span id="customer-service-text">{{ __db('customer_service') }}</span>
                             </label>
                         </div>
                         <div class="ms-4 mt-2">
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" id="response_time" name="improvement_details[]" value="response_time" data-category="customer_service">
                                 <label class="form-check-label" for="response_time" id="response-time-label">
-                                    <span id="response-time-text">{{ __('survey.improvement_details.customer_service.response_time') }}</span>
+                                    <span id="response-time-text">{{ __db('improvement_details.customer_service.response_time') }}</span>
                                 </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="clear_communication" name="improvement_details[]" value="communication" data-category="customer_service">
                                 <label class="form-check-label" for="clear_communication" id="clear-communication-label">
-                                    <span id="clear-communication-text">{{ __('survey.improvement_details.customer_service.communication') }}</span>
+                                    <span id="clear-communication-text">{{ __db('improvement_details.customer_service.communication') }}</span>
                                 </label>
                             </div>
                         </div>
@@ -1023,14 +1023,14 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="timeliness" name="improvement_areas[]" value="timeliness">
                             <label class="form-check-label fw-bold" for="timeliness" id="timeliness-label">
-                                🕐 <span id="timeliness-text">{{ __('survey.timeliness') }}</span>
+                                🕐 <span id="timeliness-text">{{ __db('timeliness') }}</span>
                             </label>
                         </div>
                         <div class="ms-4 mt-2">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="schedule_adherence" name="improvement_details[]" value="schedule" data-category="timeliness">
                                 <label class="form-check-label" for="schedule_adherence" id="schedule-adherence-label">
-                                    <span id="schedule-adherence-text">{{ __('survey.improvement_details.timeliness.schedule') }}</span>
+                                    <span id="schedule-adherence-text">{{ __db('improvement_details.timeliness.schedule') }}</span>
                                 </label>
                             </div>
                         </div>
@@ -1042,20 +1042,20 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="returns_handling" name="improvement_areas[]" value="returns_handling">
                             <label class="form-check-label fw-bold" for="returns_handling" id="returns-handling-label">
-                                🔁 <span id="returns-handling-text">{{ __('survey.returns_handling') }}</span>
+                                🔁 <span id="returns-handling-text">{{ __db('returns_handling') }}</span>
                             </label>
                         </div>
                         <div class="ms-4 mt-2">
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" id="return_process" name="improvement_details[]" value="return_process" data-category="returns_handling">
                                 <label class="form-check-label" for="return_process" id="return-process-label">
-                                    <span id="return-process-text">{{ __('survey.improvement_details.returns_handling.return_process') }}</span>
+                                    <span id="return-process-text">{{ __db('improvement_details.returns_handling.return_process') }}</span>
                                 </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="bo_coordination" name="improvement_details[]" value="bo_coordination" data-category="returns_handling">
                                 <label class="form-check-label" for="bo_coordination" id="bo-coordination-label">
-                                    <span id="bo-coordination-text">{{ __('survey.improvement_details.returns_handling.bo_coordination') }}</span>
+                                    <span id="bo-coordination-text">{{ __db('improvement_details.returns_handling.bo_coordination') }}</span>
                                 </label>
                             </div>
                         </div>
@@ -1067,11 +1067,11 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="others" name="improvement_areas[]" value="others">
                             <label class="form-check-label fw-bold" for="others" id="others-label">
-                                ✍️ <span id="others-text">{{ __('survey.others') }}</span>
+                                ✍️ <span id="others-text">{{ __db('others') }}</span>
                             </label>
                         </div>
                         <div class="ms-4 mt-2">
-                            <textarea class="modern-textarea {{ $isCustomerMode ? 'font-theme' : '' }}" name="other_comments" rows="3" placeholder="{{ __('survey.others_placeholder') }}" maxlength="200" id="other-comments-textarea"></textarea>
+                            <textarea class="modern-textarea {{ $isCustomerMode ? 'font-theme' : '' }}" name="other_comments" rows="3" placeholder="{{ __db('others_placeholder') }}" maxlength="200" id="other-comments-textarea"></textarea>
                         </div>
                         <div class="validation-message" id="others_error"></div>
                     </div>
@@ -1088,27 +1088,27 @@
 
             <div class="form-footer">
                 <button type="submit" class="submit-button">
-                    <span style="font-family: var(--heading-font)" id="submit-button-text">{{ __('survey.submit_survey') }}</span>
+                    <span style="font-family: var(--heading-font)" id="submit-button-text">{{ __db('submit_survey') }}</span>
                     <i class="fas fa-paper-plane ms-2"></i>
                 </button>
             </div>
             
             <div class="thank-you-message {{ $isCustomerMode ? 'font-theme-heading' : '' }}">
                 @if($isCustomerMode)
-                <h3 id="thank-you-title">{{ __('survey.thank_you') }}</h3>
-                <h3 id="thank-you-message">{{ __('survey.thank_you_message') }}</h3>
-                <p id="feedback-helps">{{ __('survey.feedback_helps') }}</p>
+                <h3 id="thank-you-title">{{ __db('thank_you') }}</h3>
+                <h3 id="thank-you-message">{{ __db('thank_you_message') }}</h3>
+                <p id="feedback-helps">{{ __db('feedback_helps') }}</p>
                 <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()" style="background-color: var(--secondary-color); border-color: var(--accent-color); color: white;">
-                    <span id="view-response-text">{{ __('survey.view_response') }}</span>
+                    <span id="view-response-text">{{ __db('view_response') }}</span>
                     <i class="fas fa-eye ms-2"></i>
                 </button>
                 @else
                 <div class="message-content mb-3">
-                    <h3 class="mb-1" id="thank-you-feedback">{{ __('survey.thank_you_message') }}</h3>
-                    <p id="feedback-helps-alt">{{ __('survey.feedback_helps') }}</p>
+                    <h3 class="mb-1" id="thank-you-feedback">{{ __db('thank_you_message') }}</h3>
+                    <p id="feedback-helps-alt">{{ __db('feedback_helps') }}</p>
                 </div>
                 <button type="button" class="submit-button small-button" onclick="showResponseSummaryModal()" style="background-color: var(--secondary-color); border-color: var(--accent-color); color: white;">
-                    <span id="view-response-text-alt">{{ __('survey.view_response') }}</span>
+                    <span id="view-response-text-alt">{{ __db('view_response') }}</span>
                     <i class="fas fa-eye ms-2"></i>
                 </button>
                 @endif
@@ -1209,8 +1209,8 @@
                         @endif
                     </div>
                     <div class="header-title">
-                        <h4 id="consentModalLabel">{{ __('survey.consent_title') }}</h4>
-                        <h5>{{ __('survey.consent_subtitle') }}</h5>
+                        <h4 id="consentModalLabel">{{ __db('consent_title') }}</h4>
+                        <h5>{{ __db('consent_subtitle') }}</h5>
                     </div>
                     <div class="header-logo-right">
                         @if($survey->department_logo)
@@ -1222,38 +1222,38 @@
 
             <div class="modal-body">
                 <div class="consent-intro">
-                    <p><strong>{{ __('survey.consent_dear_customer') }}</strong></p>
-                    <p>{{ __('survey.consent_intro') }}</p>
-                    <p><strong>{{ __('survey.consent_terms_intro') }}</strong></p>
+                    <p><strong>{{ __db('consent_dear_customer') }}</strong></p>
+                    <p>{{ __db('consent_intro') }}</p>
+                    <p><strong>{{ __db('consent_terms_intro') }}</strong></p>
                 </div>
 
                 <div class="consent-terms">
                     <ol>
                         <li>
-                            <strong>{{ __('survey.consent_voluntary') }}</strong>
-                            {{ __('survey.consent_voluntary_desc') }}
+                            <strong>{{ __db('consent_voluntary') }}</strong>
+                            {{ __db('consent_voluntary_desc') }}
                         </li>
                         <li>
-                            <strong>{{ __('survey.consent_purpose') }}</strong>
-                            {{ __('survey.consent_purpose_desc') }}
+                            <strong>{{ __db('consent_purpose') }}</strong>
+                            {{ __db('consent_purpose_desc') }}
                         </li>
                         <li>
-                            <strong>{{ __('survey.consent_personal_info') }}</strong>
-                            {{ __('survey.consent_personal_info_desc') }}
+                            <strong>{{ __db('consent_personal_info') }}</strong>
+                            {{ __db('consent_personal_info_desc') }}
                         </li>
                         <li>
-                            <strong>{{ __('survey.consent_confidentiality') }}</strong>
-                            {{ __('survey.consent_confidentiality_desc') }}
+                            <strong>{{ __db('consent_confidentiality') }}</strong>
+                            {{ __db('consent_confidentiality_desc') }}
                         </li>
                         <li>
-                            <strong>{{ __('survey.consent_data_protection') }}</strong>
-                            {{ __('survey.consent_data_protection_desc') }}
+                            <strong>{{ __db('consent_data_protection') }}</strong>
+                            {{ __db('consent_data_protection_desc') }}
                         </li>
                     </ol>
                 </div>
 
                 <div class="consent-actions">
-                    <p class="mb-4"><strong>{{ __('survey.consent_question') }}</strong></p>
+                    <p class="mb-4"><strong>{{ __db('consent_question') }}</strong></p>
                     
                     <div class="consent-checkbox accept">
                         <div class="modern-checkbox">
@@ -1261,7 +1261,7 @@
                             <div class="checkbox-design"></div>
                         </div>
                         <label for="consentAccept">
-                            <i class="fas fa-check-circle me-2"></i>{{ __('survey.consent_accept') }}
+                            <i class="fas fa-check-circle me-2"></i>{{ __db('consent_accept') }}
                         </label>
                     </div>
                     
@@ -1271,7 +1271,7 @@
                             <div class="checkbox-design"></div>
                         </div>
                         <label for="consentDecline">
-                            <i class="fas fa-times-circle me-2"></i>{{ __('survey.consent_decline') }}
+                            <i class="fas fa-times-circle me-2"></i>{{ __db('consent_decline') }}
                         </label>
                     </div>
                 </div>
@@ -1279,9 +1279,9 @@
 
             <div class="modal-footer">
                 <button type="button" id="consentContinueBtn" disabled>
-                    <i class="fas fa-arrow-right me-2"></i>{{ __('survey.consent_continue') }}
+                    <i class="fas fa-arrow-right me-2"></i>{{ __db('consent_continue') }}
                 </button>
-                <p class="footer-note">{{ __('survey.consent_footer_note') }}</p>
+                <p class="footer-note">{{ __db('consent_footer_note') }}</p>
             </div>
         </div>
     </div>
@@ -1292,28 +1292,28 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content {{ $isCustomerMode ? 'font-theme' : '' }}">
             <div class="modal-header">
-                <h4 id="languageModalLabel" class="modal-title">{{ __('survey.language_selection_title') }}</h4>
+                <h4 id="languageModalLabel" class="modal-title">{{ __db('language_selection_title') }}</h4>
             </div>
 
             <div class="modal-body">
                 <div class="language-intro">
-                    <p>{{ __('survey.language_selection_subtitle') }}</p>
+                    <p>{{ __db('language_selection_subtitle') }}</p>
                 </div>
 
                 <div class="language-options">
                     <div class="language-option" data-language="en">
                         <span class="language-flag">🇺🇸</span>
-                        <span class="language-name">{{ __('survey.language_english') }}</span>
+                        <span class="language-name">{{ __db('language_english') }}</span>
                         <span class="language-native">English</span>
                     </div>
                     <div class="language-option" data-language="tl">
                         <span class="language-flag">🇵🇭</span>
-                        <span class="language-name">{{ __('survey.language_tagalog') }}</span>
+                        <span class="language-name">{{ __db('language_tagalog') }}</span>
                         <span class="language-native">Tagalog</span>
                     </div>
                     <div class="language-option" data-language="ceb">
                         <span class="language-flag">🇵🇭</span>
-                        <span class="language-name">{{ __('survey.language_cebuano') }}</span>
+                        <span class="language-name">{{ __db('language_cebuano') }}</span>
                         <span class="language-native">Cebuano</span>
                     </div>
                 </div>
@@ -1321,9 +1321,9 @@
 
             <div class="modal-footer">
                 <button type="button" id="languageContinueBtn" disabled>
-                    <i class="fas fa-arrow-right me-2"></i>{{ __('survey.language_selection_continue') }}
+                    <i class="fas fa-arrow-right me-2"></i>{{ __db('language_selection_continue') }}
                 </button>
-                <p class="footer-note">{{ __('survey.language_selection_note') }}</p>
+                <p class="footer-note">{{ __db('language_selection_note') }}</p>
             </div>
         </div>
     </div>
@@ -1530,201 +1530,132 @@ $(document).ready(function() {
     
     // Function to update page language
     function updatePageLanguage(language) {
-        // Translation object
-        const translations = {
-            'en': {
-                'account_name': 'Account Name',
-                'account_type': 'Account Type',
-                'date': 'Date',
-                'satisfaction_level': 'Satisfaction Level',
-                'rating_poor': '1 - Poor',
-                'rating_needs_improvement': '2 - Needs Improvement',
-                'rating_satisfactory': '3 - Satisfactory',
-                'rating_very_satisfactory': '4 - Very Satisfactory',
-                'rating_excellent': '5 - Excellent',
-                'required': 'Required',
-                'optional': 'Optional',
-                'recommendation': 'Recommendation',
-                'recommendation_question': 'How likely is it that you would recommend our company to a friend or colleague?',
-                'select_rating': 'Select a rating',
-                'improvement_areas': 'Areas for Improvement Suggestions',
-                'select_all_apply': 'Select all that apply:',
-                'product_quality': 'Product / Service Quality',
-                'delivery_logistics': 'Delivery & Logistics',
-                'customer_service': 'Sales & Customer Service',
-                'timeliness': 'Timeliness',
-                'returns_handling': 'Returns / BO Handling',
-                'others': 'Others (please specify)',
-                'others_placeholder': 'Please specify other areas for improvement...',
-                'submit_survey': 'Submit Survey',
-                'thank_you': 'THANK YOU!',
-                'thank_you_message': 'WE APPRECIATE YOUR FEEDBACK!',
-                'feedback_helps': 'Your input helps us serve you better.',
-                'view_response': 'View Response',
-                'validation_alert': 'Please Fill In All Required Fields!',
-                'product_availability': 'We hope products are always available. Some items are often out of stock.',
-                'product_expiration': 'Please monitor product expiration dates more carefully. We sometimes receive items that are near expiry.',
-                'product_damage': 'Some products arrive with dents, leaks, or damaged packaging. Kindly ensure all items are in good condition.',
-                'delivery_on_time': 'We\'d appreciate it if deliveries consistently arrive on time, as promised.',
-                'missing_items': 'There have been a few instances of missing items in our deliveries. Please double-check orders for completeness.',
-                'response_time': 'It would be helpful if our concerns or follow-ups were responded to more quickly.',
-                'clear_communication': 'We appreciate clear communication. Kindly ensure that all interactions remain polite and professional.',
-                'schedule_adherence': 'Please try to follow the agreed delivery or visit schedule to avoid disruptions in our store operations.',
-                'return_process': 'I hope the return process can be made quicker and more convenient.',
-                'bo_coordination': 'Please improve coordination when it comes to picking up bad order items.'
+        // Fetch translations from database
+        $.ajax({
+            url: '/translations/' + language,
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                // Get translations for selected language
+                const trans = data[language] || {};
+                
+                // Map complex keys to simpler ones for backwards compatibility
+                const mappedTrans = {
+                    'account_name': trans.account_name || 'Account Name',
+                    'account_type': trans.account_type || 'Account Type',
+                    'date': trans.date || 'Date',
+                    'satisfaction_level': trans.satisfaction_level || 'Satisfaction Level',
+                    'rating_poor': trans['rating_poor'] || '1 - Poor',
+                    'rating_needs_improvement': trans['rating_needs_improvement'] || '2 - Needs Improvement',
+                    'rating_satisfactory': trans['rating_satisfactory'] || '3 - Satisfactory',
+                    'rating_very_satisfactory': trans['rating_very_satisfactory'] || '4 - Very Satisfactory',
+                    'rating_excellent': trans['rating_excellent'] || '5 - Excellent',
+                    'required': trans.required || 'Required',
+                    'optional': trans.optional || 'Optional',
+                    'recommendation': trans.recommendation || 'Recommendation',
+                    'recommendation_question': trans.recommendation_question || 'How likely is it that you would recommend our company to a friend or colleague?',
+                    'select_rating': trans.select_rating || 'Select a rating',
+                    'improvement_areas': trans.improvement_areas || 'Areas for Improvement Suggestions',
+                    'select_all_apply': trans.select_all_apply || 'Select all that apply:',
+                    'product_quality': trans.product_quality || 'Product / Service Quality',
+                    'delivery_logistics': trans.delivery_logistics || 'Delivery & Logistics',
+                    'customer_service': trans.customer_service || 'Sales & Customer Service',
+                    'timeliness': trans.timeliness || 'Timeliness',
+                    'returns_handling': trans.returns_handling || 'Returns / BO Handling',
+                    'others': trans.others || 'Others (please specify)',
+                    'others_placeholder': trans.others_placeholder || 'Please specify other areas for improvement...',
+                    'submit_survey': trans.submit_survey || 'Submit Survey',
+                    'thank_you': trans.thank_you || 'THANK YOU!',
+                    'thank_you_message': trans.thank_you_message || 'WE APPRECIATE YOUR FEEDBACK!',
+                    'feedback_helps': trans.feedback_helps || 'Your input helps us serve you better.',
+                    'view_response': trans.view_response || 'View Response',
+                    'validation_alert': trans.validation_alert || 'Please Fill In All Required Fields!',
+                    'product_availability': trans['improvement_details.product_quality.availability'] || 'We hope products are always available. Some items are often out of stock.',
+                    'product_expiration': trans['improvement_details.product_quality.expiration'] || 'Please monitor product expiration dates more carefully. We sometimes receive items that are near expiry.',
+                    'product_damage': trans['improvement_details.product_quality.damage'] || 'Some products arrive with dents, leaks, or damaged packaging. Kindly ensure all items are in good condition.',
+                    'delivery_on_time': trans['improvement_details.delivery_logistics.on_time'] || 'We\'d appreciate it if deliveries consistently arrive on time, as promised.',
+                    'missing_items': trans['improvement_details.delivery_logistics.missing_items'] || 'There have been a few instances of missing items in our deliveries. Please double-check orders for completeness.',
+                    'response_time': trans['improvement_details.customer_service.response_time'] || 'It would be helpful if our concerns or follow-ups were responded to more quickly.',
+                    'clear_communication': trans['improvement_details.customer_service.communication'] || 'We appreciate clear communication. Kindly ensure that all interactions remain polite and professional.',
+                    'schedule_adherence': trans['improvement_details.timeliness.schedule'] || 'Please try to follow the agreed delivery or visit schedule to avoid disruptions in our store operations.',
+                    'return_process': trans['improvement_details.returns_handling.return_process'] || 'I hope the return process can be made quicker and more convenient.',
+                    'bo_coordination': trans['improvement_details.returns_handling.bo_coordination'] || 'Please improve coordination when it comes to picking up bad order items.'
+                };
+                
+                // Update all translatable elements
+                $('#account-name-label').text(mappedTrans.account_name);
+                $('#account-type-label').text(mappedTrans.account_type);
+                $('#date-label').text(mappedTrans.date);
+                $('#satisfaction-level-title').text(mappedTrans.satisfaction_level);
+                $('#rating-poor').text(mappedTrans.rating_poor);
+                $('#rating-needs-improvement').text(mappedTrans.rating_needs_improvement);
+                $('#rating-satisfactory').text(mappedTrans.rating_satisfactory);
+                $('#rating-very-satisfactory').text(mappedTrans.rating_very_satisfactory);
+                $('#rating-excellent').text(mappedTrans.rating_excellent);
+                $('#recommendation-title').text(mappedTrans.recommendation);
+                $('#recommendation-question').text(mappedTrans.recommendation_question);
+                $('#select-rating-option').text(mappedTrans.select_rating);
+                $('#improvement-areas-title').text(mappedTrans.improvement_areas);
+                $('#improvement-areas-subtitle').text(mappedTrans.select_all_apply);
+                $('#submit-button-text').text(mappedTrans.submit_survey);
+                $('#thank-you-title').text(mappedTrans.thank_you);
+                $('#thank-you-message').text(mappedTrans.thank_you_message);
+                $('#thank-you-feedback').text(mappedTrans.thank_you_message);
+                $('#feedback-helps').text(mappedTrans.feedback_helps);
+                $('#feedback-helps-alt').text(mappedTrans.feedback_helps);
+                $('#view-response-text').text(mappedTrans.view_response);
+                $('#view-response-text-alt').text(mappedTrans.view_response);
+                $('#validation-alert-text').text(mappedTrans.validation_alert);
+                
+                // Update improvement areas
+                $('#product-quality-text').text(mappedTrans.product_quality);
+                $('#delivery-logistics-text').text(mappedTrans.delivery_logistics);
+                $('#customer-service-text').text(mappedTrans.customer_service);
+                $('#timeliness-text').text(mappedTrans.timeliness);
+                $('#returns-handling-text').text(mappedTrans.returns_handling);
+                $('#others-text').text(mappedTrans.others);
+                $('#other-comments-textarea').attr('placeholder', mappedTrans.others_placeholder);
+                
+                // Update improvement details
+                $('#product-availability-text').text(mappedTrans.product_availability);
+                $('#product-expiration-text').text(mappedTrans.product_expiration);
+                $('#product-damage-text').text(mappedTrans.product_damage);
+                $('#delivery-time-text').text(mappedTrans.delivery_on_time);
+                $('#missing-items-text').text(mappedTrans.missing_items);
+                $('#response-time-text').text(mappedTrans.response_time);
+                $('#clear-communication-text').text(mappedTrans.clear_communication);
+                $('#schedule-adherence-text').text(mappedTrans.schedule_adherence);
+                $('#return-process-text').text(mappedTrans.return_process);
+                $('#bo-coordination-text').text(mappedTrans.bo_coordination);
+                
+                // Update question texts based on selected language
+                $('.question-card').each(function() {
+                    const questionId = $(this).data('question-id');
+                    const questionTranslations = $(this).find('.question-translations');
+                    const newText = questionTranslations.find(`[data-lang="${language}"]`).text();
+                    
+                    if (newText) {
+                        $(this).find('.question-content').text(newText);
+                    }
+                });
+                
+                // Update badges
+                $('.badge.required').text(mappedTrans.required);
+                $('.badge.optional').text(mappedTrans.optional);
+                
+                // Set app locale for server-side translations
+                $.post('{{ route("set.language") }}', {
+                    language: language,
+                    _token: '{{ csrf_token() }}'
+                });
             },
-            'tl': {
-                'account_name': 'Pangalan ng Account',
-                'account_type': 'Uri ng Account',
-                'date': 'Petsa',
-                'satisfaction_level': 'Antas ng Kasiyahan',
-                'rating_poor': '1 - Mahina',
-                'rating_needs_improvement': '2 - Kailangan ng Pagpapabuti',
-                'rating_satisfactory': '3 - Kasiya-siya',
-                'rating_very_satisfactory': '4 - Napakasiya-siya',
-                'rating_excellent': '5 - Napakagaling',
-                'required': 'Kailangan',
-                'optional': 'Opsyonal',
-                'recommendation': 'Rekomendasyon',
-                'recommendation_question': 'Gaano ka malamang na irerekumenda mo ang aming kumpanya sa iyong kaibigan o kasamahan?',
-                'select_rating': 'Pumili ng rating',
-                'improvement_areas': 'Mga Lugar para sa Pagpapabuti ng mga Mungkahi',
-                'select_all_apply': 'Piliin lahat na naaangkop:',
-                'product_quality': 'Kalidad ng Produkto / Serbisyo',
-                'delivery_logistics': 'Paghahatid at Logistics',
-                'customer_service': 'Benta at Customer Service',
-                'timeliness': 'Pagkamaagap',
-                'returns_handling': 'Pag-handle ng Returns / BO',
-                'others': 'Iba pa (pakitukoy)',
-                'others_placeholder': 'Pakitukoy ang iba pang mga lugar para sa pagpapabuti...',
-                'submit_survey': 'Isumite ang Survey',
-                'thank_you': 'SALAMAT!',
-                'thank_you_message': 'PINASASALAMATAN NAMIN ANG INYONG FEEDBACK!',
-                'feedback_helps': 'Ang inyong input ay tumutulong sa amin na magbigay ng mas magandang serbisyo.',
-                'view_response': 'Tingnan ang Sagot',
-                'validation_alert': 'Pakipunan ang lahat ng kailangang mga patlang!',
-                'product_availability': 'Umaasa kaming laging available ang mga produkto. Madalas na out of stock ang ilang items.',
-                'product_expiration': 'Pakibantayan nang mas maingat ang mga expiration date ng produkto. Minsan nakakakuha kami ng mga item na malapit nang mag-expire.',
-                'product_damage': 'Ang ilang produkto ay dumarating na may mga dents, leaks, o sirang packaging. Pakitiyak na lahat ng items ay nasa magandang kondisyon.',
-                'delivery_on_time': 'Maappreciate namin kung palagi na lang on time ang mga delivery, gaya ng pangako.',
-                'missing_items': 'May ilang pagkakataon na may mga missing items sa aming deliveries. Pakidouble-check ang orders para sa completeness.',
-                'response_time': 'Makakatulong kung mas mabilis na matutugon ang aming mga concerns o follow-ups.',
-                'clear_communication': 'Appreciate namin ang clear communication. Pakitiyak na lahat ng interactions ay nananatiling polite at professional.',
-                'schedule_adherence': 'Pakisubukan na sundin ang agreed delivery o visit schedule para maiwasan ang disruptions sa aming store operations.',
-                'return_process': 'Sana mas mabilis at mas convenient ang return process.',
-                'bo_coordination': 'Pakiimprove ang coordination pagdating sa pagkuha ng bad order items.'
-            },
-            'ceb': {
-                'account_name': 'Ngalan sa Account',
-                'account_type': 'Tipo sa Account',
-                'date': 'Petsa',
-                'satisfaction_level': 'Lebel sa Katagbawan',
-                'rating_poor': '1 - Dili Maayo',
-                'rating_needs_improvement': '2 - Kinahanglan og Pagpauswag',
-                'rating_satisfactory': '3 - Maayo',
-                'rating_very_satisfactory': '4 - Maayo Kaayo',
-                'rating_excellent': '5 - Perpekto',
-                'required': 'Gikinahanglan',
-                'optional': 'Opsyonal',
-                'recommendation': 'Rekomendasyon',
-                'recommendation_question': 'Unsa ka posible nga imong irekomenda ang among kompanya sa imong higala o kauban?',
-                'select_rating': 'Pagpili og rating',
-                'improvement_areas': 'Mga Lugar para sa Pagpauswag nga mga Sugyot',
-                'select_all_apply': 'Pagpili sa tanan nga magamit:',
-                'product_quality': 'Kalidad sa Produkto / Serbisyo',
-                'delivery_logistics': 'Pagdala ug Logistics',
-                'customer_service': 'Baligya ug Customer Service',
-                'timeliness': 'Pagkamatuod sa Oras',
-                'returns_handling': 'Pagdumala sa Returns / BO',
-                'others': 'Uban pa (palihug tukya)',
-                'others_placeholder': 'Palihug tukya ang ubang lugar para sa pagpauswag...',
-                'submit_survey': 'Isumite ang Survey',
-                'thank_you': 'SALAMAT!',
-                'thank_you_message': 'GIPASALAMATAN NAMO ANG IMONG FEEDBACK!',
-                'feedback_helps': 'Ang imong input nagtabang kanamo nga makahatag og mas maayong serbisyo.',
-                'view_response': 'Tan-awa ang Tubag',
-                'validation_alert': 'Palihug pun-a ang tanan nga gikinahanglan nga mga patlang!',
-                'product_availability': 'Naglaum kami nga ang mga produkto kanunay makuha. Ang pipila ka mga butang kanunay nga walay stock.',
-                'product_expiration': 'Palihug bantayi ang mga petsa sa pagkaexpire sa produkto nga mas maampingon. Usahay makadawat kami og mga butang nga hapit nang ma-expire.',
-                'product_damage': 'Ang pipila ka mga produkto moabot nga may mga dako, pagkatubo, o guba nga pagkabalot. Palihug siguruha nga ang tanan nga mga butang naa sa maayong kondisyon.',
-                'delivery_on_time': 'Mapasalamaton namo kung ang mga pagdala kanunay nga moabot sa hustong oras, sumala sa gisaad.',
-                'missing_items': 'Adunay pipila ka mga higayon sa nawala nga mga butang sa among mga pagdala. Palihug susihon og maayo ang mga order para sa pagkakompleto.',
-                'response_time': 'Makatabang kung ang among mga kabalaka o mga follow-up matubag nga mas kusog.',
-                'clear_communication': 'Gipasalamatan namo ang klaro nga komunikasyon. Palihug siguruha nga ang tanan nga mga pakig-uban magpadayon nga mabination ug propesyonal.',
-                'schedule_adherence': 'Palihug sulayi nga sundon ang nahisgutang iskhedyul sa pagdala o pagbisita aron malikayan ang mga pagkabalda sa among operasyon sa tindahan.',
-                'return_process': 'Naglaum ko nga ang proseso sa pagbalik mahimong mas paspas ug mas sayon.',
-                'bo_coordination': 'Palihug pauswaga ang koordinasyon kung bahin sa pagkuha sa mga dautang order nga mga butang.'
+            error: function(xhr, status, error) {
+                console.error('Error fetching translations:', error);
+                // Fallback to English if translation fetch fails
+                if (language !== 'en') {
+                    updatePageLanguage('en');
+                }
             }
-        };
-        
-        // Get translations for selected language
-        const trans = translations[language] || translations['en'];
-        
-        // Update all translatable elements
-        $('#account-name-label').text(trans.account_name);
-        $('#account-type-label').text(trans.account_type);
-        $('#date-label').text(trans.date);
-        $('#satisfaction-level-title').text(trans.satisfaction_level);
-        $('#rating-poor').text(trans.rating_poor);
-        $('#rating-needs-improvement').text(trans.rating_needs_improvement);
-        $('#rating-satisfactory').text(trans.rating_satisfactory);
-        $('#rating-very-satisfactory').text(trans.rating_very_satisfactory);
-        $('#rating-excellent').text(trans.rating_excellent);
-        $('#recommendation-title').text(trans.recommendation);
-        $('#recommendation-question').text(trans.recommendation_question);
-        $('#select-rating-option').text(trans.select_rating);
-        $('#improvement-areas-title').text(trans.improvement_areas);
-        $('#improvement-areas-subtitle').text(trans.select_all_apply);
-        $('#submit-button-text').text(trans.submit_survey);
-        $('#thank-you-title').text(trans.thank_you);
-        $('#thank-you-message').text(trans.thank_you_message);
-        $('#thank-you-feedback').text(trans.thank_you_message);
-        $('#feedback-helps').text(trans.feedback_helps);
-        $('#feedback-helps-alt').text(trans.feedback_helps);
-        $('#view-response-text').text(trans.view_response);
-        $('#view-response-text-alt').text(trans.view_response);
-        $('#validation-alert-text').text(trans.validation_alert);
-        
-        // Update improvement areas
-        $('#product-quality-text').text(trans.product_quality);
-        $('#delivery-logistics-text').text(trans.delivery_logistics);
-        $('#customer-service-text').text(trans.customer_service);
-        $('#timeliness-text').text(trans.timeliness);
-        $('#returns-handling-text').text(trans.returns_handling);
-        $('#others-text').text(trans.others);
-        $('#other-comments-textarea').attr('placeholder', trans.others_placeholder);
-        
-        // Update improvement details
-        $('#product-availability-text').text(trans.product_availability);
-        $('#product-expiration-text').text(trans.product_expiration);
-        $('#product-damage-text').text(trans.product_damage);
-        $('#delivery-time-text').text(trans.delivery_on_time);
-        $('#missing-items-text').text(trans.missing_items);
-        $('#response-time-text').text(trans.response_time);
-        $('#clear-communication-text').text(trans.clear_communication);
-        $('#schedule-adherence-text').text(trans.schedule_adherence);
-        $('#return-process-text').text(trans.return_process);
-        $('#bo-coordination-text').text(trans.bo_coordination);
-        
-        // Update question texts based on selected language
-        $('.question-card').each(function() {
-            const questionId = $(this).data('question-id');
-            const questionTranslations = $(this).find('.question-translations');
-            const newText = questionTranslations.find(`[data-lang="${language}"]`).text();
-            
-            if (newText) {
-                $(this).find('.question-content').text(newText);
-            }
-        });
-        
-        // Update badges
-        $('.badge.required').text(trans.required);
-        $('.badge.optional').text(trans.optional);
-        
-        // Set app locale for server-side translations
-        $.post('{{ route("set.language") }}', {
-            language: language,
-            _token: '{{ csrf_token() }}'
         });
     }
     

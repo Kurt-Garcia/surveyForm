@@ -51,6 +51,11 @@ class DatabaseSeeder extends Seeder
             DeveloperSeeder::class,
         ]);
         
+        // Seed default translations
+        $this->call([
+            TranslationSeeder::class,
+        ]);
+        
         // // Create large dataset for testing
         // $this->call([
         //     LargeDataSeeder::class

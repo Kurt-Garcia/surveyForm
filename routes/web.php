@@ -21,10 +21,42 @@ Route::post('/survey/{survey}/submit', [UserSurveyController::class, 'customerSt
 // Language setting route
 Route::post('/set-language', function(\Illuminate\Http\Request $request) {
     $language = $request->input('language', 'en');
-    session(['locale' => $language]);
-    app()->setLocale($language);
-    return response()->json(['success' => true]);
+    
+    // Check if the locale is available in the database
+    $availableLocales = \App\Models\Translation::getAvailableLocales();
+    
+    if (in_array($language, $availableLocales)) {
+        session(['locale' => $language]);
+        app()->setLocale($language);
+        return response()->json(['success' => true, 'locale' => $language]);
+    } else {
+        return response()->json(['success' => false, 'message' => 'Locale not available'], 400);
+    }
 })->name('set.language');
+
+// Get translations for frontend
+Route::get('/translations/{locale?}', function($locale = null) {
+    if ($locale) {
+        $translations = \App\Models\Translation::where('locale', $locale)->get();
+    } else {
+        $translations = \App\Models\Translation::all();
+    }
+    
+    $result = [];
+    foreach ($translations as $translation) {
+        if (!isset($result[$translation->locale])) {
+            $result[$translation->locale] = [];
+        }
+        $result[$translation->locale][$translation->key] = $translation->value;
+    }
+    
+    return response()->json($result);
+})->name('get.translations');
+
+// Demo route for database translations
+Route::get('/demo/translations', function() {
+    return view('demo.translation-demo');
+})->name('demo.translations');
 
 // Autocomplete route for customer names
 Route::get('/customers/autocomplete', [CustomerController::class, 'autocomplete'])->name('customers.autocomplete');
@@ -233,5 +265,17 @@ Route::prefix('c2VjcmV0LWRldi1hY2Nlc3MtZmFzdGRldi0yMDI1')->group(function () {
         Route::get('/users', [\App\Http\Controllers\DeveloperController::class, 'users'])->name('developer.users');
         Route::patch('/users/{id}/toggle-status', [\App\Http\Controllers\DeveloperController::class, 'toggleUserStatus'])->name('developer.users.toggle-status');
         Route::delete('/users/{id}', [\App\Http\Controllers\DeveloperController::class, 'deleteUser'])->name('developer.users.delete');
+        
+        // Translation management routes (for developers)
+        Route::prefix('translations')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\TranslationController::class, 'index'])->name('developer.translations.index');
+            Route::get('/create', [\App\Http\Controllers\Admin\TranslationController::class, 'create'])->name('developer.translations.create');
+            Route::post('/', [\App\Http\Controllers\Admin\TranslationController::class, 'store'])->name('developer.translations.store');
+            Route::get('/{translation}/edit', [\App\Http\Controllers\Admin\TranslationController::class, 'edit'])->name('developer.translations.edit');
+            Route::put('/{translation}', [\App\Http\Controllers\Admin\TranslationController::class, 'update'])->name('developer.translations.update');
+            Route::delete('/{translation}', [\App\Http\Controllers\Admin\TranslationController::class, 'destroy'])->name('developer.translations.destroy');
+            Route::post('/clear-cache', [\App\Http\Controllers\Admin\TranslationController::class, 'clearCache'])->name('developer.translations.clearCache');
+            Route::post('/export', [\App\Http\Controllers\Admin\TranslationController::class, 'export'])->name('developer.translations.export');
+        });
     });
 });
