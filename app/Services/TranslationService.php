@@ -50,10 +50,10 @@ class TranslationService
     /**
      * Set translation
      */
-    public function set($key, $value, $locale = null, $group = null)
+    public function set($key, $value, $locale = null)
     {
         $locale = $locale ?: $this->locale;
-        return Translation::setTranslation($key, $locale, $value, $group);
+        return Translation::setTranslation($key, $locale, $value);
     }
 
     /**
@@ -127,11 +127,10 @@ class TranslationService
             $files = glob($localePath . '/*.php');
             
             foreach ($files as $file) {
-                $group = pathinfo($file, PATHINFO_FILENAME);
                 $translations = include $file;
                 
                 if (is_array($translations)) {
-                    $this->importTranslationArray($translations, $locale, $group);
+                    $this->importTranslationArray($translations, $locale);
                 }
             }
         }
@@ -142,15 +141,15 @@ class TranslationService
     /**
      * Import translation array recursively
      */
-    private function importTranslationArray($translations, $locale, $group, $prefix = '')
+    private function importTranslationArray($translations, $locale, $prefix = '')
     {
         foreach ($translations as $key => $value) {
             $fullKey = $prefix ? "{$prefix}.{$key}" : $key;
             
             if (is_array($value)) {
-                $this->importTranslationArray($value, $locale, $group, $fullKey);
+                $this->importTranslationArray($value, $locale, $fullKey);
             } else {
-                $this->set($fullKey, $value, $locale, $group);
+                $this->set($fullKey, $value, $locale);
             }
         }
     }

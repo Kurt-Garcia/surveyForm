@@ -21,8 +21,7 @@ class TranslationController extends Controller
      */
     public function index(Request $request)
     {
-        $locale = $request->get('locale', 'en');
-        $group = $request->get('group', '');
+        $locale = $request->get('locale', '');
         $search = $request->get('search', '');
         
         $query = Translation::query();
@@ -30,11 +29,6 @@ class TranslationController extends Controller
         // Filter by locale
         if ($locale) {
             $query->where('locale', $locale);
-        }
-        
-        // Filter by group
-        if ($group) {
-            $query->where('group', $group);
         }
         
         // Search in key or value
@@ -48,9 +42,8 @@ class TranslationController extends Controller
         $translations = $query->orderBy('key')->paginate(20);
         
         $locales = Translation::getAvailableLocales();
-        $groups = Translation::distinct('group')->pluck('group')->filter()->sort();
         
-        return view('admin.translations.index', compact('translations', 'locales', 'groups', 'locale', 'group', 'search'));
+        return view('admin.translations.index', compact('translations', 'locales', 'locale', 'search'));
     }
 
     /**
@@ -59,9 +52,8 @@ class TranslationController extends Controller
     public function create()
     {
         $locales = Translation::getAvailableLocales();
-        $groups = Translation::distinct('group')->pluck('group')->filter()->sort();
         
-        return view('admin.translations.create', compact('locales', 'groups'));
+        return view('admin.translations.create', compact('locales'));
     }
 
     /**
@@ -72,8 +64,7 @@ class TranslationController extends Controller
         $request->validate([
             'key' => 'required|string|max:255',
             'locale' => 'required|string|max:5',
-            'value' => 'required|string',
-            'group' => 'nullable|string|max:255'
+            'value' => 'required|string'
         ]);
         
         // Check if translation already exists
@@ -81,7 +72,7 @@ class TranslationController extends Controller
             return redirect()->back()->withErrors(['key' => 'Translation already exists for this key and locale.']);
         }
         
-        Translation::create($request->all());
+        Translation::create($request->only(['key', 'locale', 'value']));
         
         // Clear cache
         $this->translationService->clearCache();
@@ -95,9 +86,8 @@ class TranslationController extends Controller
     public function edit(Translation $translation)
     {
         $locales = Translation::getAvailableLocales();
-        $groups = Translation::distinct('group')->pluck('group')->filter()->sort();
         
-        return view('admin.translations.edit', compact('translation', 'locales', 'groups'));
+        return view('admin.translations.edit', compact('translation', 'locales'));
     }
 
     /**
@@ -108,8 +98,7 @@ class TranslationController extends Controller
         $request->validate([
             'key' => 'required|string|max:255',
             'locale' => 'required|string|max:5',
-            'value' => 'required|string',
-            'group' => 'nullable|string|max:255'
+            'value' => 'required|string'
         ]);
         
         // Check if translation already exists (excluding current one)
@@ -120,7 +109,7 @@ class TranslationController extends Controller
             return redirect()->back()->withErrors(['key' => 'Translation already exists for this key and locale.']);
         }
         
-        $translation->update($request->all());
+        $translation->update($request->only(['key', 'locale', 'value']));
         
         // Clear cache
         $this->translationService->clearCache();
@@ -159,28 +148,25 @@ class TranslationController extends Controller
         $locales = Translation::getAvailableLocales();
         
         foreach ($locales as $locale) {
-            $translations = Translation::where('locale', $locale)->get()->groupBy('group');
+            $translations = Translation::where('locale', $locale)->get();
             
-            foreach ($translations as $group => $groupTranslations) {
-                $group = $group ?: 'messages';
-                $filePath = resource_path("lang/{$locale}/{$group}.php");
-                
-                // Ensure directory exists
-                $directory = dirname($filePath);
-                if (!is_dir($directory)) {
-                    mkdir($directory, 0755, true);
-                }
-                
-                // Build array
-                $array = [];
-                foreach ($groupTranslations as $translation) {
-                    $array[$translation->key] = $translation->value;
-                }
-                
-                // Write file
-                $content = "<?php\n\nreturn " . var_export($array, true) . ";\n";
-                file_put_contents($filePath, $content);
+            $filePath = resource_path("lang/{$locale}/messages.php");
+            
+            // Ensure directory exists
+            $directory = dirname($filePath);
+            if (!is_dir($directory)) {
+                mkdir($directory, 0755, true);
             }
+            
+            // Build array
+            $array = [];
+            foreach ($translations as $translation) {
+                $array[$translation->key] = $translation->value;
+            }
+            
+            // Write file
+            $content = "<?php\n\nreturn " . var_export($array, true) . ";\n";
+            file_put_contents($filePath, $content);
         }
         
         return redirect()->route('developer.translations.index')->with('success', 'Translations exported to language files successfully.');

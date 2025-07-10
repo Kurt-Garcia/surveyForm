@@ -10,8 +10,7 @@ class Translation extends Model
     protected $fillable = [
         'key',
         'locale',
-        'value',
-        'group'
+        'value'
     ];
 
     /**
@@ -33,11 +32,11 @@ class Translation extends Model
     /**
      * Set translation for a key and locale
      */
-    public static function setTranslation($key, $locale, $value, $group = null)
+    public static function setTranslation($key, $locale, $value)
     {
         $translation = self::updateOrCreate(
             ['key' => $key, 'locale' => $locale],
-            ['value' => $value, 'group' => $group]
+            ['value' => $value]
         );
 
         // Clear cache for this translation

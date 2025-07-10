@@ -276,7 +276,7 @@ body {
                     <div class="card-body p-4">
                         <form method="GET" action="{{ route('developer.translations.index') }}">
                             <div class="row g-4 align-items-end">
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <label for="locale" class="form-label mb-2">Language</label>
                                     <select name="locale" id="locale" class="form-select" onchange="this.form.submit()">
                                         <option value="">All Languages</option>
@@ -287,18 +287,7 @@ body {
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-3">
-                                    <label for="group" class="form-label mb-2">Group</label>
-                                    <select name="group" id="group" class="form-select" onchange="this.form.submit()">
-                                        <option value="">All Groups</option>
-                                        @foreach($groups as $groupOption)
-                                            <option value="{{ $groupOption }}" {{ $group == $groupOption ? 'selected' : '' }}>
-                                                {{ $groupOption }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <label for="search" class="form-label mb-2">Search</label>
                                     <input type="text" name="search" id="search" class="form-control" 
                                            value="{{ $search }}" placeholder="Search key or value..." 
@@ -333,7 +322,6 @@ body {
                                         <tr>
                                             <th>Key</th>
                                             <th>Language</th>
-                                            <th>Group</th>
                                             <th>Value</th>
                                             <th>Actions</th>
                                         </tr>
@@ -348,14 +336,7 @@ body {
                                                     <span class="badge bg-primary">{{ strtoupper($translation->locale) }}</span>
                                                 </td>
                                                 <td>
-                                                    @if($translation->group)
-                                                        <span class="badge bg-secondary">{{ $translation->group }}</span>
-                                                    @else
-                                                        <span class="text-muted">-</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <div class="text-truncate" style="max-width: 300px;" title="{{ $translation->value }}">
+                                                    <div class="text-truncate" style="max-width: 400px;" title="{{ $translation->value }}">
                                                         {{ $translation->value }}
                                                     </div>
                                                 </td>
@@ -386,7 +367,6 @@ body {
                                 @php
                                     $currentFilters = [
                                         'locale' => request('locale', ''),
-                                        'group' => request('group', ''),
                                         'search' => request('search', '')
                                     ];
                                 @endphp
@@ -440,13 +420,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add current filter parameters to all pagination links
     const paginationLinks = document.querySelectorAll('.pagination a');
     const currentLocale = '{{ request("locale", "") }}';
-    const currentGroup = '{{ request("group", "") }}';
     const currentSearch = '{{ request("search", "") }}';
     
     paginationLinks.forEach(link => {
         const url = new URL(link.href);
         if (currentLocale !== null) url.searchParams.set('locale', currentLocale);
-        if (currentGroup !== null) url.searchParams.set('group', currentGroup);
         if (currentSearch !== null) url.searchParams.set('search', currentSearch);
         link.href = url.toString();
     });

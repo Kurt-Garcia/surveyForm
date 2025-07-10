@@ -230,30 +230,8 @@ body {
                                                 {{ strtoupper($localeOption) }}
                                             </option>
                                         @endforeach
-                                        <option value="en" {{ old('locale') == 'en' ? 'selected' : '' }}>EN</option>
-                                        <option value="tl" {{ old('locale') == 'tl' ? 'selected' : '' }}>TL</option>
-                                        <option value="ceb" {{ old('locale') == 'ceb' ? 'selected' : '' }}>CEB</option>
                                     </select>
                                     @error('locale')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-md-3">
-                                    <label for="group" class="form-label">Group</label>
-                                    <select name="group" id="group" class="form-select @error('group') is-invalid @enderror">
-                                        <option value="">Select Group</option>
-                                        @foreach($groups as $groupOption)
-                                            <option value="{{ $groupOption }}" {{ old('group') == $groupOption ? 'selected' : '' }}>
-                                                {{ $groupOption }}
-                                            </option>
-                                        @endforeach
-                                        <option value="survey" {{ old('group') == 'survey' ? 'selected' : '' }}>survey</option>
-                                        <option value="auth" {{ old('group') == 'auth' ? 'selected' : '' }}>auth</option>
-                                        <option value="validation" {{ old('group') == 'validation' ? 'selected' : '' }}>validation</option>
-                                    </select>
-                                    <div class="form-text">Optional grouping for organization</div>
-                                    @error('group')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
