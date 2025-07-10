@@ -273,12 +273,12 @@ body {
 
                 <!-- Filters -->
                 <div class="dev-card mb-4">
-                    <div class="card-body">
+                    <div class="card-body p-4">
                         <form method="GET" action="{{ route('developer.translations.index') }}">
-                            <div class="row g-3">
+                            <div class="row g-4 align-items-end">
                                 <div class="col-md-3">
-                                    <label for="locale" class="form-label">Language</label>
-                                    <select name="locale" id="locale" class="form-select">
+                                    <label for="locale" class="form-label mb-2">Language</label>
+                                    <select name="locale" id="locale" class="form-select" onchange="this.form.submit()">
                                         <option value="">All Languages</option>
                                         @foreach($locales as $localeOption)
                                             <option value="{{ $localeOption }}" {{ $locale == $localeOption ? 'selected' : '' }}>
@@ -288,8 +288,8 @@ body {
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="group" class="form-label">Group</label>
-                                    <select name="group" id="group" class="form-select">
+                                    <label for="group" class="form-label mb-2">Group</label>
+                                    <select name="group" id="group" class="form-select" onchange="this.form.submit()">
                                         <option value="">All Groups</option>
                                         @foreach($groups as $groupOption)
                                             <option value="{{ $groupOption }}" {{ $group == $groupOption ? 'selected' : '' }}>
@@ -299,15 +299,17 @@ body {
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="search" class="form-label">Search</label>
+                                    <label for="search" class="form-label mb-2">Search</label>
                                     <input type="text" name="search" id="search" class="form-control" 
-                                           value="{{ $search }}" placeholder="Search key or value...">
+                                           value="{{ $search }}" placeholder="Search key or value..." 
+                                           oninput="debounceSearch(this.value)">
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="form-label">&nbsp;</label>
-                                    <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-primary">Filter</button>
-                                        <a href="{{ route('developer.translations.index') }}" class="btn btn-outline-secondary">Reset</a>
+                                    <div class="d-flex justify-content-end">
+                                        <a href="{{ route('developer.translations.index') }}" 
+                                           class="btn btn-outline-secondary px-4">
+                                            <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -322,14 +324,6 @@ body {
                             Translations 
                             <span class="badge bg-secondary">{{ $translations->total() }}</span>
                         </h5>
-                        <div class="d-flex gap-2">
-                            <form method="POST" action="{{ route('developer.translations.export') }}" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-outline-primary btn-sm">
-                                    <i class="bi bi-download"></i> Export to Files
-                                </button>
-                            </form>
-                        </div>
                     </div>
                     <div class="card-body p-0">
                         @if($translations->count() > 0)
@@ -389,7 +383,14 @@ body {
                             
                             <!-- Pagination -->
                             <div class="d-flex justify-content-center mt-4">
-                                {{ $translations->appends(request()->query())->links() }}
+                                @php
+                                    $currentFilters = [
+                                        'locale' => request('locale', ''),
+                                        'group' => request('group', ''),
+                                        'search' => request('search', '')
+                                    ];
+                                @endphp
+                                {{ $translations->appends($currentFilters)->links() }}
                             </div>
                         @else
                             <div class="text-center py-5">
@@ -422,7 +423,34 @@ function createParticles() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', createParticles);
+// Debounced search function
+let searchTimeout;
+function debounceSearch(value) {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        const form = document.querySelector('form[method="GET"]');
+        form.submit();
+    }, 500); // 500ms delay
+}
+
+// Ensure pagination links maintain filter state
+document.addEventListener('DOMContentLoaded', function() {
+    createParticles();
+    
+    // Add current filter parameters to all pagination links
+    const paginationLinks = document.querySelectorAll('.pagination a');
+    const currentLocale = '{{ request("locale", "") }}';
+    const currentGroup = '{{ request("group", "") }}';
+    const currentSearch = '{{ request("search", "") }}';
+    
+    paginationLinks.forEach(link => {
+        const url = new URL(link.href);
+        if (currentLocale !== null) url.searchParams.set('locale', currentLocale);
+        if (currentGroup !== null) url.searchParams.set('group', currentGroup);
+        if (currentSearch !== null) url.searchParams.set('search', currentSearch);
+        link.href = url.toString();
+    });
+});
 </script>
 
 <!-- Bootstrap JS -->
