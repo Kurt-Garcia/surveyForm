@@ -121,6 +121,11 @@
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
     
+    /* Ensure hidden language options stay hidden */
+    #languageModal .language-option[style*="display: none"] {
+        display: none !important;
+    }
+    
     #languageModal .language-option:hover {
         background: linear-gradient(135deg, #f8f9fa, #e9ecef);
         transform: translateY(-2px);
@@ -1466,12 +1471,11 @@ $(document).ready(function() {
         }
         
         if (acceptChecked) {
-            // User accepted - close modal and show language selection modal
+            // User accepted - close modal and check available languages
             consentModal.hide();
             
-            // Show language selection modal
-            const languageModal = new bootstrap.Modal(document.getElementById('languageModal'));
-            languageModal.show();
+            // Check which languages have content and show language modal accordingly
+            checkAvailableLanguagesAndShowModal();
         } else if (declineChecked) {
             // User declined - show message and disable form
             consentModal.hide();
@@ -1488,6 +1492,9 @@ $(document).ready(function() {
                 
                 // Add overlay to indicate survey is not accessible
                 $('body').append('<div class="survey-disabled-overlay d-flex align-items-center justify-content-center"><div class="text-center p-4 bg-white rounded shadow"><i class="fas fa-lock fa-3x text-warning mb-3"></i><h4>Survey Access Denied</h4><p>You must accept the terms and conditions to access this survey.</p><button class="btn btn-primary mt-3" onclick="window.location.reload()">Try Again</button></div></div>');
+                
+                // Reset all language options visibility
+                $('.language-option').show();
             });
         }
     });
@@ -1495,25 +1502,79 @@ $(document).ready(function() {
     // Language selection modal logic
     let selectedLanguage = 'en'; // Default language
     
+    // Function to check available languages and show modal conditionally
+    function checkAvailableLanguagesAndShowModal() {
+        const hasTagalog = checkLanguageAvailable('tl');
+        const hasCebuano = checkLanguageAvailable('ceb');
+        
+        // If only English is available, skip the language modal and use English by default
+        if (!hasTagalog && !hasCebuano) {
+            selectedLanguage = 'en';
+            $('#selected_language').val(selectedLanguage);
+            updatePageLanguage(selectedLanguage);
+            return;
+        }
+        
+        // Hide language options that don't have content
+        if (!hasTagalog) {
+            $('.language-option[data-language="tl"]').hide();
+        } else {
+            $('.language-option[data-language="tl"]').show();
+        }
+        
+        if (!hasCebuano) {
+            $('.language-option[data-language="ceb"]').hide();
+        } else {
+            $('.language-option[data-language="ceb"]').show();
+        }
+        
+        // Show the language modal with available languages
+        const languageModal = new bootstrap.Modal(document.getElementById('languageModal'));
+        languageModal.show();
+    }
+    
+    // Function to check if a language has content in survey questions
+    function checkLanguageAvailable(languageCode) {
+        let hasContent = false;
+        
+        // Check if any question has content in the specified language
+        $('.question-card').each(function() {
+            const questionTranslations = $(this).find('.question-translations');
+            const languageText = questionTranslations.find(`[data-lang="${languageCode}"]`).text().trim();
+            const englishText = questionTranslations.find(`[data-lang="en"]`).text().trim();
+            
+            // Consider language available if it has different content from English
+            if (languageText && languageText !== englishText) {
+                hasContent = true;
+                return false; // Break the loop
+            }
+        });
+        
+        return hasContent;
+    }
+    
     // Handle language option selection
     $('.language-option').on('click', function() {
-        // Remove selected class from all options
-        $('.language-option').removeClass('selected');
-        
-        // Add selected class to clicked option
-        $(this).addClass('selected');
-        
-        // Get selected language
-        selectedLanguage = $(this).data('language');
-        
-        // Enable continue button
-        $('#languageContinueBtn').prop('disabled', false);
-        
-        // Update hidden input
-        $('#selected_language').val(selectedLanguage);
-        
-        // Update the page language immediately
-        updatePageLanguage(selectedLanguage);
+        // Only handle visible language options
+        if ($(this).is(':visible')) {
+            // Remove selected class from all options
+            $('.language-option').removeClass('selected');
+            
+            // Add selected class to clicked option
+            $(this).addClass('selected');
+            
+            // Get selected language
+            selectedLanguage = $(this).data('language');
+            
+            // Enable continue button
+            $('#languageContinueBtn').prop('disabled', false);
+            
+            // Update hidden input
+            $('#selected_language').val(selectedLanguage);
+            
+            // Update the page language immediately
+            updatePageLanguage(selectedLanguage);
+        }
     });
     
     // Handle language continue button click
@@ -1526,6 +1587,9 @@ $(document).ready(function() {
         
         // Update all translatable elements
         updatePageLanguage(selectedLanguage);
+        
+        // Reset all language options visibility for future use
+        $('.language-option').show();
     });
     
     // Function to update page language
@@ -1663,9 +1727,16 @@ $(document).ready(function() {
     $(document).ready(function() {
         const savedLanguage = localStorage.getItem('survey_language');
         if (savedLanguage && savedLanguage !== 'en') {
-            selectedLanguage = savedLanguage;
-            $('#selected_language').val(selectedLanguage);
-            updatePageLanguage(selectedLanguage);
+            // Check if the saved language is available for this survey
+            const languageAvailable = checkLanguageAvailable(savedLanguage);
+            if (languageAvailable) {
+                selectedLanguage = savedLanguage;
+                $('#selected_language').val(selectedLanguage);
+                updatePageLanguage(selectedLanguage);
+            } else {
+                // Remove invalid saved language and fall back to English
+                localStorage.removeItem('survey_language');
+            }
         }
     });
     
@@ -1746,7 +1817,7 @@ $(document).ready(function() {
     });
     
     $('#account_type').on('input', function() {
-        if ($('#account_name').val().trim()) {
+        if ($('#account_name').val().trim()) {   
             updateCopyLinkVisibility();
         }
     });
