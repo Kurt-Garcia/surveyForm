@@ -178,7 +178,7 @@ body {
 }
 
 .badge.bg-secondary {
-    background: rgba(255, 255, 255, 0.2) !important;
+    background: rgba(108, 117, 125, 0.8) !important;
     color: white;
 }
 
