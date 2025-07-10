@@ -533,12 +533,40 @@
     
     function addLanguageValidation(input, language) {
         input.addEventListener('input', function() {
+            // Check if English is filled for this question first
+            validateEnglishFirst(this, language);
             validateLanguageConsistency(language);
         });
         
         input.addEventListener('blur', function() {
+            validateEnglishFirst(this, language);
             validateLanguageConsistency(language);
         });
+        
+        input.addEventListener('focus', function() {
+            validateEnglishFirst(this, language);
+        });
+    }
+    
+    function validateEnglishFirst(input, language) {
+        const questionCard = input.closest('.question-card');
+        const englishInput = questionCard.querySelector('.question-text-input');
+        const messageContainer = input.parentElement.querySelector('.language-validation-message');
+        
+        if (!messageContainer) return;
+        
+        // Clear previous English-first validation
+        input.classList.remove('is-warning-english');
+        
+        // Check if this language input has content but English doesn't
+        if (input.value.trim().length > 0 && englishInput.value.trim().length < 3) {
+            input.classList.add('is-warning-english');
+            messageContainer.innerHTML = `<small class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>Please fill the English version first. English is the default language and is required before adding ${language.charAt(0).toUpperCase() + language.slice(1)} translation.</small>`;
+            messageContainer.style.display = 'block';
+            return false;
+        }
+        
+        return true;
     }
     
     function validateLanguageConsistency(language) {
@@ -547,19 +575,22 @@
         const filledInputs = Array.from(inputs).filter(input => input.value.trim().length > 0);
         const emptyInputs = Array.from(inputs).filter(input => input.value.trim().length === 0);
         
-        // Clear previous validation messages
+        // Clear previous validation messages (except English-first warnings)
         inputs.forEach(input => {
             const messageContainer = input.parentElement.querySelector('.language-validation-message');
-            if (messageContainer) {
+            if (messageContainer && !input.classList.contains('is-warning-english')) {
                 messageContainer.style.display = 'none';
                 messageContainer.innerHTML = '';
             }
             input.classList.remove('is-invalid', 'is-warning');
         });
         
-        // If some filled and some empty, show warning
+        // If some filled and some empty, show warning (only if English-first validation passed)
         if (filledInputs.length > 0 && emptyInputs.length > 0) {
             emptyInputs.forEach(input => {
+                // Skip if English-first validation is showing
+                if (input.classList.contains('is-warning-english')) return;
+                
                 const messageContainer = input.parentElement.querySelector('.language-validation-message');
                 if (messageContainer) {
                     const questionCard = input.closest('.question-card');
@@ -1143,6 +1174,18 @@
             icon.style.display = 'none';
             message.style.display = 'none';
             
+            // Re-validate language inputs in this question when English changes
+            const questionCard = this.closest('.question-card');
+            const tagalogInput = questionCard.querySelector('.tagalog-input');
+            const cebuanoInput = questionCard.querySelector('.cebuano-input');
+            
+            if (tagalogInput) {
+                validateEnglishFirst(tagalogInput, 'tagalog');
+            }
+            if (cebuanoInput) {
+                validateEnglishFirst(cebuanoInput, 'cebuano');
+            }
+            
             if (currentValue.length < 3) {
                 return; // Don't validate until at least 3 characters
             }
@@ -1319,11 +1362,34 @@
         // Check for empty English questions (required as default language)
         const emptyEnglishQuestions = Array.from(questionInputs).filter(input => input.value.trim().length < 3);
         if (emptyEnglishQuestions.length > 0) {
-            swalWithBootstrapButtons.fire({
-                title: "English Questions Required!",
-                text: "All English questions must be filled with at least 3 characters. English is the default language and is required for all questions.",
-                icon: "error"
-            });
+            // Check if admin filled other languages but not English
+            const tagalogInputs = document.querySelectorAll('input[name^="questions"][name$="[text_tagalog]"]');
+            const cebuanoInputs = document.querySelectorAll('input[name^="questions"][name$="[text_cebuano]"]');
+            
+            const hasTagalogFilled = Array.from(tagalogInputs).some(input => input.value.trim().length > 0);
+            const hasCebuanoFilled = Array.from(cebuanoInputs).some(input => input.value.trim().length > 0);
+            
+            if (hasTagalogFilled || hasCebuanoFilled) {
+                // Admin filled other languages but not English
+                const filledLanguages = [];
+                if (hasTagalogFilled) filledLanguages.push('Tagalog');
+                if (hasCebuanoFilled) filledLanguages.push('Cebuano');
+                
+                swalWithBootstrapButtons.fire({
+                    title: "English Required First!",
+                    text: `You have filled ${filledLanguages.join(' and ')} translations, but English questions are empty. English is the default language and must be filled first before adding translations.`,
+                    icon: "warning",
+                    confirmButtonText: "OK, I'll fill English first"
+                });
+            } else {
+                // No translations filled, just missing English
+                swalWithBootstrapButtons.fire({
+                    title: "English Questions Required!",
+                    text: "All English questions must be filled with at least 3 characters. English is the default language and is required for all questions.",
+                    icon: "error"
+                });
+            }
+            
             emptyEnglishQuestions[0].focus();
             return false;
         }
@@ -1506,6 +1572,13 @@
 .tagalog-input.is-warning,
 .cebuano-input.is-warning {
     border-color: #ffc107;
+    padding-right: calc(1.5em + 1rem);
+    background-image: none;
+}
+
+.tagalog-input.is-warning-english,
+.cebuano-input.is-warning-english {
+    border-color: #dc3545;
     padding-right: calc(1.5em + 1rem);
     background-image: none;
 }
