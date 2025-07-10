@@ -388,94 +388,13 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
                     ]);
                 }
                 
-                // Empty row before feedback section
-                $emptyRowBeforeFeedback = $npsStatusRow + 1;
-                
-                // Feedback section header - red background like sample
-                $feedbackHeaderRow = $npsStatusRow + 3;
-                $sheet->mergeCells("A{$feedbackHeaderRow}:{$lastColumn}{$feedbackHeaderRow}");
-                $sheet->getStyle("A{$feedbackHeaderRow}:{$lastColumn}{$feedbackHeaderRow}")->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF'], 'name' => 'Arial'],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'C00000']], // Dark red background like sample
-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
-                ]);
-                $sheet->getRowDimension($feedbackHeaderRow)->setRowHeight(23);
-                
-                // Empty row after feedback header
-                $emptyRowAfterFeedbackHeader = $feedbackHeaderRow + 1;
-                
-                // Positive feedback header row - green background like sample
-                $positiveFeedbackRow = $feedbackHeaderRow + 2;
-                $sheet->getStyle("A{$positiveFeedbackRow}:{$lastColumn}{$positiveFeedbackRow}")->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '92D050']], // Light green like sample
-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
-                ]);
-                
-                // Style positive feedback data rows (5 rows) - white background with borders
-                for ($i = 1; $i <= 5; $i++) {
-                    $row = $positiveFeedbackRow + $i;
-                    $sheet->getStyle("A{$row}")->applyFromArray([
-                        'font' => ['bold' => false, 'size' => 10, 'name' => 'Arial'],
-                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
-                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
-                    ]);
-                    
-                    // Count cells for each site
-                    $sheet->getStyle("B{$row}:{$lastColumn}{$row}")->applyFromArray([
-                        'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
-                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
-                    ]);
-                }
-                
-                // Empty rows after positive feedback
-                $emptyRow1AfterPositive = $positiveFeedbackRow + 6;
-                $emptyRow2AfterPositive = $emptyRow1AfterPositive + 1;
-                
-                // Areas for improvement header row - yellow background like sample
-                $improvementHeaderRow = $positiveFeedbackRow + 8; // 5 feedback rows + 2 empty rows + 1
-                $sheet->getStyle("A{$improvementHeaderRow}")->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFF00']], // Yellow like sample
-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
-                ]);
-                
-                // Site names in improvement header row
-                $sheet->getStyle("B{$improvementHeaderRow}:{$lastColumn}{$improvementHeaderRow}")->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFF00']], // Yellow like sample
-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
-                ]);
-                
-                // Style improvement data rows (5 rows) - white background with borders
-                for ($i = 1; $i <= 5; $i++) {
-                    $row = $improvementHeaderRow + $i;
-                    $sheet->getStyle("A{$row}")->applyFromArray([
-                        'font' => ['bold' => false, 'size' => 10, 'name' => 'Arial'],
-                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
-                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
-                    ]);
-                    
-                    // Count cells for each site
-                    $sheet->getStyle("B{$row}:{$lastColumn}{$row}")->applyFromArray([
-                        'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
-                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
-                    ]);
-                }
-                
                 // Empty rows before signature
-                $emptyRow1BeforeSign = $improvementHeaderRow + 6;
+                $emptyRow1BeforeSign = $npsStatusRow + 1;
                 $emptyRow2BeforeSign = $emptyRow1BeforeSign + 1;
                 $emptyRow3BeforeSign = $emptyRow2BeforeSign + 1;
                 
                 // Signature section header - match sample styling
-                $signatureHeaderRow = $improvementHeaderRow + 9; // 5 improvement rows + 3 empty rows + 1
+                $signatureHeaderRow = $npsStatusRow + 4; // 3 empty rows + 1
                 $sheet->mergeCells("A{$signatureHeaderRow}:{$lastColumn}{$signatureHeaderRow}");
                 $sheet->getStyle("A{$signatureHeaderRow}:{$lastColumn}{$signatureHeaderRow}")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
