@@ -156,6 +156,12 @@ class SurveyResponseController extends Controller
         // Response distribution by account type
         $responsesByType = $responses->groupBy('account_type')->map->count();
 
+        // Calculate Recommendation Statistics
+        $recommendationStats = $this->calculateRecommendationStats($responses);
+        
+        // Calculate Areas for Improvement Statistics
+        $improvementAreasStats = $this->calculateImprovementAreasStats($survey);
+
         return view('admin.surveys.report', compact(
             'survey', 
             'responses', 
@@ -170,7 +176,9 @@ class SurveyResponseController extends Controller
             'siteAnalytics',
             'npsData',
             'hitPercentage',
-            'avgNPS'
+            'avgNPS',
+            'recommendationStats',
+            'improvementAreasStats'
         ));
     }
 
@@ -413,5 +421,155 @@ class SurveyResponseController extends Controller
         $filename = 'Detailed_Customer_Satisfaction_Survey_' . str_replace(' ', '_', $survey->title) . '_' . date('Y-m-d') . '.xlsx';
         
         return Excel::download($export, $filename);
+    }
+    
+    private function calculateRecommendationStats($responses)
+    {
+        $recommendationStats = [
+            'overall' => [
+                'total_responses' => $responses->count(),
+                'average_score' => round($responses->avg('recommendation'), 2),
+                'distribution' => [],
+                'by_site' => []
+            ]
+        ];
+        
+        // Calculate overall distribution (1-10 scale)
+        for ($i = 1; $i <= 10; $i++) {
+            $count = $responses->where('recommendation', $i)->count();
+            $percentage = $responses->count() > 0 ? round(($count / $responses->count()) * 100, 1) : 0;
+            $recommendationStats['overall']['distribution'][$i] = [
+                'count' => $count,
+                'percentage' => $percentage
+            ];
+        }
+        
+        // Calculate recommendation stats by site
+        $responseSiteIds = $responses->pluck('user_site_id')->unique()->filter();
+        if ($responseSiteIds->isNotEmpty()) {
+            $sitesWithResponses = \App\Models\Site::with('sbu')->whereIn('id', $responseSiteIds)->get();
+            
+            foreach ($sitesWithResponses as $site) {
+                $siteResponses = $responses->where('user_site_id', $site->id);
+                if ($siteResponses->count() > 0) {
+                    $siteDistribution = [];
+                    for ($i = 1; $i <= 10; $i++) {
+                        $count = $siteResponses->where('recommendation', $i)->count();
+                        $percentage = $siteResponses->count() > 0 ? round(($count / $siteResponses->count()) * 100, 1) : 0;
+                        $siteDistribution[$i] = [
+                            'count' => $count,
+                            'percentage' => $percentage
+                        ];
+                    }
+                    
+                    $recommendationStats['overall']['by_site'][] = [
+                        'site_name' => $site->name,
+                        'sbu_name' => $site->sbu->name,
+                        'total_responses' => $siteResponses->count(),
+                        'average_score' => round($siteResponses->avg('recommendation'), 2),
+                        'distribution' => $siteDistribution
+                    ];
+                }
+            }
+        }
+        
+        return $recommendationStats;
+    }
+    
+    private function calculateImprovementAreasStats($survey)
+    {
+        $improvementStats = [
+            'categories' => [],
+            'by_site' => [],
+            'top_categories' => [],
+            'details_by_category' => []
+        ];
+        
+        // Get all improvement categories for this survey
+        $categories = DB::table('survey_improvement_categories as sic')
+            ->join('survey_response_headers as srh', 'srh.id', '=', 'sic.header_id')
+            ->where('srh.survey_id', $survey->id)
+            ->select('sic.*', 'srh.user_site_id')
+            ->get();
+        
+        if ($categories->isEmpty()) {
+            return $improvementStats;
+        }
+        
+        // Calculate overall category statistics
+        $categoryGroups = $categories->groupBy('category_name');
+        foreach ($categoryGroups as $categoryName => $categoryItems) {
+            $count = $categoryItems->count();
+            $totalResponses = DB::table('survey_response_headers')->where('survey_id', $survey->id)->count();
+            $percentage = $totalResponses > 0 ? round(($count / $totalResponses) * 100, 1) : 0;
+            
+            $improvementStats['categories'][$categoryName] = [
+                'count' => $count,
+                'percentage' => $percentage,
+                'total_responses' => $totalResponses
+            ];
+        }
+        
+        // Sort categories by count (most mentioned first)
+        $improvementStats['top_categories'] = collect($improvementStats['categories'])
+            ->sortByDesc('count')
+            ->take(5)
+            ->toArray();
+        
+        // Calculate by site
+        $responseSiteIds = $categories->pluck('user_site_id')->unique()->filter();
+        if ($responseSiteIds->isNotEmpty()) {
+            $sitesWithResponses = \App\Models\Site::with('sbu')->whereIn('id', $responseSiteIds)->get();
+            
+            foreach ($sitesWithResponses as $site) {
+                $siteCategories = $categories->where('user_site_id', $site->id);
+                $siteCategoryGroups = $siteCategories->groupBy('category_name');
+                $siteStats = [];
+                
+                foreach ($siteCategoryGroups as $categoryName => $categoryItems) {
+                    $count = $categoryItems->count();
+                    $siteResponses = DB::table('survey_response_headers')
+                        ->where('survey_id', $survey->id)
+                        ->where('user_site_id', $site->id)
+                        ->count();
+                    $percentage = $siteResponses > 0 ? round(($count / $siteResponses) * 100, 1) : 0;
+                    
+                    $siteStats[$categoryName] = [
+                        'count' => $count,
+                        'percentage' => $percentage
+                    ];
+                }
+                
+                $improvementStats['by_site'][] = [
+                    'site_name' => $site->name,
+                    'sbu_name' => $site->sbu->name,
+                    'total_responses' => $siteCategories->count(),
+                    'categories' => $siteStats
+                ];
+            }
+        }
+        
+        // Get improvement details for each category
+        foreach ($categoryGroups as $categoryName => $categoryItems) {
+            $categoryIds = $categoryItems->pluck('id');
+            $details = DB::table('survey_improvement_details')
+                ->whereIn('category_id', $categoryIds)
+                ->select('detail_text', DB::raw('count(*) as count'))
+                ->groupBy('detail_text')
+                ->orderByDesc('count')
+                ->get();
+            
+            $improvementStats['details_by_category'][$categoryName] = $details->map(function($detail) use ($categoryItems) {
+                $totalForCategory = $categoryItems->count();
+                $percentage = $totalForCategory > 0 ? round(($detail->count / $totalForCategory) * 100, 1) : 0;
+                return [
+                    'detail_text' => $detail->detail_text,
+                    'count' => $detail->count,
+                    'percentage' => $percentage
+                ];
+            })->toArray();
+        }
+        
+        return $improvementStats;
     }
 }

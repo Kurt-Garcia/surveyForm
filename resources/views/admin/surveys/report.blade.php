@@ -14,6 +14,14 @@
                 | <strong>Total Responses:</strong> {{ $totalResponses }}
                 | <strong>Sites with Responses:</strong> {{ count($siteAnalytics) }}
             </p>
+            @if(isset($recommendationStats['overall']) && $recommendationStats['overall']['total_responses'] > 0)
+            <p class="mb-1">
+                <strong>Average Recommendation:</strong> {{ $recommendationStats['overall']['average_score'] }}/10
+                @if(isset($improvementAreasStats['top_categories']) && count($improvementAreasStats['top_categories']) > 0)
+                | <strong>Top Improvement Area:</strong> {{ str_replace('_', ' ', array_keys($improvementAreasStats['top_categories'])[0]) }}
+                @endif
+            </p>
+            @endif
         </div>
     </div>
     <!-- Survey Header -->
@@ -461,6 +469,288 @@
         </div>
     </div>
 
+    <!-- Recommendation Analysis -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3">
+            <h4 class="text-primary mb-0 fw-bold"><i class="fas fa-star me-2"></i>Recommendation Analysis</h4>
+            <p class="text-muted small mb-0">Detailed analysis of recommendation scores (1-10 scale)</p>
+        </div>
+        <div class="card-body">
+            @if(isset($recommendationStats['overall']) && $recommendationStats['overall']['total_responses'] > 0)
+                <!-- Overall Statistics -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="text-center border rounded p-3">
+                            <div class="h2 text-primary mb-2">{{ $recommendationStats['overall']['average_score'] }}</div>
+                            <h6 class="text-muted mb-0">Average Score</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center border rounded p-3">
+                            <div class="h2 text-info mb-2">{{ $recommendationStats['overall']['total_responses'] }}</div>
+                            <h6 class="text-muted mb-0">Total Responses</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center border rounded p-3">
+                            @php
+                                $promoters = collect($recommendationStats['overall']['distribution'])->filter(function($item, $score) {
+                                    return $score >= 9;
+                                })->sum('count');
+                                $promoterPercentage = $recommendationStats['overall']['total_responses'] > 0 ? 
+                                    round(($promoters / $recommendationStats['overall']['total_responses']) * 100, 1) : 0;
+                            @endphp
+                            <div class="h2 text-success mb-2">{{ $promoterPercentage }}%</div>
+                            <h6 class="text-muted mb-0">Promoters (9-10)</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center border rounded p-3">
+                            @php
+                                $detractors = collect($recommendationStats['overall']['distribution'])->filter(function($item, $score) {
+                                    return $score <= 6;
+                                })->sum('count');
+                                $detractorPercentage = $recommendationStats['overall']['total_responses'] > 0 ? 
+                                    round(($detractors / $recommendationStats['overall']['total_responses']) * 100, 1) : 0;
+                            @endphp
+                            <div class="h2 text-danger mb-2">{{ $detractorPercentage }}%</div>
+                            <h6 class="text-muted mb-0">Detractors (1-6)</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Score Distribution Chart -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="fw-bold mb-3">Score Distribution (1-10 Scale)</h6>
+                        <div class="score-distribution">
+                            @for($i = 1; $i <= 10; $i++)
+                                @php
+                                    $data = $recommendationStats['overall']['distribution'][$i] ?? ['count' => 0, 'percentage' => 0];
+                                    $colorClass = '';
+                                    if($i <= 6) $colorClass = 'bg-danger';
+                                    elseif($i <= 8) $colorClass = 'bg-warning';
+                                    else $colorClass = 'bg-success';
+                                @endphp
+                                <div class="score-item mb-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold">Score {{ $i }}:</span>
+                                        <span>{{ $data['count'] }} responses ({{ $data['percentage'] }}%)</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar {{ $colorClass }}" style="width: {{ $data['percentage'] }}%"></div>
+                                    </div>
+                                </div>
+                            @endfor
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Site-wise Recommendation Analysis -->
+                @if(count($recommendationStats['overall']['by_site']) > 0)
+                    <div class="row">
+                        <div class="col-12">
+                            <h6 class="fw-bold mb-3">Recommendation Analysis by Site</h6>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Site</th>
+                                            <th>SBU</th>
+                                            <th class="text-center">Total Responses</th>
+                                            <th class="text-center">Average Score</th>
+                                            <th class="text-center">Promoters (9-10)</th>
+                                            <th class="text-center">Passives (7-8)</th>
+                                            <th class="text-center">Detractors (1-6)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($recommendationStats['overall']['by_site'] as $siteData)
+                                            <tr>
+                                                <td class="fw-bold">{{ $siteData['site_name'] }}</td>
+                                                <td>{{ $siteData['sbu_name'] }}</td>
+                                                <td class="text-center">{{ $siteData['total_responses'] }}</td>
+                                                <td class="text-center">
+                                                    <span class="h6 mb-0 {{ $siteData['average_score'] >= 8 ? 'text-success' : ($siteData['average_score'] >= 6 ? 'text-warning' : 'text-danger') }}">
+                                                        {{ $siteData['average_score'] }}
+                                                    </span>
+                                                </td>
+                                                <td class="text-center">
+                                                    @php
+                                                        $sitePromoters = collect($siteData['distribution'])->filter(function($item, $score) {
+                                                            return $score >= 9;
+                                                        })->sum('count');
+                                                        $sitePromoterPercentage = $siteData['total_responses'] > 0 ? 
+                                                            round(($sitePromoters / $siteData['total_responses']) * 100, 1) : 0;
+                                                    @endphp
+                                                    <span class="badge bg-success">{{ $sitePromoters }}</span>
+                                                    <small class="text-muted">({{ $sitePromoterPercentage }}%)</small>
+                                                </td>
+                                                <td class="text-center">
+                                                    @php
+                                                        $sitePassives = collect($siteData['distribution'])->filter(function($item, $score) {
+                                                            return $score >= 7 && $score <= 8;
+                                                        })->sum('count');
+                                                        $sitePassivePercentage = $siteData['total_responses'] > 0 ? 
+                                                            round(($sitePassives / $siteData['total_responses']) * 100, 1) : 0;
+                                                    @endphp
+                                                    <span class="badge bg-info">{{ $sitePassives }}</span>
+                                                    <small class="text-muted">({{ $sitePassivePercentage }}%)</small>
+                                                </td>
+                                                <td class="text-center">
+                                                    @php
+                                                        $siteDetractors = collect($siteData['distribution'])->filter(function($item, $score) {
+                                                            return $score <= 6;
+                                                        })->sum('count');
+                                                        $siteDetractorPercentage = $siteData['total_responses'] > 0 ? 
+                                                            round(($siteDetractors / $siteData['total_responses']) * 100, 1) : 0;
+                                                    @endphp
+                                                    <span class="badge bg-danger">{{ $siteDetractors }}</span>
+                                                    <small class="text-muted">({{ $siteDetractorPercentage }}%)</small>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @else
+                <div class="text-center py-4">
+                    <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No recommendation data available</p>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    <!-- Areas for Improvement Analysis -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3">
+            <h4 class="text-primary mb-0 fw-bold"><i class="fas fa-tools me-2"></i>Areas for Improvement Analysis</h4>
+            <p class="text-muted small mb-0">Customer feedback on areas that need attention</p>
+        </div>
+        <div class="card-body">
+            @if(isset($improvementAreasStats['categories']) && count($improvementAreasStats['categories']) > 0)
+                <!-- Top Issues Summary -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="fw-bold mb-3">Top Improvement Categories</h6>
+                        <div class="row">
+                            @foreach($improvementAreasStats['top_categories'] as $categoryName => $data)
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="card border-warning h-100">
+                                        <div class="card-body">
+                                            <h6 class="text-warning text-capitalize">{{ str_replace('_', ' ', $categoryName) }}</h6>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <div class="h5 text-warning mb-0">{{ $data['count'] }}</div>
+                                                    <small class="text-muted">mentions</small>
+                                                </div>
+                                                <div class="text-end">
+                                                    <div class="h6 text-warning mb-0">{{ $data['percentage'] }}%</div>
+                                                    <small class="text-muted">of responses</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Category Analysis -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="fw-bold mb-3">All Categories with Details</h6>
+                        <div class="accordion" id="improvementAccordion">
+                            @foreach($improvementAreasStats['categories'] as $categoryName => $categoryData)
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="heading{{ $loop->index }}">
+                                        <button class="accordion-button {{ $loop->first ? '' : 'collapsed' }}" type="button" 
+                                                data-bs-toggle="collapse" data-bs-target="#collapse{{ $loop->index }}" 
+                                                aria-expanded="{{ $loop->first ? 'true' : 'false' }}" aria-controls="collapse{{ $loop->index }}">
+                                            <strong class="text-capitalize">{{ str_replace('_', ' ', $categoryName) }}</strong>
+                                            <span class="badge bg-warning ms-2">{{ $categoryData['count'] }} mentions ({{ $categoryData['percentage'] }}%)</span>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse{{ $loop->index }}" class="accordion-collapse collapse {{ $loop->first ? 'show' : '' }}" 
+                                         aria-labelledby="heading{{ $loop->index }}" data-bs-parent="#improvementAccordion">
+                                        <div class="accordion-body">
+                                            @if(isset($improvementAreasStats['details_by_category'][$categoryName]) && count($improvementAreasStats['details_by_category'][$categoryName]) > 0)
+                                                <h6 class="mb-3">Specific Issues Mentioned:</h6>
+                                                <div class="list-group">
+                                                    @foreach($improvementAreasStats['details_by_category'][$categoryName] as $detail)
+                                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                            <span>{{ $detail['detail_text'] }}</span>
+                                                            <div>
+                                                                <span class="badge bg-primary rounded-pill">{{ $detail['count'] }}</span>
+                                                                <small class="text-muted ms-2">({{ $detail['percentage'] }}%)</small>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                <p class="text-muted">No specific details available for this category.</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Site-wise Improvement Analysis -->
+                @if(count($improvementAreasStats['by_site']) > 0)
+                    <div class="row">
+                        <div class="col-12">
+                            <h6 class="fw-bold mb-3">Improvement Areas by Site</h6>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Site</th>
+                                            <th>SBU</th>
+                                            <th class="text-center">Total Mentions</th>
+                                            <th>Top Categories</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($improvementAreasStats['by_site'] as $siteData)
+                                            <tr>
+                                                <td class="fw-bold">{{ $siteData['site_name'] }}</td>
+                                                <td>{{ $siteData['sbu_name'] }}</td>
+                                                <td class="text-center">{{ $siteData['total_responses'] }}</td>
+                                                <td>
+                                                    @php
+                                                        $topSiteCategories = collect($siteData['categories'])->sortByDesc('count')->take(3);
+                                                    @endphp
+                                                    @foreach($topSiteCategories as $categoryName => $categoryData)
+                                                        <span class="badge bg-warning me-1">
+                                                            {{ str_replace('_', ' ', $categoryName) }} ({{ $categoryData['count'] }})
+                                                        </span>
+                                                    @endforeach
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @else
+                <div class="text-center py-4">
+                    <i class="fas fa-tools fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No improvement areas data available</p>
+                </div>
+            @endif
+        </div>
+    </div>
+
     <!-- Export Actions -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body text-center py-4">
@@ -632,6 +922,36 @@
 .rating-poor {
     color: #dc3545;
     font-weight: bold;
+}
+
+/* Score distribution styling */
+.score-distribution .score-item {
+    border-left: 3px solid #e9ecef;
+    padding-left: 10px;
+}
+
+.score-distribution .score-item:hover {
+    border-left-color: #007bff;
+    background-color: #f8f9fa;
+}
+
+/* Improvement areas styling */
+.accordion-button {
+    background-color: #f8f9fa;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+.list-group-item {
+    border-left: 3px solid #ffc107;
+    margin-bottom: 2px;
+}
+
+.list-group-item:hover {
+    background-color: #fff3cd;
 }
 </style>
 
