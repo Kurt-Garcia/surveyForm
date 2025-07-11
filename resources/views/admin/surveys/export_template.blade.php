@@ -189,12 +189,11 @@
         @endforeach
     </tr>
     
-    <!-- NPS Score Row with Color Coding -->
+    <!-- Average Recommendation Score Row with Color Coding -->
     <tr>
-        <td></td>
+        <td>Average Score</td>
         @foreach($npsData as $nps)
             @php
-                // Get the average recommendation score for this site to determine color
                 $avgRecommendation = 0;
                 if ($recommendationStats && isset($recommendationStats['overall']['by_site'])) {
                     foreach ($recommendationStats['overall']['by_site'] as $site) {
@@ -204,18 +203,16 @@
                         }
                     }
                 }
-                
-                // Color coding based on average recommendation score ranges
                 $colorClass = '';
                 if ($avgRecommendation >= 9) {
-                    $colorClass = 'nps-promoter'; // Green for promoters (9-10)
+                    $colorClass = 'nps-promoter'; // Green for 9-10
                 } elseif ($avgRecommendation >= 7) {
-                    $colorClass = 'nps-passive'; // Yellow for passives (7-8)
+                    $colorClass = 'nps-passive'; // Yellow for 7-8
                 } else {
-                    $colorClass = 'nps-detractor'; // Red for detractors (0-6)
+                    $colorClass = 'nps-detractor'; // Red for 0-6
                 }
             @endphp
-            <td class="{{ $colorClass }}">{{ $nps['nps_score'] }}</td>
+            <td class="{{ $colorClass }}">{{ $avgRecommendation ? number_format($avgRecommendation, 2) : 'N/A' }}</td>
         @endforeach
     </tr>
     
