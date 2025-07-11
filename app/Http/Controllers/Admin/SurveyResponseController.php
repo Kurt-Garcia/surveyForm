@@ -354,6 +354,12 @@ class SurveyResponseController extends Controller
         // Calculate NPS for each site
         $npsData = $this->calculateNPS($survey, $responses);
         
+        // Calculate Recommendation Statistics
+        $recommendationStats = $this->calculateRecommendationStats($responses);
+        
+        // Calculate Areas for Improvement Statistics
+        $improvementAreasStats = $this->calculateImprovementAreasStats($survey);
+        
         $totalResponses = $responses->count();
         
         $export = new SurveyReportExport(
@@ -362,7 +368,9 @@ class SurveyResponseController extends Controller
             $npsData,
             $questions,
             $totalResponses,
-            $statistics
+            $statistics,
+            $recommendationStats,
+            $improvementAreasStats
         );
         
         $filename = 'Customer_Satisfaction_Survey_' . str_replace(' ', '_', $survey->title) . '_' . date('Y-m-d') . '.xlsx';

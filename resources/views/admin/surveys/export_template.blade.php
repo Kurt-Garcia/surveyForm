@@ -205,7 +205,7 @@
         @endforeach
     </tr>
     
-    <!-- Empty Rows -->
+    <!-- Empty rows before signature -->
     <tr>
         <td colspan="{{ count($siteAnalytics) + 1 }}"></td>
     </tr>
@@ -215,6 +215,132 @@
     <tr>
         <td colspan="{{ count($siteAnalytics) + 1 }}"></td>
     </tr>
+    
+    @if($recommendationStats && isset($recommendationStats['overall']['total_responses']) && $recommendationStats['overall']['total_responses'] > 0)
+    <!-- Recommendation Analysis Section -->
+    <tr>
+        <td colspan="{{ count($siteAnalytics) + 1 }}">RECOMMENDATION ANALYSIS</td>
+    </tr>
+    
+    <!-- Average Recommendation Score -->
+    <tr>
+        <td>Average Recommendation Score (1-10)</td>
+        @foreach($siteAnalytics as $siteData)
+            @php
+                $siteRecommendation = null;
+                if (isset($recommendationStats['overall']['by_site'])) {
+                    foreach ($recommendationStats['overall']['by_site'] as $site) {
+                        if ($site['site_name'] === $siteData['site_name']) {
+                            $siteRecommendation = $site['average_score'];
+                            break;
+                        }
+                    }
+                }
+            @endphp
+            <td>{{ $siteRecommendation ? number_format($siteRecommendation, 2) : 'N/A' }}</td>
+        @endforeach
+    </tr>
+    
+    <!-- Promoters Count (9-10) -->
+    <tr>
+        <td>Promoters (9-10)</td>
+        @foreach($siteAnalytics as $siteData)
+            @php
+                $promoters = 0;
+                if (isset($recommendationStats['overall']['by_site'])) {
+                    foreach ($recommendationStats['overall']['by_site'] as $site) {
+                        if ($site['site_name'] === $siteData['site_name']) {
+                            $promoters = ($site['distribution'][9]['count'] ?? 0) + ($site['distribution'][10]['count'] ?? 0);
+                            break;
+                        }
+                    }
+                }
+            @endphp
+            <td>{{ $promoters }}</td>
+        @endforeach
+    </tr>
+    
+    <!-- Passives Count (7-8) -->
+    <tr>
+        <td>Passives (7-8)</td>
+        @foreach($siteAnalytics as $siteData)
+            @php
+                $passives = 0;
+                if (isset($recommendationStats['overall']['by_site'])) {
+                    foreach ($recommendationStats['overall']['by_site'] as $site) {
+                        if ($site['site_name'] === $siteData['site_name']) {
+                            $passives = ($site['distribution'][7]['count'] ?? 0) + ($site['distribution'][8]['count'] ?? 0);
+                            break;
+                        }
+                    }
+                }
+            @endphp
+            <td>{{ $passives }}</td>
+        @endforeach
+    </tr>
+    
+    <!-- Detractors Count (1-6) -->
+    <tr>
+        <td>Detractors (1-6)</td>
+        @foreach($siteAnalytics as $siteData)
+            @php
+                $detractors = 0;
+                if (isset($recommendationStats['overall']['by_site'])) {
+                    foreach ($recommendationStats['overall']['by_site'] as $site) {
+                        if ($site['site_name'] === $siteData['site_name']) {
+                            for ($i = 1; $i <= 6; $i++) {
+                                $detractors += $site['distribution'][$i]['count'] ?? 0;
+                            }
+                            break;
+                        }
+                    }
+                }
+            @endphp
+            <td>{{ $detractors }}</td>
+        @endforeach
+    </tr>
+    
+    <!-- Empty Row -->
+    <tr>
+        <td colspan="{{ count($siteAnalytics) + 1 }}"></td>
+    </tr>
+    @endif
+    
+    @if($improvementAreasStats && isset($improvementAreasStats['categories']) && count($improvementAreasStats['categories']) > 0)
+    <!-- Areas for Improvement Section -->
+    <tr>
+        <td colspan="{{ count($siteAnalytics) + 1 }}">AREAS FOR IMPROVEMENT</td>
+    </tr>
+    
+    <!-- Top Improvement Categories -->
+    @php
+        $topCategories = array_slice($improvementAreasStats['top_categories'], 0, 5, true);
+    @endphp
+    @foreach($topCategories as $categoryName => $categoryData)
+    <tr>
+        <td>{{ str_replace('_', ' ', ucfirst($categoryName)) }}</td>
+        @foreach($siteAnalytics as $siteData)
+            @php
+                $categoryCount = 0;
+                if (isset($improvementAreasStats['by_site'])) {
+                    foreach ($improvementAreasStats['by_site'] as $site) {
+                        if ($site['site_name'] === $siteData['site_name']) {
+                            $categoryCount = $site['categories'][$categoryName]['count'] ?? 0;
+                            break;
+                        }
+                    }
+                }
+            @endphp
+            <td>{{ $categoryCount }}</td>
+        @endforeach
+    </tr>
+    @endforeach
+    
+    <!-- Empty Row -->
+    <tr>
+        <td colspan="{{ count($siteAnalytics) + 1 }}"></td>
+    </tr>
+    @endif
     
     <!-- Signature Section -->
     <tr>

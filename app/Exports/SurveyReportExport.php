@@ -24,8 +24,10 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
     protected $questions;
     protected $totalResponses;
     protected $statistics;
+    protected $recommendationStats;
+    protected $improvementAreasStats;
 
-    public function __construct($survey, $siteAnalytics, $npsData, $questions, $totalResponses, $statistics)
+    public function __construct($survey, $siteAnalytics, $npsData, $questions, $totalResponses, $statistics, $recommendationStats = null, $improvementAreasStats = null)
     {
         $this->survey = $survey;
         $this->siteAnalytics = $siteAnalytics;
@@ -33,6 +35,8 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
         $this->questions = $questions;
         $this->totalResponses = $totalResponses;
         $this->statistics = $statistics;
+        $this->recommendationStats = $recommendationStats;
+        $this->improvementAreasStats = $improvementAreasStats;
     }
 
     public function view(): View
@@ -43,7 +47,9 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
             'npsData' => $this->npsData,
             'questions' => $this->questions,
             'totalResponses' => $this->totalResponses,
-            'statistics' => $this->statistics
+            'statistics' => $this->statistics,
+            'recommendationStats' => $this->recommendationStats,
+            'improvementAreasStats' => $this->improvementAreasStats
         ]);
     }
 
@@ -388,13 +394,88 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
                     ]);
                 }
                 
-                // Empty rows before signature
-                $emptyRow1BeforeSign = $npsStatusRow + 1;
-                $emptyRow2BeforeSign = $emptyRow1BeforeSign + 1;
-                $emptyRow3BeforeSign = $emptyRow2BeforeSign + 1;
+                // Calculate the current position after NPS section
+                $currentRow = $npsStatusRow + 4; // 3 empty rows + 1
+                
+                // Add styling for Recommendation Analysis Section if it exists
+                if ($this->recommendationStats && isset($this->recommendationStats['overall']['total_responses']) && $this->recommendationStats['overall']['total_responses'] > 0) {
+                    // Recommendation Analysis header
+                    $recommendationHeaderRow = $currentRow;
+                    $sheet->mergeCells("A{$recommendationHeaderRow}:{$lastColumn}{$recommendationHeaderRow}");
+                    $sheet->getStyle("A{$recommendationHeaderRow}:{$lastColumn}{$recommendationHeaderRow}")->applyFromArray([
+                        'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF'], 'name' => 'Arial'],
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+                        'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '0066CC']], // Blue background
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
+                    ]);
+                    $sheet->getRowDimension($recommendationHeaderRow)->setRowHeight(21);
+                    
+                    // Recommendation analysis rows (5 rows: average, promoters, passives, detractors, empty)
+                    for ($i = 1; $i <= 5; $i++) {
+                        $row = $recommendationHeaderRow + $i;
+                        
+                        // First column styling
+                        $sheet->getStyle("A{$row}")->applyFromArray([
+                            'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+                            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
+                            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
+                        ]);
+                        
+                        // Data cells styling
+                        $sheet->getStyle("B{$row}:{$lastColumn}{$row}")->applyFromArray([
+                            'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
+                            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
+                        ]);
+                    }
+                    
+                    $currentRow += 6; // 5 data rows + 1 header row
+                }
+                
+                // Add styling for Areas for Improvement Section if it exists
+                if ($this->improvementAreasStats && isset($this->improvementAreasStats['categories']) && count($this->improvementAreasStats['categories']) > 0) {
+                    // Areas for Improvement header
+                    $improvementHeaderRow = $currentRow;
+                    $sheet->mergeCells("A{$improvementHeaderRow}:{$lastColumn}{$improvementHeaderRow}");
+                    $sheet->getStyle("A{$improvementHeaderRow}:{$lastColumn}{$improvementHeaderRow}")->applyFromArray([
+                        'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF'], 'name' => 'Arial'],
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+                        'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '0066CC']], // Blue background
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
+                    ]);
+                    $sheet->getRowDimension($improvementHeaderRow)->setRowHeight(21);
+                    
+                    // Count top improvement categories (max 5)
+                    $topCategoriesCount = min(5, count($this->improvementAreasStats['top_categories']));
+                    
+                    // Improvement categories rows + 1 empty row
+                    for ($i = 1; $i <= $topCategoriesCount + 1; $i++) {
+                        $row = $improvementHeaderRow + $i;
+                        
+                        // First column styling
+                        $sheet->getStyle("A{$row}")->applyFromArray([
+                            'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+                            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
+                            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
+                        ]);
+                        
+                        // Data cells styling
+                        $sheet->getStyle("B{$row}:{$lastColumn}{$row}")->applyFromArray([
+                            'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
+                            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
+                            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
+                        ]);
+                    }
+                    
+                    $currentRow += $topCategoriesCount + 2; // categories rows + 1 empty row + 1 header row
+                }
                 
                 // Signature section header - match sample styling
-                $signatureHeaderRow = $npsStatusRow + 4; // 3 empty rows + 1
+                $signatureHeaderRow = $currentRow;
                 $sheet->mergeCells("A{$signatureHeaderRow}:{$lastColumn}{$signatureHeaderRow}");
                 $sheet->getStyle("A{$signatureHeaderRow}:{$lastColumn}{$signatureHeaderRow}")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
