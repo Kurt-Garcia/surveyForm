@@ -191,7 +191,7 @@
     
     <!-- Average Recommendation Score Row with Color Coding -->
     <tr>
-        <td>Average Score</td>
+        <td> </td>
         @foreach($npsData as $nps)
             @php
                 $avgRecommendation = 0;

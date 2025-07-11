@@ -485,6 +485,7 @@
                                             <th class="text-center">Promoters (9-10)</th>
                                             <th class="text-center">Passives (7-8)</th>
                                             <th class="text-center">Detractors (1-6)</th>
+                                            <th class="text-center">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -530,6 +531,9 @@
                                                     @endphp
                                                     <span class="badge bg-danger">{{ $siteDetractors }}</span>
                                                     <small class="text-muted">({{ $siteDetractorPercentage }}%)</small>
+                                                </td>
+                                                <td class="text-center fw-bold {{ $siteData['average_score'] >= 8 ? 'text-success' : 'text-danger' }}">
+                                                    {{ $siteData['average_score'] >= 8 ? 'HIT' : 'MISS' }}
                                                 </td>
                                             </tr>
                                         @endforeach
