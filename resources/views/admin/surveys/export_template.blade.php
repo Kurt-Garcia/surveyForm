@@ -274,41 +274,5 @@
     </tr>
     @endif
     
-    <!-- Signature Section -->
-    <tr>
-        <td colspan="{{ count($siteAnalytics) + 1 }}">Reviewed by:</td>
-    </tr>
-    
-    <!-- Empty Rows for signature space -->
-    <tr>
-        <td colspan="{{ count($siteAnalytics) + 1 }}"></td>
-    </tr>
-    <tr>
-        <td colspan="{{ count($siteAnalytics) + 1 }}"></td>
-    </tr>
-    <tr>
-        <td colspan="{{ count($siteAnalytics) + 1 }}"></td>
-    </tr>
-    
-    <!-- Signature Names -->
-    <tr>
-        <td></td>
-        <td>Ferdinand T. Ozon</td>
-        <td></td>
-        <td>Alberto Inocencio P. de Veyra, Jr.</td>
-        @for($i = 4; $i <= count($siteAnalytics); $i++)
-            <td></td>
-        @endfor
-    </tr>
-    
-    <!-- Signature Titles -->
-    <tr>
-        <td></td>
-        <td>AVP for Operations (FUI)</td>
-        <td></td>
-        <td>Chief Executive Officer</td>
-        @for($i = 4; $i <= count($siteAnalytics); $i++)
-            <td></td>
-        @endfor
-    </tr>
+    <!-- Signature Section Removed as requested -->
 </table>
