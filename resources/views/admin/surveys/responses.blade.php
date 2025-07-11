@@ -64,50 +64,7 @@
                 </div>
             </div>
 
-            <!-- Question Statistics -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-header bg-white py-3">
-                            <h4 class="text-color mb-0 fw-bold">Response Summary</h4>
-                        </div>
-                        <div class="card-body">
-                            @foreach($questions as $question)
-                                <div class="question-stats mb-5">
-                                    <h5 class="text-color fw-bold mb-3">{{ $question->text }}</h5>
-                                    @php
-                                        $stats = $statistics[$question->id];
-                                        $total = array_sum($stats['responses']);
-                                    @endphp
-                                    
-                                    @if($question->type === 'radio' || $question->type === 'star')
-                                        <div class="row align-items-stretch">
-                                            <div class="col-md-6">
-                                                <div class="chart-container" style="position: relative; min-height: 200px; max-height: 250px;">
-                                                    <canvas id="pieChart-{{ $question->id }}" class="question-chart"></canvas>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="legend-container p-3 d-flex flex-column justify-content-center">
-                                                    @foreach($stats['responses'] as $response => $count)
-                                                        <div class="legend-item py-2 d-flex align-items-center">
-                                                            <div class="legend-color me-3" style="width: 16px; height: 16px; border-radius: 4px; background-color: {{ $response == 1 ? '#dc3545' : ($response == 2 ? '#ffc107' : ($response == 3 ? '#17a2b8' : ($response == 4 ? '#0d6efd' : '#28a745'))) }};"></div>
-                                                            <div class="d-flex justify-content-between w-100">
-                                                                <span>{{ $response == 1 ? 'Poor' : ($response == 2 ? 'Need Improvement' : ($response == 3 ? 'Satisfactory' : ($response == 4 ? 'Very Satisfactory' : 'Excellent'))) }}</span>
-                                                                <span class="badge bg-light text-dark px-3 py-2">{{ $count }} ({{ round(($count / $total) * 100) }}%)</span>
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endif
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            </div>
+
 
             <!-- Individual Responses Table -->
             <div class="row">
@@ -177,7 +134,6 @@
             </div>
 
             @push('scripts')
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
             <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
             <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"></script>
@@ -187,72 +143,6 @@
             <!-- DataTables scripts are already included in the layout -->
             <script>
                 $(document).ready(function() {
-                    // Initialize pie charts for each question
-                    @foreach($questions as $question)
-                        @if($question->type === 'radio' || $question->type === 'star')
-                            @php
-                                $stats = $statistics[$question->id];
-                                $chartLabels = [];
-                                $chartData = [];
-                                $chartColors = [];
-                                
-                                foreach($stats['responses'] as $response => $count) {
-                                    $label = $response == 1 ? 'Poor' : ($response == 2 ? 'Need Improvement' : ($response == 3 ? 'Satisfactory' : ($response == 4 ? 'Very Satisfactory' : 'Excellent')));
-                                    $color = $response == 1 ? '#dc3545' : ($response == 2 ? '#ffc107' : ($response == 3 ? '#17a2b8' : ($response == 4 ? '#0d6efd' : '#28a745')));
-                                    
-                                    array_push($chartLabels, $label);
-                                    array_push($chartData, $count);
-                                    array_push($chartColors, $color);
-                                }
-                            @endphp
-                            
-                            new Chart(document.getElementById('pieChart-{{ $question->id }}'), {
-                                type: 'pie',
-                                data: {
-                                    labels: {!! json_encode($chartLabels) !!},
-                                    datasets: [{
-                                        data: {!! json_encode($chartData) !!},
-                                        backgroundColor: {!! json_encode($chartColors) !!},
-                                        borderWidth: 1
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    plugins: {
-                                        legend: {
-                                            display: false
-                                        },
-                                        tooltip: {
-                                            callbacks: {
-                                                label: function(context) {
-                                                    const label = context.label || '';
-                                                    const value = context.raw || 0;
-                                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                                    const percentage = Math.round((value / total) * 100);
-                                                    return `${label}: ${value} (${percentage}%)`;
-                                                }
-                                            }
-                                        }
-                                    },
-                                    animation: {
-                                        animateScale: true,
-                                        animateRotate: true
-                                    }
-                                }
-                            });
-                        @endif
-                    @endforeach
-                    
-                    // Add hover effect to legend items
-                    document.querySelectorAll('.legend-item').forEach(item => {
-                        item.addEventListener('mouseenter', function() {
-                            this.style.backgroundColor = '#f8f9fa';
-                        });
-                        item.addEventListener('mouseleave', function() {
-                            this.style.backgroundColor = 'transparent';
-                        });
-                    });
                     
                     // Initialize DataTables with proper configuration and export buttons
                     $('#responsesTable').DataTable({
