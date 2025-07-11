@@ -129,47 +129,40 @@
             <h5 class="text-primary mb-0 fw-bold"><i class="fas fa-info-circle me-2"></i>Rating System Guide</h5>
         </div>
         <div class="card-body">
-            <div class="row text-center">
-                <div class="col-md-2">
+            <div class="row text-center justify-content-center">
+                <div class="col-md-2 col-sm-6 mb-3">
                     <div class="p-3 border rounded bg-light h-100">
                         <div class="h5 rating-excellent mb-2">E</div>
                         <h6 class="mb-1">Excellent</h6>
                         <small class="text-muted">5.0</small>
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 col-sm-6 mb-3">
                     <div class="p-3 border rounded bg-light h-100">
                         <div class="h5 rating-very-satisfactory mb-2">VS</div>
                         <h6 class="mb-1">Very Satisfactory</h6>
                         <small class="text-muted">4.0 - 4.99</small>
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 col-sm-6 mb-3">
                     <div class="p-3 border rounded bg-light h-100">
                         <div class="h5 rating-satisfactory mb-2">S</div>
                         <h6 class="mb-1">Satisfactory</h6>
                         <small class="text-muted">3.0 - 3.99</small>
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 col-sm-6 mb-3">
                     <div class="p-3 border rounded bg-light h-100">
                         <div class="h5 rating-needs-improvement mb-2">NI</div>
                         <h6 class="mb-1">Needs Improvement</h6>
                         <small class="text-muted">2.0 - 2.99</small>
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 col-sm-6 mb-3">
                     <div class="p-3 border rounded bg-light h-100">
                         <div class="h5 rating-poor mb-2">P</div>
                         <h6 class="mb-1">Poor</h6>
                         <small class="text-muted">1.0 - 1.99</small>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="p-3 border rounded bg-success text-white h-100">
-                        <div class="h5 mb-2">QMS Target</div>
-                        <h6 class="mb-1">HIT</h6>
-                        <small>4.0 (VS or E)</small>
                     </div>
                 </div>
             </div>
@@ -759,7 +752,7 @@
             
             <!-- Export Options with Descriptions -->
             <div class="row mb-4">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <div class="border rounded p-3 h-100">
                         <i class="fas fa-file-excel fa-2x text-success mb-3"></i>
                         <h6>Corporate Excel Export</h6>
@@ -769,17 +762,7 @@
                         </a>
                     </div>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <div class="border rounded p-3 h-100">
-                        <i class="fas fa-table fa-2x text-info mb-3"></i>
-                        <h6>Detailed Excel Report</h6>
-                        <p class="small text-muted mb-3">Multi-sheet workbook with comprehensive analytics</p>
-                        <a href="{{ route('admin.surveys.export.detailed', $survey) }}" class="btn btn-outline-info btn-sm">
-                            <i class="fas fa-download me-1"></i>Download
-                        </a>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <div class="border rounded p-3 h-100">
                         <i class="fas fa-print fa-2x text-primary mb-3"></i>
                         <h6>Print Report</h6>
@@ -787,31 +770,6 @@
                         <button type="button" class="btn btn-outline-primary btn-sm" onclick="window.print()">
                             <i class="fas fa-print me-1"></i>Print
                         </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Additional Features Info -->
-            <div class="alert alert-info">
-                <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Export Features:</h6>
-                <div class="row text-start">
-                    <div class="col-md-6">
-                        <p class="mb-1"><strong>Corporate Excel:</strong> Professional format matching corporate standards</p>
-                        <p class="mb-1"><strong>Detailed Excel:</strong> 6 sheets including:</p>
-                        <ul class="mb-0 small">
-                            <li>Corporate Format (Main Report)</li>
-                            <li>Executive Summary</li>
-                            <li>Sites Performance Matrix</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <ul class="mb-0 small">
-                            <li>Question Analysis</li>
-                            <li>NPS Detailed Analysis</li>
-                            <li>Rating Scale Guide</li>
-                        </ul>
-                        <p class="mb-0 mt-2"><strong>Print Version:</strong> Optimized layout for A4 printing</p>
-                        <p class="mb-0"><strong>Features:</strong> Professional styling, color coding, merged cells</p>
                     </div>
                 </div>
             </div>

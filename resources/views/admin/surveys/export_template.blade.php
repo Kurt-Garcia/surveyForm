@@ -165,7 +165,7 @@
     
     <!-- QMS Target Status -->
     <tr>
-        <td>Based on QMS Target (Very Satisfactory)</td>
+        <td>Based on QMS Target</td>
         @foreach($siteAnalytics as $site)
             <td>{{ $site['qms_target_status'] }}</td>
         @endforeach
@@ -221,7 +221,7 @@
     
     <!-- NPS Status Row -->
     <tr>
-        <td>Based on QMS Target (9-10) Promoter</td>
+        <td>Based on QMS Target</td>
         @foreach($npsData as $nps)
             <td>{{ $nps['status'] }}</td>
         @endforeach
