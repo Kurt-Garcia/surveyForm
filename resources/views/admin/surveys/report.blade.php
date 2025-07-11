@@ -305,77 +305,7 @@
         </div>
     </div>
 
-    <!-- Net Promoter Score (NPS) -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-white py-3">
-            <h4 class="text-primary mb-0 fw-bold"><i class="fas fa-thumbs-up me-2"></i>Net Promoter Score (NPS) Analysis</h4>
-            <p class="text-muted small mb-0">Based on "How likely are you to recommend us?" (Recommendation scores)</p>
-        </div>
-        <div class="card-body">
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="alert alert-info">
-                        <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>NPS Calculation Method:</h6>
-                        <p class="mb-2"><strong>Promoters:</strong> Recommendation scores 9-10</p>
-                        <p class="mb-2"><strong>Passives:</strong> Recommendation scores 7-8 (not counted in NPS)</p>
-                        <p class="mb-2"><strong>Detractors:</strong> Recommendation scores 0-6</p>
-                        <p class="mb-0"><strong>Formula:</strong> NPS = (% Promoters) - (% Detractors)</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Site</th>
-                            <th>SBU</th>
-                            <th class="text-center">Total Respondents</th>
-                            <th class="text-center">Promoters (9-10)</th>
-                            <th class="text-center">Passives (7-8)</th>
-                            <th class="text-center">Detractors (0-6)</th>
-                            <th class="text-center">NPS Score</th>
-                            <th class="text-center">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($npsData as $nps)
-                        <tr>
-                            <td class="fw-bold">{{ $nps['site_name'] }}</td>
-                            <td>{{ $nps['sbu_name'] }}</td>
-                            <td class="text-center">{{ $nps['total_respondents'] }}</td>
-                            <td class="text-center">
-                                <span class="badge bg-success">{{ $nps['promoters'] }}</span>
-                                <small class="text-muted">({{ $nps['total_respondents'] > 0 ? round(($nps['promoters']/$nps['total_respondents'])*100, 1) : 0 }}%)</small>
-                            </td>
-                            <td class="text-center">
-                                @php
-                                    $passives = $nps['total_respondents'] - $nps['promoters'] - $nps['detractors'];
-                                @endphp
-                                <span class="badge bg-info">{{ $passives }}</span>
-                                <small class="text-muted">({{ $nps['total_respondents'] > 0 ? round(($passives/$nps['total_respondents'])*100, 1) : 0 }}%)</small>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge bg-danger">{{ $nps['detractors'] }}</span>
-                                <small class="text-muted">({{ $nps['total_respondents'] > 0 ? round(($nps['detractors']/$nps['total_respondents'])*100, 1) : 0 }}%)</small>
-                            </td>
-                            <td class="text-center">
-                                <span class="h5 mb-0 {{ $nps['status'] === 'HIT' ? 'text-success' : ($nps['status'] === 'Borderline' ? 'text-warning' : 'text-danger') }}">
-                                    {{ $nps['nps_score'] }}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge {{ $nps['status'] === 'HIT' ? 'bg-success' : ($nps['status'] === 'Borderline' ? 'bg-warning' : 'bg-danger') }}">
-                                    {{ $nps['status'] }}
-                                </span>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Detailed Question Analysis -->
     <div class="card shadow-sm border-0 mb-4">
