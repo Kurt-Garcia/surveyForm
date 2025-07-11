@@ -236,30 +236,14 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
                 
-                // Color code rating labels based on performance - Match sample exactly
+                // Overall rating labels styling - white background without color coding
                 for ($i = 0; $i < $siteCount; $i++) {
                     $col = chr(66 + $i);
-                    $site = $this->siteAnalytics[$i];
-                    $rating = $site['overall_rating'];
-                    $color = 'FFFFFF'; // Default white
-                    
-                    // Color coding based on rating ranges
-                    if ($rating >= 1 && $rating < 2) {
-                        $color = 'FF0000'; // Red for Poor (P)
-                    } elseif ($rating >= 2 && $rating < 3) {
-                        $color = 'FFC000'; // Orange for Needs Improvement (NI)
-                    } elseif ($rating >= 3 && $rating < 4) {
-                        $color = 'FFFF00'; // Yellow for Satisfactory (S)
-                    } elseif ($rating >= 4 && $rating < 5) {
-                        $color = '92D050'; // Light green for Very Satisfactory (VS)
-                    } elseif ($rating == 5) {
-                        $color = '00B050'; // Dark green for Excellent (E)
-                    }
                     
                     $sheet->getStyle("{$col}{$overallLabelsRow}")->applyFromArray([
                         'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '000000'], 'name' => 'Arial'],
                         'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => $color]],
+                        'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
                         'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                     ]);
                 }
@@ -273,28 +257,14 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
                 
-                // Color code QMS status - use exact colors from sample
+                // Color code QMS status - white background without color coding
                 for ($i = 0; $i < $siteCount; $i++) {
                     $col = chr(66 + $i);
-                    $site = $this->siteAnalytics[$i];
-                    $status = $site['qms_target_status'] ?? '';
-                    
-                    // Color based on status
-                    $color = 'FFFFFF'; // Default white
-                    $textColor = '000000'; // Default black text
-                    
-                    if (strtoupper($status) === 'HIT') {
-                        $color = '00B050'; // Green for HIT
-                        $textColor = 'FFFFFF'; // White text
-                    } elseif (strtoupper($status) === 'MISS') {
-                        $color = 'FF0000'; // Red for MISS
-                        $textColor = 'FFFFFF'; // White text
-                    }
                     
                     $sheet->getStyle("{$col}{$qmsRow}")->applyFromArray([
-                        'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => $textColor], 'name' => 'Arial'],
+                        'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '000000'], 'name' => 'Arial'],
                         'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => $color]],
+                        'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
                         'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                     ]);
                 }
@@ -368,28 +338,14 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                 ]);
                 
-                // Color code NPS status - use exact colors from sample
+                // Color code NPS status - white background without color coding
                 for ($i = 0; $i < count($this->npsData); $i++) {
                     $col = chr(66 + $i);
-                    $nps = $this->npsData[$i];
-                    $status = $nps['status'] ?? '';
-                    
-                    // Color based on status
-                    $color = 'FFFFFF'; // Default white
-                    $textColor = '000000'; // Default black text
-                    
-                    if (strtoupper($status) === 'HIT') {
-                        $color = '00B050'; // Green for HIT
-                        $textColor = 'FFFFFF'; // White text
-                    } elseif (strtoupper($status) === 'MISS') {
-                        $color = 'FF0000'; // Red for MISS
-                        $textColor = 'FFFFFF'; // White text
-                    }
                     
                     $sheet->getStyle("{$col}{$npsStatusRow}")->applyFromArray([
-                        'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => $textColor], 'name' => 'Arial'],
+                        'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '000000'], 'name' => 'Arial'],
                         'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => $color]],
+                        'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
                         'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                     ]);
                 }
@@ -397,41 +353,16 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
                 // Calculate the current position after NPS section
                 $currentRow = $npsStatusRow + 4; // 3 empty rows + 1
                 
-                // Add styling for Recommendation Analysis Section if it exists
-                if ($this->recommendationStats && isset($this->recommendationStats['overall']['total_responses']) && $this->recommendationStats['overall']['total_responses'] > 0) {
-                    // Recommendation Analysis header
-                    $recommendationHeaderRow = $currentRow;
-                    $sheet->mergeCells("A{$recommendationHeaderRow}:{$lastColumn}{$recommendationHeaderRow}");
-                    $sheet->getStyle("A{$recommendationHeaderRow}:{$lastColumn}{$recommendationHeaderRow}")->applyFromArray([
-                        'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF'], 'name' => 'Arial'],
-                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => '0066CC']], // Blue background
+                // Style NPS scores row - white background without color coding
+                for ($i = 0; $i < count($this->npsData); $i++) {
+                    $col = chr(66 + $i);
+                    
+                    $sheet->getStyle("{$col}{$npsScoreRow}")->applyFromArray([
+                        'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '000000'], 'name' => 'Arial'],
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+                        'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
                         'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
                     ]);
-                    $sheet->getRowDimension($recommendationHeaderRow)->setRowHeight(21);
-                    
-                    // Recommendation analysis rows (5 rows: average, promoters, passives, detractors, empty)
-                    for ($i = 1; $i <= 5; $i++) {
-                        $row = $recommendationHeaderRow + $i;
-                        
-                        // First column styling
-                        $sheet->getStyle("A{$row}")->applyFromArray([
-                            'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
-                            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
-                            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
-                            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
-                        ]);
-                        
-                        // Data cells styling
-                        $sheet->getStyle("B{$row}:{$lastColumn}{$row}")->applyFromArray([
-                            'font' => ['bold' => true, 'size' => 10, 'name' => 'Arial'],
-                            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-                            'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['rgb' => 'FFFFFF']],
-                            'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '000000']]]
-                        ]);
-                    }
-                    
-                    $currentRow += 6; // 5 data rows + 1 header row
                 }
                 
                 // Add styling for Areas for Improvement Section if it exists
