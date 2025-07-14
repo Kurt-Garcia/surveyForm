@@ -181,11 +181,30 @@
         <td colspan="{{ count($siteAnalytics) + 1 }}">Net Promoter or Recommendation Score</td>
     </tr>
     
-    <!-- NPS Legend Row showing detractors, passives, promoters -->
+    <!-- NPS Legend Row showing detractors, passives, promoters, and site names color-coded by average recommendation score -->
     <tr>
         <td>0-6 || 7-8 || 9-10</td>
         @foreach($npsData as $nps)
-            <td></td>
+            @php
+                $avgRecommendation = 0;
+                if ($recommendationStats && isset($recommendationStats['overall']['by_site'])) {
+                    foreach ($recommendationStats['overall']['by_site'] as $site) {
+                        if ($site['site_name'] === $nps['site_name']) {
+                            $avgRecommendation = $site['average_score'];
+                            break;
+                        }
+                    }
+                }
+                $bgColor = '';
+                if ($avgRecommendation >= 9) {
+                    $bgColor = '#43a047'; // Green
+                } elseif ($avgRecommendation >= 7) {
+                    $bgColor = '#fbc02d'; // Yellow
+                } else {
+                    $bgColor = '#e53935'; // Red
+                }
+            @endphp
+            <td style="background: {{ $bgColor }}; height: 30px; width: 30px; text-align:center;"></td>
         @endforeach
     </tr>
     
