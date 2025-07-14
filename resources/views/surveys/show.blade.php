@@ -199,7 +199,55 @@
     
     #consentModal .modal-dialog {
         max-width: 900px;
-        margin: 1rem auto;
+    }
+
+    /* Enhanced styles for Areas for Improvement */
+    .improvement-category {
+        background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .improvement-category:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
+    }
+
+    .improvement-areas .form-check-input {
+        width: 1.5em;
+        height: 1.5em;
+        border: 2px solid var(--primary-color);
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .improvement-areas .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .improvement-areas .form-check-label {
+        font-size: 1.1rem;
+        color: #34495e;
+        transition: color 0.3s ease;
+        margin-left: 1.5rem;
+    }
+
+    .improvement-areas .form-check:hover .form-check-label {
+        color: var(--primary-color);
+    }
+
+    .improvement-areas .fw-bold {
+        font-size: 1.2rem;
+        color: var(--secondary-color);
+    }
+
+    .improvement-areas .ms-4 .form-check {
+        margin-bottom: 0.75rem;
+    }    margin: 1rem auto;
     }
     
     #consentModal .modal-content {
