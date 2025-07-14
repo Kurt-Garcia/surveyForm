@@ -41,19 +41,19 @@
                                     <span class="badge bg-warning text-dark">Not Assigned</span>
                                 @endif
                             </p>
-                            <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i><strong>Type:</strong> 
-                                @php
-                                    $hasFDC = $survey->sbus->contains(function($sbu) { return stripos($sbu->name, 'FDC') !== false; });
-                                    $hasFUI = $survey->sbus->contains(function($sbu) { return stripos($sbu->name, 'FUI') !== false; });
-                                @endphp
-                                @if($hasFDC && $hasFUI)
-                                    <span class="badge bg-info text-white">FDC & FUI</span>
-                                @elseif($hasFDC)
-                                    <span class="badge bg-primary text-white">FDC</span>
-                                @elseif($hasFUI)
-                                    <span class="badge bg-success text-white">FUI</span>
+                            <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i><strong>Sites Deployed:</strong>
+                                @if($survey->sites->count() > 0)
+                                    @php $maxVisibleSites = 2; @endphp
+                                    @foreach($survey->sites->take($maxVisibleSites) as $site)
+                                        <span class="badge bg-info text-white me-1">{{ $site->name }}</span>
+                                    @endforeach
+                                    @if($survey->sites->count() > $maxVisibleSites)
+                                        <span class="badge bg-secondary text-white" data-bs-toggle="tooltip" title="{{ $survey->sites->skip($maxVisibleSites)->pluck('name')->join(', ') }}">
+                                            +{{ $survey->sites->count() - $maxVisibleSites }} More
+                                        </span>
+                                    @endif
                                 @else
-                                    <span class="badge bg-secondary text-white">General</span>
+                                    <span class="badge bg-secondary text-white">No sites deployed</span>
                                 @endif
                             </p>
                         </div>
