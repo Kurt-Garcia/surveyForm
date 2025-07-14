@@ -292,27 +292,8 @@ class SurveyReportExport implements FromView, WithStyles, WithColumnWidths, With
                 ]);
                 
                 // Add the NPS legend text with colored formatting
-                $sheet->setCellValue("A{$npsLegendRow}", "0-6 || 7-8 || 9-10");
-                
-                // Apply separate colors to each part of the NPS legend
-                $richText = new \PhpOffice\PhpSpreadsheet\RichText\RichText();
-                
-                $detractors = $richText->createTextRun("0-6 ");
-                $detractors->getFont()->setBold(true)->setSize(10)->setColor(new Color(Color::COLOR_RED));
-                
-                $separator1 = $richText->createTextRun("|| ");
-                $separator1->getFont()->setBold(true)->setSize(10)->setColor(new Color(Color::COLOR_BLACK));
-                
-                $passives = $richText->createTextRun("7-8");
-                $passives->getFont()->setBold(true)->setSize(10)->setColor(new Color(Color::COLOR_YELLOW));
-                
-                $separator2 = $richText->createTextRun(" || ");
-                $separator2->getFont()->setBold(true)->setSize(10)->setColor(new Color(Color::COLOR_BLACK));
-                
-                $promoters = $richText->createTextRun("9-10");
-                $promoters->getFont()->setBold(true)->setSize(10)->setColor(new Color(Color::COLOR_GREEN));
-                
-                $sheet->getCell("A{$npsLegendRow}")->setValue($richText);
+                // Display all three NPS ranges in one cell using emoji squares
+                $sheet->setCellValue("A{$npsLegendRow}", "0-6 (RED)  7-8 (YELLOW)  9-10 (GREEN)");
                 
                 // Empty cells in the NPS legend row
                 $sheet->getStyle("B{$npsLegendRow}:{$lastColumn}{$npsLegendRow}")->applyFromArray([
