@@ -95,9 +95,13 @@
                                         <i class="fas fa-question-circle me-1"></i>
                                         {{ $survey->questions->count() }} questions
                                     </div>
-                                    <div class="text-muted" @if($surveyTheme) style="font-family: {{ $surveyTheme->body_font }}" @endif>
+                                    <div class="text-muted mb-2" @if($surveyTheme) style="font-family: {{ $surveyTheme->body_font }}" @endif>
                                         <i class="fas fa-chart-bar me-1"></i>
                                         {{ $responseCount }} responses
+                                    </div>
+                                    <div class="text-muted" @if($surveyTheme) style="font-family: {{ $surveyTheme->body_font }}" @endif>
+                                        <i class="fas fa-language me-1"></i>
+                                        {{ implode(', ', $survey->getAvailableLanguages()) }}
                                     </div>
                                 </div>
                                 @if($hasResponded)

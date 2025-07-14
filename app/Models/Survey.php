@@ -90,4 +90,26 @@ class Survey extends Model
         
         return $this->sites()->whereIn('site_id', $siteIds)->exists();
     }
+    
+    /**
+     * Get available languages for this survey
+     *
+     * @return array
+     */
+    public function getAvailableLanguages(): array
+    {
+        $languages = ['English']; // English is always available as the default
+        
+        // Check if any questions have Tagalog translations
+        if ($this->questions()->whereNotNull('text_tagalog')->where('text_tagalog', '!=', '')->exists()) {
+            $languages[] = 'Tagalog';
+        }
+        
+        // Check if any questions have Cebuano translations
+        if ($this->questions()->whereNotNull('text_cebuano')->where('text_cebuano', '!=', '')->exists()) {
+            $languages[] = 'Cebuano';
+        }
+        
+        return $languages;
+    }
 }
