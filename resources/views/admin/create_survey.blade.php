@@ -520,15 +520,14 @@
     
     // Language validation functionality
     function initializeLanguageValidation() {
-        // Add listeners to all Tagalog inputs
-        document.querySelectorAll('.tagalog-input').forEach(input => {
-            addLanguageValidation(input, 'tagalog');
-        });
-        
-        // Add listeners to all Cebuano inputs
-        document.querySelectorAll('.cebuano-input').forEach(input => {
-            addLanguageValidation(input, 'cebuano');
-        });
+        // Add listeners to all language inputs dynamically
+    activeLanguages.forEach(language => {
+        if (language.locale !== 'en') {
+            document.querySelectorAll(`.${language.locale}-input`).forEach(input => {
+                addLanguageValidation(input, language.locale);
+            });
+        }
+    });
     }
     
     function addLanguageValidation(input, language) {
@@ -570,7 +569,7 @@
     }
     
     function validateLanguageConsistency(language) {
-        const selector = language === 'tagalog' ? '.tagalog-input' : '.cebuano-input';
+        const selector = `.${language}-input`;
         const inputs = document.querySelectorAll(selector);
         const filledInputs = Array.from(inputs).filter(input => input.value.trim().length > 0);
         const emptyInputs = Array.from(inputs).filter(input => input.value.trim().length === 0);
@@ -745,9 +744,64 @@
         }
     });
 
+    // Get active languages from the server
+    const activeLanguages = @json($activeLanguages ?? []);
+    
+    function generateLanguageTabs(questionIndex) {
+        let tabsHtml = '';
+        let tabContentHtml = '';
+        
+        activeLanguages.forEach((language, index) => {
+            const isActive = index === 0;
+            const languageName = language.name;
+            const languageLocale = language.locale;
+            const tabId = `${languageLocale}-tab-${questionIndex}`;
+            const contentId = `${languageLocale}-${questionIndex}`;
+            
+            // Generate tab button
+            tabsHtml += `
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link ${isActive ? 'active' : ''}" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${contentId}" type="button" role="tab" aria-controls="${contentId}" aria-selected="${isActive}">
+                        <i class="fas fa-globe me-1"></i>${languageName}
+                    </button>
+                </li>`;
+            
+            // Generate tab content
+            const fieldName = languageLocale === 'en' ? 'text' : `text_${languageLocale}`;
+            const placeholder = `Enter question in ${languageName}${languageLocale !== 'en' ? ' (optional)' : ''}`;
+            const required = languageLocale === 'en' ? 'required' : '';
+            const inputClass = languageLocale === 'en' ? 'question-text-input' : `${languageLocale}-input`;
+            
+            tabContentHtml += `
+                <div class="tab-pane fade ${isActive ? 'show active' : ''}" id="${contentId}" role="tabpanel" aria-labelledby="${tabId}">
+                    <div class="position-relative">
+                        <input type="text" class="form-control form-control-lg ${inputClass}" 
+                            name="questions[${questionIndex}][${fieldName}]" 
+                            placeholder="${placeholder}" ${required}
+                            ${languageLocale === 'en' ? `data-question-index="${questionIndex}"` : ''}>
+                        ${languageLocale === 'en' ? `
+                        <div class="question-validation-spinner position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                            <div class="spinner-border spinner-border-sm text-warning" role="status">
+                                <span class="visually-hidden">Checking...</span>
+                            </div>
+                        </div>
+                        <div class="question-validation-icon position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
+                            <i class="fas fa-check text-success"></i>
+                        </div>` : ''}
+                        ${languageLocale !== 'en' ? '<div class="language-validation-message mt-1" style="display: none;"></div>' : ''}
+                    </div>
+                    ${languageLocale === 'en' ? '<div class="question-validation-message" style="display: none; margin-top: 0.25rem;"></div>' : '<small class="text-muted">If left blank, English version will be used</small>'}
+                </div>`;
+        });
+        
+        return { tabsHtml, tabContentHtml };
+    }
+    
     function addQuestion() {
         const container = document.getElementById('questions-container');
         const questionIndex = container.children.length;
+        
+        const { tabsHtml, tabContentHtml } = generateLanguageTabs(questionIndex);
         
         const questionDiv = document.createElement('div');
         questionDiv.className = 'card shadow-sm mb-3 question-card';
@@ -760,60 +814,12 @@
                         
                         <!-- Language Tabs -->
                         <ul class="nav nav-tabs nav-tabs-sm mb-3" id="questionLanguageTabs${questionIndex}" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="english-tab-${questionIndex}" data-bs-toggle="tab" data-bs-target="#english-${questionIndex}" type="button" role="tab" aria-controls="english-${questionIndex}" aria-selected="true">
-                                    <i class="fas fa-globe me-1"></i>English
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="tagalog-tab-${questionIndex}" data-bs-toggle="tab" data-bs-target="#tagalog-${questionIndex}" type="button" role="tab" aria-controls="tagalog-${questionIndex}" aria-selected="false">
-                                    <i class="fas fa-globe me-1"></i>Tagalog
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="cebuano-tab-${questionIndex}" data-bs-toggle="tab" data-bs-target="#cebuano-${questionIndex}" type="button" role="tab" aria-controls="cebuano-${questionIndex}" aria-selected="false">
-                                    <i class="fas fa-globe me-1"></i>Cebuano
-                                </button>
-                            </li>
+                            ${tabsHtml}
                         </ul>
                         
                         <!-- Language Tab Content -->
                         <div class="tab-content mb-3" id="questionLanguageTabsContent${questionIndex}">
-                            <div class="tab-pane fade show active" id="english-${questionIndex}" role="tabpanel" aria-labelledby="english-tab-${questionIndex}">
-                                <div class="position-relative">
-                                    <input type="text" class="form-control form-control-lg question-text-input" 
-                                        name="questions[${questionIndex}][text]" 
-                                        placeholder="Enter question in English" required
-                                        data-question-index="${questionIndex}">
-                                    <div class="question-validation-spinner position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
-                                        <div class="spinner-border spinner-border-sm text-warning" role="status">
-                                            <span class="visually-hidden">Checking...</span>
-                                        </div>
-                                    </div>
-                                    <div class="question-validation-icon position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
-                                        <i class="fas fa-check text-success"></i>
-                                    </div>
-                                </div>
-                                <div class="question-validation-message" style="display: none; margin-top: 0.25rem;"></div>
-                            </div>
-                            <div class="tab-pane fade" id="tagalog-${questionIndex}" role="tabpanel" aria-labelledby="tagalog-tab-${questionIndex}">
-                                <div class="position-relative">
-                                    <input type="text" class="form-control form-control-lg tagalog-input" 
-                                        name="questions[${questionIndex}][text_tagalog]" 
-                                        placeholder="Enter question in Tagalog (optional)">
-                                    <div class="language-validation-message mt-1" style="display: none;"></div>
-                                </div>
-                                <small class="text-muted">If left blank, English version will be used</small>
-                            </div>
-                            <div class="tab-pane fade" id="cebuano-${questionIndex}" role="tabpanel" aria-labelledby="cebuano-tab-${questionIndex}">
-                                <div class="position-relative">
-                                    <input type="text" class="form-control form-control-lg cebuano-input" 
-                                        name="questions[${questionIndex}][text_cebuano]" 
-                                        placeholder="Enter question in Cebuano (optional)">
-                                    <div class="language-validation-message mt-1" style="display: none;"></div>
-                                </div>
-                                <small class="text-muted">If left blank, English version will be used</small>
-                            </div>
+                            ${tabContentHtml}
                         </div>
                         
                         <div class="row">
@@ -858,11 +864,13 @@
             const questionInput = questionDiv.querySelector('.question-text-input');
             addQuestionValidation(questionInput);
             
-            // Add language validation for the new inputs
-            const tagalogInput = questionDiv.querySelector('.tagalog-input');
-            const cebuanoInput = questionDiv.querySelector('.cebuano-input');
-            if (tagalogInput) addLanguageValidation(tagalogInput, 'tagalog');
-            if (cebuanoInput) addLanguageValidation(cebuanoInput, 'cebuano');
+            // Add language validation for dynamic language inputs
+            activeLanguages.forEach(language => {
+                if (language.locale !== 'en') {
+                    const languageInput = questionDiv.querySelector(`.${language.locale}-input`);
+                    if (languageInput) addLanguageValidation(languageInput, language.locale);
+                }
+            });
         }, 50);
     }
     
@@ -889,6 +897,8 @@
         // Create questions immediately without animation
         for (let i = 0; i < count; i++) {
             const questionIndex = startIndex + i;
+            const { tabsHtml, tabContentHtml } = generateLanguageTabs(questionIndex);
+            
             const questionDiv = document.createElement('div');
             questionDiv.className = 'card shadow-sm mb-3 question-card';
             
@@ -900,60 +910,12 @@
                             
                             <!-- Language Tabs -->
                             <ul class="nav nav-tabs nav-tabs-sm mb-3" id="questionLanguageTabs${questionIndex}" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="english-tab-${questionIndex}" data-bs-toggle="tab" data-bs-target="#english-${questionIndex}" type="button" role="tab" aria-controls="english-${questionIndex}" aria-selected="true">
-                                        <i class="fas fa-globe me-1"></i>English
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="tagalog-tab-${questionIndex}" data-bs-toggle="tab" data-bs-target="#tagalog-${questionIndex}" type="button" role="tab" aria-controls="tagalog-${questionIndex}" aria-selected="false">
-                                        <i class="fas fa-globe me-1"></i>Tagalog
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="cebuano-tab-${questionIndex}" data-bs-toggle="tab" data-bs-target="#cebuano-${questionIndex}" type="button" role="tab" aria-controls="cebuano-${questionIndex}" aria-selected="false">
-                                        <i class="fas fa-globe me-1"></i>Cebuano
-                                    </button>
-                                </li>
+                                ${tabsHtml}
                             </ul>
                             
                             <!-- Language Tab Content -->
                             <div class="tab-content mb-3" id="questionLanguageTabsContent${questionIndex}">
-                                <div class="tab-pane fade show active" id="english-${questionIndex}" role="tabpanel" aria-labelledby="english-tab-${questionIndex}">
-                                    <div class="position-relative">
-                                        <input type="text" class="form-control form-control-lg question-text-input" 
-                                            name="questions[${questionIndex}][text]" 
-                                            placeholder="Enter question in English" required
-                                            data-question-index="${questionIndex}">
-                                        <div class="question-validation-spinner position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
-                                            <div class="spinner-border spinner-border-sm text-warning" role="status">
-                                                <span class="visually-hidden">Checking...</span>
-                                            </div>
-                                        </div>
-                                        <div class="question-validation-icon position-absolute top-50 end-0 translate-middle-y me-3" style="display: none;">
-                                            <i class="fas fa-check text-success"></i>
-                                        </div>
-                                    </div>
-                                    <div class="question-validation-message" style="display: none; margin-top: 0.25rem;"></div>
-                                </div>
-                                <div class="tab-pane fade" id="tagalog-${questionIndex}" role="tabpanel" aria-labelledby="tagalog-tab-${questionIndex}">
-                                    <div class="position-relative">
-                                        <input type="text" class="form-control form-control-lg tagalog-input" 
-                                            name="questions[${questionIndex}][text_tagalog]" 
-                                            placeholder="Enter question in Tagalog (optional)">
-                                        <div class="language-validation-message mt-1" style="display: none;"></div>
-                                    </div>
-                                    <small class="text-muted">If left blank, English version will be used</small>
-                                </div>
-                                <div class="tab-pane fade" id="cebuano-${questionIndex}" role="tabpanel" aria-labelledby="cebuano-tab-${questionIndex}">
-                                    <div class="position-relative">
-                                        <input type="text" class="form-control form-control-lg cebuano-input" 
-                                            name="questions[${questionIndex}][text_cebuano]" 
-                                            placeholder="Enter question in Cebuano (optional)">
-                                        <div class="language-validation-message mt-1" style="display: none;"></div>
-                                    </div>
-                                    <small class="text-muted">If left blank, English version will be used</small>
-                                </div>
+                                ${tabContentHtml}
                             </div>
                             
                             <div class="row">
@@ -995,11 +957,13 @@
             const questionInput = questionDiv.querySelector('.question-text-input');
             addQuestionValidation(questionInput);
             
-            // Add language validation for the new inputs
-            const tagalogInput = questionDiv.querySelector('.tagalog-input');
-            const cebuanoInput = questionDiv.querySelector('.cebuano-input');
-            if (tagalogInput) addLanguageValidation(tagalogInput, 'tagalog');
-            if (cebuanoInput) addLanguageValidation(cebuanoInput, 'cebuano');
+            // Add language validation for dynamic language inputs
+            activeLanguages.forEach(language => {
+                if (language.locale !== 'en') {
+                    const languageInput = questionDiv.querySelector(`.${language.locale}-input`);
+                    if (languageInput) addLanguageValidation(languageInput, language.locale);
+                }
+            });
         }
         
         // Show success message
@@ -1052,8 +1016,13 @@
         questionCards.forEach((card, index) => {
             // Update text inputs for all languages
             const textInput = card.querySelector('input[name*="[text]"]');
-            const textTagalogInput = card.querySelector('input[name*="[text_tagalog]"]');
-            const textCebuanoInput = card.querySelector('input[name*="[text_cebuano]"]');
+            // Update language inputs dynamically
+        const languageInputs = {};
+        activeLanguages.forEach(language => {
+            if (language.locale !== 'en') {
+                languageInputs[language.locale] = card.querySelector(`input[name*="[text_${language.locale}]"]`);
+            }
+        });
             
             // Update other form elements
             const typeSelect = card.querySelector('select[name*="[type]"]');
@@ -1068,12 +1037,12 @@
                 textInput.name = `questions[${index}][text]`;
                 textInput.setAttribute('data-question-index', index);
             }
-            if (textTagalogInput) {
-                textTagalogInput.name = `questions[${index}][text_tagalog]`;
-            }
-            if (textCebuanoInput) {
-                textCebuanoInput.name = `questions[${index}][text_cebuano]`;
-            }
+            // Update language input names dynamically
+            Object.keys(languageInputs).forEach(locale => {
+                if (languageInputs[locale]) {
+                    languageInputs[locale].name = `questions[${index}][text_${locale}]`;
+                }
+            });
             if (typeSelect) typeSelect.name = `questions[${index}][type]`;
             if (hiddenRequired) hiddenRequired.name = `questions[${index}][required]`;
             if (checkboxRequired) {
@@ -1087,48 +1056,28 @@
             if (tabsContainer) {
                 tabsContainer.id = `questionLanguageTabs${index}`;
                 
-                // Update tab buttons
-                const englishTab = card.querySelector('[id*="english-tab"]');
-                const tagalogTab = card.querySelector('[id*="tagalog-tab"]');
-                const cebuanoTab = card.querySelector('[id*="cebuano-tab"]');
-                
-                if (englishTab) {
-                    englishTab.id = `english-tab-${index}`;
-                    englishTab.setAttribute('data-bs-target', `#english-${index}`);
-                    englishTab.setAttribute('aria-controls', `english-${index}`);
-                }
-                if (tagalogTab) {
-                    tagalogTab.id = `tagalog-tab-${index}`;
-                    tagalogTab.setAttribute('data-bs-target', `#tagalog-${index}`);
-                    tagalogTab.setAttribute('aria-controls', `tagalog-${index}`);
-                }
-                if (cebuanoTab) {
-                    cebuanoTab.id = `cebuano-tab-${index}`;
-                    cebuanoTab.setAttribute('data-bs-target', `#cebuano-${index}`);
-                    cebuanoTab.setAttribute('aria-controls', `cebuano-${index}`);
-                }
+                // Update tab buttons dynamically
+                activeLanguages.forEach(language => {
+                    const tab = card.querySelector(`[id*="${language.locale}-tab"]`);
+                    if (tab) {
+                        tab.id = `${language.locale}-tab-${index}`;
+                        tab.setAttribute('data-bs-target', `#${language.locale}-${index}`);
+                        tab.setAttribute('aria-controls', `${language.locale}-${index}`);
+                    }
+                });
             }
             
             if (tabContent) {
                 tabContent.id = `questionLanguageTabsContent${index}`;
                 
-                // Update tab panes
-                const englishPane = card.querySelector('[id*="english-"]:not([id*="tab"])');
-                const tagalogPane = card.querySelector('[id*="tagalog-"]:not([id*="tab"])');
-                const cebuanoPane = card.querySelector('[id*="cebuano-"]:not([id*="tab"])');
-                
-                if (englishPane) {
-                    englishPane.id = `english-${index}`;
-                    englishPane.setAttribute('aria-labelledby', `english-tab-${index}`);
-                }
-                if (tagalogPane) {
-                    tagalogPane.id = `tagalog-${index}`;
-                    tagalogPane.setAttribute('aria-labelledby', `tagalog-tab-${index}`);
-                }
-                if (cebuanoPane) {
-                    cebuanoPane.id = `cebuano-${index}`;
-                    cebuanoPane.setAttribute('aria-labelledby', `cebuano-tab-${index}`);
-                }
+                // Update tab panes dynamically
+                activeLanguages.forEach(language => {
+                    const pane = card.querySelector(`[id*="${language.locale}-"]:not([id*="tab"])`);
+                    if (pane) {
+                        pane.id = `${language.locale}-${index}`;
+                        pane.setAttribute('aria-labelledby', `${language.locale}-tab-${index}`);
+                    }
+                });
             }
         });
         
@@ -1136,17 +1085,17 @@
         setTimeout(() => {
             validateAllQuestions();
             
-            // Re-initialize language validation for all inputs
-            document.querySelectorAll('.tagalog-input').forEach(input => {
-                addLanguageValidation(input, 'tagalog');
+            // Re-initialize language validation for all inputs dynamically
+            activeLanguages.forEach(language => {
+                if (language.locale !== 'en') {
+                    document.querySelectorAll(`.${language.locale}-input`).forEach(input => {
+                        addLanguageValidation(input, language.locale);
+                    });
+                    
+                    // Validate language consistency
+                    validateLanguageConsistency(language.locale);
+                }
             });
-            document.querySelectorAll('.cebuano-input').forEach(input => {
-                addLanguageValidation(input, 'cebuano');
-            });
-            
-            // Validate language consistency
-            validateLanguageConsistency('tagalog');
-            validateLanguageConsistency('cebuano');
         }, 100);
     }
 
@@ -1176,15 +1125,14 @@
             
             // Re-validate language inputs in this question when English changes
             const questionCard = this.closest('.question-card');
-            const tagalogInput = questionCard.querySelector('.tagalog-input');
-            const cebuanoInput = questionCard.querySelector('.cebuano-input');
-            
-            if (tagalogInput) {
-                validateEnglishFirst(tagalogInput, 'tagalog');
-            }
-            if (cebuanoInput) {
-                validateEnglishFirst(cebuanoInput, 'cebuano');
-            }
+            activeLanguages.forEach(language => {
+                if (language.locale !== 'en') {
+                    const languageInput = questionCard.querySelector(`.${language.locale}-input`);
+                    if (languageInput) {
+                        validateEnglishFirst(languageInput, language.locale);
+                    }
+                }
+            });
             
             if (currentValue.length < 3) {
                 return; // Don't validate until at least 3 characters
@@ -1363,17 +1311,23 @@
         const emptyEnglishQuestions = Array.from(questionInputs).filter(input => input.value.trim().length < 3);
         if (emptyEnglishQuestions.length > 0) {
             // Check if admin filled other languages but not English
-            const tagalogInputs = document.querySelectorAll('input[name^="questions"][name$="[text_tagalog]"]');
-            const cebuanoInputs = document.querySelectorAll('input[name^="questions"][name$="[text_cebuano]"]');
-            
-            const hasTagalogFilled = Array.from(tagalogInputs).some(input => input.value.trim().length > 0);
-            const hasCebuanoFilled = Array.from(cebuanoInputs).some(input => input.value.trim().length > 0);
-            
-            if (hasTagalogFilled || hasCebuanoFilled) {
-                // Admin filled other languages but not English
-                const filledLanguages = [];
-                if (hasTagalogFilled) filledLanguages.push('Tagalog');
-                if (hasCebuanoFilled) filledLanguages.push('Cebuano');
+            // Check if any non-English languages are filled
+        const filledLanguages = [];
+        let hasNonEnglishFilled = false;
+        
+        activeLanguages.forEach(language => {
+            if (language.locale !== 'en') {
+                const languageInputs = document.querySelectorAll(`input[name^="questions"][name$="[text_${language.locale}]"]`);
+                const hasLanguageFilled = Array.from(languageInputs).some(input => input.value.trim().length > 0);
+                if (hasLanguageFilled) {
+                    filledLanguages.push(language.name);
+                    hasNonEnglishFilled = true;
+                }
+            }
+        });
+
+        if (hasNonEnglishFilled) {
+            // Admin filled other languages but not English
                 
                 swalWithBootstrapButtons.fire({
                     title: "English Required First!",
@@ -1394,48 +1348,29 @@
             return false;
         }
 
-        // Validate consistent language translations
-        const tagalogInputs = document.querySelectorAll('input[name^="questions"][name$="[text_tagalog]"]');
-        const cebuanoInputs = document.querySelectorAll('input[name^="questions"][name$="[text_cebuano]"]');
-        
-        // Check Tagalog consistency
-        const filledTagalogQuestions = Array.from(tagalogInputs).filter(input => input.value.trim().length > 0);
-        const emptyTagalogQuestions = Array.from(tagalogInputs).filter(input => input.value.trim().length === 0);
-        
-        if (filledTagalogQuestions.length > 0 && emptyTagalogQuestions.length > 0) {
-            const questionNumbers = emptyTagalogQuestions.map(input => {
-                const questionCard = input.closest('.question-card');
-                const questionNumber = Array.from(questionCard.parentNode.children).indexOf(questionCard) + 1;
-                return questionNumber;
-            });
-            
-            swalWithBootstrapButtons.fire({
-                title: "Incomplete Tagalog Translation!",
-                text: `You started filling Tagalog translations but left some questions empty. Please fill Tagalog for ALL questions or leave ALL empty.\n\nMissing Tagalog in questions: ${questionNumbers.join(', ')}`,
-                icon: "error"
-            });
-            emptyTagalogQuestions[0].focus();
-            return false;
-        }
-        
-        // Check Cebuano consistency
-        const filledCebuanoQuestions = Array.from(cebuanoInputs).filter(input => input.value.trim().length > 0);
-        const emptyCebuanoQuestions = Array.from(cebuanoInputs).filter(input => input.value.trim().length === 0);
-        
-        if (filledCebuanoQuestions.length > 0 && emptyCebuanoQuestions.length > 0) {
-            const questionNumbers = emptyCebuanoQuestions.map(input => {
-                const questionCard = input.closest('.question-card');
-                const questionNumber = Array.from(questionCard.parentNode.children).indexOf(questionCard) + 1;
-                return questionNumber;
-            });
-            
-            swalWithBootstrapButtons.fire({
-                title: "Incomplete Cebuano Translation!",
-                text: `You started filling Cebuano translations but left some questions empty. Please fill Cebuano for ALL questions or leave ALL empty.\n\nMissing Cebuano in questions: ${questionNumbers.join(', ')}`,
-                icon: "error"
-            });
-            emptyCebuanoQuestions[0].focus();
-            return false;
+        // Validate consistent language translations dynamically
+        for (const language of activeLanguages) {
+            if (language.locale !== 'en') {
+                const languageInputs = document.querySelectorAll(`input[name^="questions"][name$="[text_${language.locale}]"]`);
+                const filledQuestions = Array.from(languageInputs).filter(input => input.value.trim().length > 0);
+                const emptyQuestions = Array.from(languageInputs).filter(input => input.value.trim().length === 0);
+                
+                if (filledQuestions.length > 0 && emptyQuestions.length > 0) {
+                    const questionNumbers = emptyQuestions.map(input => {
+                        const questionCard = input.closest('.question-card');
+                        const questionNumber = Array.from(questionCard.parentNode.children).indexOf(questionCard) + 1;
+                        return questionNumber;
+                    });
+                    
+                    swalWithBootstrapButtons.fire({
+                        title: `Incomplete ${language.name} Translation!`,
+                        text: `You started filling ${language.name} translations but left some questions empty. Please fill ${language.name} for ALL questions or leave ALL empty.\n\nMissing ${language.name} in questions: ${questionNumbers.join(', ')}`,
+                        icon: "error"
+                    });
+                    emptyQuestions[0].focus();
+                    return false;
+                }
+            }
         }
 
         const titleInputForm = document.getElementById('title');
@@ -1449,21 +1384,16 @@
             console.log('Question updated (English): ' + input.value);
         });
 
-        // Apply capitalization and punctuation to Tagalog translations
-        const allTagalogInputs = document.querySelectorAll('input[name^="questions"][name$="[text_tagalog]"]');
-        allTagalogInputs.forEach(input => {
-            if (input.value.trim()) {
-                input.value = addPunctuationIfMissing(capitalizeFirstLetter(input.value));
-                console.log('Question updated (Tagalog): ' + input.value);
-            }
-        });
-
-        // Apply capitalization and punctuation to Cebuano translations
-        const allCebuanoInputs = document.querySelectorAll('input[name^="questions"][name$="[text_cebuano]"]');
-        allCebuanoInputs.forEach(input => {
-            if (input.value.trim()) {
-                input.value = addPunctuationIfMissing(capitalizeFirstLetter(input.value));
-                console.log('Question updated (Cebuano): ' + input.value);
+        // Apply capitalization and punctuation to all language translations dynamically
+        activeLanguages.forEach(language => {
+            if (language.locale !== 'en') {
+                const languageInputs = document.querySelectorAll(`input[name^="questions"][name$="[text_${language.locale}]"]`);
+                languageInputs.forEach(input => {
+                    if (input.value.trim()) {
+                        input.value = addPunctuationIfMissing(capitalizeFirstLetter(input.value));
+                        console.log(`Question updated (${language.name}): ` + input.value);
+                    }
+                });
             }
         });
         
@@ -1568,23 +1498,20 @@
     background-image: none;
 }
 
-/* Language validation styling */
-.tagalog-input.is-warning,
-.cebuano-input.is-warning {
+/* Language validation styling - Dynamic for all language inputs */
+[class$="-input"].is-warning {
     border-color: #ffc107;
     padding-right: calc(1.5em + 1rem);
     background-image: none;
 }
 
-.tagalog-input.is-warning-english,
-.cebuano-input.is-warning-english {
+[class$="-input"].is-warning-english {
     border-color: #dc3545;
     padding-right: calc(1.5em + 1rem);
     background-image: none;
 }
 
-.tagalog-input.is-invalid,
-.cebuano-input.is-invalid {
+[class$="-input"].is-invalid {
     border-color: #dc3545;
     padding-right: calc(1.5em + 1rem);
     background-image: none;

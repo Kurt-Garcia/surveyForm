@@ -10,8 +10,6 @@ class SurveyQuestion extends Model
 {
     protected $fillable = [
         'text',
-        'text_tagalog',
-        'text_cebuano',
         'type',
         'survey_id',
         'required'
@@ -43,17 +41,73 @@ class SurveyQuestion extends Model
     }
 
     /**
-     * Get question text based on language
+     * Get translations for this question
      */
-    public function getTextByLanguage($language = 'english')
+    public function translations(): HasMany
     {
-        switch ($language) {
-            case 'tagalog':
-                return $this->text_tagalog ?: $this->text;
-            case 'cebuano':
-                return $this->text_cebuano ?: $this->text;
-            default:
-                return $this->text;
+        return $this->hasMany(SurveyQuestionTranslation::class);
+    }
+
+    /**
+     * Get question text based on language locale
+     */
+    public function getTextByLanguage($locale = 'en')
+    {
+        // Return English text for default or 'en' locale
+        if ($locale === 'en' || $locale === 'english') {
+            return $this->text;
         }
+
+        // Look for translation in the specified locale
+        $translation = $this->translations()
+            ->whereHas('translationHeader', function ($query) use ($locale) {
+                $query->where('locale', $locale)->where('is_active', true);
+            })
+            ->first();
+
+        return $translation ? $translation->text : $this->text;
+    }
+
+    /**
+     * Get all translations with their locales
+     */
+    public function getTranslationsWithLocales()
+    {
+        return $this->translations()->with('translationHeader')->get()->mapWithKeys(function ($translation) {
+            return [$translation->translationHeader->locale => $translation->text];
+        });
+    }
+
+    /**
+     * Set translation for a specific locale
+     */
+    public function setTranslation($locale, $text)
+    {
+        $translationHeader = TranslationHeader::where('locale', $locale)->first();
+        
+        if (!$translationHeader) {
+            throw new \Exception("Translation header for locale '{$locale}' not found.");
+        }
+
+        return $this->translations()->updateOrCreate(
+            ['translation_header_id' => $translationHeader->id],
+            ['text' => $text]
+        );
+    }
+
+    /**
+     * Legacy method for backward compatibility
+     */
+    public function getTextTagalogAttribute()
+    {
+        return $this->getTextByLanguage('tl');
+    }
+
+    /**
+     * Legacy method for backward compatibility
+     */
+    public function getTextCebuanoAttribute()
+    {
+        return $this->getTextByLanguage('ceb');
     }
 }

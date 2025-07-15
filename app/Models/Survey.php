@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\TranslationHeader;
 
 class Survey extends Model
 {
@@ -100,16 +101,16 @@ class Survey extends Model
     {
         $languages = ['English']; // English is always available as the default
         
-        // Check if any questions have Tagalog translations
-        if ($this->questions()->whereNotNull('text_tagalog')->where('text_tagalog', '!=', '')->exists()) {
-            $languages[] = 'Tagalog';
-        }
+        // Get all active translation headers that have translations for this survey's questions
+        $availableLocales = TranslationHeader::whereHas('surveyQuestionTranslations', function($query) {
+            $query->whereHas('surveyQuestion', function($subQuery) {
+                $subQuery->where('survey_id', $this->id);
+            });
+        })->where('is_active', true)->pluck('name')->toArray();
         
-        // Check if any questions have Cebuano translations
-        if ($this->questions()->whereNotNull('text_cebuano')->where('text_cebuano', '!=', '')->exists()) {
-            $languages[] = 'Cebuano';
-        }
+        // Add available languages to the array
+        $languages = array_merge($languages, $availableLocales);
         
-        return $languages;
+        return array_unique($languages);
     }
 }

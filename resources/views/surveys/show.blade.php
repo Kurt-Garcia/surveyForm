@@ -960,8 +960,11 @@
                         <!-- Store language-specific question texts as data attributes -->
                         <div class="question-translations" style="display: none;">
                             <span data-lang="en">{{ $question->text }}</span>
-                            <span data-lang="tl">{{ $question->text_tagalog ?? $question->text }}</span>
-                            <span data-lang="ceb">{{ $question->text_cebuano ?? $question->text }}</span>
+                            @foreach($question->translations as $translation)
+                                @if($translation->translationHeader && $translation->translationHeader->is_active)
+                                    <span data-lang="{{ $translation->translationHeader->locale }}">{{ $translation->text }}</span>
+                                @endif
+                            @endforeach
                         </div>
                     </div>
                     @endforeach

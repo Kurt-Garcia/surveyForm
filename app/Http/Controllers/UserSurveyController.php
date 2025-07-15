@@ -114,7 +114,7 @@ class UserSurveyController extends Controller
         $prefillAccountName = $request->query('account_name');
         $prefillAccountType = $request->query('account_type');
 
-        $questions = $survey->questions;
+        $questions = $survey->questions()->with(['translations.translationHeader'])->get();
         
         // Get the active theme for the survey's admin
         $activeTheme = \App\Models\ThemeSetting::getActiveTheme($survey->admin_id);

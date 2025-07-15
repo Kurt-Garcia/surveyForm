@@ -26,6 +26,14 @@ class TranslationHeader extends Model
     }
 
     /**
+     * Get survey question translations for this language
+     */
+    public function surveyQuestionTranslations(): HasMany
+    {
+        return $this->hasMany(SurveyQuestionTranslation::class);
+    }
+
+    /**
      * Get active translation headers
      */
     public static function active()

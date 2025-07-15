@@ -7,6 +7,7 @@ use App\Models\Admin;
 use App\Models\Survey;
 use App\Models\Sbu;
 use App\Models\Site;
+use App\Models\TranslationHeader;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -32,7 +33,10 @@ class SurveyController extends Controller
             $sbus = collect();
         }
         
-        return view('admin.create_survey', compact('sbus'));
+        // Get active translation headers for language tabs
+        $activeLanguages = TranslationHeader::active()->get();
+        
+        return view('admin.create_survey', compact('sbus', 'activeLanguages'));
     }
 
     public function store(Request $request)
@@ -54,8 +58,13 @@ class SurveyController extends Controller
             'department_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'questions' => 'required|array|min:1',
             'questions.*.text' => 'required|string|max:255',
-            'questions.*.text_tagalog' => 'nullable|string|max:255',
-            'questions.*.text_cebuano' => 'nullable|string|max:255',
+            // Dynamic validation rules for active languages
+            ...collect(TranslationHeader::active()->get())->mapWithKeys(function ($language) {
+                if ($language->locale !== 'en') {
+                    return ["questions.*.text_{$language->locale}" => 'nullable|string|max:255'];
+                }
+                return [];
+            })->toArray(),
             'questions.*.type' => 'required|string|in:text,radio,star,select',
             'questions.*.required' => 'boolean'
         ]);
@@ -104,17 +113,18 @@ class SurveyController extends Controller
                     'order' => $index + 1
                 ];
 
-                // Add Tagalog translation if provided and not empty
-                if (!empty($questionData['text_tagalog']) && trim($questionData['text_tagalog']) !== '') {
-                    $questionCreateData['text_tagalog'] = ucfirst(trim($questionData['text_tagalog']));
-                }
+                $question = $survey->questions()->create($questionCreateData);
 
-                // Add Cebuano translation if provided and not empty
-                if (!empty($questionData['text_cebuano']) && trim($questionData['text_cebuano']) !== '') {
-                    $questionCreateData['text_cebuano'] = ucfirst(trim($questionData['text_cebuano']));
+                // Add translations for active languages dynamically
+                $activeLanguages = TranslationHeader::active()->get();
+                foreach ($activeLanguages as $language) {
+                    if ($language->locale !== 'en') {
+                        $textKey = "text_{$language->locale}";
+                        if (!empty($questionData[$textKey]) && trim($questionData[$textKey]) !== '') {
+                            $question->setTranslation($language->locale, ucfirst(trim($questionData[$textKey])));
+                        }
+                    }
                 }
-
-                $survey->questions()->create($questionCreateData);
             }
 
             DB::commit();
@@ -309,12 +319,23 @@ class SurveyController extends Controller
 
             // Create new questions
             foreach ($request->questions as $index => $questionData) {
-                $survey->questions()->create([
+                $question = $survey->questions()->create([
                     'text' => ucfirst($questionData['text']),
                     'type' => $questionData['type'],
                     'required' => $questionData['required'] ?? false,
                     'order' => $index + 1
                 ]);
+
+                // Add translations for active languages dynamically
+                $activeLanguages = TranslationHeader::active()->get();
+                foreach ($activeLanguages as $language) {
+                    if ($language->locale !== 'en') {
+                        $textKey = "text_{$language->locale}";
+                        if (!empty($questionData[$textKey]) && trim($questionData[$textKey]) !== '') {
+                            $question->setTranslation($language->locale, ucfirst(trim($questionData[$textKey])));
+                        }
+                    }
+                }
             }
 
             DB::commit();

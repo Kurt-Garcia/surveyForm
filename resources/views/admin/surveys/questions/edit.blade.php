@@ -25,25 +25,28 @@
                             
                             <!-- Language Tabs -->
                             <ul class="nav nav-tabs" id="questionLanguageTabs" role="tablist">
+                                <!-- English Tab (Always First) -->
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active" id="english-tab" data-bs-toggle="tab" data-bs-target="#english" type="button" role="tab" aria-controls="english" aria-selected="true">
                                         <i class="fas fa-globe me-2"></i>English (Default)
                                     </button>
                                 </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="tagalog-tab" data-bs-toggle="tab" data-bs-target="#tagalog" type="button" role="tab" aria-controls="tagalog" aria-selected="false">
-                                        <i class="fas fa-globe me-2"></i>Tagalog
-                                    </button>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="cebuano-tab" data-bs-toggle="tab" data-bs-target="#cebuano" type="button" role="tab" aria-controls="cebuano" aria-selected="false">
-                                        <i class="fas fa-globe me-2"></i>Cebuano
-                                    </button>
-                                </li>
+                                
+                                <!-- Dynamic Language Tabs -->
+                                @foreach($activeLanguages as $language)
+                                    @if($language->locale !== 'en')
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="{{ $language->locale }}-tab" data-bs-toggle="tab" data-bs-target="#{{ $language->locale }}" type="button" role="tab" aria-controls="{{ $language->locale }}" aria-selected="false">
+                                                <i class="fas fa-globe me-2"></i>{{ $language->name }}
+                                            </button>
+                                        </li>
+                                    @endif
+                                @endforeach
                             </ul>
                             
                             <!-- Language Tab Content -->
                             <div class="tab-content mt-3" id="questionLanguageTabsContent">
+                                <!-- English Tab Content (Always First) -->
                                 <div class="tab-pane fade show active" id="english" role="tabpanel" aria-labelledby="english-tab">
                                     <input type="text" class="form-control form-control-lg @error('text') is-invalid @enderror"
                                         id="text" name="text" value="{{ old('text', $question->text) }}" required 
@@ -52,24 +55,24 @@
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                <div class="tab-pane fade" id="tagalog" role="tabpanel" aria-labelledby="tagalog-tab">
-                                    <input type="text" class="form-control form-control-lg @error('text_tagalog') is-invalid @enderror"
-                                        id="text_tagalog" name="text_tagalog" value="{{ old('text_tagalog', $question->text_tagalog) }}" 
-                                        placeholder="Enter question in Tagalog (optional)">
-                                    <small class="text-muted">If left blank, English version will be used</small>
-                                    @error('text_tagalog')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="tab-pane fade" id="cebuano" role="tabpanel" aria-labelledby="cebuano-tab">
-                                    <input type="text" class="form-control form-control-lg @error('text_cebuano') is-invalid @enderror"
-                                        id="text_cebuano" name="text_cebuano" value="{{ old('text_cebuano', $question->text_cebuano) }}" 
-                                        placeholder="Enter question in Cebuano (optional)">
-                                    <small class="text-muted">If left blank, English version will be used</small>
-                                    @error('text_cebuano')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                
+                                <!-- Dynamic Language Tab Content -->
+                                @foreach($activeLanguages as $language)
+                                    @if($language->locale !== 'en')
+                                        @php
+                                            $translationText = $questionTranslations[$language->locale] ?? '';
+                                        @endphp
+                                        <div class="tab-pane fade" id="{{ $language->locale }}" role="tabpanel" aria-labelledby="{{ $language->locale }}-tab">
+                                            <input type="text" class="form-control form-control-lg @error('text_' . $language->locale) is-invalid @enderror"
+                                                id="text_{{ $language->locale }}" name="text_{{ $language->locale }}" value="{{ old('text_' . $language->locale, $translationText) }}" 
+                                                placeholder="Enter question in {{ $language->name }} (optional)">
+                                            <small class="text-muted">If left blank, English version will be used</small>
+                                            @error('text_' . $language->locale)
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    @endif
+                                @endforeach
                             </div>
                         </div>
 
