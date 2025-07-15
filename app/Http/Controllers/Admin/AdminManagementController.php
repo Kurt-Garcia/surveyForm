@@ -169,15 +169,15 @@ class AdminManagementController extends Controller
         $currentAdmin = auth('admin')->user();
 
         // Only Seeder admin can see all admins, others see only those they created (including themselves)
-        if ($currentAdmin->is_seeder) {
+        if ($currentAdmin->superadmin) {
             $admins = Admin::with(['sbus.sites'])
-                ->select(['id', 'name', 'email', 'contact_number', 'created_at'])
+                ->select(['id', 'name', 'email', 'contact_number', 'created_at', 'superadmin'])
                 ->get();
         } else {
             $admins = Admin::with(['sbus.sites'])
                 ->where('created_by', $currentAdmin->id)
                 ->orWhere('id', $currentAdmin->id)
-                ->select(['id', 'name', 'email', 'contact_number', 'created_at'])
+                ->select(['id', 'name', 'email', 'contact_number', 'created_at', 'superadmin'])
                 ->get();
         }
 
@@ -206,6 +206,7 @@ class AdminManagementController extends Controller
                 'site_count' => $siteCount,
                 'sites' => $sites,
                 'created_at' => $admin->created_at->format('M d, Y'),
+                'superadmin' => $admin->superadmin,
                 'sbus' => $sbus->map(function ($sbu) {
                     return [
                         'id' => $sbu->id,
@@ -258,6 +259,7 @@ class AdminManagementController extends Controller
                 'sbu_ids.*' => 'exists:sbus,id',
                 'site_ids' => 'required|array|min:1',
                 'site_ids.*' => 'exists:sites,id',
+                'is_superadmin' => 'nullable|boolean',
             ]);
 
             // Format contact number
@@ -331,6 +333,15 @@ class AdminManagementController extends Controller
                 ->with('error', 'For security reasons, you cannot create an admin with these credentials as they match an existing user.');
         }
 
+        // Determine if the new admin should be a superadmin
+        $currentAdmin = auth('admin')->user();
+        $isSuperAdmin = false;
+        
+        // Only allow superadmin creation if current user is a superadmin and the toggle is checked
+        if ($currentAdmin->superadmin && $request->has('is_superadmin') && $request->is_superadmin) {
+            $isSuperAdmin = true;
+        }
+        
         // Create the admin
         $admin = Admin::create([
             'name' => $request->name,
@@ -338,7 +349,7 @@ class AdminManagementController extends Controller
             'password' => Hash::make($request->password),
             'contact_number' => $contactNumber,
             'created_by' => auth('admin')->id(),
-            'is_seeder' => false,
+            'superadmin' => $isSuperAdmin,
         ]);
 
         // Attach all selected SBUs to the admin
@@ -347,8 +358,9 @@ class AdminManagementController extends Controller
         // Attach all selected sites to the admin
         $admin->sites()->attach($request->site_ids);
 
+        $adminType = $isSuperAdmin ? 'Super Admin' : 'Admin';
         return redirect()->route('admin.admins.create')
-            ->with('success', 'Admin account created successfully with access to ' . count($request->sbu_ids) . ' SBU(s) and ' . count($request->site_ids) . ' site(s)!');
+            ->with('success', $adminType . ' account created successfully with access to ' . count($request->sbu_ids) . ' SBU(s) and ' . count($request->site_ids) . ' site(s)!');
         } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->validator)
                 ->withInput($request->except('password', 'password_confirmation'));

@@ -55,6 +55,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             TranslationSeeder::class,
         ]);
+
         
         // // Create large dataset for testing
         // $this->call([

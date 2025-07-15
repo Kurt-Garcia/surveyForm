@@ -14,12 +14,14 @@ class DeveloperSeeder extends Seeder
      */
     public function run(): void
     {
-        Developer::create([
-            'username' => 'FastDev',
-            'name' => 'DevKurt',
-            'email' => 'jobgkurtkainne@gmail.com',
-            'password' => Hash::make('Admin123'),
-            'status' => true,
-        ]);
+        Developer::updateOrCreate(
+            ['username' => 'FastDev'],
+            [
+                'name' => 'DevKurt',
+                'email' => 'jobgkurtkainne@gmail.com',
+                'password' => Hash::make('Admin123'),
+                'status' => true,
+            ]
+        );
     }
 }

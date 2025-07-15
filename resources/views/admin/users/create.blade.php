@@ -195,6 +195,26 @@
                             </div>
                         </div>
                         
+                        @if($mode === 'admin' && auth('admin')->user()->superadmin)
+                        <!-- Superadmin Toggle - Only visible to superadmins -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center p-4 rounded-3 shadow-sm" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 1px solid #dee2e6;">
+                                <div class="flex-grow-1 me-3">
+                                    <label class="form-label fw-semibold text-dark mb-1">
+                                        <i class="bi bi-shield-fill me-2 text-warning"></i>Administrator Type
+                                    </label>
+                                    <p class="text-muted mb-0 small">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Toggle to create a <strong>Super Administrator</strong> with full system access, or leave off for a regular administrator.
+                                    </p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="is_superadmin" name="is_superadmin" value="1" style="transform: scale(1.5);">  
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                        
                         <!-- Submit Button -->
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg rounded-pill shadow-sm py-3" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); border: none;">
@@ -242,6 +262,7 @@
                                 <tr>
                                     @if($mode === 'admin')
                                         <th>Name</th>
+                                        <th>Account Type</th>
                                         <th>SBU</th>
                                         <th>Sites</th>
                                         <th>Created</th>
@@ -1733,6 +1754,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add real-time password matching validation
     passwordField.addEventListener('input', checkPasswordMatch);
     passwordConfirmationField.addEventListener('input', checkPasswordMatch);
+    
+    // Super Admin Toggle functionality
+    const superAdminToggle = document.getElementById('is_superadmin');
+    const superAdminLabel = document.querySelector('label[for="is_superadmin"] .toggle-text');
+    
+    if (superAdminToggle && superAdminLabel) {
+        superAdminToggle.addEventListener('change', function() {
+            if (this.checked) {
+                superAdminLabel.textContent = 'Create Super Admin';
+            } else {
+                superAdminLabel.textContent = 'Create Regular Admin';
+            }
+        });
+    }
 });
 
 //Modal initialization for more than five sites
@@ -1752,6 +1787,16 @@ function initializeUsersTable() {
                     const email = data.email ? `<br><small class='text-muted'><i class="bi bi-envelope me-1"></i>${data.email}</small>` : '';
                     const contact = data.contact_number ? `<br><small class='text-muted'><i class="bi bi-telephone me-1"></i>${data.contact_number}</small>` : '';
                     return `<h6 class="mb-0 fw-semibold">${name}</h6>${email}${contact}`;
+                }
+            },
+            { 
+                data: 'superadmin',
+                render: function(data) {
+                    if (data) {
+                        return `<span class="badge bg-danger rounded-pill fw-bold">SUP</span>`;
+                    } else {
+                        return `<span class="badge bg-secondary rounded-pill">REG</span>`;
+                    }
                 }
             },
             { 
@@ -2499,25 +2544,79 @@ function confirmSubmit(event) {
         }
     }
     
-    swalWithBootstrapButtons.fire({
-        title: `Create New ${entityTypeCap}?`,
-        text: `Please confirm to create a new ${entityType} account!`,
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Yes, create it!",
-        cancelButtonText: "No, cancel!",
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Show loading state
-            const submitBtn = document.querySelector('#userForm button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Creating...';
-            submitBtn.disabled = true;
-            
-            document.getElementById('userForm').submit();
-        }
-    });
+    // Check if superadmin toggle is checked (only for admin mode)
+    const superAdminToggle = document.getElementById('is_superadmin');
+    const isSuperAdminChecked = superAdminToggle && superAdminToggle.checked;
+    
+    // If creating a superadmin, show additional confirmation
+    if (mode === 'admin' && isSuperAdminChecked) {
+        swalWithBootstrapButtons.fire({
+            title: "Create Super Administrator?",
+            html: `<div class="text-start">
+                     <p class="mb-3"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i><strong>You are about to create a Super Administrator account!</strong></p>
+                     <p class="mb-2">Super Administrators have:</p>
+                     <ul class="text-muted mb-3">
+                       <li>Full system access and control</li>
+                       <li>Ability to create other administrators</li>
+                       <li>Access to all system settings and data</li>
+                       <li>Cannot be disabled by regular administrators</li>
+                     </ul>
+                     <p class="text-danger mb-0"><small><i class="bi bi-shield-exclamation me-1"></i>This action should only be performed if you are absolutely certain.</small></p>
+                   </div>`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, create Super Admin!",
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true,
+            customClass: {
+                popup: 'swal-wide'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show final confirmation for superadmin creation
+                swalWithBootstrapButtons.fire({
+                    title: "Final Confirmation",
+                    text: "Are you absolutely sure you want to create this Super Administrator account?",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, I'm sure!",
+                    cancelButtonText: "Cancel",
+                    reverseButtons: true
+                }).then((finalResult) => {
+                    if (finalResult.isConfirmed) {
+                        // Show loading state
+                        const submitBtn = document.querySelector('#userForm button[type="submit"]');
+                        const originalText = submitBtn.innerHTML;
+                        submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Creating Super Admin...';
+                        submitBtn.disabled = true;
+                        
+                        document.getElementById('userForm').submit();
+                    }
+                });
+            }
+        });
+    } else {
+        // Regular confirmation for non-superadmin accounts
+        swalWithBootstrapButtons.fire({
+            title: `Create New ${entityTypeCap}?`,
+            text: `Please confirm to create a new ${entityType} account!`,
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Yes, create it!",
+            cancelButtonText: "No, cancel!",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading state
+                const submitBtn = document.querySelector('#userForm button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Creating...';
+                submitBtn.disabled = true;
+                
+                document.getElementById('userForm').submit();
+            }
+        });
+    }
     
     return false;
 }
@@ -2909,6 +3008,93 @@ style.textContent = `
     }
 
     
+
+    /* SweetAlert custom styling for wider popup */
+    .swal-wide {
+        width: 600px !important;
+        max-width: 90vw !important;
+    }
+    
+    .swal-wide .swal2-html-container {
+        text-align: left !important;
+        font-size: 0.95rem;
+    }
+    
+    .swal-wide .swal2-html-container ul {
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .swal-wide .swal2-html-container li {
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+    
+    /* SweetAlert button styling for superadmin confirmation */
+    .swal-wide .swal2-actions {
+        gap: 15px !important;
+        margin-top: 25px !important;
+    }
+    
+    .swal-wide .swal2-confirm {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+        border: none !important;
+        color: white !important;
+        font-weight: 600 !important;
+        padding: 12px 24px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .swal-wide .swal2-confirm:hover {
+        background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4) !important;
+    }
+    
+    .swal-wide .swal2-cancel {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+        border: none !important;
+        color: white !important;
+        font-weight: 600 !important;
+        padding: 12px 24px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .swal-wide .swal2-cancel:hover {
+        background: linear-gradient(135deg, #5a6268 0%, #495057 100%) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4) !important;
+    }
+    
+    @media (max-width: 768px) {
+        .swal-wide {
+            width: 95vw !important;
+            margin: 0 auto;
+        }
+        
+        .swal-wide .swal2-html-container {
+            font-size: 0.9rem;
+        }
+        
+        .swal-wide .swal2-html-container ul {
+            padding-left: 1.2rem;
+        }
+        
+        .swal-wide .swal2-actions {
+            gap: 12px !important;
+            flex-direction: column !important;
+        }
+        
+        .swal-wide .swal2-confirm,
+        .swal-wide .swal2-cancel {
+            width: 100% !important;
+            margin: 0 !important;
+        }
+    }
 
     /* iPad Pro responsive (821px to 1024px) */
     @media (min-width: 821px) and (max-width: 1024px) {

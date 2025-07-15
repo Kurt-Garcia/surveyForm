@@ -22,7 +22,7 @@ class Admin extends Authenticatable
         'disabled_reason',
         'disabled_at',
         'created_by',
-        'is_seeder',
+        'superadmin',
     ];
 
     protected $hidden = [

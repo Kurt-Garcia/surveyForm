@@ -12,32 +12,37 @@ class AdminSeeder extends Seeder
 {
     public function run()
     {
-        // Create the admin user
-        $admin = Admin::create([
-            'is_seeder' => true,
-            'name' => 'FDC Admin',
-            'email' => 'fdcadmin@gmail.com',
-            'contact_number' => '09123456789',
-            'password' => Hash::make('admin123'),
-        ]);
+        // Create or update the admin user
+        $admin = Admin::updateOrCreate(
+            ['email' => 'fdcadmin@gmail.com'],
+            [
+                'superadmin' => true,
+                'name' => 'FDC Admin',
+                'contact_number' => '09123456789',
+                'password' => Hash::make('admin123'),
+            ]
+        );
 
         // Get FDC and FUI SBUs to assign to the admin
         $fdcSbu = Sbu::where('name', 'FDC')->first();
         $fuiSbu = Sbu::where('name', 'FUI')->first();
 
-        // Attach admin to both FDC and FUI SBUs
+        // Attach admin to both FDC and FUI SBUs (sync to avoid duplicates)
+        $sbuIds = [];
         if ($fdcSbu) {
-            $admin->sbus()->attach($fdcSbu->id);
+            $sbuIds[] = $fdcSbu->id;
         }
-
         if ($fuiSbu) {
-            $admin->sbus()->attach($fuiSbu->id);
+            $sbuIds[] = $fuiSbu->id;
+        }
+        if (!empty($sbuIds)) {
+            $admin->sbus()->sync($sbuIds);
         }
 
-        // Attach admin to all sites
+        // Attach admin to all sites (sync to avoid duplicates)
         $allSites = Site::all();
         if ($allSites->isNotEmpty()) {
-            $admin->sites()->attach($allSites->pluck('id')->toArray());
+            $admin->sites()->sync($allSites->pluck('id')->toArray());
         }
     }
 }

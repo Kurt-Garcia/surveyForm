@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Translation;
+use App\Models\TranslationHeader;
 
 class TranslationSeeder extends Seeder
 {
@@ -14,6 +15,9 @@ class TranslationSeeder extends Seeder
     {
         // Clear existing translations
         Translation::truncate();
+        
+        // Ensure translation headers exist
+        $this->ensureTranslationHeaders();
         
         // Define all translations
         $translations = [
@@ -240,14 +244,60 @@ class TranslationSeeder extends Seeder
             ['key' => 'improvement_details.returns_handling.bo_coordination', 'locale' => 'ceb', 'value' => 'Palihug pauswaga ang koordinasyon kung bahin sa pagkuha sa mga dautang order nga mga butang.'],
         ];
         
-        // Insert translations in batches for better performance
-        $batchSize = 100;
-        $batches = array_chunk($translations, $batchSize);
+        // Get translation header IDs
+        $enHeader = TranslationHeader::where('locale', 'en')->first();
+        $tlHeader = TranslationHeader::where('locale', 'tl')->first();
+        $cebHeader = TranslationHeader::where('locale', 'ceb')->first();
         
-        foreach ($batches as $batch) {
-            Translation::insert($batch);
+        // Convert translations to use translation_header_id
+        $translationsToInsert = [];
+        foreach ($translations as $translation) {
+            $headerId = null;
+            switch ($translation['locale']) {
+                case 'en':
+                    $headerId = $enHeader->id;
+                    break;
+                case 'tl':
+                    $headerId = $tlHeader->id;
+                    break;
+                case 'ceb':
+                    $headerId = $cebHeader->id;
+                    break;
+            }
+            
+            if ($headerId) {
+                $translationsToInsert[] = [
+                    'key' => $translation['key'],
+                    'translation_header_id' => $headerId,
+                    'value' => $translation['value'],
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
+            }
         }
         
-        $this->command->info('Translation seeder completed successfully! Added ' . count($translations) . ' translations.');
+        // Batch insert translations
+        Translation::insert($translationsToInsert);
+        
+        $this->command->info('Translation seeder completed successfully! Added ' . count($translationsToInsert) . ' translations.');
+    }
+    
+    /**
+     * Ensure translation headers exist
+     */
+    private function ensureTranslationHeaders(): void
+    {
+        $headers = [
+            ['name' => 'English', 'locale' => 'en', 'is_active' => true],
+            ['name' => 'Tagalog', 'locale' => 'tl', 'is_active' => true],
+            ['name' => 'Cebuano', 'locale' => 'ceb', 'is_active' => true]
+        ];
+        
+        foreach ($headers as $header) {
+            TranslationHeader::updateOrCreate(
+                ['locale' => $header['locale']],
+                $header
+            );
+        }
     }
 }
