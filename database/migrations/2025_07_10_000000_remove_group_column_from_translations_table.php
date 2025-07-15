@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('translations', function (Blueprint $table) {
+        Schema::table('translation_detail', function (Blueprint $table) {
             // Drop the index first
             $table->dropIndex(['group', 'locale']);
             
@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('translations', function (Blueprint $table) {
+        Schema::table('translation_detail', function (Blueprint $table) {
             $table->string('group')->nullable()->after('value');
             $table->index(['group', 'locale']);
         });

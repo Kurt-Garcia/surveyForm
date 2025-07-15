@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('translations', function (Blueprint $table) {
+        Schema::create('translation_detail', function (Blueprint $table) {
             $table->id();
             $table->string('key'); // Translation key (e.g., 'survey.account_name')
             $table->string('locale', 5); // Language code (e.g., 'en', 'tl', 'ceb')
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('translations');
+        Schema::dropIfExists('translation_detail');
     }
 };

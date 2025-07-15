@@ -3,15 +3,26 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Cache;
 
 class Translation extends Model
 {
+    protected $table = 'translation_detail';
+    
     protected $fillable = [
         'key',
-        'locale',
+        'translation_header_id',
         'value'
     ];
+
+    /**
+     * Get the translation header that owns the translation
+     */
+    public function translationHeader(): BelongsTo
+    {
+        return $this->belongsTo(TranslationHeader::class);
+    }
 
     /**
      * Get translation by key and locale
@@ -22,7 +33,9 @@ class Translation extends Model
         
         return Cache::remember($cacheKey, 3600, function() use ($key, $locale, $default) {
             $translation = self::where('key', $key)
-                             ->where('locale', $locale)
+                             ->whereHas('translationHeader', function($query) use ($locale) {
+                                 $query->where('locale', $locale);
+                             })
                              ->first();
             
             return $translation ? $translation->value : $default;
@@ -34,8 +47,14 @@ class Translation extends Model
      */
     public static function setTranslation($key, $locale, $value)
     {
+        $translationHeader = TranslationHeader::where('locale', $locale)->first();
+        
+        if (!$translationHeader) {
+            throw new \Exception("Translation header not found for locale: {$locale}");
+        }
+
         $translation = self::updateOrCreate(
-            ['key' => $key, 'locale' => $locale],
+            ['key' => $key, 'translation_header_id' => $translationHeader->id],
             ['value' => $value]
         );
 
@@ -53,7 +72,9 @@ class Translation extends Model
         $cacheKey = "translations.{$locale}";
         
         return Cache::remember($cacheKey, 3600, function() use ($locale) {
-            return self::where('locale', $locale)
+            return self::whereHas('translationHeader', function($query) use ($locale) {
+                         $query->where('locale', $locale);
+                     })
                       ->pluck('value', 'key')
                       ->toArray();
         });
@@ -72,7 +93,7 @@ class Translation extends Model
      */
     public static function getAvailableLocales()
     {
-        return self::distinct('locale')->pluck('locale')->toArray();
+        return TranslationHeader::getAvailableLocales();
     }
 
     /**
@@ -80,6 +101,8 @@ class Translation extends Model
      */
     public static function getAllTranslations()
     {
-        return self::all()->groupBy('locale');
+        return self::with('translationHeader')
+                  ->get()
+                  ->groupBy('translationHeader.locale');
     }
 }

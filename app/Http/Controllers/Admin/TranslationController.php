@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Translation;
+use App\Models\TranslationHeader;
 use App\Services\TranslationService;
 
 class TranslationController extends Controller
@@ -28,7 +29,9 @@ class TranslationController extends Controller
         
         // Filter by locale
         if ($locale) {
-            $query->where('locale', $locale);
+            $query->whereHas('translationHeader', function($q) use ($locale) {
+                $q->where('locale', $locale);
+            });
         }
         
         // Search in key or value
@@ -39,9 +42,9 @@ class TranslationController extends Controller
             });
         }
         
-        $translations = $query->orderBy('key')->paginate(20);
+        $translations = $query->with('translationHeader')->orderBy('key')->paginate(20);
         
-        $locales = Translation::getAvailableLocales();
+        $locales = TranslationHeader::getLocaleOptions();
         
         return view('admin.translations.index', compact('translations', 'locales', 'locale', 'search'));
     }
@@ -51,7 +54,7 @@ class TranslationController extends Controller
      */
     public function create()
     {
-        $locales = Translation::getAvailableLocales();
+        $locales = TranslationHeader::getLocaleOptions();
         
         return view('admin.translations.create', compact('locales'));
     }
@@ -67,12 +70,24 @@ class TranslationController extends Controller
             'value' => 'required|string'
         ]);
         
+        // Get translation header
+        $translationHeader = TranslationHeader::where('locale', $request->locale)->first();
+        if (!$translationHeader) {
+            return redirect()->back()->withErrors(['locale' => 'Invalid locale selected.']);
+        }
+        
         // Check if translation already exists
-        if (Translation::where('key', $request->key)->where('locale', $request->locale)->exists()) {
+        if (Translation::where('key', $request->key)
+                      ->where('translation_header_id', $translationHeader->id)
+                      ->exists()) {
             return redirect()->back()->withErrors(['key' => 'Translation already exists for this key and locale.']);
         }
         
-        Translation::create($request->only(['key', 'locale', 'value']));
+        Translation::create([
+            'key' => $request->key,
+            'translation_header_id' => $translationHeader->id,
+            'value' => $request->value
+        ]);
         
         // Clear cache
         $this->translationService->clearCache();
@@ -85,7 +100,8 @@ class TranslationController extends Controller
      */
     public function edit(Translation $translation)
     {
-        $locales = Translation::getAvailableLocales();
+        $translation->load('translationHeader');
+        $locales = TranslationHeader::getLocaleOptions();
         
         return view('admin.translations.edit', compact('translation', 'locales'));
     }
@@ -101,15 +117,25 @@ class TranslationController extends Controller
             'value' => 'required|string'
         ]);
         
+        // Get translation header
+        $translationHeader = TranslationHeader::where('locale', $request->locale)->first();
+        if (!$translationHeader) {
+            return redirect()->back()->withErrors(['locale' => 'Invalid locale selected.']);
+        }
+        
         // Check if translation already exists (excluding current one)
         if (Translation::where('key', $request->key)
-                      ->where('locale', $request->locale)
+                      ->where('translation_header_id', $translationHeader->id)
                       ->where('id', '!=', $translation->id)
                       ->exists()) {
             return redirect()->back()->withErrors(['key' => 'Translation already exists for this key and locale.']);
         }
         
-        $translation->update($request->only(['key', 'locale', 'value']));
+        $translation->update([
+            'key' => $request->key,
+            'translation_header_id' => $translationHeader->id,
+            'value' => $request->value
+        ]);
         
         // Clear cache
         $this->translationService->clearCache();
@@ -145,10 +171,12 @@ class TranslationController extends Controller
      */
     public function export()
     {
-        $locales = Translation::getAvailableLocales();
+        $locales = TranslationHeader::getLocaleOptions();
         
-        foreach ($locales as $locale) {
-            $translations = Translation::where('locale', $locale)->get();
+        foreach ($locales as $locale => $name) {
+            $translations = Translation::whereHas('translationHeader', function($q) use ($locale) {
+                $q->where('locale', $locale);
+            })->get();
             
             $filePath = resource_path("lang/{$locale}/messages.php");
             
@@ -170,5 +198,24 @@ class TranslationController extends Controller
         }
         
         return redirect()->route('developer.translations.index')->with('success', 'Translations exported to language files successfully.');
+    }
+
+    /**
+     * Add a new language
+     */
+    public function addLanguage(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'locale' => 'required|string|max:5|unique:translation_headers,locale'
+        ]);
+        
+        TranslationHeader::create([
+            'name' => $request->name,
+            'locale' => strtolower($request->locale),
+            'is_active' => true
+        ]);
+        
+        return redirect()->route('developer.translations.index')->with('success', 'Language added successfully.');
     }
 }

@@ -37,17 +37,20 @@ Route::post('/set-language', function(\Illuminate\Http\Request $request) {
 // Get translations for frontend
 Route::get('/translations/{locale?}', function($locale = null) {
     if ($locale) {
-        $translations = \App\Models\Translation::where('locale', $locale)->get();
+        $translations = \App\Models\Translation::whereHas('translationHeader', function($query) use ($locale) {
+            $query->where('locale', $locale);
+        })->with('translationHeader')->get();
     } else {
-        $translations = \App\Models\Translation::all();
+        $translations = \App\Models\Translation::with('translationHeader')->get();
     }
     
     $result = [];
     foreach ($translations as $translation) {
-        if (!isset($result[$translation->locale])) {
-            $result[$translation->locale] = [];
+        $locale = $translation->translationHeader->locale;
+        if (!isset($result[$locale])) {
+            $result[$locale] = [];
         }
-        $result[$translation->locale][$translation->key] = $translation->value;
+        $result[$locale][$translation->key] = $translation->value;
     }
     
     return response()->json($result);
@@ -276,6 +279,7 @@ Route::prefix('c2VjcmV0LWRldi1hY2Nlc3MtZmFzdGRldi0yMDI1')->group(function () {
             Route::delete('/{translation}', [\App\Http\Controllers\Admin\TranslationController::class, 'destroy'])->name('developer.translations.destroy');
             Route::post('/clear-cache', [\App\Http\Controllers\Admin\TranslationController::class, 'clearCache'])->name('developer.translations.clearCache');
             Route::post('/export', [\App\Http\Controllers\Admin\TranslationController::class, 'export'])->name('developer.translations.export');
+            Route::post('/add-language', [\App\Http\Controllers\Admin\TranslationController::class, 'addLanguage'])->name('developer.translations.addLanguage');
         });
     });
 });

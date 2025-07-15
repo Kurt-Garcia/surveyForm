@@ -225,9 +225,9 @@ body {
                                     <label for="locale" class="form-label">Language <span class="text-danger">*</span></label>
                                     <select name="locale" id="locale" class="form-select @error('locale') is-invalid @enderror" required>
                                         <option value="">Select Language</option>
-                                        @foreach($locales as $localeOption)
-                                            <option value="{{ $localeOption }}" {{ old('locale') == $localeOption ? 'selected' : '' }}>
-                                                {{ strtoupper($localeOption) }}
+                                        @foreach($locales as $localeCode => $localeName)
+                                            <option value="{{ $localeCode }}" {{ old('locale') == $localeCode ? 'selected' : '' }}>
+                                                {{ $localeName }}
                                             </option>
                                         @endforeach
                                     </select>

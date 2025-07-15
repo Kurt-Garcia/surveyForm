@@ -261,6 +261,9 @@ body {
                             <a href="{{ route('developer.translations.create') }}" class="btn btn-primary">
                                 <i class="bi bi-plus-circle"></i> Add Translation
                             </a>
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addLanguageModal">
+                                <i class="bi bi-globe"></i> Add Language
+                            </button>
                             <form method="POST" action="{{ route('developer.translations.clearCache') }}" class="d-inline">
                                 @csrf
                                 <button type="submit" class="btn btn-outline-secondary">
@@ -280,9 +283,9 @@ body {
                                     <label for="locale" class="form-label mb-2">Language</label>
                                     <select name="locale" id="locale" class="form-select" onchange="this.form.submit()">
                                         <option value="">All Languages</option>
-                                        @foreach($locales as $localeOption)
-                                            <option value="{{ $localeOption }}" {{ $locale == $localeOption ? 'selected' : '' }}>
-                                                {{ strtoupper($localeOption) }}
+                                        @foreach($locales as $localeCode => $localeName)
+                                            <option value="{{ $localeCode }}" {{ $locale == $localeCode ? 'selected' : '' }}>
+                                                {{ $localeName }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -321,7 +324,7 @@ body {
                                     <thead class="table-light">
                                         <tr>
                                             <th>Key</th>
-                                            <th>Language</th>
+                                            <th>Locale</th>
                                             <th>Value</th>
                                             <th>Actions</th>
                                         </tr>
@@ -333,7 +336,7 @@ body {
                                                     <code class="text-primary">{{ $translation->key }}</code>
                                                 </td>
                                                 <td>
-                                                    <span class="badge bg-primary">{{ strtoupper($translation->locale) }}</span>
+                                                    <span class="badge bg-primary">{{ $translation->translationHeader->locale }}</span>
                                                 </td>
                                                 <td>
                                                     <div class="text-truncate" style="max-width: 400px;" title="{{ $translation->value }}">
@@ -386,6 +389,45 @@ body {
     </div>
 </div>
 
+<!-- Add Language Modal -->
+<div class="modal fade" id="addLanguageModal" tabindex="-1" aria-labelledby="addLanguageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); color: white;">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.2);">
+                <h5 class="modal-title" id="addLanguageModalLabel">
+                    <i class="bi bi-globe me-2"></i>Add New Language
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ route('developer.translations.addLanguage') }}" id="addLanguageForm">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="language_name" class="form-label">Language Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" id="language_name" class="form-control" 
+                               placeholder="e.g., English, Spanish, French" required
+                               style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white;">
+                        <div class="form-text" style="color: rgba(255, 255, 255, 0.7);">The display name for this language</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="language_locale" class="form-label">Language Code <span class="text-danger">*</span></label>
+                        <input type="text" name="locale" id="language_locale" class="form-control" 
+                               placeholder="e.g., en, es, fr, de" required maxlength="5"
+                               style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white;">
+                        <div class="form-text" style="color: rgba(255, 255, 255, 0.7);">ISO language code (2-5 characters)</div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid rgba(255, 255, 255, 0.2);">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Add Language
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 // Create floating particles
 function createParticles() {
@@ -428,7 +470,40 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentSearch !== null) url.searchParams.set('search', currentSearch);
         link.href = url.toString();
     });
+    
+    // Handle add language form
+    const addLanguageForm = document.getElementById('addLanguageForm');
+    const languageLocaleInput = document.getElementById('language_locale');
+    
+    // Convert locale to lowercase on input
+    languageLocaleInput.addEventListener('input', function() {
+        this.value = this.value.toLowerCase().replace(/[^a-z]/g, '');
+    });
+    
+    // Reset form when modal is hidden
+    const addLanguageModal = document.getElementById('addLanguageModal');
+    addLanguageModal.addEventListener('hidden.bs.modal', function() {
+        addLanguageForm.reset();
+        // Remove any validation classes
+        addLanguageForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        addLanguageForm.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+    });
 });
+
+// Show success/error messages
+@if(session('success'))
+    document.addEventListener('DOMContentLoaded', function() {
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-success alert-dismissible fade show position-fixed';
+        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; background: rgba(40, 167, 69, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(40, 167, 69, 0.3); color: white;';
+        alert.innerHTML = `
+            {{ session('success') }}
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alert);
+        setTimeout(() => alert.remove(), 5000);
+    });
+@endif
 </script>
 
 <!-- Bootstrap JS -->
