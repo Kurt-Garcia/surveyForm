@@ -232,6 +232,19 @@ Route::prefix('admin')->group(function () {
         ]);
         Route::post('logos/{logo}/activate', [\App\Http\Controllers\Admin\LogoController::class, 'activate'])->name('admin.logos.activate');
         
+        // Translation management routes (for admins)
+        Route::prefix('translations')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\TranslationController::class, 'index'])->name('admin.translations.index');
+            Route::get('/create', [\App\Http\Controllers\Admin\TranslationController::class, 'create'])->name('admin.translations.create');
+            Route::post('/', [\App\Http\Controllers\Admin\TranslationController::class, 'store'])->name('admin.translations.store');
+            Route::get('/{translation}/edit', [\App\Http\Controllers\Admin\TranslationController::class, 'edit'])->name('admin.translations.edit');
+            Route::put('/{translation}', [\App\Http\Controllers\Admin\TranslationController::class, 'update'])->name('admin.translations.update');
+            Route::delete('/{translation}', [\App\Http\Controllers\Admin\TranslationController::class, 'destroy'])->name('admin.translations.destroy');
+            Route::post('/clear-cache', [\App\Http\Controllers\Admin\TranslationController::class, 'clearCache'])->name('admin.translations.clearCache');
+            Route::post('/export', [\App\Http\Controllers\Admin\TranslationController::class, 'export'])->name('admin.translations.export');
+            Route::post('/add-language', [\App\Http\Controllers\Admin\TranslationController::class, 'addLanguage'])->name('admin.translations.addLanguage');
+        });
+        
         // API routes for SBU and Site data
         Route::get('/api/sbus-with-sites', [\App\Http\Controllers\Admin\SurveyController::class, 'getSbusWithSites'])->name('admin.api.sbus-with-sites');
         

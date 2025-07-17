@@ -164,6 +164,24 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.surveys.index') }}">Surveys</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.admins.create') }}">Admins</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.users.create') }}">Surveyors</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.customers.index') }}">Customers</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.themes.index') }}">Themes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.logos.index') }}">Logo</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.translations.index') }}">Translations</a>
+                        </li>
                         @guest
                             @if (Route::has('login'))
                                 <li class="nav-item">
@@ -196,6 +214,24 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.surveys.index') }}">Surveys</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.admins.create') }}">Admins</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.users.create') }}">Surveyors</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.customers.index') }}">Customers</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.themes.index') }}">Themes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.logos.index') }}">Logo</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.translations.index') }}">Translations</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">

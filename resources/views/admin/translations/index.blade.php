@@ -1,31 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Translation Management - Developer Portal</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+@php
+    $isDeveloper = request()->route()->getName() === 'developer.translations.index';
+@endphp
 
+@extends($isDeveloper ? 'layouts.app-no-navbar' : 'layouts.app')
+
+@push('head')
 <style>
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
+/* Base styles for both admin and developer */
+.dashboard-container {
+    min-height: 100vh;
+    position: relative;
 }
 
+/* Admin-specific styles (light mode) */
+.admin-dashboard {
+    background: #ffffff;
+    color: #333333;
+}
+
+/* Developer-specific styles (dark mode) */
 .developer-dashboard {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    min-height: 100vh;
-    color: white;
-    position: relative;
+    color: #ffffff;
+}
+
+.developer-dashboard .card-header {
+    background: rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.developer-dashboard .card-body {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.developer-dashboard .form-control,
+.developer-dashboard .form-select {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+}
+
+.developer-dashboard .form-control:focus,
+.developer-dashboard .form-select:focus {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.1);
 }
 
 .bg-particles {
@@ -43,52 +64,89 @@ body {
     position: absolute;
     width: 2px;
     height: 2px;
-    background: rgba(255, 255, 255, 0.3);
     border-radius: 50%;
     animation: float 6s ease-in-out infinite;
 }
 
+.admin-dashboard .particle {
+    background: rgba(0, 123, 255, 0.1);
+}
+
+.developer-dashboard .particle {
+    background: rgba(255, 255, 255, 0.05);
+}
+
 @keyframes float {
     0%, 100% { transform: translateY(0) rotate(0deg); opacity: 1; }
-    50% { transform: translateY(-20px) rotate(180deg); opacity: 0.5; }
+    50% { transform: translateY(-20px) rotate(10deg); opacity: 0.5; }
+}
+
+.developer-dashboard .particle {
+    animation: float-dev 8s ease-in-out infinite;
+}
+
+@keyframes float-dev {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+    25% { transform: translateY(-15px) rotate(5deg); opacity: 1; }
+    50% { transform: translateY(-30px) rotate(15deg); opacity: 0.5; }
+    75% { transform: translateY(-15px) rotate(25deg); opacity: 0.8; }
+    100% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
 }
 
 .dev-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 16px;
     transition: all 0.3s ease;
     position: relative;
     z-index: 10;
 }
 
+.admin-dashboard .dev-card {
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.developer-dashboard .dev-card {
+    background: rgba(26, 32, 44, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.developer-dashboard .card {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 123, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.developer-dashboard .card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 123, 255, 0.2);
+    transform: translateY(-5px);
+}
+
 .dev-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .form-control, .form-select {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    backdrop-filter: blur(10px);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    color: #333333;
 }
 
 .form-control:focus, .form-select:focus {
-    background: rgba(255, 255, 255, 0.15);
+    background: #ffffff;
     border-color: #007bff;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    color: white;
+    color: #333333;
 }
 
 .form-control::placeholder {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(0, 0, 0, 0.4);
 }
 
 .form-select option {
-    background: #1a1a2e;
-    color: white;
+    background: #ffffff;
+    color: #333333;
 }
 
 .btn-primary {
@@ -105,20 +163,45 @@ body {
     box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
 }
 
-.btn-outline-secondary {
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    color: white;
-    background: transparent;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 500;
+/* Admin button styles */
+.admin-dashboard .btn-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+}
+
+/* Developer button styles */
+.developer-dashboard .btn-primary {
+    background: linear-gradient(135deg, #4a5568, #2d3748);
+    color: #ffffff;
     transition: all 0.3s ease;
 }
 
-.btn-outline-secondary:hover {
+.btn-outline-secondary {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.admin-dashboard .btn-outline-secondary {
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    color: #333;
+    background: transparent;
+}
+
+.developer-dashboard .btn-outline-secondary {
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: #e2e8f0;
+    background: transparent;
+}
+
+.developer-dashboard .btn-outline-secondary:hover {
     background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.5);
-    color: white;
+    color: #ffffff;
+}
+
+.btn-outline-secondary:hover {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.3);
+    color: #5a6268;
     transform: translateY(-2px);
 }
 
@@ -154,16 +237,54 @@ body {
 }
 
 .table {
-    color: white;
+    color: #333333;
 }
 
-.table-light {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+.admin-dashboard .table {
+    color: #333;
+}
+
+.developer-dashboard .table {
+    color: #e2e8f0;
+}
+
+.developer-dashboard .table thead th {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.developer-dashboard .table td {
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.developer-dashboard .pagination .page-link {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+}
+
+.developer-dashboard .pagination .page-item.active .page-link {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+}
+
+.developer-dashboard .pagination .page-item.disabled .page-link {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.5);
+.admin-dashboard .table-light {
+    background: #f8f9fa;
+    color: #333333;
+}
+
+.developer-dashboard .table-light {
+    background: rgba(0, 0, 0, 0.15);
+    color: #e2e8f0;
 }
 
 .table-hover tbody tr:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.02);
 }
 
 .badge {
@@ -178,35 +299,32 @@ body {
 }
 
 .badge.bg-secondary {
-    background: rgba(108, 117, 125, 0.8) !important;
+    background: #6c757d !important;
     color: white;
 }
 
 .header-section {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 16px;
     padding: 2rem;
     margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 .header-section h1 {
-    background: linear-gradient(135deg, #00d4ff, #007bff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #007bff;
     font-weight: 700;
     margin-bottom: 0.5rem;
 }
 
 .header-section p {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.6);
     margin-bottom: 0;
 }
 
 .text-muted {
-    color: rgba(255, 255, 255, 0.6) !important;
+    color: rgba(0, 0, 0, 0.6) !important;
 }
 
 .text-primary {
@@ -214,47 +332,58 @@ body {
 }
 
 .card-header {
-    background: rgba(255, 255, 255, 0.05);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
+    background: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    color: #333333;
 }
 
 .form-label {
-    color: white;
+    color: #333333;
     font-weight: 500;
 }
 
 .pagination .page-link {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #333333;
 }
 
 .pagination .page-link:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: white;
+    background: #f8f9fa;
+    border-color: rgba(0, 0, 0, 0.2);
+    color: #333333;
 }
 
 .pagination .page-item.active .page-link {
     background: #007bff;
     border-color: #007bff;
+    color: #ffffff;
 }
 </style>
-</head>
-<body>
+@endpush
 
+@section('content')
 <div class="bg-particles" id="particles"></div>
 
-<div class="developer-dashboard">
+@php
+    $dashboardClass = $isDeveloper ? 'developer-dashboard' : 'admin-dashboard';
+@endphp
+<div class="dashboard-container {{ $dashboardClass }}">
     <div class="container-fluid px-4 py-5" style="position: relative; z-index: 10;">
+        @if($isDeveloper)
+        <div class="mb-4">
+            <a href="{{ route('developer.dashboard') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Back to Developer Dashboard
+            </a>
+        </div>
+        @endif
         <div class="row justify-content-center">
             <div class="col-12 col-lg-10">
                 <!-- Header Section -->
                 <div class="header-section">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h1 class="display-6 fw-bold mb-2">Translation Management</h1>
+                            <h1 class="display-6 fw-bold mb-2">Language Management</h1>
                             <p class="text-muted">Manage your application translations dynamically</p>
                         </div>
                         <div class="d-flex gap-2">
@@ -392,12 +521,13 @@ body {
 <!-- Add Language Modal -->
 <div class="modal fade" id="addLanguageModal" tabindex="-1" aria-labelledby="addLanguageModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); color: white;">
-            <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.2);">
+        <div class="modal-content">
+            <!-- Modal content styling will be handled by dashboard class -->
+            <div class="modal-header {{ $isDeveloper ? 'border-dark' : '' }}" style="{{ $isDeveloper ? 'border-bottom: 1px solid rgba(255, 255, 255, 0.1);' : 'border-bottom: 1px solid rgba(0, 0, 0, 0.1);' }}">
                 <h5 class="modal-title" id="addLanguageModalLabel">
                     <i class="bi bi-globe me-2"></i>Add New Language
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="POST" action="{{ route('developer.translations.addLanguage') }}" id="addLanguageForm">
                 @csrf
@@ -406,18 +536,18 @@ body {
                         <label for="language_name" class="form-label">Language Name <span class="text-danger">*</span></label>
                         <input type="text" name="name" id="language_name" class="form-control" 
                                placeholder="e.g., English, Spanish, French" required
-                               style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white;">
-                        <div class="form-text" style="color: rgba(255, 255, 255, 0.7);">The display name for this language</div>
+                               style="background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.2); color: #333333;">
+                        <div class="form-text" style="color: rgba(0, 0, 0, 0.6);">The display name for this language</div>
                     </div>
                     <div class="mb-3">
                         <label for="language_locale" class="form-label">Language Code <span class="text-danger">*</span></label>
                         <input type="text" name="locale" id="language_locale" class="form-control" 
                                placeholder="e.g., en, es, fr, de" required maxlength="5"
-                               style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white;">
-                        <div class="form-text" style="color: rgba(255, 255, 255, 0.7);">ISO language code (2-5 characters)</div>
+                               style="background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.2); color: #333333;">
+                        <div class="form-text" style="color: rgba(0, 0, 0, 0.6);">ISO language code (2-5 characters)</div>
                     </div>
                 </div>
-                <div class="modal-footer" style="border-top: 1px solid rgba(255, 255, 255, 0.2);">
+                <div class="modal-footer {{ $isDeveloper ? 'border-dark' : '' }}" style="{{ $isDeveloper ? 'border-top: 1px solid rgba(255, 255, 255, 0.1);' : 'border-top: 1px solid rgba(0, 0, 0, 0.1);' }}">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-success">
                         <i class="bi bi-check-circle"></i> Add Language
@@ -432,13 +562,18 @@ body {
 // Create floating particles
 function createParticles() {
     const particles = document.getElementById('particles');
-    const particleCount = 50;
+    const isDeveloper = document.querySelector('.developer-dashboard') !== null;
+    const particleCount = isDeveloper ? 100 : 50; // More particles for developer mode
     
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
         particle.style.left = Math.random() * 100 + '%';
         particle.style.top = Math.random() * 100 + '%';
+        // Random size - larger for developer mode
+        const size = isDeveloper ? (Math.random() * 6 + 3) : (Math.random() * 5 + 2);
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
         particle.style.animationDelay = Math.random() * 6 + 's';
         particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
         particles.appendChild(particle);
@@ -495,7 +630,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('DOMContentLoaded', function() {
         const alert = document.createElement('div');
         alert.className = 'alert alert-success alert-dismissible fade show position-fixed';
-        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; background: rgba(40, 167, 69, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(40, 167, 69, 0.3); color: white;';
+        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; background: rgba(40, 167, 69, 0.9); border: 1px solid rgba(40, 167, 69, 0.3); color: white; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);';
         alert.innerHTML = `
             {{ session('success') }}
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
@@ -505,8 +640,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 @endif
 </script>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+@endsection

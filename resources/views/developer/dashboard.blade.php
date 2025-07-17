@@ -298,7 +298,7 @@ body {
                 <a href="{{ route('developer.translations.index') }}" class="dev-action-card translation-zone text-decoration-none">
                     <div>
                         <i class="bi bi-translate" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
-                        <h4 class="fw-bold mb-3">Translation Management</h4>
+                        <h4 class="fw-bold mb-3">Language Management</h4>
                         <p class="mb-3" style="font-size: 1.1rem;">Manage Multi-language Content</p>
                         <div class="badge bg-light text-dark px-3 py-2 mb-3">
                             <i class="bi bi-database"></i> Database-driven
