@@ -1,128 +1,26 @@
-@php
-    $isDeveloper = request()->route()->getName() === 'developer.translations.index';
-@endphp
-
-@extends($isDeveloper ? 'layouts.app-no-navbar' : 'layouts.app')
+@extends('layouts.app')
 
 @push('head')
 <style>
-/* Base styles for both admin and developer */
+/* Admin dashboard styles */
 .dashboard-container {
     min-height: 100vh;
     position: relative;
-}
-
-/* Admin-specific styles (light mode) */
-.admin-dashboard {
     background: #ffffff;
     color: #333333;
 }
 
-/* Developer-specific styles (dark mode) */
-.developer-dashboard {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    color: #ffffff;
-}
 
-.developer-dashboard .card-header {
-    background: rgba(0, 0, 0, 0.2);
-    color: #ffffff;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
 
-.developer-dashboard .card-body {
-    background: rgba(0, 0, 0, 0.1);
-}
-
-.developer-dashboard .form-control,
-.developer-dashboard .form-select {
-    background-color: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #e2e8f0;
-}
-
-.developer-dashboard .form-control:focus,
-.developer-dashboard .form-select:focus {
-    background-color: rgba(0, 0, 0, 0.3);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: #ffffff;
-    box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.1);
-}
-
-.bg-particles {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: 1;
-    pointer-events: none;
-}
-
-.particle {
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    border-radius: 50%;
-    animation: float 6s ease-in-out infinite;
-}
-
-.admin-dashboard .particle {
-    background: rgba(0, 123, 255, 0.1);
-}
-
-.developer-dashboard .particle {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 1; }
-    50% { transform: translateY(-20px) rotate(10deg); opacity: 0.5; }
-}
-
-.developer-dashboard .particle {
-    animation: float-dev 8s ease-in-out infinite;
-}
-
-@keyframes float-dev {
-    0% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
-    25% { transform: translateY(-15px) rotate(5deg); opacity: 1; }
-    50% { transform: translateY(-30px) rotate(15deg); opacity: 0.5; }
-    75% { transform: translateY(-15px) rotate(25deg); opacity: 0.8; }
-    100% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
-}
-
-.dev-card {
+.card {
     border-radius: 16px;
     transition: all 0.3s ease;
-    position: relative;
-    z-index: 10;
-}
-
-.admin-dashboard .dev-card {
     background: #ffffff;
     border: 1px solid rgba(0, 0, 0, 0.1);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
-.developer-dashboard .dev-card {
-    background: rgba(26, 32, 44, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.developer-dashboard .card {
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 123, 255, 0.1);
-    transition: all 0.3s ease;
-}
-
-.developer-dashboard .card:hover {
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 123, 255, 0.2);
-    transform: translateY(-5px);
-}
-
-.dev-card:hover {
+.card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
@@ -163,39 +61,13 @@
     box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
 }
 
-/* Admin button styles */
-.admin-dashboard .btn-primary {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-}
-
-/* Developer button styles */
-.developer-dashboard .btn-primary {
-    background: linear-gradient(135deg, #4a5568, #2d3748);
-    color: #ffffff;
-    transition: all 0.3s ease;
-}
-
 .btn-outline-secondary {
     padding: 12px 24px;
     border-radius: 8px;
     font-weight: 500;
-}
-
-.admin-dashboard .btn-outline-secondary {
     border: 2px solid rgba(0, 0, 0, 0.2);
     color: #333;
     background: transparent;
-}
-
-.developer-dashboard .btn-outline-secondary {
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    color: #e2e8f0;
-    background: transparent;
-}
-
-.developer-dashboard .btn-outline-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
 }
 
 .btn-outline-secondary:hover {
@@ -240,47 +112,9 @@
     color: #333333;
 }
 
-.admin-dashboard .table {
-    color: #333;
-}
-
-.developer-dashboard .table {
-    color: #e2e8f0;
-}
-
-.developer-dashboard .table thead th {
-    border-bottom-color: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-}
-
-.developer-dashboard .table td {
-    border-top-color: rgba(255, 255, 255, 0.1);
-}
-
-.developer-dashboard .pagination .page-link {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #e2e8f0;
-}
-
-.developer-dashboard .pagination .page-item.active .page-link {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: #ffffff;
-}
-
-.developer-dashboard .pagination .page-item.disabled .page-link {
-    background-color: rgba(0, 0, 0, 0.1);
-    border-color: rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.5);
-.admin-dashboard .table-light {
+.table-light {
     background: #f8f9fa;
     color: #333333;
-}
-
-.developer-dashboard .table-light {
-    background: rgba(0, 0, 0, 0.15);
-    color: #e2e8f0;
 }
 
 .table-hover tbody tr:hover {
@@ -363,20 +197,8 @@
 @endpush
 
 @section('content')
-<div class="bg-particles" id="particles"></div>
-
-@php
-    $dashboardClass = $isDeveloper ? 'developer-dashboard' : 'admin-dashboard';
-@endphp
-<div class="dashboard-container {{ $dashboardClass }}">
-    <div class="container-fluid px-4 py-5" style="position: relative; z-index: 10;">
-        @if($isDeveloper)
-        <div class="mb-4">
-            <a href="{{ route('developer.dashboard') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-2"></i>Back to Developer Dashboard
-            </a>
-        </div>
-        @endif
+<div class="dashboard-container">
+    <div class="container-fluid px-4 py-5">
         <div class="row justify-content-center">
             <div class="col-12 col-lg-10">
                 <!-- Header Section -->
@@ -387,13 +209,13 @@
                             <p class="text-muted">Manage your application translations dynamically</p>
                         </div>
                         <div class="d-flex gap-2">
-                            <a href="{{ route('developer.translations.create') }}" class="btn btn-primary">
+                            <a href="{{ route('admin.translations.create') }}" class="btn btn-primary">
                                 <i class="bi bi-plus-circle"></i> Add Translation
                             </a>
                             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addLanguageModal">
                                 <i class="bi bi-globe"></i> Add Language
                             </button>
-                            <form method="POST" action="{{ route('developer.translations.clearCache') }}" class="d-inline">
+                            <form method="POST" action="{{ route('admin.translations.clearCache') }}" class="d-inline">
                                 @csrf
                                 <button type="submit" class="btn btn-outline-secondary">
                                     <i class="bi bi-arrow-clockwise"></i> Clear Cache
@@ -404,9 +226,9 @@
                 </div>
 
                 <!-- Filters -->
-                <div class="dev-card mb-4">
+                <div class="card mb-4">
                     <div class="card-body p-4">
-                        <form method="GET" action="{{ route('developer.translations.index') }}">
+                        <form method="GET" action="{{ route('admin.translations.index') }}">
                             <div class="row g-4 align-items-end">
                                 <div class="col-md-4">
                                     <label for="locale" class="form-label mb-2">Language</label>
@@ -427,7 +249,7 @@
                                 </div>
                                 <div class="col-md-2">
                                     <div class="d-flex justify-content-end">
-                                        <a href="{{ route('developer.translations.index') }}" 
+                                        <a href="{{ route('admin.translations.index') }}" 
                                            class="btn btn-outline-secondary px-4">
                                             <i class="bi bi-arrow-clockwise me-2"></i>Reset
                                         </a>
@@ -439,7 +261,7 @@
                 </div>
 
                 <!-- Translations Table -->
-                <div class="dev-card">
+                <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
                             Translations 
@@ -474,11 +296,11 @@
                                                 </td>
                                                 <td>
                                                     <div class="d-flex gap-1">
-                                                        <a href="{{ route('developer.translations.edit', $translation) }}" 
+                                                        <a href="{{ route('admin.translations.edit', $translation) }}" 
                                                            class="btn btn-sm btn-outline-primary">
                                                             <i class="bi bi-pencil"></i>
                                                         </a>
-                                                        <form method="POST" action="{{ route('developer.translations.destroy', $translation) }}" 
+                                                        <form method="POST" action="{{ route('admin.translations.destroy', $translation) }}" 
                                                               class="d-inline" onsubmit="return confirm('Are you sure you want to delete this translation?')">
                                                             @csrf
                                                             @method('DELETE')
@@ -522,32 +344,29 @@
 <div class="modal fade" id="addLanguageModal" tabindex="-1" aria-labelledby="addLanguageModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <!-- Modal content styling will be handled by dashboard class -->
-            <div class="modal-header {{ $isDeveloper ? 'border-dark' : '' }}" style="{{ $isDeveloper ? 'border-bottom: 1px solid rgba(255, 255, 255, 0.1);' : 'border-bottom: 1px solid rgba(0, 0, 0, 0.1);' }}">
+            <div class="modal-header">
                 <h5 class="modal-title" id="addLanguageModalLabel">
                     <i class="bi bi-globe me-2"></i>Add New Language
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="POST" action="{{ route('developer.translations.addLanguage') }}" id="addLanguageForm">
+            <form method="POST" action="{{ route('admin.translations.addLanguage') }}" id="addLanguageForm">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="language_name" class="form-label">Language Name <span class="text-danger">*</span></label>
                         <input type="text" name="name" id="language_name" class="form-control" 
-                               placeholder="e.g., English, Spanish, French" required
-                               style="background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.2); color: #333333;">
-                        <div class="form-text" style="color: rgba(0, 0, 0, 0.6);">The display name for this language</div>
+                               placeholder="e.g., English, Spanish, French" required>
+                        <div class="form-text">The display name for this language</div>
                     </div>
                     <div class="mb-3">
                         <label for="language_locale" class="form-label">Language Code <span class="text-danger">*</span></label>
                         <input type="text" name="locale" id="language_locale" class="form-control" 
-                               placeholder="e.g., en, es, fr, de" required maxlength="5"
-                               style="background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.2); color: #333333;">
-                        <div class="form-text" style="color: rgba(0, 0, 0, 0.6);">ISO language code (2-5 characters)</div>
+                               placeholder="e.g., en, es, fr, de" required maxlength="5">
+                        <div class="form-text">ISO language code (2-5 characters)</div>
                     </div>
                 </div>
-                <div class="modal-footer {{ $isDeveloper ? 'border-dark' : '' }}" style="{{ $isDeveloper ? 'border-top: 1px solid rgba(255, 255, 255, 0.1);' : 'border-top: 1px solid rgba(0, 0, 0, 0.1);' }}">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-success">
                         <i class="bi bi-check-circle"></i> Add Language
@@ -559,26 +378,6 @@
 </div>
 
 <script>
-// Create floating particles
-function createParticles() {
-    const particles = document.getElementById('particles');
-    const isDeveloper = document.querySelector('.developer-dashboard') !== null;
-    const particleCount = isDeveloper ? 100 : 50; // More particles for developer mode
-    
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.top = Math.random() * 100 + '%';
-        // Random size - larger for developer mode
-        const size = isDeveloper ? (Math.random() * 6 + 3) : (Math.random() * 5 + 2);
-        particle.style.width = size + 'px';
-        particle.style.height = size + 'px';
-        particle.style.animationDelay = Math.random() * 6 + 's';
-        particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
-        particles.appendChild(particle);
-    }
-}
 
 // Debounced search function
 let searchTimeout;
@@ -592,8 +391,6 @@ function debounceSearch(value) {
 
 // Ensure pagination links maintain filter state
 document.addEventListener('DOMContentLoaded', function() {
-    createParticles();
-    
     // Add current filter parameters to all pagination links
     const paginationLinks = document.querySelectorAll('.pagination a');
     const currentLocale = '{{ request("locale", "") }}';

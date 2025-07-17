@@ -188,11 +188,7 @@ body {
     box-shadow: 0 0 30px rgba(39, 174, 96, 0.3);
 }
 
-.translation-zone {
-    background: linear-gradient(135deg, #9b59b6, #8e44ad);
-    border: 2px solid #9b59b6;
-    box-shadow: 0 0 30px rgba(155, 89, 182, 0.3);
-}
+
 
 .survey-zone:hover {
     box-shadow: 0 0 50px rgba(39, 174, 96, 0.5);
@@ -206,9 +202,7 @@ body {
     box-shadow: 0 0 50px rgba(52, 152, 219, 0.5);
 }
 
-.translation-zone:hover {
-    box-shadow: 0 0 50px rgba(142, 68, 173, 0.5);
-}
+
 </style>
 </head>
 <body>
@@ -286,28 +280,7 @@ body {
             </div>
         </div>
         
-        <!-- Developer Tools Section -->
-        <div class="row g-4 mb-5">
-            <div class="col-12">
-                <h2 class="text-center mb-5 text-info display-5 fw-bold">
-                    <i class="bi bi-tools"></i> DEVELOPER TOOLS
-                </h2>
-            </div>
-            
-            <div class="col-lg-6 col-md-8 mx-auto">
-                <a href="{{ route('developer.translations.index') }}" class="dev-action-card translation-zone text-decoration-none">
-                    <div>
-                        <i class="bi bi-translate" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
-                        <h4 class="fw-bold mb-3">Language Management</h4>
-                        <p class="mb-3" style="font-size: 1.1rem;">Manage Multi-language Content</p>
-                        <div class="badge bg-light text-dark px-3 py-2 mb-3">
-                            <i class="bi bi-database"></i> Database-driven
-                        </div>
-                        <div class="pulse-effect"></div>
-                    </div>
-                </a>
-            </div>
-        </div>
+
 
         <!-- Compact Stats Overview -->
         <div class="row g-3 mb-4">
