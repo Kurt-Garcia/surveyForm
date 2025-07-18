@@ -1357,21 +1357,131 @@
                 </div>
 
                 <div class="language-options">
-                    <div class="language-option" data-language="en">
-                        <span class="language-flag">🇺🇸</span>
-                        <span class="language-name">{{ __db('language_english') }}</span>
-                        <span class="language-native">English</span>
-                    </div>
-                    <div class="language-option" data-language="tl">
-                        <span class="language-flag">🇵🇭</span>
-                        <span class="language-name">{{ __db('language_tagalog') }}</span>
-                        <span class="language-native">Tagalog</span>
-                    </div>
-                    <div class="language-option" data-language="ceb">
-                        <span class="language-flag">🇵🇭</span>
-                        <span class="language-name">{{ __db('language_cebuano') }}</span>
-                        <span class="language-native">Cebuano</span>
-                    </div>
+                    @foreach($activeLanguages as $language)
+                        <div class="language-option" data-language="{{ $language->locale }}">
+                            <span class="language-flag">
+                                @switch($language->locale)
+                                    @case('en')
+                                        🇺🇸
+                                        @break
+                                    @case('tl')
+                                        🇵🇭
+                                        @break
+                                    @case('ceb')
+                                        🇵🇭
+                                        @break
+                                    @case('es')
+                                        🇪🇸
+                                        @break
+                                    @case('fr')
+                                        🇫🇷
+                                        @break
+                                    @case('de')
+                                        🇩🇪
+                                        @break
+                                    @case('it')
+                                        🇮🇹
+                                        @break
+                                    @case('pt')
+                                        🇵🇹
+                                        @break
+                                    @case('ja')
+                                        🇯🇵
+                                        @break
+                                    @case('ko')
+                                        🇰🇷
+                                        @break
+                                    @case('zh')
+                                        🇨🇳
+                                        @break
+                                    @case('ar')
+                                        🇸🇦
+                                        @break
+                                    @case('hi')
+                                        🇮🇳
+                                        @break
+                                    @case('ru')
+                                        🇷🇺
+                                        @break
+                                    @case('th')
+                                        🇹🇭
+                                        @break
+                                    @case('vi')
+                                        🇻🇳
+                                        @break
+                                    @case('id')
+                                        🇮🇩
+                                        @break
+                                    @case('ms')
+                                        🇲🇾
+                                        @break
+                                    @default
+                                        🌐
+                                @endswitch
+                            </span>
+                            <span class="language-name">{{ $language->name }}</span>
+                            <span class="language-native">
+                                @switch($language->locale)
+                                    @case('en')
+                                        English
+                                        @break
+                                    @case('tl')
+                                        Tagalog
+                                        @break
+                                    @case('ceb')
+                                        Cebuano
+                                        @break
+                                    @case('es')
+                                        Español
+                                        @break
+                                    @case('fr')
+                                        Français
+                                        @break
+                                    @case('de')
+                                        Deutsch
+                                        @break
+                                    @case('it')
+                                        Italiano
+                                        @break
+                                    @case('pt')
+                                        Português
+                                        @break
+                                    @case('ja')
+                                        日本語
+                                        @break
+                                    @case('ko')
+                                        한국어
+                                        @break
+                                    @case('zh')
+                                        中文
+                                        @break
+                                    @case('ar')
+                                        العربية
+                                        @break
+                                    @case('hi')
+                                        हिन्दी
+                                        @break
+                                    @case('ru')
+                                        Русский
+                                        @break
+                                    @case('th')
+                                        ไทย
+                                        @break
+                                    @case('vi')
+                                        Tiếng Việt
+                                        @break
+                                    @case('id')
+                                        Bahasa Indonesia
+                                        @break
+                                    @case('ms')
+                                        Bahasa Melayu
+                                        @break
+                                    @default
+                                        {{ $language->name }}
+                                @endswitch
+                            </span>
+                        </div>
+                    @endforeach
                 </div>
             </div>
 
@@ -1555,28 +1665,25 @@ $(document).ready(function() {
     
     // Function to check available languages and show modal conditionally
     function checkAvailableLanguagesAndShowModal() {
-        const hasTagalog = checkLanguageAvailable('tl');
-        const hasCebuano = checkLanguageAvailable('ceb');
+        const activeLanguages = @json($activeLanguages->pluck('locale'));
+        let availableLanguages = [];
+        
+        // Check each active language for content availability
+        activeLanguages.forEach(function(locale) {
+            if (locale === 'en' || checkLanguageAvailable(locale)) {
+                availableLanguages.push(locale);
+                $(`.language-option[data-language="${locale}"]`).show();
+            } else {
+                $(`.language-option[data-language="${locale}"]`).hide();
+            }
+        });
         
         // If only English is available, skip the language modal and use English by default
-        if (!hasTagalog && !hasCebuano) {
+        if (availableLanguages.length === 1 && availableLanguages[0] === 'en') {
             selectedLanguage = 'en';
             $('#selected_language').val(selectedLanguage);
             updatePageLanguage(selectedLanguage);
             return;
-        }
-        
-        // Hide language options that don't have content
-        if (!hasTagalog) {
-            $('.language-option[data-language="tl"]').hide();
-        } else {
-            $('.language-option[data-language="tl"]').show();
-        }
-        
-        if (!hasCebuano) {
-            $('.language-option[data-language="ceb"]').hide();
-        } else {
-            $('.language-option[data-language="ceb"]').show();
         }
         
         // Show the language modal with available languages

@@ -119,6 +119,9 @@ class UserSurveyController extends Controller
         // Get the active theme for the survey's admin
         $activeTheme = \App\Models\ThemeSetting::getActiveTheme($survey->admin_id);
         
+        // Get active languages for language selection
+        $activeLanguages = \App\Models\TranslationHeader::active()->get();
+        
         // Get user's site IDs for filtering customers
         $userSiteIds = [];
         if (Auth::check()) {
@@ -135,6 +138,7 @@ class UserSurveyController extends Controller
             'prefillAccountName',
             'prefillAccountType',
             'activeTheme',
+            'activeLanguages',
             'userSiteIds'
         ))->with('isCustomerMode', false);
     }

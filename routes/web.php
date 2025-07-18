@@ -241,6 +241,7 @@ Route::prefix('admin')->group(function () {
             Route::put('/{translation}', [\App\Http\Controllers\Admin\TranslationController::class, 'update'])->name('admin.translations.update');
             Route::delete('/{translation}', [\App\Http\Controllers\Admin\TranslationController::class, 'destroy'])->name('admin.translations.destroy');
             Route::post('/clear-cache', [\App\Http\Controllers\Admin\TranslationController::class, 'clearCache'])->name('admin.translations.clearCache');
+            Route::post('/deploy-languages', [\App\Http\Controllers\Admin\TranslationController::class, 'deployLanguages'])->name('admin.translations.deployLanguages');
             Route::post('/export', [\App\Http\Controllers\Admin\TranslationController::class, 'export'])->name('admin.translations.export');
             Route::post('/add-language', [\App\Http\Controllers\Admin\TranslationController::class, 'addLanguage'])->name('admin.translations.addLanguage');
         });

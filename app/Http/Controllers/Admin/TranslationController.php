@@ -213,9 +213,48 @@ class TranslationController extends Controller
         TranslationHeader::create([
             'name' => $request->name,
             'locale' => strtolower($request->locale),
-            'is_active' => true
+            'is_active' => false
         ]);
         
         return redirect()->route('developer.translations.index')->with('success', 'Language added successfully.');
+    }
+    
+    /**
+     * Deploy selected languages (activate exactly 3 languages including English)
+     */
+    public function deployLanguages(Request $request)
+    {
+        $request->validate([
+            'languages' => 'required|array|max:3',
+            'languages.*' => 'exists:translation_headers,id'
+        ]);
+        
+        // Get English language header
+        $englishHeader = TranslationHeader::where('locale', 'en')->first();
+        if (!$englishHeader) {
+            return redirect()->back()->withErrors(['languages' => 'English language not found. Please ensure English is configured.']);
+        }
+        
+        // Ensure English is always included in the selected languages
+        $selectedLanguages = collect($request->languages);
+        if (!$selectedLanguages->contains($englishHeader->id)) {
+            $selectedLanguages->push($englishHeader->id);
+        }
+        
+        // Validate that we have exactly 3 languages
+        if ($selectedLanguages->count() !== 3) {
+            return redirect()->back()->withErrors(['languages' => 'Please select exactly 2 additional languages (English is always included).']);
+        }
+        
+        // Deactivate all languages first
+        TranslationHeader::query()->update(['is_active' => false]);
+        
+        // Activate selected languages (including English)
+        TranslationHeader::whereIn('id', $selectedLanguages->toArray())->update(['is_active' => true]);
+        
+        // Clear translation cache
+        $this->translationService->clearCache();
+        
+        return redirect()->route('admin.translations.index')->with('success', 'Languages deployed successfully. Selected languages are now active.');
     }
 }

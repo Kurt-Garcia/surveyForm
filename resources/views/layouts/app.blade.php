@@ -159,28 +159,28 @@
                   <div class="offcanvas-body">
                     <ul class="navbar-nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.dashboard') }}">Home</a>
+                            <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.surveys.index') }}">Surveys</a>
+                            <a class="nav-link {{ request()->routeIs('admin.surveys.*') ? 'active' : '' }}" href="{{ route('admin.surveys.index') }}">Surveys</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.admins.create') }}">Admins</a>
+                            <a class="nav-link {{ request()->routeIs('admin.admins.*') || request()->routeIs('admin.check-*') ? 'active' : '' }}" href="{{ route('admin.admins.create') }}">Admins</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.users.create') }}">Surveyors</a>
+                            <a class="nav-link {{ request()->routeIs('admin.users.*') || request()->routeIs('admin.sites.*') ? 'active' : '' }}" href="{{ route('admin.users.create') }}">Surveyors</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.customers.index') }}">Customers</a>
+                            <a class="nav-link {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}" href="{{ route('admin.customers.index') }}">Customers</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.themes.index') }}">Themes</a>
+                            <a class="nav-link {{ request()->routeIs('admin.themes.*') ? 'active' : '' }}" href="{{ route('admin.themes.index') }}">Themes</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.logos.index') }}">Logo</a>
+                            <a class="nav-link {{ request()->routeIs('admin.logos.*') ? 'active' : '' }}" href="{{ route('admin.logos.index') }}">Logo</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.translations.index') }}">Translations</a>
+                            <a class="nav-link {{ request()->routeIs('admin.translations.*') ? 'active' : '' }}" href="{{ route('admin.translations.index') }}">Translations</a>
                         </li>
                         @guest
                             @if (Route::has('login'))
@@ -210,28 +210,28 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.dashboard') }}">Home</a>
+                            <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.surveys.index') }}">Surveys</a>
+                            <a class="nav-link {{ request()->routeIs('admin.surveys.*') ? 'active' : '' }}" href="{{ route('admin.surveys.index') }}">Surveys</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.admins.create') }}">Admins</a>
+                            <a class="nav-link {{ request()->routeIs('admin.admins.*') || request()->routeIs('admin.check-*') ? 'active' : '' }}" href="{{ route('admin.admins.create') }}">Admins</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.users.create') }}">Surveyors</a>
+                            <a class="nav-link {{ request()->routeIs('admin.users.*') || request()->routeIs('admin.sites.*') ? 'active' : '' }}" href="{{ route('admin.users.create') }}">Surveyors</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.customers.index') }}">Customers</a>
+                            <a class="nav-link {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}" href="{{ route('admin.customers.index') }}">Customers</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.themes.index') }}">Themes</a>
+                            <a class="nav-link {{ request()->routeIs('admin.themes.*') ? 'active' : '' }}" href="{{ route('admin.themes.index') }}">Themes</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.logos.index') }}">Logo</a>
+                            <a class="nav-link {{ request()->routeIs('admin.logos.*') ? 'active' : '' }}" href="{{ route('admin.logos.index') }}">Logo</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('admin.translations.index') }}">Translations</a>
+                            <a class="nav-link {{ request()->routeIs('admin.translations.*') ? 'active' : '' }}" href="{{ route('admin.translations.index') }}">Translations</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">
@@ -347,10 +347,43 @@
         .nav-link, .dropdown-item {
         font-family: var(--body-font);
         color: var(--text-color);
+        transition: all 0.3s ease;
+        position: relative;
       }
       
       .nav-link:hover, .dropdown-item:hover {
         color: var(--primary-color);
+      }
+      
+      /* Active navbar menu styling */
+      .nav-link.active {
+        color: var(--primary-color) !important;
+        font-weight: 600;
+        background-color: rgba(var(--primary-color-rgb), 0.1);
+        border-radius: 6px;
+      }
+      
+      .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        height: 2px;
+        background-color: var(--primary-color);
+        border-radius: 1px;
+      }
+      
+      /* Mobile offcanvas active styling */
+      .offcanvas .nav-link.active {
+        background-color: rgba(var(--primary-color-rgb), 0.15);
+        border-left: 3px solid var(--primary-color);
+        padding-left: calc(1rem - 3px);
+      }
+      
+      .offcanvas .nav-link.active::after {
+        display: none;
       }
       
       .dropdown-menu {

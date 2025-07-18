@@ -215,12 +215,9 @@
                             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addLanguageModal">
                                 <i class="bi bi-globe"></i> Add Language
                             </button>
-                            <form method="POST" action="{{ route('admin.translations.clearCache') }}" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-outline-secondary">
-                                    <i class="bi bi-arrow-clockwise"></i> Clear Cache
-                                </button>
-                            </form>
+                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#deployLanguageModal">
+                                <i class="bi bi-globe2"></i> Deploy Language
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -377,6 +374,79 @@
     </div>
 </div>
 
+<!-- Deploy Language Modal -->
+<div class="modal fade" id="deployLanguageModal" tabindex="-1" aria-labelledby="deployLanguageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deployLanguageModalLabel">
+                    <i class="bi bi-globe2 me-2"></i>Deploy Languages
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ route('admin.translations.deployLanguages') }}" id="deployLanguageForm">
+                @csrf
+                @php
+                    $allLanguages = \App\Models\TranslationHeader::all();
+                    $activeLanguages = \App\Models\TranslationHeader::active()->pluck('id')->toArray();
+                    $englishLanguage = $allLanguages->where('locale', 'en')->first();
+                @endphp
+                @if($englishLanguage)
+                    <input type="hidden" name="languages[]" value="{{ $englishLanguage->id }}">
+                @endif
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Select exactly 2 additional languages to activate.</strong> English is always active as the default language. Only the selected languages will be available for use in the application.
+                    </div>
+                    
+                    <div class="row">
+                        
+                        @foreach($allLanguages as $language)
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input language-checkbox" 
+                                           type="checkbox" 
+                                           name="languages[]" 
+                                           value="{{ $language->id }}" 
+                                           id="language_{{ $language->id }}"
+                                           {{ in_array($language->id, $activeLanguages) ? 'checked' : '' }}
+                                           {{ $language->locale === 'en' ? 'disabled checked' : '' }}>
+                                    <label class="form-check-label d-flex justify-content-between align-items-center" for="language_{{ $language->id }}">
+                                        <span>
+                                            <strong>{{ $language->name }}</strong>
+                                            <small class="text-muted">({{ $language->locale }})</small>
+                                            @if($language->locale === 'en')
+                                                <small class="text-info">(Default)</small>
+                                            @endif
+                                        </span>
+                                        @if(in_array($language->id, $activeLanguages))
+                                            <span class="badge bg-success">Active</span>
+                                        @else
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        @endif
+                                    </label>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    
+                    <div id="selectionError" class="alert alert-danger d-none">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Please select exactly 2 additional languages (English is always included).
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="deployBtn">
+                        <i class="bi bi-check-circle"></i> Deploy Languages
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 
 // Debounced search function
@@ -420,6 +490,44 @@ document.addEventListener('DOMContentLoaded', function() {
         addLanguageForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
         addLanguageForm.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
     });
+    
+    // Deploy Language Modal functionality
+    const deployLanguageForm = document.getElementById('deployLanguageForm');
+    const languageCheckboxes = document.querySelectorAll('.language-checkbox');
+    const selectionError = document.getElementById('selectionError');
+    const deployBtn = document.getElementById('deployBtn');
+    
+    function validateLanguageSelection() {
+        const checkedBoxes = document.querySelectorAll('.language-checkbox:checked:not(:disabled)');
+        const englishCheckbox = document.querySelector('.language-checkbox[id*="language_"]:disabled');
+        const totalSelected = checkedBoxes.length + (englishCheckbox ? 1 : 0);
+        const isValid = totalSelected === 3;
+        
+        if (isValid) {
+            selectionError.classList.add('d-none');
+            deployBtn.disabled = false;
+        } else {
+            selectionError.classList.remove('d-none');
+            deployBtn.disabled = true;
+        }
+        
+        return isValid;
+    }
+    
+    // Add event listeners to checkboxes
+    languageCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', validateLanguageSelection);
+    });
+    
+    // Validate on form submission
+    deployLanguageForm.addEventListener('submit', function(e) {
+        if (!validateLanguageSelection()) {
+            e.preventDefault();
+        }
+    });
+    
+    // Initial validation
+    validateLanguageSelection();
 });
 
 // Show success/error messages
