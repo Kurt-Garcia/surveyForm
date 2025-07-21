@@ -106,7 +106,7 @@
             <div class="col-md-10 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                        <h2><i class="bi bi-box-arrow-in-right me-2"></i>Login Activity Logs</h2>
+                        <h2><i class="bi bi-box-arrow-in-right me-2"></i>Login Logs</h2>
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="{{ route('developer.logs.index') }}">User Logs</a></li>
