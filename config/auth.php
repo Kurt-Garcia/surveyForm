@@ -41,14 +41,14 @@ return [
             'provider' => 'users',
         ],
         'admin' => [
-            'driver' => 'session',
+            'driver' => 'multi-session',
             'provider' => 'admins',
-            'session_name' => config('session.admin_cookie'),
+            'session_key' => 'admin',
         ],
         'developer' => [
-            'driver' => 'session',
+            'driver' => 'multi-session',
             'provider' => 'developers',
-            'session_name' => config('session.developer_cookie'),
+            'session_key' => 'developer',
         ],
     ],
 

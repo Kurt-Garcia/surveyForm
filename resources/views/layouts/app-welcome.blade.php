@@ -163,15 +163,15 @@
                                     <a class="dropdown-item" href="{{ route('profile') }}">
                                         {{ __('Profile') }}
                                     </a>
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form-welcome').submit();">
-                                        {{ __('Logout') }}
-                                    </a>
+                                    <a class="dropdown-item" href="{{ session('is_admin') ? route('admin.logout') : route('logout') }}"
+                               onclick="event.preventDefault();
+                                             document.getElementById('logout-form-welcome').submit();">
+                                {{ __('Logout') }}
+                            </a>
 
-                                    <form id="logout-form-welcome" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
+                            <form id="logout-form-welcome" action="{{ session('is_admin') ? route('admin.logout') : route('logout') }}" method="POST" class="d-none">
+                                @csrf
+                            </form>
                                 </div>
                             </li>
                         @endguest

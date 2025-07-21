@@ -195,11 +195,11 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ route('logout') }}"
+                                <a class="nav-link" href="{{ session('is_admin') ? route('admin.logout') : route('logout') }}"
                                    onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit();">
                                     {{ __('Logout') }}
                                 </a>
-                                <form id="logout-form-mobile" action="{{ route('logout') }}" method="POST" class="d-none">
+                                <form id="logout-form-mobile" action="{{ session('is_admin') ? route('admin.logout') : route('logout') }}" method="POST" class="d-none">
                                     @csrf
                                 </form>
                             </li>
@@ -250,11 +250,11 @@
                                     <a class="dropdown-item" href="{{ route('profile') }}">
                                         {{ __('Profile') }}
                                     </a>
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
+                                    <a class="dropdown-item" href="{{ session('is_admin') ? route('admin.logout') : route('logout') }}"
                                        onclick="event.preventDefault(); document.getElementById('logout-form-desktop').submit();">
                                         {{ __('Logout') }}
                                     </a>
-                                    <form id="logout-form-desktop" action="{{ route('logout') }}" method="POST" class="d-none">
+                                    <form id="logout-form-desktop" action="{{ session('is_admin') ? route('admin.logout') : route('logout') }}" method="POST" class="d-none">
                                         @csrf
                                     </form>
                                 </div>

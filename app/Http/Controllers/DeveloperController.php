@@ -71,7 +71,7 @@ class DeveloperController extends Controller
         }
         
         Auth::guard('developer')->logout();
-        $request->session()->invalidate();
+        // Only regenerate token, don't invalidate entire session to preserve other guards
         $request->session()->regenerateToken();
         return redirect()->route('developer.login');
     }

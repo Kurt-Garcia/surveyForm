@@ -28,14 +28,23 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Auth::viaRequest('admin', function (\Illuminate\Http\Request $request) {
-            if (Auth::guard('admin')->check()) {
-                Session::name(config('session.admin_cookie'));
-                return Auth::guard('admin')->user();
-            }
-            return null;
+        // Register custom multi-session guard
+        Auth::extend('multi-session', function ($app, $name, $config) {
+            $guard = new \App\Guards\MultiSessionGuard(
+                $name,
+                Auth::createUserProvider($config['provider']),
+                $app['session.store'],
+                $app['request'],
+                $config['session_key'] ?? $name
+            );
+
+            $guard->setCookieJar($app['cookie']);
+            $guard->setDispatcher($app['events']);
+            $guard->setRequest($app['request']);
+
+            return $guard;
         });
 
-\Illuminate\Pagination\Paginator::useBootstrap();
+        \Illuminate\Pagination\Paginator::useBootstrap();
     }
 }

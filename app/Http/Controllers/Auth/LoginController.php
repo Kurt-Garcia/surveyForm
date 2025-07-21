@@ -57,20 +57,9 @@ class LoginController extends Controller
 
     protected function attemptLogin(Request $request)
     {
-        // Preserve disabled admin session data before clearing sessions
-        $disabledAdminId = $request->session()->get('disabled_admin_id');
+        // Clear any previous authentication session data to prevent cross-contamination
+        session()->forget(['is_admin', 'user_site_ids', 'rating_type']);
         
-        // Clear any existing sessions to prevent guard conflicts
-        Auth::guard('web')->logout();
-        Auth::guard('admin')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        
-        // Restore disabled admin session data if it existed
-        if ($disabledAdminId) {
-            $request->session()->put('disabled_admin_id', $disabledAdminId);
-        }
-
         // First try admin authentication
         if (Auth::guard('admin')->attempt(['name' => $request->name, 'password' => $request->password])) {
             $admin = Auth::guard('admin')->user();
@@ -177,22 +166,30 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
-        // Log logout before actually logging out
+        // Log logout before actually logging out and only logout the currently authenticated guard
         if (Auth::guard('admin')->check()) {
             $admin = Auth::guard('admin')->user();
             UserLogService::logLogout($admin, 'admin', $request);
+            Auth::guard('admin')->logout();
         }
         
         if (Auth::guard('web')->check()) {
             $user = Auth::guard('web')->user();
             UserLogService::logLogout($user, 'user', $request);
+            Auth::guard('web')->logout();
         }
         
-        // Logout from all guards
-        Auth::guard('web')->logout();
-        Auth::guard('admin')->logout();
+        // Clear all authentication-related session data to prevent cross-contamination
+        $request->session()->forget([
+            'is_admin',
+            'user_site_ids', 
+            'rating_type',
+            'disabled_admin_id',
+            'disabled_user_id',
+            'redirect_to_disabled'
+        ]);
         
-        $request->session()->invalidate();
+        // Only regenerate token, don't invalidate entire session to preserve other guards
         $request->session()->regenerateToken();
 
         // Always redirect to welcome page

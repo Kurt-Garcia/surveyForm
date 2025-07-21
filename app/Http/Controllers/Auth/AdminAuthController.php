@@ -111,7 +111,15 @@ class AdminAuthController extends Controller
         }
         
         Auth::guard('admin')->logout();
-        $request->session()->invalidate();
+        
+        // Clear all authentication-related session data to prevent cross-contamination
+        $request->session()->forget([
+            'is_admin',
+            'user_site_ids', 
+            'rating_type'
+        ]);
+        
+        // Only regenerate token, don't invalidate entire session to preserve other guards
         $request->session()->regenerateToken();
         
         // Restore disabled admin session data if it existed

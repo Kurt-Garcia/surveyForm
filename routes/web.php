@@ -92,6 +92,32 @@ Route::get('/test-disable-user/{id}', function($id) {
     return 'User not found';
 });
 
+// Test routes for multi-session functionality
+Route::get('/test/auth-status', function () {
+    return [
+        'web' => [
+            'authenticated' => Auth::guard('web')->check(),
+            'user' => Auth::guard('web')->user()
+        ],
+        'admin' => [
+            'authenticated' => Auth::guard('admin')->check(),
+            'user' => Auth::guard('admin')->user()
+        ],
+        'developer' => [
+            'authenticated' => Auth::guard('developer')->check(),
+            'user' => Auth::guard('developer')->user()
+        ]
+    ];
+});
+
+Route::get('/test/session-info', function () {
+    return [
+        'session_id' => session()->getId(),
+        'session_data' => session()->all(),
+        'cookies' => request()->cookies->all()
+    ];
+});
+
 // Profile routes
 Route::middleware(['auth:web,admin', 'account.status'])->group(function () {
     Route::get('/profile', [\App\Http\Controllers\Auth\ProfileController::class, 'showProfileForm'])->name('profile');

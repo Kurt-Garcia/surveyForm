@@ -38,9 +38,8 @@ class CheckAccountStatus
                     'disabled_at' => $user->disabled_at
                 ], 300);
                 
-                // Logout the user
+                // Logout the user without invalidating entire session
                 Auth::logout();
-                $request->session()->invalidate();
                 $request->session()->regenerateToken();
                 
                 // Redirect with user ID parameter
@@ -69,9 +68,8 @@ class CheckAccountStatus
                     'disabled_at' => $admin->disabled_at
                 ], 300);
                 
-                // Logout the admin
+                // Logout the admin without invalidating entire session
                 Auth::guard('admin')->logout();
-                $request->session()->invalidate();
                 $request->session()->regenerateToken();
                 
                 // Redirect with admin ID parameter
