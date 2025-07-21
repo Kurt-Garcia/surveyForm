@@ -99,6 +99,18 @@ class SurveyController extends Controller
                 'department_logo' => $departmentLogoPath
             ]);
             
+            // Log survey creation activity
+            activity()
+                ->causedBy(Auth::guard('admin')->user())
+                ->performedOn($survey)
+                ->withProperties([
+                    'survey_title' => $survey->title,
+                    'sbu_count' => count($request->sbu_ids),
+                    'site_count' => count($request->site_ids),
+                    'question_count' => count($request->questions)
+                ])
+                ->log('Survey created');
+            
             // Attach SBUs to the survey
             $survey->sbus()->attach($request->sbu_ids);
             
@@ -309,6 +321,10 @@ class SurveyController extends Controller
         // Use database transaction to ensure data consistency
         DB::beginTransaction();
         try {
+            // Store original data for logging
+            $originalTitle = $survey->title;
+            $originalQuestionCount = $survey->questions()->count();
+            
             // Update survey title
             $survey->update([
                 'title' => ucfirst($request->title)
@@ -338,6 +354,18 @@ class SurveyController extends Controller
                 }
             }
 
+            // Log survey update activity
+            activity()
+                ->causedBy(Auth::guard('admin')->user())
+                ->performedOn($survey)
+                ->withProperties([
+                    'original_title' => $originalTitle,
+                    'new_title' => $survey->title,
+                    'original_question_count' => $originalQuestionCount,
+                    'new_question_count' => count($request->questions)
+                ])
+                ->log('Survey updated');
+
             DB::commit();
             return redirect()->route('admin.surveys.show', $survey)
                 ->with('success', 'Survey updated successfully!');
@@ -354,6 +382,20 @@ class SurveyController extends Controller
         if ($survey->admin_id !== Auth::guard('admin')->id()) {
             abort(403, 'Unauthorized action.');
         }
+
+        // Store survey data for logging before deletion
+        $surveyTitle = $survey->title;
+        $questionCount = $survey->questions()->count();
+        
+        // Log survey deletion activity
+        activity()
+            ->causedBy(Auth::guard('admin')->user())
+            ->performedOn($survey)
+            ->withProperties([
+                'survey_title' => $surveyTitle,
+                'question_count' => $questionCount
+            ])
+            ->log('Survey deleted');
 
         // Delete associated questions first
         $survey->questions()->delete();
@@ -372,9 +414,22 @@ class SurveyController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        $originalStatus = $survey->is_active;
+        
         $survey->update([
             'is_active' => !$survey->is_active
         ]);
+
+        // Log survey status change activity
+        activity()
+            ->causedBy(Auth::guard('admin')->user())
+            ->performedOn($survey)
+            ->withProperties([
+                'survey_title' => $survey->title,
+                'original_status' => $originalStatus ? 'active' : 'inactive',
+                'new_status' => $survey->is_active ? 'active' : 'inactive'
+            ])
+            ->log('Survey status changed');
 
         $status = $survey->is_active ? 'activated' : 'deactivated';
         return redirect()->route('admin.surveys.show', $survey)

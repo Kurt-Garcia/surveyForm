@@ -6,9 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\TranslationHeader;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Survey extends Model
 {
+    use LogsActivity;
     protected $fillable = ['title', 'admin_id', 'is_active', 'total_questions', 'logo', 'department_logo'];
 
     protected $casts = [
@@ -112,5 +115,17 @@ class Survey extends Model
         $languages = array_merge($languages, $availableLocales);
         
         return array_unique($languages);
+    }
+
+    /**
+     * Configure activity logging options
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['title', 'admin_id', 'is_active', 'total_questions'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn(string $eventName) => "Survey {$eventName}");
     }
 }

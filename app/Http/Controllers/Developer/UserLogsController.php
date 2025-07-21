@@ -114,6 +114,21 @@ class UserLogsController extends Controller
                     'username' => $causer->username ?? null,
                 ];
             })
+            ->editColumn('event', function ($activity) {
+                return $activity->event ?? 'unknown';
+            })
+            ->editColumn('subject_type', function ($activity) {
+                return $activity->subject_type ?? null;
+            })
+            ->editColumn('description', function ($activity) {
+                return $activity->description ?? null;
+            })
+            ->editColumn('properties', function ($activity) {
+                return $activity->properties ?? [];
+            })
+            ->editColumn('created_at', function ($activity) {
+                return $activity->created_at ? $activity->created_at->toISOString() : null;
+            })
             ->rawColumns(['causer'])
             ->make(true);
     }

@@ -265,13 +265,17 @@
                         name: 'causer.name',
                         render: function(data, type, row) {
                             if (!data) return '<em class="text-muted">System</em>';
-                            return `<strong>${data.name || data.username || 'Unknown'}</strong><br><small class="text-muted">${data.email || ''}</small>`;
+                            const name = data.name || data.username || 'Unknown';
+                            const email = data.email || '';
+                            return `<strong>${name}</strong><br><small class="text-muted">${email}</small>`;
                         }
                     },
                     { 
                         data: 'event', 
                         name: 'event',
                         render: function(data, type, row) {
+                            if (!data) return '<span class="badge bg-secondary">Unknown</span>';
+                            
                             let badgeClass = 'bg-secondary';
                             if (data === 'created') badgeClass = 'badge-created';
                             else if (data === 'updated') badgeClass = 'badge-updated';
@@ -284,16 +288,23 @@
                         data: 'subject_type', 
                         name: 'subject_type',
                         render: function(data, type, row) {
-                            return data ? data.split('\\').pop() : 'N/A';
+                            if (!data) return 'N/A';
+                            return data.split('\\').pop();
                         }
                     },
-                    { data: 'description', name: 'description' },
+                    { 
+                        data: 'description', 
+                        name: 'description',
+                        render: function(data, type, row) {
+                            return data || 'No description';
+                        }
+                    },
                     { 
                         data: 'properties', 
                         name: 'properties',
                         orderable: false,
                         render: function(data, type, row) {
-                            if (!data || Object.keys(data).length === 0) {
+                            if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
                                 return '<em class="text-muted">No changes</em>';
                             }
                             return `<button class="btn btn-sm btn-outline-info" onclick="showActivityDetails(${row.id})"><i class="bi bi-eye"></i> View</button>`;
@@ -303,7 +314,12 @@
                         data: 'created_at', 
                         name: 'created_at',
                         render: function(data, type, row) {
-                            return new Date(data).toLocaleString();
+                            if (!data) return 'N/A';
+                            try {
+                                return new Date(data).toLocaleString();
+                            } catch (e) {
+                                return 'Invalid date';
+                            }
                         }
                     }
                 ],
