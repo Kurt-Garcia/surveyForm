@@ -99,17 +99,7 @@ class SurveyController extends Controller
                 'department_logo' => $departmentLogoPath
             ]);
             
-            // Log survey creation activity
-            activity()
-                ->causedBy(Auth::guard('admin')->user())
-                ->performedOn($survey)
-                ->withProperties([
-                    'survey_title' => $survey->title,
-                    'sbu_count' => count($request->sbu_ids),
-                    'site_count' => count($request->site_ids),
-                    'question_count' => count($request->questions)
-                ])
-                ->log('Survey created');
+            // Activity logging is handled automatically by the Survey model's LogsActivity trait
             
             // Attach SBUs to the survey
             $survey->sbus()->attach($request->sbu_ids);
@@ -354,17 +344,7 @@ class SurveyController extends Controller
                 }
             }
 
-            // Log survey update activity
-            activity()
-                ->causedBy(Auth::guard('admin')->user())
-                ->performedOn($survey)
-                ->withProperties([
-                    'original_title' => $originalTitle,
-                    'new_title' => $survey->title,
-                    'original_question_count' => $originalQuestionCount,
-                    'new_question_count' => count($request->questions)
-                ])
-                ->log('Survey updated');
+            // Activity logging is handled automatically by the Survey model's LogsActivity trait
 
             DB::commit();
             return redirect()->route('admin.surveys.show', $survey)
@@ -387,15 +367,7 @@ class SurveyController extends Controller
         $surveyTitle = $survey->title;
         $questionCount = $survey->questions()->count();
         
-        // Log survey deletion activity
-        activity()
-            ->causedBy(Auth::guard('admin')->user())
-            ->performedOn($survey)
-            ->withProperties([
-                'survey_title' => $surveyTitle,
-                'question_count' => $questionCount
-            ])
-            ->log('Survey deleted');
+        // Activity logging is handled automatically by the Survey model's LogsActivity trait
 
         // Delete associated questions first
         $survey->questions()->delete();
@@ -420,16 +392,7 @@ class SurveyController extends Controller
             'is_active' => !$survey->is_active
         ]);
 
-        // Log survey status change activity
-        activity()
-            ->causedBy(Auth::guard('admin')->user())
-            ->performedOn($survey)
-            ->withProperties([
-                'survey_title' => $survey->title,
-                'original_status' => $originalStatus ? 'active' : 'inactive',
-                'new_status' => $survey->is_active ? 'active' : 'inactive'
-            ])
-            ->log('Survey status changed');
+        // Activity logging is handled automatically by the Survey model's LogsActivity trait
 
         $status = $survey->is_active ? 'activated' : 'deactivated';
         return redirect()->route('admin.surveys.show', $survey)
