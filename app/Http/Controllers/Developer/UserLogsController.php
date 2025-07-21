@@ -102,7 +102,17 @@ class UserLogsController extends Controller
 
         return DataTables::of($query)
             ->addColumn('causer', function ($activity) {
-                return $activity->causer;
+                if (!$activity->causer) {
+                    return null;
+                }
+                
+                // Return causer data with proper structure
+                $causer = $activity->causer;
+                return [
+                    'name' => $causer->name ?? $causer->username ?? 'Unknown User',
+                    'email' => $causer->email ?? '',
+                    'username' => $causer->username ?? null,
+                ];
             })
             ->rawColumns(['causer'])
             ->make(true);
