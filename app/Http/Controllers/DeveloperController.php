@@ -9,6 +9,7 @@ use App\Models\Admin;
 use App\Models\User;
 use App\Models\Sbu;
 use App\Models\SurveyResponseHeader;
+use App\Services\UserLogService;
 
 class DeveloperController extends Controller
 {
@@ -47,6 +48,9 @@ class DeveloperController extends Controller
 
         if (Auth::guard('developer')->attempt($loginCredentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+            // Log developer login
+            $developer = Auth::guard('developer')->user();
+            UserLogService::logLogin($developer, 'developer', $request);
             return redirect()->intended(route('developer.dashboard'));
         }
 
@@ -60,6 +64,12 @@ class DeveloperController extends Controller
      */
     public function logout(Request $request)
     {
+        // Log logout before actually logging out
+        if (Auth::guard('developer')->check()) {
+            $developer = Auth::guard('developer')->user();
+            UserLogService::logLogout($developer, 'developer', $request);
+        }
+        
         Auth::guard('developer')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

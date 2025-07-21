@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Developer extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, LogsActivity;
 
     protected $guard = 'developer';
     protected $table = 'developers';
@@ -46,5 +48,17 @@ class Developer extends Authenticatable
     public function isActive(): bool
     {
         return $this->status === true;
+    }
+
+    /**
+     * Configure activity logging options
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['username', 'name', 'email', 'status'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn(string $eventName) => "Developer {$eventName}");
     }
 }

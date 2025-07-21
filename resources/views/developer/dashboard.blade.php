@@ -202,6 +202,16 @@ body {
     box-shadow: 0 0 50px rgba(52, 152, 219, 0.5);
 }
 
+.logs-zone {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    border: 2px solid #9b59b6;
+    box-shadow: 0 0 30px rgba(155, 89, 182, 0.3);
+}
+
+.logs-zone:hover {
+    box-shadow: 0 0 50px rgba(155, 89, 182, 0.5);
+}
+
 
 </style>
 </head>
@@ -237,7 +247,7 @@ body {
                 </h2>
             </div>
             
-            <div class="col-lg-4 col-md-6 mb-5">
+            <div class="col-lg-3 col-md-6 mb-5">
                 <div class="dev-action-card survey-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);" onclick="showSbuModal('surveys')">
                     <div>
                         <i class="bi bi-clipboard-data" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
@@ -251,7 +261,7 @@ body {
                 </div>
             </div>
             
-            <div class="col-lg-4 col-md-6 mb-5">
+            <div class="col-lg-3 col-md-6 mb-5">
                 <div class="dev-action-card admin-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);" onclick="showSbuModal('admins')">
                     <div>
                         <i class="bi bi-shield-lock" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
@@ -265,18 +275,34 @@ body {
                 </div>
             </div>
             
-            <div class="col-lg-4 col-md-6 mb-5">
+            <div class="col-lg-3 col-md-6 mb-5">
                 <div class="dev-action-card user-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);" onclick="showSbuModal('users')">
                     <div>
                         <i class="bi bi-people" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
                         <h4 class="fw-bold mb-3">User Management</h4>
                         <p class="mb-3" style="font-size: 1.1rem;">Control All User Accounts</p>
-                        <div class="badge bg-light text-dark px-3 ">
+                        <div class="badge bg-light text-dark px-3 py-2 mb-3">
                             <i class="bi bi-filter"></i> Filter by SBU
                         </div>
                         <div class="pulse-effect"></div>
                     </div>
                 </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-5">
+                <a href="{{ route('developer.logs.index') }}" class="text-decoration-none">
+                    <div class="dev-action-card logs-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);">
+                        <div>
+                            <i class="bi bi-activity" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-3">User Logs</h4>
+                            <p class="mb-3" style="font-size: 1.1rem;">Monitor User Activity & Login History</p>
+                            <div class="badge bg-light text-dark px-3 py-2 mb-3">
+                                <i class="bi bi-clock-history"></i> Real-time Tracking
+                            </div>
+                            <div class="pulse-effect"></div>
+                        </div>
+                    </div>
+                </a>
             </div>
         </div>
         

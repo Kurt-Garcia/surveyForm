@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use App\Services\UserLogService;
 
 class LoginController extends Controller
 {
@@ -109,6 +110,8 @@ class LoginController extends Controller
             }
             
             session(['is_admin' => true]);
+            // Log admin login
+            UserLogService::logLogin($admin, 'admin', $request);
             return true;
         }
 
@@ -140,6 +143,8 @@ class LoginController extends Controller
             }
             
             session(['is_admin' => false]);
+            // Log user login
+            UserLogService::logLogin($user, 'user', $request);
             return true;
         }
 
@@ -172,6 +177,17 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        // Log logout before actually logging out
+        if (Auth::guard('admin')->check()) {
+            $admin = Auth::guard('admin')->user();
+            UserLogService::logLogout($admin, 'admin', $request);
+        }
+        
+        if (Auth::guard('web')->check()) {
+            $user = Auth::guard('web')->user();
+            UserLogService::logLogout($user, 'user', $request);
+        }
+        
         // Logout from all guards
         Auth::guard('web')->logout();
         Auth::guard('admin')->logout();

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use App\Models\Admin;
+use App\Services\UserLogService;
 
 class AdminAuthController extends Controller
 {
@@ -63,6 +64,8 @@ class AdminAuthController extends Controller
             }
             
             $request->session()->regenerate();
+            // Log admin login
+            UserLogService::logLogin($admin, 'admin', $request);
             return redirect()->intended(route('admin.dashboard'));
         }
 
@@ -73,6 +76,12 @@ class AdminAuthController extends Controller
 
     public function logout(Request $request)
     {
+        // Log logout before actually logging out
+        if (Auth::guard('admin')->check()) {
+            $admin = Auth::guard('admin')->user();
+            UserLogService::logLogout($admin, 'admin', $request);
+        }
+        
         // Preserve disabled admin session data before invalidating session
         $disabledAdminId = $request->session()->get('disabled_admin_id');
         

@@ -295,5 +295,14 @@ Route::prefix('c2VjcmV0LWRldi1hY2Nlc3MtZmFzdGRldi0yMDI1')->group(function () {
             Route::post('/export', [\App\Http\Controllers\Admin\TranslationController::class, 'export'])->name('developer.translations.export');
             Route::post('/add-language', [\App\Http\Controllers\Admin\TranslationController::class, 'addLanguage'])->name('developer.translations.addLanguage');
         });
+        
+        // User Logs Management
+        Route::prefix('logs')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Developer\UserLogsController::class, 'index'])->name('developer.logs.index');
+            Route::get('/user-activity', [\App\Http\Controllers\Developer\UserLogsController::class, 'userActivity'])->name('developer.logs.user-activity');
+            Route::get('/login-activity', [\App\Http\Controllers\Developer\UserLogsController::class, 'loginActivity'])->name('developer.logs.login-activity');
+            Route::get('/user-activity/data', [\App\Http\Controllers\Developer\UserLogsController::class, 'getUserActivityData'])->name('developer.logs.user-activity.data');
+            Route::get('/login-activity/data', [\App\Http\Controllers\Developer\UserLogsController::class, 'getLoginActivityData'])->name('developer.logs.login-activity.data');
+        });
     });
 });

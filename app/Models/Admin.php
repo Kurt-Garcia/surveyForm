@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Admin extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, LogsActivity;
 
     protected $guard = 'admin';
     protected $table = 'admin_users';
@@ -130,5 +132,17 @@ class Admin extends Authenticatable
     public function createdAdmins()
     {
         return $this->hasMany(Admin::class, 'created_by');
+    }
+
+    /**
+     * Configure activity logging options
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'email', 'contact_number', 'status', 'disabled_reason'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn(string $eventName) => "Admin {$eventName}");
     }
 }
