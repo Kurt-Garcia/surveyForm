@@ -59,10 +59,14 @@ class Survey extends Model
         return $this->hasManyThrough(SurveyResponseDetail::class, SurveyResponseHeader::class, 'survey_id', 'header_id');
     }
 
-    public function updateQuestionCount(): void
+    public function updateQuestionCount($silent = false): void
     {
         $this->total_questions = $this->questions()->count();
-        $this->save();
+        if ($silent) {
+            $this->saveQuietly();
+        } else {
+            $this->save();
+        }
     }
     
     /**

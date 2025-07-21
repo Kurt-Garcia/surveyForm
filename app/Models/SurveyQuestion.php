@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class SurveyQuestion extends Model
 {
@@ -22,7 +23,10 @@ class SurveyQuestion extends Model
     protected static function booted()
     {
         static::created(function ($question) {
-            $question->survey->updateQuestionCount();
+            // Check if we're in a database transaction (likely during survey creation)
+            // If so, update question count silently to avoid activity logging
+            $inTransaction = DB::transactionLevel() > 0;
+            $question->survey->updateQuestionCount($inTransaction);
         });
 
         static::deleted(function ($question) {
