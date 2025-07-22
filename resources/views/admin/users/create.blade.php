@@ -1943,7 +1943,8 @@ function initializeUsersTable() {
                                     data: {
                                         _token: '{{ csrf_token() }}',
                                         export_type: 'copy',
-                                        entity_type: 'users'
+                                        entity_type: 'users',
+                                        mode: mode
                                     },
                                     async: false, // Make the request synchronous to ensure logging completes before export
                                     success: function() {
@@ -1976,7 +1977,8 @@ function initializeUsersTable() {
                                     data: {
                                         _token: '{{ csrf_token() }}',
                                         export_type: 'csv',
-                                        entity_type: 'users'
+                                        entity_type: 'users',
+                                        mode: mode
                                     },
                                     async: false, // Make the request synchronous to ensure logging completes before export
                                     success: function() {
@@ -2009,7 +2011,8 @@ function initializeUsersTable() {
                                     data: {
                                         _token: '{{ csrf_token() }}',
                                         export_type: 'excel',
-                                        entity_type: 'users'
+                                        entity_type: 'users',
+                                        mode: mode
                                     },
                                     async: false, // Make the request synchronous to ensure logging completes before export
                                     success: function() {
@@ -2042,7 +2045,8 @@ function initializeUsersTable() {
                                     data: {
                                         _token: '{{ csrf_token() }}',
                                         export_type: 'pdf',
-                                        entity_type: 'users'
+                                        entity_type: 'users',
+                                        mode: mode
                                     },
                                     async: false, // Make the request synchronous to ensure logging completes before export
                                     success: function() {
@@ -2075,7 +2079,8 @@ function initializeUsersTable() {
                                     data: {
                                         _token: '{{ csrf_token() }}',
                                         export_type: 'print',
-                                        entity_type: 'users'
+                                        entity_type: 'users',
+                                        mode: mode
                                     },
                                     async: false, // Make the request synchronous to ensure logging completes before export
                                     success: function() {

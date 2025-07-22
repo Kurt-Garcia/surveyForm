@@ -176,7 +176,6 @@
                                         <th>User Type</th>
                                         <th>User</th>
                                         <th>Event</th>
-                                        <th>Subject</th>
                                         <th>Description</th>
                                         <th>Properties</th>
                                         <th>Date/Time</th>
@@ -195,7 +194,7 @@
 
     <!-- Activity Details Modal -->
     <div class="modal fade" id="activityModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Activity Details</h5>
@@ -290,12 +289,7 @@
                             
                             if (data === 'created') {
                                 badgeClass = 'badge-created';
-                                // Check if it's a SurveyQuestion creation
-                                if (row.subject_type && row.subject_type.includes('SurveyQuestion')) {
-                                    displayText = 'Adding';
-                                } else {
-                                    displayText = 'Created';
-                                }
+                                displayText = 'Created';
                             } else if (data === 'updated') {
                                 badgeClass = 'badge-updated';
                             } else if (data === 'removed') {
@@ -315,14 +309,6 @@
                             }
                             
                             return `<span class="badge ${badgeClass}">${displayText}</span>`;
-                        }
-                    },
-                    { 
-                        data: 'subject_type', 
-                        name: 'subject_type',
-                        render: function(data, type, row) {
-                            if (!data) return 'N/A';
-                            return data.split('\\').pop();
                         }
                     },
                     { 
@@ -418,7 +404,6 @@
                         html += '<h6>Basic Information</h6>';
                         html += `<p><strong>ID:</strong> ${activity.id}</p>`;
                         html += `<p><strong>Event:</strong> ${activity.event}</p>`;
-                        html += `<p><strong>Subject:</strong> ${activity.subject_type ? activity.subject_type.split('\\').pop() : 'N/A'}</p>`;
                         html += `<p><strong>Description:</strong> ${activity.description || 'N/A'}</p>`;
                         html += `<p><strong>Date:</strong> ${new Date(activity.created_at).toLocaleString()}</p>`;
                         html += '</div>';
