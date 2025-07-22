@@ -95,8 +95,18 @@ class UserLogsController extends Controller
         // Handle single activity request
         if ($request->filled('activity_id')) {
             $activity = Activity::find($request->activity_id);
+            if ($activity) {
+                // Ensure properties are properly formatted
+                $activityData = $activity->toArray();
+                if (isset($activityData['properties']) && is_string($activityData['properties'])) {
+                    $activityData['properties'] = json_decode($activityData['properties'], true) ?? [];
+                }
+                return response()->json([
+                    'data' => [$activityData]
+                ]);
+            }
             return response()->json([
-                'data' => $activity ? [$activity] : []
+                'data' => []
             ]);
         }
 
@@ -124,7 +134,12 @@ class UserLogsController extends Controller
                 return $activity->description ?? null;
             })
             ->editColumn('properties', function ($activity) {
-                return $activity->properties ?? [];
+                // Ensure properties are returned as an object/array, not a JSON string
+                $properties = $activity->properties;
+                if (is_string($properties)) {
+                    $properties = json_decode($properties, true) ?? [];
+                }
+                return $properties ?? [];
             })
             ->editColumn('created_at', function ($activity) {
                 return $activity->created_at ? $activity->created_at->toISOString() : null;

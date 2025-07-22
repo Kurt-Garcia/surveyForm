@@ -6,9 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class SurveyQuestion extends Model
 {
+    use LogsActivity;
+    
     protected $fillable = [
         'text',
         'type',
@@ -23,14 +27,15 @@ class SurveyQuestion extends Model
     protected static function booted()
     {
         static::created(function ($question) {
-            // Check if we're in a database transaction (likely during survey creation)
-            // If so, update question count silently to avoid activity logging
-            $inTransaction = DB::transactionLevel() > 0;
-            $question->survey->updateQuestionCount($inTransaction);
+            // Always update question count silently to avoid duplicate activity logging
+            // since the SurveyQuestion creation is already logged
+            $question->survey->updateQuestionCount(true);
         });
 
         static::deleted(function ($question) {
-            $question->survey->updateQuestionCount();
+            // Always update question count silently to avoid duplicate activity logging
+            // since the SurveyQuestion deletion is already logged
+            $question->survey->updateQuestionCount(true);
         });
     }
 
@@ -113,5 +118,19 @@ class SurveyQuestion extends Model
     public function getTextCebuanoAttribute()
     {
         return $this->getTextByLanguage('ceb');
+    }
+
+    /**
+     * Configure activity logging options
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['text', 'type', 'required'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(function (string $eventName) {
+                return $eventName === 'created' ? 'Question Adding' : "Question {$eventName}";
+            });
     }
 }

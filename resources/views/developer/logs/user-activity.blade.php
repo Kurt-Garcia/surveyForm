@@ -277,11 +277,23 @@
                             if (!data) return '<span class="badge bg-secondary">Unknown</span>';
                             
                             let badgeClass = 'bg-secondary';
-                            if (data === 'created') badgeClass = 'badge-created';
-                            else if (data === 'updated') badgeClass = 'badge-updated';
-                            else if (data === 'deleted') badgeClass = 'badge-deleted';
+                            let displayText = data.charAt(0).toUpperCase() + data.slice(1);
                             
-                            return `<span class="badge ${badgeClass}">${data.charAt(0).toUpperCase() + data.slice(1)}</span>`;
+                            if (data === 'created') {
+                                badgeClass = 'badge-created';
+                                // Check if it's a SurveyQuestion creation
+                                if (row.subject_type && row.subject_type.includes('SurveyQuestion')) {
+                                    displayText = 'Adding';
+                                } else {
+                                    displayText = 'Created';
+                                }
+                            } else if (data === 'updated') {
+                                badgeClass = 'badge-updated';
+                            } else if (data === 'deleted') {
+                                badgeClass = 'badge-deleted';
+                            }
+                            
+                            return `<span class="badge ${badgeClass}">${displayText}</span>`;
                         }
                     },
                     { 
@@ -304,9 +316,21 @@
                         name: 'properties',
                         orderable: false,
                         render: function(data, type, row) {
-                            if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
+                            // Handle both object and string data
+                            let properties = data;
+                            if (typeof data === 'string') {
+                                try {
+                                    properties = JSON.parse(data);
+                                } catch (e) {
+                                    properties = {};
+                                }
+                            }
+                            
+                            // Check if properties exist and have content
+                            if (!properties || typeof properties !== 'object' || Object.keys(properties).length === 0) {
                                 return '<em class="text-muted">No changes</em>';
                             }
+                            
                             return `<button class="btn btn-sm btn-outline-info" onclick="showActivityDetails(${row.id})"><i class="bi bi-eye"></i> View</button>`;
                         }
                     },
@@ -380,8 +404,19 @@
                         
                         html += '<div class="col-md-6">';
                         html += '<h6>Properties</h6>';
-                        if (activity.properties && Object.keys(activity.properties).length > 0) {
-                            html += '<pre class="bg-light p-2 rounded">' + JSON.stringify(activity.properties, null, 2) + '</pre>';
+                        
+                        // Handle properties data (could be string or object)
+                        let properties = activity.properties;
+                        if (typeof properties === 'string') {
+                            try {
+                                properties = JSON.parse(properties);
+                            } catch (e) {
+                                properties = {};
+                            }
+                        }
+                        
+                        if (properties && typeof properties === 'object' && Object.keys(properties).length > 0) {
+                            html += '<pre class="bg-light p-2 rounded">' + JSON.stringify(properties, null, 2) + '</pre>';
                         } else {
                             html += '<p class="text-muted">No properties recorded</p>';
                         }
