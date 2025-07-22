@@ -44,6 +44,7 @@
         .badge-superadmin { background-color: #5a23c8; }
         .badge-user { background-color: #17a2b8; }
         .badge-developer { background-color: #fd7e14; }
+        .badge-exported { background-color: #007bff; color: white; }
         .table-responsive {
             border-radius: 10px;
             overflow: hidden;
@@ -136,6 +137,7 @@
                                     <option value="updated">Updated</option>
                                     <option value="removed">Removed</option>
                                     <option value="deleted">Deleted</option>
+                                    <option value="exported">Exported</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -307,6 +309,9 @@
                             } else if (data === 'deactivated') {
                                 badgeClass = 'badge-removed';
                                 displayText = 'Deactivated';
+                            } else if (data === 'exported') {
+                                badgeClass = 'badge-exported';
+                                displayText = 'Exported';
                             }
                             
                             return `<span class="badge ${badgeClass}">${displayText}</span>`;

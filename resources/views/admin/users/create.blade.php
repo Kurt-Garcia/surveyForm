@@ -1933,31 +1933,166 @@ function initializeUsersTable() {
                     {
                         extend: 'copy',
                         text: '<i class="bi bi-clipboard me-1"></i> Copy',
-                        exportOptions: { columns: [...Array(columns.length).keys()] }
+                        exportOptions: { columns: [...Array(columns.length).keys()] },
+                        action: function(e, dt, button, config) {
+                            try {
+                                // Log the export activity before performing the action
+                                $.ajax({
+                                    url: '{{ route("admin.log.export") }}',
+                                    method: 'POST',
+                                    data: {
+                                        _token: '{{ csrf_token() }}',
+                                        export_type: 'copy',
+                                        entity_type: 'users'
+                                    },
+                                    async: false, // Make the request synchronous to ensure logging completes before export
+                                    success: function() {
+                                        // Call the original action after successful logging
+                                        $.fn.dataTable.ext.buttons.copyHtml5.action.call(this, e, dt, button, config);
+                                    }.bind(this),
+                                    error: function(xhr, status, error) {
+                                        console.error('Logging error:', error);
+                                        // Still proceed with export even if logging fails
+                                        $.fn.dataTable.ext.buttons.copyHtml5.action.call(this, e, dt, button, config);
+                                    }.bind(this)
+                                });
+                            } catch (error) {
+                                console.error('Copy export error:', error);
+                                alert('Error copying data: ' + error.message);
+                            }
+                        }
                     },
                     {
                         extend: 'csv',
                         text: '<i class="bi bi-filetype-csv me-1"></i> CSV',
                         exportOptions: { columns: [...Array(columns.length).keys()] },
-                        title: 'Survey Users List'
+                        title: 'Survey Users List',
+                        action: function(e, dt, button, config) {
+                            try {
+                                // Log the export activity before performing the action
+                                $.ajax({
+                                    url: '{{ route("admin.log.export") }}',
+                                    method: 'POST',
+                                    data: {
+                                        _token: '{{ csrf_token() }}',
+                                        export_type: 'csv',
+                                        entity_type: 'users'
+                                    },
+                                    async: false, // Make the request synchronous to ensure logging completes before export
+                                    success: function() {
+                                        // Call the original action after successful logging
+                                        $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
+                                    }.bind(this),
+                                    error: function(xhr, status, error) {
+                                        console.error('Logging error:', error);
+                                        // Still proceed with export even if logging fails
+                                        $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
+                                    }.bind(this)
+                                });
+                            } catch (error) {
+                                console.error('CSV export error:', error);
+                                alert('Error exporting CSV: ' + error.message);
+                            }
+                        }
                     },
                     {
                         extend: 'excel',
                         text: '<i class="bi bi-file-earmark-excel me-1"></i> Excel',
                         exportOptions: { columns: [...Array(columns.length).keys()] },
-                        title: 'Survey Users List'
+                        title: 'Survey Users List',
+                        action: function(e, dt, button, config) {
+                            try {
+                                // Log the export activity before performing the action
+                                $.ajax({
+                                    url: '{{ route("admin.log.export") }}',
+                                    method: 'POST',
+                                    data: {
+                                        _token: '{{ csrf_token() }}',
+                                        export_type: 'excel',
+                                        entity_type: 'users'
+                                    },
+                                    async: false, // Make the request synchronous to ensure logging completes before export
+                                    success: function() {
+                                        // Call the original action after successful logging
+                                        $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
+                                    }.bind(this),
+                                    error: function(xhr, status, error) {
+                                        console.error('Logging error:', error);
+                                        // Still proceed with export even if logging fails
+                                        $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
+                                    }.bind(this)
+                                });
+                            } catch (error) {
+                                console.error('Excel export error:', error);
+                                alert('Error exporting Excel: ' + error.message);
+                            }
+                        }
                     },
                     {
                         extend: 'pdf',
                         text: '<i class="bi bi-file-earmark-pdf me-1"></i> PDF',
                         exportOptions: { columns: [...Array(columns.length).keys()] },
-                        title: 'Survey Users List'
+                        title: 'Survey Users List',
+                        action: function(e, dt, button, config) {
+                            try {
+                                // Log the export activity before performing the action
+                                $.ajax({
+                                    url: '{{ route("admin.log.export") }}',
+                                    method: 'POST',
+                                    data: {
+                                        _token: '{{ csrf_token() }}',
+                                        export_type: 'pdf',
+                                        entity_type: 'users'
+                                    },
+                                    async: false, // Make the request synchronous to ensure logging completes before export
+                                    success: function() {
+                                        // Call the original action after successful logging
+                                        $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
+                                    }.bind(this),
+                                    error: function(xhr, status, error) {
+                                        console.error('Logging error:', error);
+                                        // Still proceed with export even if logging fails
+                                        $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
+                                    }.bind(this)
+                                });
+                            } catch (error) {
+                                console.error('PDF export error:', error);
+                                alert('Error exporting PDF: ' + error.message);
+                            }
+                        }
                     },
                     {
                         extend: 'print',
                         text: '<i class="bi bi-printer me-1"></i> Print',
                         exportOptions: { columns: [...Array(columns.length).keys()] },
-                        title: 'Survey Users List'
+                        title: 'Survey Users List',
+                        action: function(e, dt, button, config) {
+                            try {
+                                // Log the export activity before performing the action
+                                $.ajax({
+                                    url: '{{ route("admin.log.export") }}',
+                                    method: 'POST',
+                                    data: {
+                                        _token: '{{ csrf_token() }}',
+                                        export_type: 'print',
+                                        entity_type: 'users'
+                                    },
+                                    async: false, // Make the request synchronous to ensure logging completes before export
+                                    success: function() {
+                                        // Call the original action after successful logging
+                                        $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
+                                    }.bind(this),
+                                    error: function(xhr, status, error) {
+                                        console.error('Logging error:', error);
+                                        // Still proceed with export even if logging fails
+                                        $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
+                                    }.bind(this)
+                                });
+                            } catch (error) {
+                                console.error('Print export error:', error);
+                                alert('Error printing data: ' + error.message);
+                            }
+                        }
                     }
                 ]
             }

@@ -245,6 +245,9 @@ Route::prefix('admin')->group(function () {
         
         // Sites by SBUs route for dynamic loading
         Route::get('/sites/by-sbus', [\App\Http\Controllers\Admin\UserManagementController::class, 'getSitesBySbus'])->name('admin.sites.by-sbus');
+        
+        // Export logging route
+        Route::post('/log/export', [\App\Http\Controllers\Admin\ExportLogController::class, 'logExport'])->name('admin.log.export');
 
         // Logo management routes
         Route::resource('logos', \App\Http\Controllers\Admin\LogoController::class)->names([
