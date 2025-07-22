@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Sbu;
 use App\Models\SurveyResponseHeader;
 use App\Services\UserLogService;
+use Spatie\Activitylog\Facades\LogActivity;
 
 class DeveloperController extends Controller
 {
@@ -296,7 +297,22 @@ class DeveloperController extends Controller
     public function enableSurvey($id)
     {
         $survey = Survey::findOrFail($id);
-        $survey->update(['is_active' => true]);
+        $originalStatus = $survey->is_active;
+        $newStatus = true;
+        
+        $survey->update(['is_active' => $newStatus]);
+        
+        // Manual activity logging to use custom event name
+        activity()
+            ->performedOn($survey)
+            ->causedBy(Auth::guard('developer')->user())
+            ->withProperties([
+                'old' => ['is_active' => $originalStatus],
+                'attributes' => ['is_active' => $newStatus],
+                'action_type' => 'survey_status_change'
+            ])
+            ->event('activated')
+            ->log("Survey activated");
 
         return back()->with('success', 'Survey has been enabled successfully.');
     }
@@ -307,7 +323,22 @@ class DeveloperController extends Controller
     public function disableSurvey($id)
     {
         $survey = Survey::findOrFail($id);
-        $survey->update(['is_active' => false]);
+        $originalStatus = $survey->is_active;
+        $newStatus = false;
+        
+        $survey->update(['is_active' => $newStatus]);
+        
+        // Manual activity logging to use custom event name
+        activity()
+            ->performedOn($survey)
+            ->causedBy(Auth::guard('developer')->user())
+            ->withProperties([
+                'old' => ['is_active' => $originalStatus],
+                'attributes' => ['is_active' => $newStatus],
+                'action_type' => 'survey_status_change'
+            ])
+            ->event('deactivated')
+            ->log("Survey deactivated");
 
         return back()->with('success', 'Survey has been disabled successfully.');
     }

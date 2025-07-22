@@ -39,6 +39,7 @@
         .badge-login { background-color: #28a745; }
         .badge-logout { background-color: #dc3545; }
         .badge-admin { background-color: #6f42c1; }
+        .badge-superadmin { background-color: #5a23c8; }
         .badge-user { background-color: #17a2b8; }
         .badge-developer { background-color: #fd7e14; }
         .table-responsive {
@@ -89,9 +90,7 @@
                     <a class="nav-link active" href="{{ route('developer.logs.index') }}">
                         <i class="bi bi-journal-text me-2"></i> User Logs
                     </a>
-                    <a class="nav-link" href="{{ route('developer.translations.index') }}">
-                        <i class="bi bi-translate me-2"></i> Translations
-                    </a>
+
                     <hr class="text-white-50">
                     <form action="{{ route('developer.logout') }}" method="POST" class="d-inline">
                         @csrf
@@ -250,7 +249,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>User Agent Details</h5>
+                    <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Browser & OS Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -302,8 +301,14 @@
                             let displayText = data || 'Unknown';
                             
                             if (data === 'admin') {
-                                badgeClass = 'badge-admin';
-                                displayText = 'Admin';
+                                // Check if the admin is a superadmin
+                                if (row.is_superadmin) {
+                                    badgeClass = 'badge-superadmin';
+                                    displayText = 'Super Admin';
+                                } else {
+                                    badgeClass = 'badge-admin';
+                                    displayText = 'Admin';
+                                }
                             } else if (data === 'user') {
                                 badgeClass = 'badge-user';
                                 displayText = 'User';
@@ -350,8 +355,49 @@
                         render: function(data, type, row) {
                             if (!data) return '<em class="text-muted">Unknown</em>';
                             
-                            let shortAgent = data.length > 50 ? data.substring(0, 50) + '...' : data;
-                            return `<span title="${data}" style="cursor: pointer;" onclick="showUserAgent('${encodeURIComponent(data)}')">${shortAgent}</span>`;
+                            // Extract browser information
+                            let browser = 'Unknown';
+                            let browserIcon = 'question-circle';
+                            
+                            if (data.includes('Chrome') && !data.includes('Edg/')) {
+                                browser = 'Chrome';
+                                browserIcon = 'browser-chrome text-warning';
+                            } else if (data.includes('Firefox')) {
+                                browser = 'Firefox';
+                                browserIcon = 'browser-firefox text-danger';
+                            } else if (data.includes('Safari') && !data.includes('Chrome')) {
+                                browser = 'Safari';
+                                browserIcon = 'browser-safari text-primary';
+                            } else if (data.includes('Edg/')) {
+                                browser = 'Edge';
+                                browserIcon = 'browser-edge text-info';
+                            }
+                            
+                            // Extract OS information
+                            let os = 'Unknown';
+                            let osIcon = 'question-circle';
+                            
+                            if (data.includes('Windows')) {
+                                os = 'Windows';
+                                osIcon = 'windows text-primary';
+                            } else if (data.includes('Mac')) {
+                                os = 'macOS';
+                                osIcon = 'apple text-dark';
+                            } else if (data.includes('Linux')) {
+                                os = 'Linux';
+                                osIcon = 'ubuntu text-warning';
+                            } else if (data.includes('Android')) {
+                                os = 'Android';
+                                osIcon = 'android text-success';
+                            } else if (data.includes('iPhone') || data.includes('iPad') || data.includes('iOS')) {
+                                os = 'iOS';
+                                osIcon = 'phone text-dark';
+                            }
+                            
+                            // Display browser and OS with icons
+                            return `<div title="${data}" style="cursor: pointer;" onclick="showUserAgent('${encodeURIComponent(data)}')">
+                                <i class="bi bi-${browserIcon}"></i> ${browser} / <i class="bi bi-${osIcon}"></i> ${os}
+                            </div>`;
                         }
                     },
                     { 
@@ -429,41 +475,118 @@
             html += '</div>';
             html += '</div>';
             
-            // Try to extract browser and OS info
+            // Extract browser information
+            let browser = 'Unknown';
+            let browserIcon = 'question-circle';
+            let browserVersion = '';
+            
+            if (decodedAgent.includes('Chrome') && !decodedAgent.includes('Edg/')) {
+                browser = 'Chrome';
+                browserIcon = 'browser-chrome text-warning';
+                const chromeMatch = decodedAgent.match(/Chrome\/(\d+\.\d+)/i);
+                if (chromeMatch) browserVersion = chromeMatch[1];
+            } else if (decodedAgent.includes('Firefox')) {
+                browser = 'Firefox';
+                browserIcon = 'browser-firefox text-danger';
+                const firefoxMatch = decodedAgent.match(/Firefox\/(\d+\.\d+)/i);
+                if (firefoxMatch) browserVersion = firefoxMatch[1];
+            } else if (decodedAgent.includes('Safari') && !decodedAgent.includes('Chrome')) {
+                browser = 'Safari';
+                browserIcon = 'browser-safari text-primary';
+                const safariMatch = decodedAgent.match(/Version\/(\d+\.\d+)/i);
+                if (safariMatch) browserVersion = safariMatch[1];
+            } else if (decodedAgent.includes('Edg/')) {
+                browser = 'Edge';
+                browserIcon = 'browser-edge text-info';
+                const edgeMatch = decodedAgent.match(/Edg\/(\d+\.\d+)/i);
+                if (edgeMatch) browserVersion = edgeMatch[1];
+            }
+            
+            // Extract OS information
+            let os = 'Unknown';
+            let osIcon = 'question-circle';
+            let osVersion = '';
+            
+            if (decodedAgent.includes('Windows')) {
+                os = 'Windows';
+                osIcon = 'windows text-primary';
+                const windowsMatch = decodedAgent.match(/Windows NT (\d+\.\d+)/i);
+                if (windowsMatch) {
+                    const ntVersion = windowsMatch[1];
+                    switch(ntVersion) {
+                        case '10.0': osVersion = '10/11'; break;
+                        case '6.3': osVersion = '8.1'; break;
+                        case '6.2': osVersion = '8'; break;
+                        case '6.1': osVersion = '7'; break;
+                        case '6.0': osVersion = 'Vista'; break;
+                        case '5.1': osVersion = 'XP'; break;
+                        default: osVersion = ntVersion;
+                    }
+                }
+            } else if (decodedAgent.includes('Mac')) {
+                os = 'macOS';
+                osIcon = 'apple text-dark';
+                const macMatch = decodedAgent.match(/Mac OS X (\d+[._]\d+)/i);
+                if (macMatch) osVersion = macMatch[1].replace('_', '.');
+            } else if (decodedAgent.includes('Linux')) {
+                os = 'Linux';
+                osIcon = 'ubuntu text-warning';
+            } else if (decodedAgent.includes('Android')) {
+                os = 'Android';
+                osIcon = 'android text-success';
+                const androidMatch = decodedAgent.match(/Android (\d+\.\d+)/i);
+                if (androidMatch) osVersion = androidMatch[1];
+            } else if (decodedAgent.includes('iPhone') || decodedAgent.includes('iPad') || decodedAgent.includes('iOS')) {
+                os = 'iOS';
+                osIcon = 'phone text-dark';
+                const iosMatch = decodedAgent.match(/OS (\d+[._]\d+)/i);
+                if (iosMatch) osVersion = iosMatch[1].replace('_', '.');
+            }
+            
+            // Display detailed browser and OS info
             html += '<div class="row mt-3">';
             html += '<div class="col-md-6">';
-            html += '<h6>Browser Information</h6>';
+            html += '<div class="card h-100">';
+            html += '<div class="card-body">';
+            html += '<h6 class="card-title"><i class="bi bi-globe2"></i> Browser Information</h6>';
+            html += `<div class="d-flex align-items-center mb-3">
+                <i class="bi bi-${browserIcon} fs-1 me-3"></i>
+                <div>
+                    <h5 class="mb-0">${browser}</h5>
+                    ${browserVersion ? `<span class="text-muted">Version ${browserVersion}</span>` : ''}
+                </div>
+            </div>`;
             
-            if (decodedAgent.includes('Chrome')) {
-                html += '<p><i class="bi bi-browser-chrome text-warning"></i> Chrome Browser</p>';
-            } else if (decodedAgent.includes('Firefox')) {
-                html += '<p><i class="bi bi-browser-firefox text-danger"></i> Firefox Browser</p>';
-            } else if (decodedAgent.includes('Safari') && !decodedAgent.includes('Chrome')) {
-                html += '<p><i class="bi bi-browser-safari text-primary"></i> Safari Browser</p>';
-            } else if (decodedAgent.includes('Edge')) {
-                html += '<p><i class="bi bi-browser-edge text-info"></i> Edge Browser</p>';
-            } else {
-                html += '<p><i class="bi bi-question-circle"></i> Unknown Browser</p>';
+            // Try to extract additional browser details
+            if (decodedAgent.includes('Mobile')) {
+                html += '<div class="alert alert-info"><i class="bi bi-phone"></i> Mobile Browser</div>';
             }
             
             html += '</div>';
-            html += '<div class="col-md-6">';
-            html += '<h6>Operating System</h6>';
+            html += '</div>';
+            html += '</div>';
             
-            if (decodedAgent.includes('Windows')) {
-                html += '<p><i class="bi bi-windows text-primary"></i> Windows</p>';
-            } else if (decodedAgent.includes('Mac')) {
-                html += '<p><i class="bi bi-apple text-dark"></i> macOS</p>';
-            } else if (decodedAgent.includes('Linux')) {
-                html += '<p><i class="bi bi-ubuntu text-warning"></i> Linux</p>';
-            } else if (decodedAgent.includes('Android')) {
-                html += '<p><i class="bi bi-android text-success"></i> Android</p>';
-            } else if (decodedAgent.includes('iOS')) {
-                html += '<p><i class="bi bi-phone text-dark"></i> iOS</p>';
-            } else {
-                html += '<p><i class="bi bi-question-circle"></i> Unknown OS</p>';
+            html += '<div class="col-md-6">';
+            html += '<div class="card h-100">';
+            html += '<div class="card-body">';
+            html += '<h6 class="card-title"><i class="bi bi-cpu"></i> Operating System</h6>';
+            html += `<div class="d-flex align-items-center mb-3">
+                <i class="bi bi-${osIcon} fs-1 me-3"></i>
+                <div>
+                    <h5 class="mb-0">${os}</h5>
+                    ${osVersion ? `<span class="text-muted">Version ${osVersion}</span>` : ''}
+                </div>
+            </div>`;
+            
+            // Try to extract additional OS details
+            if (decodedAgent.includes('x64') || decodedAgent.includes('x86_64')) {
+                html += '<div class="alert alert-secondary"><i class="bi bi-cpu"></i> 64-bit Architecture</div>';
+            } else if (decodedAgent.includes('x86') || decodedAgent.includes('i686')) {
+                html += '<div class="alert alert-secondary"><i class="bi bi-cpu"></i> 32-bit Architecture</div>';
             }
             
+            html += '</div>';
+            html += '</div>';
             html += '</div>';
             html += '</div>';
             

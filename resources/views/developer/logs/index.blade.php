@@ -83,9 +83,7 @@
                     <a class="nav-link active" href="{{ route('developer.logs.index') }}">
                         <i class="bi bi-journal-text me-2"></i> User Logs
                     </a>
-                    <a class="nav-link" href="{{ route('developer.translations.index') }}">
-                        <i class="bi bi-translate me-2"></i> Translations
-                    </a>
+
                     <hr class="text-white-50">
                     <form action="{{ route('developer.logout') }}" method="POST" class="d-inline">
                         @csrf

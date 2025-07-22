@@ -118,11 +118,18 @@ class UserLogsController extends Controller
                 
                 // Return causer data with proper structure
                 $causer = $activity->causer;
-                return [
+                $data = [
                     'name' => $causer->name ?? $causer->username ?? 'Unknown User',
                     'email' => $causer->email ?? '',
                     'username' => $causer->username ?? null,
                 ];
+                
+                // Add superadmin property for Admin users
+                if (strpos($activity->causer_type, 'Admin') !== false && isset($causer->superadmin)) {
+                    $data['superadmin'] = (bool)$causer->superadmin;
+                }
+                
+                return $data;
             })
             ->editColumn('event', function ($activity) {
                 return $activity->event ?? 'unknown';
@@ -184,7 +191,16 @@ class UserLogsController extends Controller
             });
         }
 
-        return DataTables::of($query)->make(true);
+        return DataTables::of($query)
+            ->addColumn('is_superadmin', function ($log) {
+                if ($log->user_type === 'admin') {
+                    // Get the admin user to check if they're a superadmin
+                    $admin = \App\Models\Admin::find($log->user_id);
+                    return $admin ? $admin->superadmin : false;
+                }
+                return false;
+            })
+            ->make(true);
     }
 
     /**

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Activitylog\Facades\LogActivity;
 
 class SurveyController extends Controller
 {
@@ -201,8 +202,21 @@ class SurveyController extends Controller
         if ($request->has('remove_logo')) {
             // Remove existing logo if it exists
             if ($survey->logo) {
+                $oldLogoPath = $survey->logo;
                 Storage::disk('public')->delete($survey->logo);
                 $survey->update(['logo' => null]);
+                
+                // Log the logo removal activity
+                activity()
+                    ->performedOn($survey)
+                    ->causedBy(Auth::guard('admin')->user())
+                    ->withProperties([
+                        'old_logo' => $oldLogoPath,
+                        'new_logo' => null,
+                        'action_type' => 'logo_removal'
+                    ])
+                    ->event('removed')
+                    ->log('Survey logo removed');
             }
             return redirect()->back()->with('success', 'Logo removed successfully!');
         }
@@ -210,8 +224,21 @@ class SurveyController extends Controller
         if ($request->has('remove_department_logo')) {
             // Remove existing department logo if it exists
             if ($survey->department_logo) {
+                $oldDepartmentLogoPath = $survey->department_logo;
                 Storage::disk('public')->delete($survey->department_logo);
                 $survey->update(['department_logo' => null]);
+                
+                // Log the department logo removal activity
+                activity()
+                    ->performedOn($survey)
+                    ->causedBy(Auth::guard('admin')->user())
+                    ->withProperties([
+                        'old_department_logo' => $oldDepartmentLogoPath,
+                        'new_department_logo' => null,
+                        'action_type' => 'department_logo_removal'
+                    ])
+                    ->event('removed')
+                    ->log('Survey department logo removed');
             }
             return redirect()->back()->with('success', 'Department logo removed successfully!');
         }
@@ -224,6 +251,8 @@ class SurveyController extends Controller
         try {
             // Update main logo if provided
             if ($request->hasFile('logo')) {
+                $oldLogoPath = $survey->logo;
+                
                 // Remove old logo if exists
                 if ($survey->logo) {
                     Storage::disk('public')->delete($survey->logo);
@@ -232,10 +261,24 @@ class SurveyController extends Controller
                 // Store new logo
                 $logoPath = $request->file('logo')->store('survey-logos', 'public');
                 $survey->update(['logo' => $logoPath]);
+                
+                // Log the logo update activity
+                activity()
+                    ->performedOn($survey)
+                    ->causedBy(Auth::guard('admin')->user())
+                    ->withProperties([
+                        'old_logo' => $oldLogoPath,
+                        'new_logo' => $logoPath,
+                        'action_type' => 'logo_update'
+                    ])
+                    ->event('updated')
+                    ->log('Survey logo updated');
             }
             
             // Update department logo if provided
             if ($request->hasFile('department_logo')) {
+                $oldDepartmentLogoPath = $survey->department_logo;
+                
                 // Remove old department logo if exists
                 if ($survey->department_logo) {
                     Storage::disk('public')->delete($survey->department_logo);
@@ -244,6 +287,18 @@ class SurveyController extends Controller
                 // Store new department logo
                 $departmentLogoPath = $request->file('department_logo')->store('survey-logos', 'public');
                 $survey->update(['department_logo' => $departmentLogoPath]);
+                
+                // Log the department logo update activity
+                activity()
+                    ->performedOn($survey)
+                    ->causedBy(Auth::guard('admin')->user())
+                    ->withProperties([
+                        'old_department_logo' => $oldDepartmentLogoPath,
+                        'new_department_logo' => $departmentLogoPath,
+                        'action_type' => 'department_logo_update'
+                    ])
+                    ->event('updated')
+                    ->log('Survey department logo updated');
             }
 
             return redirect()->back()->with('success', 'Logos updated successfully!');
@@ -262,8 +317,21 @@ class SurveyController extends Controller
         if ($request->has('remove_department_logo')) {
             // Remove existing department logo if it exists
             if ($survey->department_logo) {
+                $oldDepartmentLogoPath = $survey->department_logo;
                 Storage::disk('public')->delete($survey->department_logo);
                 $survey->update(['department_logo' => null]);
+                
+                // Log the department logo removal activity
+                activity()
+                    ->performedOn($survey)
+                    ->causedBy(Auth::guard('admin')->user())
+                    ->withProperties([
+                        'old_department_logo' => $oldDepartmentLogoPath,
+                        'new_department_logo' => null,
+                        'action_type' => 'department_logo_removal'
+                    ])
+                    ->event('removed')
+                    ->log('Survey department logo removed');
             }
             return redirect()->back()->with('success', 'Department logo removed successfully!');
         }
@@ -275,6 +343,8 @@ class SurveyController extends Controller
         try {
             // Update department logo if provided
             if ($request->hasFile('department_logo')) {
+                $oldDepartmentLogoPath = $survey->department_logo;
+                
                 // Remove old department logo if exists
                 if ($survey->department_logo) {
                     Storage::disk('public')->delete($survey->department_logo);
@@ -283,6 +353,18 @@ class SurveyController extends Controller
                 // Store new department logo
                 $departmentLogoPath = $request->file('department_logo')->store('survey-logos', 'public');
                 $survey->update(['department_logo' => $departmentLogoPath]);
+                
+                // Log the department logo update activity
+                activity()
+                    ->performedOn($survey)
+                    ->causedBy(Auth::guard('admin')->user())
+                    ->withProperties([
+                        'old_department_logo' => $oldDepartmentLogoPath,
+                        'new_department_logo' => $departmentLogoPath,
+                        'action_type' => 'department_logo_update'
+                    ])
+                    ->event('updated')
+                    ->log('Survey department logo updated');
                 
                 return redirect()->back()->with('success', 'Department logo updated successfully!');
             }
@@ -387,16 +469,27 @@ class SurveyController extends Controller
         }
 
         $originalStatus = $survey->is_active;
+        $newStatus = !$originalStatus;
         
         $survey->update([
-            'is_active' => !$survey->is_active
+            'is_active' => $newStatus
         ]);
 
-        // Activity logging is handled automatically by the Survey model's LogsActivity trait
+        // Manual activity logging to use custom event names
+        $eventName = $newStatus ? 'activated' : 'deactivated';
+        activity()
+            ->performedOn($survey)
+            ->causedBy(Auth::guard('admin')->user())
+            ->withProperties([
+                'old' => ['is_active' => $originalStatus],
+                'attributes' => ['is_active' => $newStatus],
+                'action_type' => 'survey_status_change'
+            ])
+            ->event($eventName)
+            ->log("Survey {$eventName}");
 
-        $status = $survey->is_active ? 'activated' : 'deactivated';
         return redirect()->route('admin.surveys.show', $survey)
-            ->with('success', "Survey has been {$status} successfully!");
+            ->with('success', "Survey has been {$eventName} successfully!");
     }
     
     /**
@@ -449,11 +542,31 @@ class SurveyController extends Controller
         
         DB::beginTransaction();
         try {
+            // Get current SBUs and Sites for logging
+            $oldSbuIds = $survey->sbus()->pluck('sbus.id')->toArray();
+            $oldSiteIds = $survey->sites()->pluck('sites.id')->toArray();
+            $newSbuIds = $request->sbu_ids;
+            $newSiteIds = $request->site_ids;
+            
             // Sync SBUs (detach old ones and attach new ones)
             $survey->sbus()->sync($request->sbu_ids);
             
             // Sync sites (detach old ones and attach new ones)
             $survey->sites()->sync($request->site_ids);
+            
+            // Log the deployment settings update activity
+            activity()
+                ->performedOn($survey)
+                ->causedBy(Auth::guard('admin')->user())
+                ->withProperties([
+                    'old_sbu_ids' => $oldSbuIds,
+                    'new_sbu_ids' => $newSbuIds,
+                    'old_site_ids' => $oldSiteIds,
+                    'new_site_ids' => $newSiteIds,
+                    'action_type' => 'deployment_settings_update'
+                ])
+                ->event('updated')
+                ->log('Survey deployment settings updated');
             
             DB::commit();
             return redirect()->route('admin.surveys.show', $survey)

@@ -38,8 +38,10 @@
         }
         .badge-created { background-color: #28a745; }
         .badge-updated { background-color: #ffc107; color: #000; }
+        .badge-removed { background-color: #fd7e14; color: #fff; }
         .badge-deleted { background-color: #dc3545; }
         .badge-admin { background-color: #6f42c1; }
+        .badge-superadmin { background-color: #5a23c8; }
         .badge-user { background-color: #17a2b8; }
         .badge-developer { background-color: #fd7e14; }
         .table-responsive {
@@ -83,9 +85,7 @@
                     <a class="nav-link active" href="{{ route('developer.logs.index') }}">
                         <i class="bi bi-journal-text me-2"></i> User Logs
                     </a>
-                    <a class="nav-link" href="{{ route('developer.translations.index') }}">
-                        <i class="bi bi-translate me-2"></i> Translations
-                    </a>
+                    
                     <hr class="text-white-50">
                     <form action="{{ route('developer.logout') }}" method="POST" class="d-inline">
                         @csrf
@@ -134,6 +134,7 @@
                                     <option value="">All Events</option>
                                     <option value="created">Created</option>
                                     <option value="updated">Updated</option>
+                                    <option value="removed">Removed</option>
                                     <option value="deleted">Deleted</option>
                                 </select>
                             </div>
@@ -247,8 +248,14 @@
                             let displayText = data;
                             
                             if (data.includes('Admin')) {
-                                badgeClass = 'badge-admin';
-                                displayText = 'Admin';
+                                // Check if the admin is a superadmin
+                                if (row.causer && row.causer.superadmin) {
+                                    badgeClass = 'badge-superadmin';
+                                    displayText = 'Super Admin';
+                                } else {
+                                    badgeClass = 'badge-admin';
+                                    displayText = 'Admin';
+                                }
                             } else if (data.includes('User')) {
                                 badgeClass = 'badge-user';
                                 displayText = 'User';
@@ -289,8 +296,17 @@
                                 }
                             } else if (data === 'updated') {
                                 badgeClass = 'badge-updated';
+                            } else if (data === 'removed') {
+                                badgeClass = 'badge-removed';
+                                displayText = 'Removed';
                             } else if (data === 'deleted') {
                                 badgeClass = 'badge-deleted';
+                            } else if (data === 'activated') {
+                                badgeClass = 'badge-created';
+                                displayText = 'Activated';
+                            } else if (data === 'deactivated') {
+                                badgeClass = 'badge-removed';
+                                displayText = 'Deactivated';
                             }
                             
                             return `<span class="badge ${badgeClass}">${displayText}</span>`;
