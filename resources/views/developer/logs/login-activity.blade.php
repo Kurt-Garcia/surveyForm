@@ -394,9 +394,24 @@
                                 osIcon = 'phone text-dark';
                             }
                             
-                            // Display browser and OS with icons
-                            return `<div title="${data}" style="cursor: pointer;" onclick="showUserAgent('${encodeURIComponent(data)}')">
-                                <i class="bi bi-${browserIcon}"></i> ${browser} / <i class="bi bi-${osIcon}"></i> ${os}
+                            // Display browser and OS using custom PNG images and Bootstrap icons
+                            let browserImg = '';
+                            
+                            // Use custom PNG images for browsers
+                            if (browser === 'Chrome') {
+                                browserImg = `<img src="{{ asset('img/chrome.png') }}" height="24" title="${browser}" alt="Chrome Browser">`;
+                            } else if (browser === 'Firefox') {
+                                browserImg = `<img src="{{ asset('img/firefox.png') }}" height="24" title="${browser}" alt="Firefox Browser">`;
+                            } else if (browser === 'Safari') {
+                                browserImg = `<img src="{{ asset('img/safari.png') }}" height="24" title="${browser}" alt="Safari Browser">`;
+                            } else if (browser === 'Edge') {
+                                browserImg = `<img src="{{ asset('img/edge.png') }}" height="24" title="${browser}" alt="Edge Browser">`;
+                            } else {
+                                browserImg = `<i class="bi bi-${browserIcon} fs-5" title="${browser}"></i>`;
+                            }
+                            
+                            return `<div title="${browser} / ${os}" style="cursor: pointer;" onclick="showUserAgent('${encodeURIComponent(data)}')">
+                                ${browserImg} / <i class="bi bi-${osIcon} fs-5" title="${os}"></i>
                             </div>`;
                         }
                     },
@@ -549,8 +564,22 @@
             html += '<div class="card h-100">';
             html += '<div class="card-body">';
             html += '<h6 class="card-title"><i class="bi bi-globe2"></i> Browser Information</h6>';
+            // Use custom PNG images for browsers in the modal
+            let browserIconHtml = '';
+            if (browser === 'Chrome') {
+                browserIconHtml = `<img src="{{ asset('img/chrome.png') }}" height="48" class="me-3" alt="Chrome Browser">`;
+            } else if (browser === 'Firefox') {
+                browserIconHtml = `<img src="{{ asset('img/firefox.png') }}" height="48" class="me-3" alt="Firefox Browser">`;
+            } else if (browser === 'Safari') {
+                browserIconHtml = `<img src="{{ asset('img/safari.png') }}" height="48" class="me-3" alt="Safari Browser">`;
+            } else if (browser === 'Edge') {
+                browserIconHtml = `<img src="{{ asset('img/edge.png') }}" height="48" class="me-3" alt="Edge Browser">`;
+            } else {
+                browserIconHtml = `<i class="bi bi-${browserIcon} fs-1 me-3"></i>`;
+            }
+            
             html += `<div class="d-flex align-items-center mb-3">
-                <i class="bi bi-${browserIcon} fs-1 me-3"></i>
+                ${browserIconHtml}
                 <div>
                     <h5 class="mb-0">${browser}</h5>
                     ${browserVersion ? `<span class="text-muted">Version ${browserVersion}</span>` : ''}
