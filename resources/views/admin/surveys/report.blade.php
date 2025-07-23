@@ -3,27 +3,7 @@
 @section('content')
 <div class="container-fluid px-4 mt-4">
     
-    <!-- Print-Only Summary Header -->
-    <div class="d-none d-print-block mb-4">
-        <div class="text-center border-bottom pb-3 mb-3">
-            <h1 class="h3 mb-2">{{ strtoupper($survey->title) }} - SURVEY REPORT</h1>
-            <p class="mb-1"><strong>Generated:</strong> {{ now()->format('F d, Y \a\t g:i A') }}</p>
-            <p class="mb-1">
-                <strong>SBU:</strong> 
-                @foreach($survey->sbus as $sbu){{ $sbu->name }}@if(!$loop->last), @endif @endforeach
-                | <strong>Total Responses:</strong> {{ $totalResponses }}
-                | <strong>Sites with Responses:</strong> {{ count($siteAnalytics) }}
-            </p>
-            @if(isset($recommendationStats['overall']) && $recommendationStats['overall']['total_responses'] > 0)
-            <p class="mb-1">
-                <strong>Average Recommendation:</strong> {{ $recommendationStats['overall']['average_score'] }}/10
-                @if(isset($improvementAreasStats['top_categories']) && count($improvementAreasStats['top_categories']) > 0)
-                | <strong>Top Improvement Area:</strong> {{ str_replace('_', ' ', array_keys($improvementAreasStats['top_categories'])[0]) }}
-                @endif
-            </p>
-            @endif
-        </div>
-    </div>
+
     <!-- Survey Header -->
     <div class="card shadow-lg border-0 mb-4">
         <div class="card-header bg-gradient-primary text-white py-4">
@@ -682,10 +662,10 @@
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body text-center py-4">
             <h5 class="text-muted mb-3">Export Report</h5>
-            <p class="text-muted small mb-4">Download comprehensive survey reports in multiple formats</p>
+            <p class="text-muted small mb-4">Download comprehensive survey report in Excel format</p>
             
             <!-- Export Options with Descriptions -->
-            <div class="row mb-4">
+            <div class="row justify-content-center mb-4">
                 <div class="col-md-6 mb-3">
                     <div class="border rounded p-3 h-100">
                         <i class="fas fa-file-excel fa-2x text-success mb-3"></i>
@@ -696,16 +676,6 @@
                         </a>
                     </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <div class="border rounded p-3 h-100">
-                        <i class="fas fa-print fa-2x text-primary mb-3"></i>
-                        <h6>Print Report</h6>
-                        <p class="small text-muted mb-3">Print-optimized version for physical distribution</p>
-                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="window.print()">
-                            <i class="fas fa-print me-1"></i>Print
-                        </button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -714,29 +684,6 @@
 <!-- Remove SheetJS Library - No longer needed -->
 
 <style>
-@media print {
-    .btn-group, .card-header, .no-print {
-        display: none !important;
-    }
-    .card {
-        border: 1px solid #ddd !important;
-        box-shadow: none !important;
-        page-break-inside: avoid;
-        margin-bottom: 1rem !important;
-    }
-    body {
-        font-size: 12px;
-        -webkit-print-color-adjust: exact;
-        color-adjust: exact;
-    }
-    .table {
-        font-size: 10px;
-    }
-    .badge {
-        border: 1px solid #333 !important;
-    }
-}
-
 .border-left-primary {
     border-left: 5px solid #007bff !important;
 }
