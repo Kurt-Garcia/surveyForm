@@ -176,6 +176,34 @@
                                         className: 'export-item',
                                         exportOptions: {
                                             columns: [0, 1, 2]
+                                        },
+                                        action: function(e, dt, button, config) {
+                                            try {
+                                                // Log the export activity
+                                                $.ajax({
+                                                    url: '{{ route("admin.log.export") }}',
+                                                    method: 'POST',
+                                                    data: {
+                                                        _token: '{{ csrf_token() }}',
+                                                        export_type: 'copy',
+                                                        entity_type: 'responses',
+                                                        survey_title: '{{ $survey->title }}'
+                                                    },
+                                                    async: false,
+                                                    success: function() {
+                                                        // Call the original action after successful logging
+                                                        $.fn.dataTable.ext.buttons.copyHtml5.action.call(this, e, dt, button, config);
+                                                    }.bind(this),
+                                                    error: function(xhr, status, error) {
+                                                        console.error('Logging error:', error);
+                                                        // Still proceed with export even if logging fails
+                                                        $.fn.dataTable.ext.buttons.copyHtml5.action.call(this, e, dt, button, config);
+                                                    }.bind(this)
+                                                });
+                                            } catch (error) {
+                                                console.error('Copy export error:', error);
+                                                alert('Error copying data: ' + error.message);
+                                            }
                                         }
                                     },
                                     {
@@ -185,7 +213,35 @@
                                         exportOptions: {
                                             columns: [0, 1, 2]
                                         },
-                                        title: 'Survey Responses - {{ $survey->title }}'
+                                        title: 'Survey Responses - {{ $survey->title }}',
+                                        action: function(e, dt, button, config) {
+                                            try {
+                                                // Log the export activity
+                                                $.ajax({
+                                                    url: '{{ route("admin.log.export") }}',
+                                                    method: 'POST',
+                                                    data: {
+                                                        _token: '{{ csrf_token() }}',
+                                                        export_type: 'csv',
+                                                        entity_type: 'responses',
+                                                        survey_title: '{{ $survey->title }}'
+                                                    },
+                                                    async: false,
+                                                    success: function() {
+                                                        // Call the original action after successful logging
+                                                        $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
+                                                    }.bind(this),
+                                                    error: function(xhr, status, error) {
+                                                        console.error('Logging error:', error);
+                                                        // Still proceed with export even if logging fails
+                                                        $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
+                                                    }.bind(this)
+                                                });
+                                            } catch (error) {
+                                                console.error('CSV export error:', error);
+                                                alert('Error exporting CSV: ' + error.message);
+                                            }
+                                        }
                                     },
                                     {
                                         extend: 'excel',
@@ -194,7 +250,35 @@
                                         exportOptions: {
                                             columns: [0, 1, 2]
                                         },
-                                        title: 'Survey Responses - {{ $survey->title }}'
+                                        title: 'Survey Responses - {{ $survey->title }}',
+                                        action: function(e, dt, button, config) {
+                                            try {
+                                                // Log the export activity
+                                                $.ajax({
+                                                    url: '{{ route("admin.log.export") }}',
+                                                    method: 'POST',
+                                                    data: {
+                                                        _token: '{{ csrf_token() }}',
+                                                        export_type: 'excel',
+                                                        entity_type: 'responses',
+                                                        survey_title: '{{ $survey->title }}'
+                                                    },
+                                                    async: false,
+                                                    success: function() {
+                                                        // Call the original action after successful logging
+                                                        $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
+                                                    }.bind(this),
+                                                    error: function(xhr, status, error) {
+                                                        console.error('Logging error:', error);
+                                                        // Still proceed with export even if logging fails
+                                                        $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
+                                                    }.bind(this)
+                                                });
+                                            } catch (error) {
+                                                console.error('Excel export error:', error);
+                                                alert('Error exporting Excel: ' + error.message);
+                                            }
+                                        }
                                     },
                                     {
                                         extend: 'pdf',
@@ -209,6 +293,34 @@
                                             doc.styles.tableHeader.fontSize = 11;
                                             doc.styles.tableHeader.alignment = 'left';
                                             doc.content[1].table.widths = ['*', '*', '*'];
+                                        },
+                                        action: function(e, dt, button, config) {
+                                            try {
+                                                // Log the export activity
+                                                $.ajax({
+                                                    url: '{{ route("admin.log.export") }}',
+                                                    method: 'POST',
+                                                    data: {
+                                                        _token: '{{ csrf_token() }}',
+                                                        export_type: 'pdf',
+                                                        entity_type: 'responses',
+                                                        survey_title: '{{ $survey->title }}'
+                                                    },
+                                                    async: false,
+                                                    success: function() {
+                                                        // Call the original action after successful logging
+                                                        $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
+                                                    }.bind(this),
+                                                    error: function(xhr, status, error) {
+                                                        console.error('Logging error:', error);
+                                                        // Still proceed with export even if logging fails
+                                                        $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
+                                                    }.bind(this)
+                                                });
+                                            } catch (error) {
+                                                console.error('PDF export error:', error);
+                                                alert('Error exporting PDF: ' + error.message);
+                                            }
                                         }
                                     },
                                     {
@@ -218,7 +330,35 @@
                                         exportOptions: {
                                             columns: [0, 1, 2]
                                         },
-                                        title: 'Survey Responses - {{ $survey->title }}'
+                                        title: 'Survey Responses - {{ $survey->title }}',
+                                        action: function(e, dt, button, config) {
+                                            try {
+                                                // Log the export activity
+                                                $.ajax({
+                                                    url: '{{ route("admin.log.export") }}',
+                                                    method: 'POST',
+                                                    data: {
+                                                        _token: '{{ csrf_token() }}',
+                                                        export_type: 'print',
+                                                        entity_type: 'responses',
+                                                        survey_title: '{{ $survey->title }}'
+                                                    },
+                                                    async: false,
+                                                    success: function() {
+                                                        // Call the original action after successful logging
+                                                        $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
+                                                    }.bind(this),
+                                                    error: function(xhr, status, error) {
+                                                        console.error('Logging error:', error);
+                                                        // Still proceed with export even if logging fails
+                                                        $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
+                                                    }.bind(this)
+                                                });
+                                            } catch (error) {
+                                                console.error('Print export error:', error);
+                                                alert('Error printing: ' + error.message);
+                                            }
+                                        }
                                     }
                                 ]
                             }

@@ -934,6 +934,30 @@ function printWithPrintJS() {
             // Print started
         },
         onLoadingEnd: function () {
+            // Log the print activity
+            const surveyTitle = "{{ $survey->title }}";
+            const accountName = "{{ $header->account_name }}";
+            
+            // Send AJAX request to log the export activity
+            $.ajax({
+                url: "{{ route('admin.log.export') }}",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    export_type: "print",
+                    entity_type: "responses",
+                    mode: "admin",
+                    survey_title: surveyTitle,
+                    description: "Exported Print of survey response details for customer account: " + accountName + " – " + surveyTitle
+                },
+                success: function(response) {
+                    console.log("Print activity logged successfully");
+                },
+                error: function(error) {
+                    console.error("Failed to log print activity", error);
+                }
+            });
+            
             // Print complete - silently refresh page to reset DOM
             setTimeout(() => {
                 window.location.reload(true);
@@ -1385,6 +1409,30 @@ function generatePDF() {
         // Remove loading toast and PDF container
         document.body.removeChild(loadingToast);
         document.body.removeChild(pdfContainer);
+        
+        // Log the PDF export activity
+        const surveyTitle = "{{ $survey->title }}";
+        const accountName = "{{ $header->account_name }}";
+        
+        // Send AJAX request to log the export activity
+        $.ajax({
+            url: "{{ route('admin.log.export') }}",
+            method: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                export_type: "pdf",
+                entity_type: "responses",
+                mode: "admin",
+                survey_title: surveyTitle,
+                description: "Exported PDF of survey response details for customer account: " + accountName + " – " + surveyTitle
+            },
+            success: function(response) {
+                console.log("PDF export activity logged successfully");
+            },
+            error: function(error) {
+                console.error("Failed to log PDF export activity", error);
+            }
+        });
     }).catch((error) => {
         console.error('PDF generation failed:', error);
         document.body.removeChild(loadingToast);

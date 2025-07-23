@@ -300,7 +300,9 @@ class DeveloperController extends Controller
         $originalStatus = $survey->is_active;
         $newStatus = true;
         
-        $survey->update(['is_active' => $newStatus]);
+        // Use saveQuietly to prevent automatic activity logging by the LogsActivity trait
+        $survey->is_active = $newStatus;
+        $survey->saveQuietly();
         
         // Manual activity logging to use custom event name
         activity()
@@ -312,7 +314,7 @@ class DeveloperController extends Controller
                 'action_type' => 'survey_status_change'
             ])
             ->event('activated')
-            ->log("Survey activated");
+            ->log("{$survey->title} has been activated");
 
         return back()->with('success', 'Survey has been enabled successfully.');
     }
@@ -326,7 +328,9 @@ class DeveloperController extends Controller
         $originalStatus = $survey->is_active;
         $newStatus = false;
         
-        $survey->update(['is_active' => $newStatus]);
+        // Use saveQuietly to prevent automatic activity logging by the LogsActivity trait
+        $survey->is_active = $newStatus;
+        $survey->saveQuietly();
         
         // Manual activity logging to use custom event name
         activity()
@@ -338,7 +342,7 @@ class DeveloperController extends Controller
                 'action_type' => 'survey_status_change'
             ])
             ->event('deactivated')
-            ->log("Survey deactivated");
+            ->log("{$survey->title} is deactivated");
 
         return back()->with('success', 'Survey has been disabled successfully.');
     }
@@ -349,7 +353,21 @@ class DeveloperController extends Controller
     public function deleteSurvey($id)
     {
         $survey = Survey::findOrFail($id);
-        $survey->delete();
+        $surveyTitle = $survey->title;
+        
+        // Manual activity logging with custom description including survey title
+        activity()
+            ->performedOn($survey)
+            ->causedBy(Auth::guard('developer')->user())
+            ->withProperties([
+                'title' => $surveyTitle,
+                'action_type' => 'survey_delete'
+            ])
+            ->event('deleted')
+            ->log("{$surveyTitle} has been deleted");
+            
+        // Use deleteQuietly to prevent automatic logging
+        $survey->deleteQuietly();
 
         return back()->with('success', 'Survey deleted successfully.');
     }

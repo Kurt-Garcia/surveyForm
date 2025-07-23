@@ -121,6 +121,22 @@ class SurveyQuestion extends Model
     }
 
     /**
+     * Get the question number/position within the survey
+     */
+    public function getQuestionNumber()
+    {
+        $questions = $this->survey->questions()->orderBy('id')->get();
+        $position = 1;
+        foreach ($questions as $question) {
+            if ($question->id === $this->id) {
+                return $position;
+            }
+            $position++;
+        }
+        return $position;
+    }
+
+    /**
      * Configure activity logging options
      */
     public function getActivitylogOptions(): LogOptions
@@ -130,7 +146,17 @@ class SurveyQuestion extends Model
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->setDescriptionForEvent(function (string $eventName) {
-                return $eventName === 'created' ? 'Question Adding' : "Question {$eventName}";
+                if ($eventName === 'created') {
+                    return "Question Added to {$this->survey->title}";
+                } elseif ($eventName === 'deleted') {
+                    $questionNumber = $this->getQuestionNumber();
+                    return "Question {$questionNumber} has been deleted in {$this->survey->title}";
+                } elseif ($eventName === 'updated') {
+                    $questionNumber = $this->getQuestionNumber();
+                    return "Question {$questionNumber} has been updated in {$this->survey->title}";
+                } else {
+                    return "Question {$eventName}";
+                }
             });
     }
 }

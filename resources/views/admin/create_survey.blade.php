@@ -751,8 +751,18 @@
         let tabsHtml = '';
         let tabContentHtml = '';
         
-        activeLanguages.forEach((language, index) => {
-            const isActive = index === 0;
+        // Sort languages to ensure English is always first
+        const sortedLanguages = [...activeLanguages].sort((a, b) => {
+            // English always comes first
+            if (a.locale === 'en') return -1;
+            if (b.locale === 'en') return 1;
+            // For other languages, maintain their original order
+            return activeLanguages.findIndex(lang => lang.locale === a.locale) - 
+                   activeLanguages.findIndex(lang => lang.locale === b.locale);
+        });
+        
+        sortedLanguages.forEach((language, index) => {
+            const isActive = index === 0; // First tab is active (which will always be English now)
             const languageName = language.name;
             const languageLocale = language.locale;
             const tabId = `${languageLocale}-tab-${questionIndex}`;
@@ -2047,9 +2057,13 @@ body.js-initialized .sbu-card {
 }
 
 .nav-tabs-sm .nav-link.active {
-    color: white;
-    background-color: var(--primary-color);
+    color: var(--primary-color); /* Use primary color for text instead of white */
+    background-color: transparent; /* Remove background color */
     border-color: var(--primary-color);
+    border-bottom: none;
+    position: relative;
+    z-index: 1;
+    font-weight: bold; /* Keep text bold for better visibility */
 }
 
 .nav-tabs-sm .nav-link:hover:not(.active) {
@@ -2068,6 +2082,9 @@ body.js-initialized .sbu-card {
     border-radius: 0 0 6px 6px;
     padding: 1rem;
     background-color: #fff;
+    position: relative;
+    z-index: 0;
+    margin-top: -1px;
 }
 
 .tab-pane .text-muted {

@@ -216,7 +216,7 @@ class SurveyController extends Controller
                         'action_type' => 'logo_removal'
                     ])
                     ->event('removed')
-                    ->log('Survey logo removed');
+                    ->log("{$survey->title} Survey logo has been removed");
             }
             return redirect()->back()->with('success', 'Logo removed successfully!');
         }
@@ -238,7 +238,7 @@ class SurveyController extends Controller
                         'action_type' => 'department_logo_removal'
                     ])
                     ->event('removed')
-                    ->log('Survey department logo removed');
+                    ->log("{$survey->title} Department logo has been removed");
             }
             return redirect()->back()->with('success', 'Department logo removed successfully!');
         }
@@ -272,7 +272,7 @@ class SurveyController extends Controller
                         'action_type' => 'logo_update'
                     ])
                     ->event('updated')
-                    ->log('Survey logo updated');
+                    ->log("{$survey->title} Survey logo has been updated");
             }
             
             // Update department logo if provided
@@ -298,7 +298,7 @@ class SurveyController extends Controller
                         'action_type' => 'department_logo_update'
                     ])
                     ->event('updated')
-                    ->log('Survey department logo updated');
+                    ->log("{$survey->title} Department logo has been updated");
             }
 
             return redirect()->back()->with('success', 'Logos updated successfully!');
@@ -331,7 +331,7 @@ class SurveyController extends Controller
                         'action_type' => 'department_logo_removal'
                     ])
                     ->event('removed')
-                    ->log('Survey department logo removed');
+                    ->log("{$survey->title} Department logo has been removed");
             }
             return redirect()->back()->with('success', 'Department logo removed successfully!');
         }
@@ -364,7 +364,7 @@ class SurveyController extends Controller
                         'action_type' => 'department_logo_update'
                     ])
                     ->event('updated')
-                    ->log('Survey department logo updated');
+                    ->log("{$survey->title} Department logo has been updated");
                 
                 return redirect()->back()->with('success', 'Department logo updated successfully!');
             }
@@ -449,13 +449,23 @@ class SurveyController extends Controller
         $surveyTitle = $survey->title;
         $questionCount = $survey->questions()->count();
         
-        // Activity logging is handled automatically by the Survey model's LogsActivity trait
+        // Manual activity logging with custom description including survey title
+        activity()
+            ->performedOn($survey)
+            ->causedBy(Auth::guard('admin')->user())
+            ->withProperties([
+                'title' => $surveyTitle,
+                'question_count' => $questionCount,
+                'action_type' => 'survey_delete'
+            ])
+            ->event('deleted')
+            ->log("{$surveyTitle} has been deleted");
 
         // Delete associated questions first
         $survey->questions()->delete();
         
         // Then delete the survey
-        $survey->delete();
+        $survey->deleteQuietly(); // Use deleteQuietly to prevent automatic logging
 
         return redirect()->route('admin.surveys.index')
             ->with('success', 'Survey deleted successfully!');
@@ -471,12 +481,14 @@ class SurveyController extends Controller
         $originalStatus = $survey->is_active;
         $newStatus = !$originalStatus;
         
-        $survey->update([
-            'is_active' => $newStatus
-        ]);
+        // Use saveQuietly to prevent automatic activity logging by the LogsActivity trait
+        $survey->is_active = $newStatus;
+        $survey->saveQuietly();
 
         // Manual activity logging to use custom event names
         $eventName = $newStatus ? 'activated' : 'deactivated';
+        $logDescription = $newStatus ? "{$survey->title} has been activated" : "{$survey->title} is deactivated";
+        
         activity()
             ->performedOn($survey)
             ->causedBy(Auth::guard('admin')->user())
@@ -486,7 +498,7 @@ class SurveyController extends Controller
                 'action_type' => 'survey_status_change'
             ])
             ->event($eventName)
-            ->log("Survey {$eventName}");
+            ->log($logDescription);
 
         return redirect()->route('admin.surveys.show', $survey)
             ->with('success', "Survey has been {$eventName} successfully!");
@@ -566,7 +578,7 @@ class SurveyController extends Controller
                     'action_type' => 'deployment_settings_update'
                 ])
                 ->event('updated')
-                ->log('Survey deployment settings updated');
+                ->log("{$survey->title} deployment settings has been updated");
             
             DB::commit();
             return redirect()->route('admin.surveys.show', $survey)
