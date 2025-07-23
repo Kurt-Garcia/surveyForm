@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
     </div>
     <!-- Action Buttons Section -->
     <div class="mb-3 d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 gap-sm-0">
+        @if(Auth::guard('admin')->check())
         <div class="d-flex flex-column flex-sm-row gap-2 mb-2 mb-sm-0">
             <button onclick="printWithPrintJS()" class="btn btn-outline-secondary">
                 <i class="bi bi-printer me-2"></i>Print
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\DB;
                 <i class="bi bi-file-pdf me-2"></i>Download PDF
             </button>
         </div>
+        @endif
         <div class="wrapper">
             <a href="{{ Auth::guard('admin')->check() ? route('admin.surveys.responses.index', $survey) : route('surveys.responses.index', $survey) }}" class="cta">
                 <span>BACK</span>
