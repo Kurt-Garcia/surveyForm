@@ -398,6 +398,18 @@ class SurveyResponseController extends Controller
         
         $filename = 'Customer_Satisfaction_Survey_' . str_replace(' ', '_', $survey->title) . '_' . date('Y-m-d') . '.xlsx';
         
+        // Log the export activity
+        activity()
+            ->performedOn($survey)
+            ->causedBy(Auth::guard('admin')->user())
+            ->withProperties([
+                'survey_title' => $survey->title,
+                'export_type' => 'excel',
+                'filename' => $filename
+            ])
+            ->event('exported')
+            ->log($survey->title . ' report has been exported in excel');
+        
         return Excel::download($export, $filename);
     }
 

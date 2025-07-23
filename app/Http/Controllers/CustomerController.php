@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class CustomerController extends Controller
 {
@@ -143,6 +144,11 @@ class CustomerController extends Controller
         
         // If validation passes, update the customer record
         try {
+            // Get customer name before update for activity logging
+            $customer = DB::table('TBLCUSTOMER')
+                ->where('id', $id)
+                ->first(['CUSTNAME']);
+            
             DB::table('TBLCUSTOMER')
                 ->where('id', $id)
                 ->update([
@@ -150,6 +156,19 @@ class CustomerController extends Controller
                     'EMAIL' => $request->email,
                     'updated_at' => now()
                 ]);
+            
+            // Log activity
+            if ($customer) {
+                activity()
+                    ->causedBy(Auth::guard('admin')->user())
+                    ->withProperties([
+                        'customer_id' => $id,
+                        'customer_name' => $customer->CUSTNAME,
+                        'updated_fields' => ['phone', 'email']
+                    ])
+                    ->event('updated')
+                    ->log($customer->CUSTNAME . "'s info has been updated in customers list");
+            }
             
             Log::info('Customer updated successfully', ['id' => $id]);
             return response()->json([

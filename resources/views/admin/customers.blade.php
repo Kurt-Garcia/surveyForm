@@ -459,6 +459,34 @@
                             className: 'btn btn-sm',
                             exportOptions: {
                                 columns: [1, 2, 3, 4, 5, 6, 7]
+                            },
+                            action: function(e, dt, button, config) {
+                                try {
+                                    // Log the export activity
+                                    $.ajax({
+                                        url: '{{ route("admin.log.export") }}',
+                                        method: 'POST',
+                                        data: {
+                                            _token: '{{ csrf_token() }}',
+                                            export_type: 'copy',
+                                            entity_type: 'customers',
+                                            description: 'Customers list has been exported as a Copy'
+                                        },
+                                        async: false,
+                                        success: function() {
+                                            // Call the original action after successful logging
+                                            $.fn.dataTable.ext.buttons.copyHtml5.action.call(this, e, dt, button, config);
+                                        }.bind(this),
+                                        error: function(xhr, status, error) {
+                                            console.error('Logging error:', error);
+                                            // Still proceed with export even if logging fails
+                                            $.fn.dataTable.ext.buttons.copyHtml5.action.call(this, e, dt, button, config);
+                                        }.bind(this)
+                                    });
+                                } catch (error) {
+                                    console.error('Copy export error:', error);
+                                    alert('Error copying data: ' + error.message);
+                                }
                             }
                         },
                         {
@@ -468,7 +496,35 @@
                             exportOptions: {
                                 columns: [1, 2, 3, 4, 5, 6, 7]
                             },
-                            title: 'Customer List'
+                            title: 'Customer List',
+                            action: function(e, dt, button, config) {
+                                try {
+                                    // Log the export activity
+                                    $.ajax({
+                                        url: '{{ route("admin.log.export") }}',
+                                        method: 'POST',
+                                        data: {
+                                            _token: '{{ csrf_token() }}',
+                                            export_type: 'csv',
+                                            entity_type: 'customers',
+                                            description: 'Customers list has been exported as CSV'
+                                        },
+                                        async: false,
+                                        success: function() {
+                                            // Call the original action after successful logging
+                                            $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
+                                        }.bind(this),
+                                        error: function(xhr, status, error) {
+                                            console.error('Logging error:', error);
+                                            // Still proceed with export even if logging fails
+                                            $.fn.dataTable.ext.buttons.csvHtml5.action.call(this, e, dt, button, config);
+                                        }.bind(this)
+                                    });
+                                } catch (error) {
+                                    console.error('CSV export error:', error);
+                                    alert('Error exporting to CSV: ' + error.message);
+                                }
+                            }
                         },
                         {
                             extend: 'excel',
@@ -477,7 +533,35 @@
                             exportOptions: {
                                 columns: [1, 2, 3, 4, 5, 6, 7]
                             },
-                            title: 'Customer List'
+                            title: 'Customer List',
+                            action: function(e, dt, button, config) {
+                                try {
+                                    // Log the export activity
+                                    $.ajax({
+                                        url: '{{ route("admin.log.export") }}',
+                                        method: 'POST',
+                                        data: {
+                                            _token: '{{ csrf_token() }}',
+                                            export_type: 'excel',
+                                            entity_type: 'customers',
+                                            description: 'Customers list has been exported as Excel'
+                                        },
+                                        async: false,
+                                        success: function() {
+                                            // Call the original action after successful logging
+                                            $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
+                                        }.bind(this),
+                                        error: function(xhr, status, error) {
+                                            console.error('Logging error:', error);
+                                            // Still proceed with export even if logging fails
+                                            $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
+                                        }.bind(this)
+                                    });
+                                } catch (error) {
+                                    console.error('Excel export error:', error);
+                                    alert('Error exporting to Excel: ' + error.message);
+                                }
+                            }
                         },
                         {
                             extend: 'pdf',
@@ -491,6 +575,34 @@
                                 doc.defaultStyle.fontSize = 10;
                                 doc.styles.tableHeader.fontSize = 11;
                                 doc.styles.tableHeader.alignment = 'left';
+                            },
+                            action: function(e, dt, button, config) {
+                                try {
+                                    // Log the export activity
+                                    $.ajax({
+                                        url: '{{ route("admin.log.export") }}',
+                                        method: 'POST',
+                                        data: {
+                                            _token: '{{ csrf_token() }}',
+                                            export_type: 'pdf',
+                                            entity_type: 'customers',
+                                            description: 'Customers list has been exported as PDF'
+                                        },
+                                        async: false,
+                                        success: function() {
+                                            // Call the original action after successful logging
+                                            $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
+                                        }.bind(this),
+                                        error: function(xhr, status, error) {
+                                            console.error('Logging error:', error);
+                                            // Still proceed with export even if logging fails
+                                            $.fn.dataTable.ext.buttons.pdfHtml5.action.call(this, e, dt, button, config);
+                                        }.bind(this)
+                                    });
+                                } catch (error) {
+                                    console.error('PDF export error:', error);
+                                    alert('Error exporting to PDF: ' + error.message);
+                                }
                             }
                         },
                         {
@@ -500,7 +612,35 @@
                             exportOptions: {
                                 columns: [1, 2, 3, 4, 5, 6, 7]
                             },
-                            title: 'Customer List'
+                            title: 'Customer List',
+                            action: function(e, dt, button, config) {
+                                try {
+                                    // Log the export activity
+                                    $.ajax({
+                                        url: '{{ route("admin.log.export") }}',
+                                        method: 'POST',
+                                        data: {
+                                            _token: '{{ csrf_token() }}',
+                                            export_type: 'print',
+                                            entity_type: 'customers',
+                                            description: 'Customers list has been exported as a Print'
+                                        },
+                                        async: false,
+                                        success: function() {
+                                            // Call the original action after successful logging
+                                            $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
+                                        }.bind(this),
+                                        error: function(xhr, status, error) {
+                                            console.error('Logging error:', error);
+                                            // Still proceed with export even if logging fails
+                                            $.fn.dataTable.ext.buttons.print.action.call(this, e, dt, button, config);
+                                        }.bind(this)
+                                    });
+                                } catch (error) {
+                                    console.error('Print export error:', error);
+                                    alert('Error printing: ' + error.message);
+                                }
+                            }
                         }
                     ]
                 }
