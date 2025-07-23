@@ -27,8 +27,30 @@ class SurveyResponseController extends Controller
             ->where('account_name', $account_name)
             ->firstOrFail();
 
+        // Store the original status for logging
+        $originalStatus = $response->allow_resubmit;
+        
+        // Update the resubmission status
         $response->allow_resubmit = !$response->allow_resubmit;
         $response->save();
+        
+        // Log the activity for both allowing and disabling resubmission
+        $actionType = $response->allow_resubmit ? 'resubmission_allowed' : 'resubmission_disabled';
+        $eventName = $response->allow_resubmit ? 'resubmission_allowed' : 'resubmission_disabled';
+        $description = $response->allow_resubmit 
+            ? "Allowed Resubmission for {$account_name} - {$survey->title}"
+            : "Resubmission has been disabled for {$account_name} - {$survey->title}";
+            
+        activity()
+            ->performedOn($survey)
+            ->causedBy(Auth::user())
+            ->withProperties([
+                'account_name' => $account_name,
+                'survey_title' => $survey->title,
+                'action_type' => $actionType
+            ])
+            ->event($eventName)
+            ->log($description);
 
         return response()->json([
             'success' => true,

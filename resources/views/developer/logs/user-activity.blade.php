@@ -45,6 +45,8 @@
         .badge-user { background-color: #17a2b8; }
         .badge-developer { background-color: #fd7e14; }
         .badge-exported { background-color: #007bff; color: white; }
+        .badge-resubmission_allowed { background-color: #28a745; color: white; }
+        .badge-resubmission_disabled { background-color: #dc3545; color: white; }
         .table-responsive {
             border-radius: 10px;
             overflow: hidden;
@@ -306,6 +308,12 @@
                             } else if (data === 'exported') {
                                 badgeClass = 'badge-exported';
                                 displayText = 'Exported';
+                            } else if (data === 'resubmission_allowed') {
+                                badgeClass = 'badge-resubmission_allowed';
+                                displayText = 'Resubmission Allowed';
+                            } else if (data === 'resubmission_disabled') {
+                                badgeClass = 'badge-resubmission_disabled';
+                                displayText = 'Resubmission Disabled';
                             }
                             
                             return `<span class="badge ${badgeClass}">${displayText}</span>`;

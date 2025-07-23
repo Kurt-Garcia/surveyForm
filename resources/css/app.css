@@ -31,6 +31,16 @@
     font-weight: 500;
 }
 
+.badge-resubmission_allowed {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-resubmission_disabled {
+    background-color: #dc3545;
+    color: white;
+}
+
 /* Button Styles */
 .btn {
     font-weight: 500;

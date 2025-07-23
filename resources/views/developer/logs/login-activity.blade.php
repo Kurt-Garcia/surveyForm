@@ -42,6 +42,8 @@
         .badge-superadmin { background-color: #5a23c8; }
         .badge-user { background-color: #17a2b8; }
         .badge-developer { background-color: #fd7e14; }
+        .badge-resubmission_allowed { background-color: #28a745; color: white; }
+        .badge-resubmission_disabled { background-color: #dc3545; color: white; }
         .table-responsive {
             border-radius: 10px;
             overflow: hidden;

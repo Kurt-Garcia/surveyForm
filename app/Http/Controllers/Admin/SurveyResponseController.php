@@ -9,6 +9,7 @@ use App\Models\SurveyResponseHeader;
 use App\Models\SurveyResponseDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Exports\SurveyReportExport;
 use App\Exports\DetailedSurveyReportExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -77,9 +78,31 @@ class SurveyResponseController extends Controller
             ->where('account_name', $accountName)
             ->firstOrFail();
 
+        // Store the original status for logging
+        $originalStatus = $header->allow_resubmit;
+        
+        // Update the resubmission status
         $header->update([
             'allow_resubmit' => !$header->allow_resubmit
         ]);
+        
+        // Log the activity for both allowing and disabling resubmission
+        $actionType = $header->allow_resubmit ? 'resubmission_allowed' : 'resubmission_disabled';
+        $eventName = $header->allow_resubmit ? 'resubmission_allowed' : 'resubmission_disabled';
+        $description = $header->allow_resubmit 
+            ? "Allowed Resubmission for {$accountName} - {$survey->title}"
+            : "Resubmission has been disabled for {$accountName} - {$survey->title}";
+            
+        activity()
+            ->performedOn($survey)
+            ->causedBy(Auth::guard('admin')->user())
+            ->withProperties([
+                'account_name' => $accountName,
+                'survey_title' => $survey->title,
+                'action_type' => $actionType
+            ])
+            ->event($eventName)
+            ->log($description);
 
         return back()->with('success', 
             $header->allow_resubmit 
