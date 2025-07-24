@@ -330,8 +330,10 @@ Route::prefix('c2VjcmV0LWRldi1hY2Nlc3MtZmFzdGRldi0yMDI1')->group(function () {
             Route::get('/', [\App\Http\Controllers\Developer\UserLogsController::class, 'index'])->name('developer.logs.index');
             Route::get('/user-activity', [\App\Http\Controllers\Developer\UserLogsController::class, 'userActivity'])->name('developer.logs.user-activity');
             Route::get('/login-activity', [\App\Http\Controllers\Developer\UserLogsController::class, 'loginActivity'])->name('developer.logs.login-activity');
+            Route::get('/survey-responses', [\App\Http\Controllers\Developer\UserLogsController::class, 'surveyResponses'])->name('developer.logs.survey-responses');
             Route::get('/user-activity/data', [\App\Http\Controllers\Developer\UserLogsController::class, 'getUserActivityData'])->name('developer.logs.user-activity.data');
             Route::get('/login-activity/data', [\App\Http\Controllers\Developer\UserLogsController::class, 'getLoginActivityData'])->name('developer.logs.login-activity.data');
+            Route::get('/survey-responses/data', [\App\Http\Controllers\Developer\UserLogsController::class, 'getSurveyResponsesData'])->name('developer.logs.survey-responses.data');
         });
     });
 });

@@ -91,6 +91,23 @@ class ThemeController extends Controller
             'custom_css' => $request->custom_css,
         ]);
 
+        // Log activity for theme creation
+        activity()
+            ->causedBy($admin)
+            ->withProperties([
+                'theme_id' => $theme->id,
+                'theme_name' => $theme->name,
+                'primary_color' => $theme->primary_color,
+                'secondary_color' => $theme->secondary_color,
+                'accent_color' => $theme->accent_color,
+                'background_color' => $theme->background_color,
+                'text_color' => $theme->text_color,
+                'heading_font' => $theme->heading_font,
+                'body_font' => $theme->body_font
+            ])
+            ->event('created')
+            ->log('New theme named ' . $theme->name . ' was created');
+
         if ($request->has('activate') && $request->activate) {
             $theme->setAsActive();
         }
@@ -177,6 +194,23 @@ class ThemeController extends Controller
             'custom_css' => $request->custom_css,
         ]);
 
+        // Log activity for theme update
+        activity()
+            ->causedBy($admin)
+            ->withProperties([
+                'theme_id' => $theme->id,
+                'theme_name' => $theme->name,
+                'primary_color' => $theme->primary_color,
+                'secondary_color' => $theme->secondary_color,
+                'accent_color' => $theme->accent_color,
+                'background_color' => $theme->background_color,
+                'text_color' => $theme->text_color,
+                'heading_font' => $theme->heading_font,
+                'body_font' => $theme->body_font
+            ])
+            ->event('updated')
+            ->log('Theme ' . $theme->name . ' has been updated');
+
         if ($request->has('activate') && $request->activate) {
             $theme->setAsActive();
         }
@@ -201,6 +235,16 @@ class ThemeController extends Controller
         }
         
         $theme->setAsActive();
+
+        // Log activity for theme activation
+        activity()
+            ->causedBy($admin)
+            ->withProperties([
+                'theme_id' => $theme->id,
+                'theme_name' => $theme->name
+            ])
+            ->event('activated')
+            ->log('Theme ' . $theme->name . ' has been activated');
 
         return redirect()->route('admin.themes.index')
             ->with('success', 'Theme has been activated successfully!');
@@ -231,6 +275,16 @@ class ThemeController extends Controller
             return redirect()->route('admin.themes.index')
                 ->with('error', 'You cannot delete the active theme.');
         }
+
+        // Log activity for theme deletion
+        activity()
+            ->causedBy($admin)
+            ->withProperties([
+                'theme_id' => $theme->id,
+                'theme_name' => $theme->name
+            ])
+            ->event('deleted')
+            ->log('Theme ' . $theme->name . ' has been deleted');
 
         $theme->delete();
 

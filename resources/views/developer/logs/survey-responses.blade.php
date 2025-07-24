@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>User Activity Logs - Developer Portal</title>
+    <title>Survey Response Logs - Developer Portal</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -36,22 +36,9 @@
             border-radius: 15px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .badge-created { background-color: #28a745; }
-        .badge-updated { background-color: #ffc107; color: #000; }
-        .badge-removed { background-color: #fd7e14; color: #fff; }
-        .badge-deleted { background-color: #dc3545; }
-        .badge-uploaded { background-color: #28a745; color: white; }
-        .badge-deployed { background-color: #007bff; color: white; }
-        .badge-broadcasted { background-color: #09dfe2; color: white; }
-        .badge-answered { background-color: #20c997; color: white; }
-        .badge-admin { background-color: #6f42c1; }
-        .badge-superadmin { background-color: #5a23c8; }
-        .badge-user { background-color: #17a2b8; }
-        .badge-developer { background-color: #fd7e14; }
         .badge-customer { background-color: #e83e8c; color: white; }
-        .badge-exported { background-color: #007bff; color: white; }
-        .badge-resubmission_allowed { background-color: #28a745; color: white; }
-        .badge-resubmission_disabled { background-color: #dc3545; color: white; }
+        .badge-user { background-color: #17a2b8; }
+        .badge-answered { background-color: #20c997; color: white; }
         .table-responsive {
             border-radius: 10px;
             overflow: hidden;
@@ -64,6 +51,11 @@
         .btn-filter {
             border-radius: 20px;
             margin: 2px;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
         }
     </style>
 </head>
@@ -108,11 +100,11 @@
             <div class="col-md-10 p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                        <h2><i class="bi bi-activity me-2"></i>Activity Logs</h2>
+                        <h2><i class="bi bi-clipboard-check me-2"></i>Survey Response Logs</h2>
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="{{ route('developer.logs.index') }}">User Logs</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Activity Logs</li>
+                                <li class="breadcrumb-item active" aria-current="page">Survey Responses</li>
                             </ol>
                         </nav>
                     </div>
@@ -122,35 +114,62 @@
                     </div>
                 </div>
 
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="card stats-card">
+                            <div class="card-body text-center">
+                                <i class="bi bi-calendar-day fs-1 mb-2"></i>
+                                <h3>{{ $stats['today_responses'] }}</h3>
+                                <p class="mb-0">Today's Responses</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card stats-card">
+                            <div class="card-body text-center">
+                                <i class="bi bi-people fs-1 mb-2"></i>
+                                <h3>{{ $stats['customer_responses'] }}</h3>
+                                <p class="mb-0">Customer Responses</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card stats-card">
+                            <div class="card-body text-center">
+                                <i class="bi bi-person-check fs-1 mb-2"></i>
+                                <h3>{{ $stats['user_responses'] }}</h3>
+                                <p class="mb-0">User Responses</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card stats-card">
+                            <div class="card-body text-center">
+                                <i class="bi bi-clipboard-check fs-1 mb-2"></i>
+                                <h3>{{ $stats['total_responses'] }}</h3>
+                                <p class="mb-0">Total Responses</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Filters -->
                 <div class="card mb-4">
                     <div class="card-body">
                         <h6 class="card-title"><i class="bi bi-funnel me-2"></i>Filters</h6>
                         <div class="row">
                             <div class="col-md-3">
-                                <label for="userTypeFilter" class="form-label">User Type</label>
-                                <select id="userTypeFilter" class="form-select">
+                                <label for="responseTypeFilter" class="form-label">Response Type</label>
+                                <select id="responseTypeFilter" class="form-select">
                                     <option value="">All Types</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="user">User</option>
-                                    <option value="developer">Developer</option>
                                     <option value="customer">Customer</option>
+                                    <option value="user">Authenticated User</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label for="eventFilter" class="form-label">Event Type</label>
-                                <select id="eventFilter" class="form-select">
-                                    <option value="">All Events</option>
-                                    <option value="created">Created</option>
-                                    <option value="updated">Updated</option>
-                                    <option value="uploaded">Uploaded</option>
-                                <option value="deployed">Deployed</option>
-                                <option value="broadcasted">Broadcasted</option>
-                                <option value="answered">Answered</option>
-                                <option value="removed">Removed</option>
-                                    <option value="deleted">Deleted</option>
-                                    <option value="exported">Exported</option>
-                                </select>
+                                <label for="customerSearchFilter" class="form-label">Customer Search</label>
+                                <input type="text" id="customerSearchFilter" class="form-control" placeholder="Search customer name...">
                             </div>
                             <div class="col-md-3">
                                 <label for="dateFromFilter" class="form-label">From Date</label>
@@ -174,22 +193,22 @@
                     </div>
                 </div>
 
-                <!-- Activity Logs Table -->
+                <!-- Survey Response Logs Table -->
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="bi bi-table me-2"></i>Activity Logs</h5>
+                        <h5 class="mb-0"><i class="bi bi-table me-2"></i>Survey Response Logs</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table id="activityTable" class="table table-striped table-hover">
+                            <table id="responseTable" class="table table-striped table-hover">
                                 <thead class="table-dark">
                                     <tr>
                                         <th>ID</th>
-                                        <th>User Type</th>
-                                        <th>User</th>
-                                        <th>Event</th>
-                                        <th>Description</th>
-                                        <th>Properties</th>
+                                        <th>Customer/User</th>
+                                        <th>Type</th>
+                                        <th>Survey</th>
+                                        <th>Score</th>
+                                        <th>Details</th>
                                         <th>Date/Time</th>
                                     </tr>
                                 </thead>
@@ -204,16 +223,16 @@
         </div>
     </div>
 
-    <!-- Activity Details Modal -->
-    <div class="modal fade" id="activityModal" tabindex="-1">
+    <!-- Response Details Modal -->
+    <div class="modal fade" id="responseModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Activity Details</h5>
+                    <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Response Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div id="activityDetails"></div>
+                    <div id="responseDetails"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -237,14 +256,14 @@
     <script>
         $(document).ready(function() {
             // Initialize DataTable
-            var table = $('#activityTable').DataTable({
+            var table = $('#responseTable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: '{{ route("developer.logs.user-activity.data") }}',
+                    url: '{{ route("developer.logs.survey-responses.data") }}',
                     data: function(d) {
-                        d.user_type = $('#userTypeFilter').val();
-                        d.event = $('#eventFilter').val();
+                        d.response_type = $('#responseTypeFilter').val();
+                        d.customer_search = $('#customerSearchFilter').val();
                         d.date_from = $('#dateFromFilter').val();
                         d.date_to = $('#dateToFilter').val();
                     }
@@ -252,113 +271,54 @@
                 columns: [
                     { data: 'id', name: 'id' },
                     { 
-                        data: 'causer_type', 
-                        name: 'causer_type',
+                        data: 'customer_info', 
+                        name: 'customer_info',
                         render: function(data, type, row) {
-                            // Handle customer responses (null causer_type)
-                            if (!data && row.event === 'answered') {
-                                return '<span class="badge badge-customer">Customer</span>';
-                            }
-                            
-                            if (!data) return '<span class="badge bg-secondary">System</span>';
-                            
-                            let badgeClass = 'bg-secondary';
-                            let displayText = data;
-                            
-                            if (data.includes('Admin')) {
-                                // Check if the admin is a superadmin
-                                if (row.causer && row.causer.superadmin) {
-                                    badgeClass = 'badge-superadmin';
-                                    displayText = 'Super Admin';
-                                } else {
-                                    badgeClass = 'badge-admin';
-                                    displayText = 'Admin';
-                                }
-                            } else if (data.includes('User')) {
-                                badgeClass = 'badge-user';
-                                displayText = 'User';
-                            } else if (data.includes('Developer')) {
-                                badgeClass = 'badge-developer';
-                                displayText = 'Developer';
-                            }
-                            
-                            return `<span class="badge ${badgeClass}">${displayText}</span>`;
-                        }
-                    },
-                    { 
-                        data: 'causer', 
-                        name: 'causer.name',
-                        render: function(data, type, row) {
-                            if (!data) {
-                                // Check if this is a customer response (answered event with null causer)
-                                if (row.event === 'answered' && row.properties && row.properties.customer_name) {
-                                    const customerName = row.properties.customer_name || 'Unknown Customer';
-                                    const customerType = row.properties.customer_type || '';
-                                    return `<strong>${customerName}</strong><br><small class="text-muted">${customerType}</small>`;
-                                }
-                                return '<em class="text-muted">System</em>';
-                            }
-                            const name = data.name || data.username || 'Unknown';
+                            const name = data.name || 'Unknown';
                             const email = data.email || '';
                             return `<strong>${name}</strong><br><small class="text-muted">${email}</small>`;
                         }
                     },
                     { 
-                        data: 'event', 
-                        name: 'event',
+                        data: 'customer_info', 
+                        name: 'customer_type',
                         render: function(data, type, row) {
-                            if (!data) return '<span class="badge bg-secondary">Unknown</span>';
-                            
+                            const customerType = data.type || 'Unknown';
                             let badgeClass = 'bg-secondary';
-                            let displayText = data.charAt(0).toUpperCase() + data.slice(1);
                             
-                            if (data === 'created') {
-                                badgeClass = 'badge-created';
-                                displayText = 'Created';
-                            } else if (data === 'updated') {
-                                badgeClass = 'badge-updated';
-                            } else if (data === 'removed') {
-                                badgeClass = 'badge-removed';
-                                displayText = 'Removed';
-                            } else if (data === 'deleted') {
-                                badgeClass = 'badge-deleted';
-                            } else if (data === 'uploaded') {
-                                badgeClass = 'badge-uploaded';
-                                displayText = 'Uploaded';
-                            } else if (data === 'deployed') {
-                                badgeClass = 'badge-deployed';
-                                displayText = 'Deployed';
-                            } else if (data === 'broadcasted') {
-                                badgeClass = 'badge-broadcasted';
-                                displayText = 'Broadcasted';
-                            } else if (data === 'answered') {
-                                badgeClass = 'badge-answered';
-                                displayText = 'Answered';
-                            } else if (data === 'activated') {
-                                badgeClass = 'badge-created';
-                                displayText = 'Activated';
-                            } else if (data === 'deactivated') {
-                                badgeClass = 'badge-removed';
-                                displayText = 'Deactivated';
-                            } else if (data === 'exported') {
-                                badgeClass = 'badge-exported';
-                                displayText = 'Exported';
-                            } else if (data === 'resubmission_allowed') {
-                                badgeClass = 'badge-resubmission_allowed';
-                                displayText = 'Resubmission Allowed';
-                            } else if (data === 'resubmission_disabled') {
-                                badgeClass = 'badge-resubmission_disabled';
-                                displayText = 'Resubmission Disabled';
+                            if (customerType === 'Customer') {
+                                badgeClass = 'badge-customer';
+                            } else if (customerType === 'Authenticated User') {
+                                badgeClass = 'badge-user';
                             }
                             
-                            return `<span class="badge ${badgeClass}">${displayText}</span>`;
+                            return `<span class="badge ${badgeClass}">${customerType}</span>`;
                         }
                     },
                     { 
-                        data: 'description', 
-                        name: 'description',
+                        data: 'survey_info', 
+                        name: 'survey_info',
                         render: function(data, type, row) {
-                            return data || 'No description';
+                            const title = data.title || 'Unknown Survey';
+                            const id = data.id || 'N/A';
+                            return `<strong>${title}</strong><br><small class="text-muted">ID: ${id}</small>`;
+                        }
+                    },
+                    { 
+                        data: 'survey_info', 
+                        name: 'recommendation_score',
+                        render: function(data, type, row) {
+                            const score = data.recommendation_score;
+                            if (score === null || score === undefined) {
+                                return '<span class="text-muted">N/A</span>';
+                            }
+                            
+                            let badgeClass = 'bg-secondary';
+                            if (score >= 9) badgeClass = 'bg-success';
+                            else if (score >= 7) badgeClass = 'bg-warning';
+                            else if (score >= 0) badgeClass = 'bg-danger';
+                            
+                            return `<span class="badge ${badgeClass}">${score}/10</span>`;
                         }
                     },
                     { 
@@ -366,22 +326,7 @@
                         name: 'properties',
                         orderable: false,
                         render: function(data, type, row) {
-                            // Handle both object and string data
-                            let properties = data;
-                            if (typeof data === 'string') {
-                                try {
-                                    properties = JSON.parse(data);
-                                } catch (e) {
-                                    properties = {};
-                                }
-                            }
-                            
-                            // Check if properties exist and have content
-                            if (!properties || typeof properties !== 'object' || Object.keys(properties).length === 0) {
-                                return '<em class="text-muted">No changes</em>';
-                            }
-                            
-                            return `<button class="btn btn-sm btn-outline-info" onclick="showActivityDetails(${row.id})"><i class="bi bi-eye"></i> View</button>`;
+                            return `<button class="btn btn-sm btn-outline-info" onclick="showResponseDetails(${row.id})"><i class="bi bi-eye"></i> View</button>`;
                         }
                     },
                     { 
@@ -421,22 +366,31 @@
 
             // Clear filters
             $('#clearFilters').click(function() {
-                $('#userTypeFilter').val('');
-                $('#eventFilter').val('');
+                $('#responseTypeFilter').val('');
+                $('#customerSearchFilter').val('');
                 $('#dateFromFilter').val('');
                 $('#dateToFilter').val('');
                 table.ajax.reload();
             });
 
             // Auto-apply filters on change
-            $('#userTypeFilter, #eventFilter, #dateFromFilter, #dateToFilter').change(function() {
+            $('#responseTypeFilter, #dateFromFilter, #dateToFilter').change(function() {
                 table.ajax.reload();
+            });
+            
+            // Apply search filter with delay
+            let searchTimeout;
+            $('#customerSearchFilter').on('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    table.ajax.reload();
+                }, 500);
             });
         });
 
-        function showActivityDetails(activityId) {
-            // Fetch activity details via AJAX
-            $.get(`{{ route('developer.logs.user-activity.data') }}`, { activity_id: activityId })
+        function showResponseDetails(activityId) {
+            // Fetch response details via AJAX
+            $.get(`{{ route('developer.logs.survey-responses.data') }}`, { activity_id: activityId })
                 .done(function(response) {
                     let html = '<div class="row">';
                     
@@ -444,7 +398,7 @@
                         const activity = response.data[0];
                         
                         html += '<div class="col-md-6">';
-                        html += '<h6>Basic Information</h6>';
+                        html += '<h6>Response Information</h6>';
                         html += `<p><strong>ID:</strong> ${activity.id}</p>`;
                         html += `<p><strong>Event:</strong> ${activity.event}</p>`;
                         html += `<p><strong>Description:</strong> ${activity.description || 'N/A'}</p>`;
@@ -452,9 +406,9 @@
                         html += '</div>';
                         
                         html += '<div class="col-md-6">';
-                        html += '<h6>Properties</h6>';
+                        html += '<h6>Response Details</h6>';
                         
-                        // Handle properties data (could be string or object)
+                        // Handle properties data
                         let properties = activity.properties;
                         if (typeof properties === 'string') {
                             try {
@@ -465,9 +419,9 @@
                         }
                         
                         if (properties && typeof properties === 'object' && Object.keys(properties).length > 0) {
-                            html += '<pre class="bg-light p-2 rounded">' + JSON.stringify(properties, null, 2) + '</pre>';
+                            html += '<pre class="bg-light p-2 rounded" style="max-height: 300px; overflow-y: auto;">' + JSON.stringify(properties, null, 2) + '</pre>';
                         } else {
-                            html += '<p class="text-muted">No properties recorded</p>';
+                            html += '<p class="text-muted">No details recorded</p>';
                         }
                         html += '</div>';
                     } else {
@@ -476,12 +430,12 @@
                     
                     html += '</div>';
                     
-                    $('#activityDetails').html(html);
-                    $('#activityModal').modal('show');
+                    $('#responseDetails').html(html);
+                    $('#responseModal').modal('show');
                 })
                 .fail(function() {
-                    $('#activityDetails').html('<p class="text-danger">Error loading activity details</p>');
-                    $('#activityModal').modal('show');
+                    $('#responseDetails').html('<p class="text-danger">Error loading response details</p>');
+                    $('#responseModal').modal('show');
                 });
         }
     </script>

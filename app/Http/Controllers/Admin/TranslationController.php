@@ -83,11 +83,24 @@ class TranslationController extends Controller
             return redirect()->back()->withErrors(['key' => 'Translation already exists for this key and locale.']);
         }
         
-        Translation::create([
+        $translation = Translation::create([
             'key' => $request->key,
             'translation_header_id' => $translationHeader->id,
             'value' => $request->value
         ]);
+        
+        // Log activity
+        activity()
+            ->causedBy(auth()->guard('admin')->user())
+            ->withProperties([
+                'translation_id' => $translation->id,
+                'key' => $translation->key,
+                'locale' => $translationHeader->locale,
+                'language_name' => $translationHeader->name,
+                'value' => $translation->value
+            ])
+            ->event('created')
+            ->log("Created new translation in {$translationHeader->name} language");
         
         // Clear cache
         $this->translationService->clearCache();
@@ -131,11 +144,31 @@ class TranslationController extends Controller
             return redirect()->back()->withErrors(['key' => 'Translation already exists for this key and locale.']);
         }
         
+        // Load translation header for logging
+        $translation->load('translationHeader');
+        
+        // Store old value before update
+        $oldValue = $translation->value;
+        
         $translation->update([
             'key' => $request->key,
             'translation_header_id' => $translationHeader->id,
             'value' => $request->value
         ]);
+        
+        // Log activity
+        activity()
+            ->causedBy(auth()->guard('admin')->user())
+            ->withProperties([
+                'translation_id' => $translation->id,
+                'key' => $translation->key,
+                'locale' => $translation->translationHeader->locale,
+                'language_name' => $translation->translationHeader->name,
+                'old_value' => $oldValue,
+                'new_value' => $request->value
+            ])
+            ->event('updated')
+            ->log("Updated translation '{$translation->key}' in {$translation->translationHeader->name} language");
         
         // Clear cache
         $this->translationService->clearCache();
@@ -148,6 +181,22 @@ class TranslationController extends Controller
      */
     public function destroy(Translation $translation)
     {
+        // Load translation header for logging
+        $translation->load('translationHeader');
+        
+        // Log activity before deletion
+        activity()
+            ->causedBy(auth()->guard('admin')->user())
+            ->withProperties([
+                'translation_id' => $translation->id,
+                'key' => $translation->key,
+                'locale' => $translation->translationHeader->locale,
+                'language_name' => $translation->translationHeader->name,
+                'value' => $translation->value
+            ])
+            ->event('deleted')
+            ->log("Deleted translation '{$translation->key}' from {$translation->translationHeader->name} language");
+        
         $translation->delete();
         
         // Clear cache
@@ -210,11 +259,22 @@ class TranslationController extends Controller
             'locale' => 'required|string|max:5|unique:translation_headers,locale'
         ]);
         
-        TranslationHeader::create([
+        $translationHeader = TranslationHeader::create([
             'name' => $request->name,
             'locale' => strtolower($request->locale),
             'is_active' => false
         ]);
+        
+        // Log activity
+        activity()
+            ->causedBy(auth()->guard('admin')->user())
+            ->withProperties([
+                'language_id' => $translationHeader->id,
+                'language_name' => $translationHeader->name,
+                'locale' => $translationHeader->locale
+            ])
+            ->event('created')
+            ->log("New {$translationHeader->name} language has been added");
         
         return redirect()->route('developer.translations.index')->with('success', 'Language added successfully.');
     }
@@ -251,6 +311,20 @@ class TranslationController extends Controller
         
         // Activate selected languages (including English)
         TranslationHeader::whereIn('id', $selectedLanguages->toArray())->update(['is_active' => true]);
+        
+        // Get deployed language names for logging
+        $deployedLanguages = TranslationHeader::whereIn('id', $selectedLanguages->toArray())->pluck('name')->toArray();
+        $languageNames = implode(' and ', $deployedLanguages);
+        
+        // Log activity
+        activity()
+            ->causedBy(auth()->guard('admin')->user())
+            ->withProperties([
+                'deployed_languages' => $deployedLanguages,
+                'language_ids' => $selectedLanguages->toArray()
+            ])
+            ->event('deployed')
+            ->log("{$languageNames} has been deployed");
         
         // Clear translation cache
         $this->translationService->clearCache();

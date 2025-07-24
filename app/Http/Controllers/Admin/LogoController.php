@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Logo;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class LogoController extends Controller
 {
@@ -30,6 +31,17 @@ class LogoController extends Controller
             'is_active' => false,
         ]);
 
+        // Log activity for logo upload
+        activity()
+            ->causedBy(Auth::guard('admin')->user())
+            ->withProperties([
+                'logo_id' => $logo->id,
+                'logo_name' => $logo->name,
+                'file_path' => $logo->file_path
+            ])
+            ->event('uploaded')
+            ->log('New logo named ' . ($logo->name ?: 'ID: ' . $logo->id) . ' has been uploaded');
+
         return redirect()->route('admin.logos.index')->with('success', 'Logo uploaded successfully.');
     }
 
@@ -39,6 +51,17 @@ class LogoController extends Controller
         $logo = Logo::findOrFail($id);
         $logo->is_active = true;
         $logo->save();
+
+        // Log activity for logo activation
+        activity()
+            ->causedBy(Auth::guard('admin')->user())
+            ->withProperties([
+                'logo_id' => $logo->id,
+                'logo_name' => $logo->name
+            ])
+            ->event('activated')
+            ->log('Logo ' . ($logo->name ?: 'ID: ' . $logo->id) . ' has been activated');
+
         return redirect()->route('admin.logos.index')->with('success', 'Logo activated.');
     }
 
@@ -48,8 +71,24 @@ class LogoController extends Controller
         if ($logo->is_active) {
             return redirect()->route('admin.logos.index')->with('error', 'Cannot delete the active logo.');
         }
+        
+        // Store logo details before deletion for logging
+        $logoName = $logo->name;
+        $logoId = $logo->id;
+        
         Storage::disk('public')->delete($logo->file_path);
         $logo->delete();
+        
+        // Log activity for logo deletion
+        activity()
+            ->causedBy(Auth::guard('admin')->user())
+            ->withProperties([
+                'logo_id' => $logoId,
+                'logo_name' => $logoName
+            ])
+            ->event('deleted')
+            ->log('Logo ' . ($logoName ?: 'ID: ' . $logoId) . ' has been deleted');
+        
         return redirect()->route('admin.logos.index')->with('success', 'Logo deleted.');
     }
 }

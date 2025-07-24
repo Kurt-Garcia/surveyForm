@@ -50,6 +50,18 @@ class ProfileController extends Controller
         $user->updated_at = now();
         $user->save();
 
+        // Log activity for password change
+        activity()
+            ->event('updated')
+            ->causedBy($user)
+            ->withProperties([
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'user_email' => $user->email,
+                'change_type' => 'password'
+            ])
+            ->log('Password has been updated');
+
         // Optionally, re-login the user to refresh session
         Auth::guard($guard)->login($user);
 
@@ -69,6 +81,19 @@ class ProfileController extends Controller
             'contact_number' => 'required|string|max:20',
         ]);
 
+        // Store old values for logging
+        $oldValues = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'contact_number' => $user->contact_number
+        ];
+
+        $newValues = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'contact_number' => $request->contact_number
+        ];
+
         if ($guard === 'admin') {
             \App\Models\Admin::where('id', $user->id)->update([
                 'name' => $request->name,
@@ -84,6 +109,18 @@ class ProfileController extends Controller
                 'updated_at' => now(),
             ]);
         }
+
+        // Log activity for profile update
+        activity()
+            ->event('updated')
+            ->causedBy($user)
+            ->withProperties([
+                'user_id' => $user->id,
+                'old_values' => $oldValues,
+                'new_values' => $newValues,
+                'change_type' => 'profile'
+            ])
+            ->log('Users personal info has been updated');
 
         return back()->with('success', 'Profile updated successfully!');
     }

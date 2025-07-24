@@ -146,7 +146,7 @@
 
                 <!-- Quick Actions -->
                 <div class="row mb-4">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
                         <div class="card h-100">
                             <div class="card-body text-center">
                                 <i class="bi bi-activity text-primary fs-1 mb-3"></i>
@@ -158,7 +158,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
                         <div class="card h-100">
                             <div class="card-body text-center">
                                 <i class="bi bi-box-arrow-in-right text-success fs-1 mb-3"></i>
@@ -166,6 +166,18 @@
                                 <p class="text-muted">Monitor user login and logout activities with IP addresses and timestamps</p>
                                 <a href="{{ route('developer.logs.login-activity') }}" class="btn btn-success">
                                     <i class="bi bi-eye me-2"></i>View Login Logs
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-clipboard-check text-info fs-1 mb-3"></i>
+                                <h5>Survey Response Logs</h5>
+                                <p class="text-muted">View customer survey responses with detailed information and timestamps</p>
+                                <a href="{{ route('developer.logs.survey-responses') }}" class="btn btn-info">
+                                    <i class="bi bi-eye me-2"></i>View Response Logs
                                 </a>
                             </div>
                         </div>

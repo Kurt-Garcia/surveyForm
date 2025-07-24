@@ -13,6 +13,7 @@ use App\Services\SurveyImprovementService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Spatie\Activitylog\Models\Activity;
 
 class SurveyResponseController extends Controller
 {
@@ -241,6 +242,33 @@ class SurveyResponseController extends Controller
             }
 
             DB::commit();
+
+            // Log the activity for answering the survey
+            // Create activity log entry manually since customers may not be authenticated
+            try {
+                Activity::create([
+                    'log_name' => 'default',
+                    'description' => $validated['account_name'] . ' answered the ' . $survey->title . ' survey',
+                    'subject_type' => get_class($survey),
+                    'subject_id' => $survey->id,
+                    'causer_type' => null, // No authenticated user for customer responses
+                    'causer_id' => null,
+                    'properties' => json_encode([
+                        'survey_id' => $survey->id,
+                        'survey_title' => $survey->title,
+                        'customer_name' => $validated['account_name'],
+                        'customer_type' => $validated['account_type'],
+                        'recommendation_score' => $validated['recommendation'],
+                        'response_date' => $validated['date']
+                    ]),
+                    'event' => 'answered',
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+                Log::info('Activity logged successfully for survey answer', ['account_name' => $validated['account_name'], 'survey_id' => $survey->id]);
+            } catch (\Exception $e) {
+                Log::error('Failed to log activity for survey answer', ['error' => $e->getMessage(), 'account_name' => $validated['account_name'], 'survey_id' => $survey->id]);
+            }
 
             // Store account name in session for future checks
             $request->session()->put('account_name', $validated['account_name']);

@@ -67,17 +67,45 @@ class UserLogsController extends Controller
     }
 
     /**
+     * Display survey responses logs page
+     */
+    public function surveyResponses()
+    {
+        // Get statistics for survey responses page
+        $stats = [
+            'today_responses' => Activity::whereDate('created_at', today())
+                ->where('event', 'answered')
+                ->count(),
+            'customer_responses' => Activity::where('event', 'answered')
+                ->whereNull('causer_type')
+                ->count(),
+            'user_responses' => Activity::where('event', 'answered')
+                ->whereNotNull('causer_type')
+                ->count(),
+            'total_responses' => Activity::where('event', 'answered')->count()
+        ];
+
+        return view('developer.logs.survey-responses', compact('stats'));
+    }
+
+    /**
      * Get user activity data for DataTables
      */
     public function getUserActivityData(Request $request)
     {
         $query = Activity::with(['causer'])
+            ->where('event', '!=', 'answered') // Exclude survey responses from general activity logs
             ->orderBy('created_at', 'desc');
 
         // Apply filters
         if ($request->filled('user_type')) {
             $userType = $request->user_type;
-            $query->where('causer_type', 'like', "%{$userType}%");
+            if ($userType === 'customer') {
+                // Filter for activities without a causer (customer responses)
+                $query->whereNull('causer_type');
+            } else {
+                $query->where('causer_type', 'like', "%{$userType}%");
+            }
         }
 
         if ($request->filled('event')) {
@@ -113,6 +141,15 @@ class UserLogsController extends Controller
         return DataTables::of($query)
             ->addColumn('causer', function ($activity) {
                 if (!$activity->causer) {
+                    // For customer responses without authenticated users
+                    if ($activity->event === 'answered' && isset($activity->properties['customer_name'])) {
+                        $properties = is_string($activity->properties) ? json_decode($activity->properties, true) : $activity->properties;
+                        return [
+                            'name' => $properties['customer_name'] ?? 'Unknown Customer',
+                            'email' => $properties['customer_type'] ?? '',
+                            'username' => null,
+                        ];
+                    }
                     return null;
                 }
                 
@@ -152,6 +189,82 @@ class UserLogsController extends Controller
                 return $activity->created_at ? $activity->created_at->toISOString() : null;
             })
             ->rawColumns(['causer'])
+            ->make(true);
+    }
+
+    /**
+     * Get survey responses data for DataTables
+     */
+    public function getSurveyResponsesData(Request $request)
+    {
+        $query = Activity::where('event', 'answered')
+            ->orderBy('created_at', 'desc');
+
+        // Apply filters
+        if ($request->filled('response_type')) {
+            $responseType = $request->response_type;
+            if ($responseType === 'customer') {
+                $query->whereNull('causer_type');
+            } elseif ($responseType === 'user') {
+                $query->whereNotNull('causer_type');
+            }
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        if ($request->filled('customer_search')) {
+            $search = $request->customer_search;
+            $query->where(function ($q) use ($search) {
+                $q->whereJsonContains('properties->customer_name', $search)
+                  ->orWhereJsonContains('properties->customer_type', $search);
+            });
+        }
+
+        return DataTables::of($query)
+            ->addColumn('customer_info', function ($activity) {
+                $properties = is_string($activity->properties) ? json_decode($activity->properties, true) : $activity->properties;
+                
+                if ($activity->causer) {
+                    // For authenticated user responses
+                    $causer = $activity->causer;
+                    return [
+                        'name' => $causer->name ?? $causer->username ?? 'Unknown User',
+                        'type' => 'Authenticated User',
+                        'email' => $causer->email ?? ''
+                    ];
+                } else {
+                    // For customer responses
+                    return [
+                        'name' => $properties['customer_name'] ?? 'Unknown Customer',
+                        'type' => $properties['customer_type'] ?? 'Customer',
+                        'email' => $properties['customer_email'] ?? ''
+                    ];
+                }
+            })
+            ->addColumn('survey_info', function ($activity) {
+                $properties = is_string($activity->properties) ? json_decode($activity->properties, true) : $activity->properties;
+                return [
+                    'title' => $properties['survey_title'] ?? 'Unknown Survey',
+                    'id' => $properties['survey_id'] ?? null,
+                    'recommendation_score' => $properties['recommendation_score'] ?? null
+                ];
+            })
+            ->editColumn('properties', function ($activity) {
+                $properties = $activity->properties;
+                if (is_string($properties)) {
+                    $properties = json_decode($properties, true) ?? [];
+                }
+                return $properties ?? [];
+            })
+            ->editColumn('created_at', function ($activity) {
+                return $activity->created_at ? $activity->created_at->toISOString() : null;
+            })
             ->make(true);
     }
 

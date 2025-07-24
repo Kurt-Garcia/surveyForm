@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Activitylog\Models\Activity;
 
 class UserSurveyController extends Controller
 {
@@ -243,6 +244,36 @@ class UserSurveyController extends Controller
 
             DB::commit();
 
+            // Log the survey answer activity
+            try {
+                Activity::create([
+                    'log_name' => 'default',
+                    'event' => 'answered',
+                    'description' => 'answered',
+                    'subject_type' => null,
+                    'subject_id' => null,
+                    'causer_type' => null,
+                    'causer_id' => null,
+                    'properties' => [
+                        'survey_id' => $survey->id,
+                        'survey_title' => $survey->title,
+                        'customer_name' => $validated['account_name'],
+                        'customer_type' => $validated['account_type'],
+                        'recommendation_score' => $validated['recommendation'],
+                        'response_date' => $validated['date']
+                    ]
+                ]);
+                Log::info('Survey answer activity logged successfully', [
+                    'account_name' => $validated['account_name'],
+                    'survey_id' => $survey->id
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to log survey answer activity: ' . $e->getMessage(), [
+                    'account_name' => $validated['account_name'],
+                    'survey_id' => $survey->id
+                ]);
+            }
+
             // Store account name in session for future checks
             $request->session()->put('account_name', $validated['account_name']);
 
@@ -312,6 +343,9 @@ class UserSurveyController extends Controller
         // Get the active theme for the survey's admin
         $activeTheme = \App\Models\ThemeSetting::getActiveTheme($survey->admin_id);
         
+        // Get active languages for language selection
+        $activeLanguages = \App\Models\TranslationHeader::active()->get();
+        
         // Customer mode doesn't need user site IDs but we'll set an empty array for consistency
         $userSiteIds = [];
         
@@ -323,6 +357,7 @@ class UserSurveyController extends Controller
             'prefillAccountName',
             'prefillAccountType',
             'activeTheme',
+            'activeLanguages',
             'userSiteIds'
         ))->with('isCustomerMode', true);
     }
@@ -496,6 +531,36 @@ class UserSurveyController extends Controller
 
             DB::commit();
 
+            // Log the survey answer activity
+            try {
+                Activity::create([
+                    'log_name' => 'default',
+                    'event' => 'answered',
+                    'description' => 'answered',
+                    'subject_type' => null,
+                    'subject_id' => null,
+                    'causer_type' => null,
+                    'causer_id' => null,
+                    'properties' => [
+                        'survey_id' => $survey->id,
+                        'survey_title' => $survey->title,
+                        'customer_name' => $validated['account_name'],
+                        'customer_type' => $validated['account_type'],
+                        'recommendation_score' => $validated['recommendation'],
+                        'response_date' => $validated['date']
+                    ]
+                ]);
+                Log::info('Survey answer activity logged successfully', [
+                    'account_name' => $validated['account_name'],
+                    'survey_id' => $survey->id
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to log survey answer activity: ' . $e->getMessage(), [
+                    'account_name' => $validated['account_name'],
+                    'survey_id' => $survey->id
+                ]);
+            }
+
             // Store account name in session for future checks
             if ($request->session()->isStarted()) {
                 $request->session()->put('account_name', $validated['account_name']);
@@ -562,6 +627,41 @@ class UserSurveyController extends Controller
         
         // Dispatch the broadcast job to queue
         \App\Jobs\ProcessSurveyBroadcastJob::dispatch($survey, $customerIds, $batchId);
+        
+        // Log activity for broadcasting
+        if (Auth::guard('admin')->check()) {
+            $admin = Auth::guard('admin')->user();
+            activity()
+                ->causedBy($admin)
+                ->performedOn($survey)
+                ->event('broadcasted')
+                ->withProperties([
+                    'survey_id' => $survey->id,
+                    'survey_title' => $survey->title,
+                    'customer_count' => $validCustomersCount,
+                    'batch_id' => $batchId,
+                    'admin_id' => $admin->id,
+                    'admin_name' => $admin->name,
+                    'admin_email' => $admin->email
+                ])
+                ->log("{$survey->title} is broadcasted to {$validCustomersCount} customers");
+        } elseif (Auth::guard('web')->check()) {
+            $user = Auth::guard('web')->user();
+            activity()
+                ->causedBy($user)
+                ->performedOn($survey)
+                ->event('broadcasted')
+                ->withProperties([
+                    'survey_id' => $survey->id,
+                    'survey_title' => $survey->title,
+                    'customer_count' => $validCustomersCount,
+                    'batch_id' => $batchId,
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'user_email' => $user->email
+                ])
+                ->log("{$survey->title} is broadcasted to {$validCustomersCount} customers");
+        }
         
         Log::info("Survey broadcast initiated for survey {$survey->title} with batch ID {$batchId}");
         
