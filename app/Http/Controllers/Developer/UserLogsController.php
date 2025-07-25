@@ -339,6 +339,71 @@ class UserLogsController extends Controller
                 
                 return null;
             })
+            ->addColumn('sbu_info', function ($activity) {
+                $properties = is_string($activity->properties) ? json_decode($activity->properties, true) : $activity->properties;
+                
+                // Get survey response header to get SBU information
+                if (isset($properties['survey_id'])) {
+                    $accountName = null;
+                    
+                    if ($activity->causer) {
+                        // For authenticated users, use their name/username
+                        $accountName = $activity->causer->name ?? $activity->causer->username;
+                    } else {
+                        // For customers, use customer_name from properties
+                        $accountName = $properties['customer_name'] ?? null;
+                    }
+                    
+                    if ($accountName) {
+                        $header = \App\Models\SurveyResponseHeader::with('userSite.sbu')
+                            ->where('survey_id', $properties['survey_id'])
+                            ->where('account_name', $accountName)
+                            ->first();
+                        
+                        if ($header && $header->userSite && $header->userSite->sbu) {
+                            return [
+                                'name' => $header->userSite->sbu->name,
+                                'id' => $header->userSite->sbu->id
+                            ];
+                        }
+                    }
+                }
+                
+                return null;
+            })
+            ->addColumn('site_info', function ($activity) {
+                $properties = is_string($activity->properties) ? json_decode($activity->properties, true) : $activity->properties;
+                
+                // Get survey response header to get Site information
+                if (isset($properties['survey_id'])) {
+                    $accountName = null;
+                    
+                    if ($activity->causer) {
+                        // For authenticated users, use their name/username
+                        $accountName = $activity->causer->name ?? $activity->causer->username;
+                    } else {
+                        // For customers, use customer_name from properties
+                        $accountName = $properties['customer_name'] ?? null;
+                    }
+                    
+                    if ($accountName) {
+                        $header = \App\Models\SurveyResponseHeader::with('userSite')
+                            ->where('survey_id', $properties['survey_id'])
+                            ->where('account_name', $accountName)
+                            ->first();
+                        
+                        if ($header && $header->userSite) {
+                            return [
+                                'name' => $header->userSite->name,
+                                'id' => $header->userSite->id,
+                                'is_main' => $header->userSite->is_main
+                            ];
+                        }
+                    }
+                }
+                
+                return null;
+            })
             ->editColumn('properties', function ($activity) {
                 $properties = $activity->properties;
                 if (is_string($properties)) {

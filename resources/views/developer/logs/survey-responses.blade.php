@@ -296,8 +296,9 @@
                         <tr>
                             <th>ID</th>
                             <th>Customer/User</th>
-                            <th>Type</th>
                             <th>Survey</th>
+                            <th>SBU</th>
+                            <th>Site</th>
                             <th>Start Time</th>
                             <th>End Time</th>
                             <th>Duration</th>
@@ -369,30 +370,37 @@
                         }
                     },
                     { 
-                        data: 'customer_info', 
-                        name: 'customer_type',
-                        render: function(data, type, row) {
-                            const customerType = data.type || 'Unknown';
-                            let badgeClass = 'bg-secondary';
-                            
-                            if (customerType === 'Customer') {
-                                badgeClass = 'badge-customer';
-                            } else if (customerType === 'Authenticated User') {
-                                badgeClass = 'badge-user';
-                            }
-                            
-                            return `<span class="badge ${badgeClass}">${customerType}</span>`;
-                        }
-                    },
-                    { 
                         data: 'survey_info', 
                         name: 'survey_info',
                         render: function(data, type, row) {
                             const title = data.title || 'Unknown Survey';
-                            const id = data.id || 'N/A';
-                            return `<strong>${title}</strong><br><small class="text-muted">ID: ${id}</small>`;
+                            return `<strong>${title}</strong>`;
                         }
                     },
+                    {
+                         data: 'sbu_info',
+                         name: 'sbu_info',
+                         render: function(data, type, row) {
+                             if (data === null || data === undefined) {
+                                 return '<span class="text-muted">N/A</span>';
+                             }
+                             const name = data.name || 'Unknown SBU';
+                             return `<strong>${name}</strong>`;
+                         }
+                     },
+                     {
+                         data: 'site_info',
+                         name: 'site_info',
+                         render: function(data, type, row) {
+                             if (data === null || data === undefined) {
+                                 return '<span class="text-muted">N/A</span>';
+                             }
+                             const name = data.name || 'Unknown Site';
+                             const isMain = data.is_main || false;
+                             const badge = isMain ? '<span class="badge bg-primary ms-1">Main</span>' : '<span class="badge bg-secondary ms-1">Sub</span>';
+                             return `<strong>${name}</strong>${badge}`;
+                         }
+                     },
                     {
                         data: 'start_time',
                         name: 'start_time',
