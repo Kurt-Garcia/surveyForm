@@ -1,41 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>User Activity Logs - Developer Portal</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+@extends('developer.layouts.app')
+
+@section('title', 'User Activity Logs - Developer Portal')
+
+@section('head')
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css" rel="stylesheet">
-    
-    <style>
-        .sidebar {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            border-radius: 8px;
-            margin: 2px 0;
-            transition: all 0.3s ease;
-        }
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            color: white;
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: translateX(5px);
-        }
+@endsection
+
+@section('additional-styles')
+        /* Dark Mode Styling */
         .card {
-            border: none;
+            background-color: #2d3748 !important;
+            border: 1px solid #4a5568 !important;
             border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: #e2e8f0 !important;
         }
+        .card-header {
+            background-color: #1a202c !important;
+            border-bottom: 1px solid #4a5568 !important;
+            color: #e2e8f0 !important;
+        }
+        .card-body {
+            background-color: #2d3748 !important;
+            color: #e2e8f0 !important;
+        }
+        
+        /* Badge Styling */
         .badge-created { background-color: #28a745; }
         .badge-updated { background-color: #ffc107; color: #000; }
         .badge-removed { background-color: #fd7e14; color: #fff; }
@@ -52,154 +43,224 @@
         .badge-exported { background-color: #007bff; color: white; }
         .badge-resubmission_allowed { background-color: #28a745; color: white; }
         .badge-resubmission_disabled { background-color: #dc3545; color: white; }
+        
+        /* Table Styling */
+        .table {
+            background-color: #2d3748 !important;
+            color: #e2e8f0 !important;
+        }
+        .table th {
+            background-color: #1a202c !important;
+            color: #e2e8f0 !important;
+            border-color: #4a5568 !important;
+        }
+        .table td {
+            background-color: #2d3748 !important;
+            color: #e2e8f0 !important;
+            border-color: #4a5568 !important;
+        }
+        .table-striped > tbody > tr:nth-of-type(odd) > td {
+            background-color: #374151 !important;
+        }
+        .table-hover > tbody > tr:hover > td {
+            background-color: #4a5568 !important;
+        }
         .table-responsive {
             border-radius: 10px;
             overflow: hidden;
+            background-color: #2d3748 !important;
+        }
+        
+        /* DataTables Styling */
+        .dataTables_wrapper {
+            background-color: #2d3748 !important;
+            color: #e2e8f0 !important;
         }
         .dataTables_wrapper .dataTables_filter input {
+            background-color: #374151 !important;
+            border: 1px solid #4a5568 !important;
+            color: #e2e8f0 !important;
             border-radius: 20px;
-            border: 1px solid #ddd;
             padding: 8px 15px;
         }
+        .dataTables_wrapper .dataTables_filter input:focus {
+            background-color: #4a5568 !important;
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25) !important;
+        }
+        .dataTables_wrapper .dataTables_length select {
+            background-color: #374151 !important;
+            border: 1px solid #4a5568 !important;
+            color: #e2e8f0 !important;
+        }
+        .dataTables_wrapper .dataTables_info {
+            color: #9ca3af !important;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            background-color: #374151 !important;
+            border: 1px solid #4a5568 !important;
+            color: #e2e8f0 !important;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background-color: #4a5568 !important;
+            border-color: #6366f1 !important;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background-color: #6366f1 !important;
+            border-color: #6366f1 !important;
+        }
+        .dataTables_wrapper .dataTables_processing {
+            background-color: #2d3748 !important;
+            color: #e2e8f0 !important;
+        }
+        
+        /* Form Controls */
+        .form-control, .form-select {
+            background-color: #374151 !important;
+            border: 1px solid #4a5568 !important;
+            color: #e2e8f0 !important;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: #4a5568 !important;
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25) !important;
+            color: #e2e8f0 !important;
+        }
+        .form-label {
+            color: #e2e8f0 !important;
+        }
+        
+        /* Button Styling */
         .btn-filter {
             border-radius: 20px;
             margin: 2px;
         }
-    </style>
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-2 sidebar p-3">
-                <div class="d-flex align-items-center mb-4">
-                    <i class="bi bi-code-slash fs-3 text-white me-2"></i>
-                    <h5 class="text-white mb-0">Developer Portal</h5>
+        
+        /* Text Colors */
+        .text-muted {
+            color: #9ca3af !important;
+        }
+        
+        /* Breadcrumb */
+        .breadcrumb {
+            background-color: transparent !important;
+        }
+        .breadcrumb-item a {
+            color: #6366f1 !important;
+        }
+        .breadcrumb-item.active {
+            color: #9ca3af !important;
+        }
+        
+        /* Modal Styling */
+        .modal-content {
+            background-color: #2d3748 !important;
+            border: 1px solid #4a5568 !important;
+            color: #e2e8f0 !important;
+        }
+        .modal-header {
+            background-color: #1a202c !important;
+            border-bottom: 1px solid #4a5568 !important;
+        }
+        .modal-body {
+            background-color: #2d3748 !important;
+        }
+        .modal-footer {
+            background-color: #1a202c !important;
+            border-top: 1px solid #4a5568 !important;
+        }
+        .bg-light {
+            background-color: #374151 !important;
+            color: #e2e8f0 !important;
+        }
+@endsection
+
+@section('content')
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-activity me-2"></i>Activity Logs</h2>
+        </div>
+        <div class="text-muted">
+            <i class="bi bi-clock me-1"></i>
+            {{ now()->format('M d, Y H:i') }}
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h6 class="card-title"><i class="bi bi-funnel me-2"></i>Filters</h6>
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="userTypeFilter" class="form-label">User Type</label>
+                    <select id="userTypeFilter" class="form-select">
+                        <option value="">All Types</option>
+                        <option value="admin">Admin</option>
+                        <option value="user">User</option>
+                        <option value="developer">Developer</option>
+                        <option value="customer">Customer</option>
+                    </select>
                 </div>
-                
-                <nav class="nav flex-column">
-                    <a class="nav-link" href="{{ route('developer.dashboard') }}">
-                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
-                    </a>
-                    <a class="nav-link" href="{{ route('developer.surveys') }}">
-                        <i class="bi bi-clipboard-data me-2"></i> Surveys
-                    </a>
-                    <a class="nav-link" href="{{ route('developer.admins') }}">
-                        <i class="bi bi-people me-2"></i> Admins
-                    </a>
-                    <a class="nav-link" href="{{ route('developer.users') }}">
-                        <i class="bi bi-person-check me-2"></i> Users
-                    </a>
-                    <a class="nav-link active" href="{{ route('developer.logs.index') }}">
-                        <i class="bi bi-journal-text me-2"></i> User Logs
-                    </a>
-                    
-                    <hr class="text-white-50">
-                    <form action="{{ route('developer.logout') }}" method="POST" class="d-inline">
-                        @csrf
-                        <button type="submit" class="nav-link border-0 bg-transparent w-100 text-start">
-                            <i class="bi bi-box-arrow-right me-2"></i> Logout
-                        </button>
-                    </form>
-                </nav>
+                <div class="col-md-3">
+                    <label for="eventFilter" class="form-label">Event Type</label>
+                    <select id="eventFilter" class="form-select">
+                        <option value="">All Events</option>
+                        <option value="created">Created</option>
+                        <option value="updated">Updated</option>
+                        <option value="uploaded">Uploaded</option>
+                        <option value="deployed">Deployed</option>
+                        <option value="broadcasted">Broadcasted</option>
+                        <option value="answered">Answered</option>
+                        <option value="removed">Removed</option>
+                        <option value="deleted">Deleted</option>
+                        <option value="exported">Exported</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="dateFromFilter" class="form-label">From Date</label>
+                    <input type="date" id="dateFromFilter" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label for="dateToFilter" class="form-label">To Date</label>
+                    <input type="date" id="dateToFilter" class="form-control">
+                </div>
             </div>
-
-            <!-- Main Content -->
-            <div class="col-md-10 p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2><i class="bi bi-activity me-2"></i>Activity Logs</h2>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="{{ route('developer.logs.index') }}">User Logs</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Activity Logs</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div class="text-muted">
-                        <i class="bi bi-clock me-1"></i>
-                        {{ now()->format('M d, Y H:i') }}
-                    </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <button type="button" id="applyFilters" class="btn btn-primary btn-filter">
+                        <i class="bi bi-search me-2"></i>Apply Filters
+                    </button>
+                    <button type="button" id="clearFilters" class="btn btn-outline-secondary btn-filter">
+                        <i class="bi bi-x-circle me-2"></i>Clear Filters
+                    </button>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Filters -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h6 class="card-title"><i class="bi bi-funnel me-2"></i>Filters</h6>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <label for="userTypeFilter" class="form-label">User Type</label>
-                                <select id="userTypeFilter" class="form-select">
-                                    <option value="">All Types</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="user">User</option>
-                                    <option value="developer">Developer</option>
-                                    <option value="customer">Customer</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="eventFilter" class="form-label">Event Type</label>
-                                <select id="eventFilter" class="form-select">
-                                    <option value="">All Events</option>
-                                    <option value="created">Created</option>
-                                    <option value="updated">Updated</option>
-                                    <option value="uploaded">Uploaded</option>
-                                <option value="deployed">Deployed</option>
-                                <option value="broadcasted">Broadcasted</option>
-                                <option value="answered">Answered</option>
-                                <option value="removed">Removed</option>
-                                    <option value="deleted">Deleted</option>
-                                    <option value="exported">Exported</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="dateFromFilter" class="form-label">From Date</label>
-                                <input type="date" id="dateFromFilter" class="form-control">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="dateToFilter" class="form-label">To Date</label>
-                                <input type="date" id="dateToFilter" class="form-control">
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-12">
-                                <button type="button" id="applyFilters" class="btn btn-primary btn-filter">
-                                    <i class="bi bi-search me-2"></i>Apply Filters
-                                </button>
-                                <button type="button" id="clearFilters" class="btn btn-outline-secondary btn-filter">
-                                    <i class="bi bi-x-circle me-2"></i>Clear Filters
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Activity Logs Table -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="bi bi-table me-2"></i>Activity Logs</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table id="activityTable" class="table table-striped table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>User Type</th>
-                                        <th>User</th>
-                                        <th>Event</th>
-                                        <th>Description</th>
-                                        <th>Properties</th>
-                                        <th>Date/Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Data will be loaded via AJAX -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+    <!-- Activity Logs Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-table me-2"></i>Activity Logs</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="activityTable" class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>User Type</th>
+                            <th>User</th>
+                            <th>Event</th>
+                            <th>Description</th>
+                            <th>Properties</th>
+                            <th>Date/Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be loaded via AJAX -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -221,11 +282,11 @@
             </div>
         </div>
     </div>
+@endsection
 
+@section('scripts')
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
@@ -485,5 +546,4 @@
                 });
         }
     </script>
-</body>
-</html>
+@endsection

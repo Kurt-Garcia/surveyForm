@@ -1,17 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Admin Management - Developer Portal</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+@extends('developer.layouts.app')
+
+@section('title', 'Admin Management - Developer Portal')
+
+@section('head')
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+@endsection
+
+@section('additional-styles')
 
 <style>
 body {
@@ -134,9 +130,9 @@ body {
     font-size: 14px;
 }
 </style>
-</head>
-<body>
+@endsection
 
+@section('content')
 <div class="developer-dashboard">
     <div class="container-fluid px-4 py-5">
         <!-- Header -->
@@ -156,22 +152,7 @@ body {
                 </p>
             </div>
             <div class="col-md-6">
-                <!-- Navigation Actions -->
-                <div class="d-flex flex-wrap gap-2 justify-content-end align-items-center mb-3">
-                    <!-- Back to Dashboard -->
-                    <a href="{{ route('developer.dashboard') }}" class="btn btn-outline-light">
-                        <i class="bi bi-arrow-left"></i> Back
-                    </a>
-
-                    <!-- Logout -->
-                    <form method="POST" action="{{ route('developer.logout') }}" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-outline-light">
-                            <i class="bi bi-power"></i> Logout
-                        </button>
-                    </form>
-                </div>
-
+                
                 <!-- Search and Filter Actions -->
                 <div class="d-flex flex-wrap gap-2 justify-content-end align-items-center">
                     <!-- Search Input -->
@@ -375,9 +356,9 @@ body {
     </div>
     @endif
 @endforeach
+@endsection
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+@section('scripts')
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -626,6 +607,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-
-</body>
-</html>
+@endsection

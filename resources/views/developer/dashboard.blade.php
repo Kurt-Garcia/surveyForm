@@ -1,18 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Developer Portal - {{ config('app.name') }}</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+@extends('developer.layouts.app')
+
+@section('title', 'Developer Portal')
+
+@section('head')
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+@endsection
 
-<!-- Developer-specific styles -->
+@section('additional-styles')
 <style>
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -214,162 +209,156 @@ body {
 
 
 </style>
-</head>
-<body>
+@endsection
 
+@section('content')
 <div class="bg-particles" id="particles"></div>
 
 <div class="developer-dashboard">
-    <div class="container-fluid px-4 pt-3 pb-5" style="position: relative; z-index: 10;">
-        <!-- Header with logout -->
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <h1 class="display-4 fw-bold text-danger">
-                    <i class="bi bi-code-slash"></i> Developer Portal
-                </h1>
-                <p class="text-light">Welcome, {{ Auth::guard('developer')->user()->name }}</p>
-            </div>
-            <div class="col-md-6 text-end">
-                <form method="POST" action="{{ route('developer.logout') }}" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-light">
-                        <i class="bi bi-power"></i> Logout
-                    </button>
-                </form>
-            </div>
+<div class="container-fluid px-4 pt-3 pb-5" style="position: relative; z-index: 10;">
+    <!-- Header with logout -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h1 class="display-4 fw-bold text-danger">
+                <i class="bi bi-code-slash"></i> Developer Portal
+            </h1>
+            <p class="text-light">Welcome, {{ Auth::guard('developer')->user()->name }}</p>
         </div>
 
-        <!-- Main Management Actions (Highlighted) -->
-        <div class="row g-5 mb-5">
-            <div class="col-12">
-                <h2 class="text-center mb-5 text-warning display-5 fw-bold">
-                    <i class="bi bi-gear-wide-connected"></i> SYSTEM MANAGEMENT
-                </h2>
-            </div>
-            
-            <div class="col-lg-3 col-md-6 mb-5">
-                <div class="dev-action-card survey-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);" onclick="showSbuModal('surveys')">
-                    <div>
-                        <i class="bi bi-clipboard-data" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
-                        <h4 class="fw-bold mb-3">Survey Management</h4>
-                        <p class="mb-3" style="font-size: 1.1rem;">View, Edit & Delete All Surveys</p>
-                        <div class="badge bg-light text-dark px-3 py-2 mb-3">
-                            <i class="bi bi-filter"></i> Filter by SBU
-                        </div>
-                        <div class="pulse-effect"></div>
+    </div>
+
+    <!-- Main Management Actions (Highlighted) -->
+    <div class="row g-5 mb-5">
+        <div class="col-12">
+            <h2 class="text-center mb-5 text-warning display-5 fw-bold">
+                <i class="bi bi-gear-wide-connected"></i> SYSTEM MANAGEMENT
+            </h2>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-5">
+            <div class="dev-action-card survey-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);" onclick="showSbuModal('surveys')">
+                <div>
+                    <i class="bi bi-clipboard-data" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
+                    <h4 class="fw-bold mb-3">Survey Management</h4>
+                    <p class="mb-3" style="font-size: 1.1rem;">View, Edit & Delete All Surveys</p>
+                    <div class="badge bg-light text-dark px-3 py-2 mb-3">
+                        <i class="bi bi-filter"></i> Filter by SBU
                     </div>
+                    <div class="pulse-effect"></div>
                 </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6 mb-5">
-                <div class="dev-action-card admin-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);" onclick="showSbuModal('admins')">
-                    <div>
-                        <i class="bi bi-shield-lock" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
-                        <h4 class="fw-bold mb-3">Admin Management</h4>
-                        <p class="mb-3" style="font-size: 1.1rem;">Manage Admin Accounts & Permissions</p>
-                        <div class="badge bg-light text-dark px-3 py-2 mb-3">
-                            <i class="bi bi-filter"></i> Filter by SBU
-                        </div>
-                        <div class="pulse-effect"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6 mb-5">
-                <div class="dev-action-card user-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);" onclick="showSbuModal('users')">
-                    <div>
-                        <i class="bi bi-people" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
-                        <h4 class="fw-bold mb-3">User Management</h4>
-                        <p class="mb-3" style="font-size: 1.1rem;">Control All User Accounts</p>
-                        <div class="badge bg-light text-dark px-3 py-2 mb-3">
-                            <i class="bi bi-filter"></i> Filter by SBU
-                        </div>
-                        <div class="pulse-effect"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6 mb-5">
-                <a href="{{ route('developer.logs.index') }}" class="text-decoration-none">
-                    <div class="dev-action-card logs-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);">
-                        <div>
-                            <i class="bi bi-activity" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
-                            <h4 class="fw-bold mb-3">User Logs</h4>
-                            <p class="mb-3" style="font-size: 1.1rem;">Monitor User Activity & Login History</p>
-                            <div class="badge bg-light text-dark px-3 py-2 mb-3">
-                                <i class="bi bi-clock-history"></i> Real-time Tracking
-                            </div>
-                            <div class="pulse-effect"></div>
-                        </div>
-                    </div>
-                </a>
             </div>
         </div>
         
-
-
-        <!-- Compact Stats Overview -->
-        <div class="row g-3 mb-4">
-            <div class="col-12">
-                <h5 class="text-center mb-4 text-white">
-                    <i class="bi bi-bar-chart"></i> System Statistics
-                </h5>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <div class="stats-compact-card text-center p-3">
-                    <i class="bi bi-clipboard-data text-success mb-2" style="font-size: 1.8rem;"></i>
-                    <h6 class="fw-bold text-white">{{ $stats['total_surveys'] }}</h6>
-                    <small class="text-white-50">Total Surveys</small>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <div class="stats-compact-card text-center p-3">
-                    <i class="bi bi-shield-lock text-warning mb-2" style="font-size: 1.8rem;"></i>
-                    <h6 class="fw-bold text-white">{{ $stats['total_admins'] }}</h6>
-                    <small class="text-white-50">Total Admins</small>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <div class="stats-compact-card text-center p-3">
-                    <i class="bi bi-people text-info mb-2" style="font-size: 1.8rem;"></i>
-                    <h6 class="fw-bold text-white">{{ $stats['total_users'] }}</h6>
-                    <small class="text-white-50">Total Users</small>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <div class="stats-compact-card text-center p-3">
-                    <i class="bi bi-graph-up text-danger mb-2" style="font-size: 1.8rem;"></i>
-                    <h6 class="fw-bold text-white">{{ $stats['total_responses'] }}</h6>
-                    <small class="text-white-50">Total Responses</small>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <div class="stats-compact-card text-center p-3">
-                    <i class="bi bi-check-circle text-success mb-2" style="font-size: 1.8rem;"></i>
-                    <h6 class="fw-bold text-white">{{ $stats['active_surveys'] }}</h6>
-                    <small class="text-white-50">Active Surveys</small>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-6">
-                <div class="stats-compact-card text-center p-3">
-                    <i class="bi bi-person-check text-primary mb-2" style="font-size: 1.8rem;"></i>
-                    <h6 class="fw-bold text-white">{{ $stats['active_users'] }}</h6>
-                    <small class="text-white-50">Active Users</small>
+        <div class="col-lg-3 col-md-6 mb-5">
+            <div class="dev-action-card admin-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);" onclick="showSbuModal('admins')">
+                <div>
+                    <i class="bi bi-shield-lock" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
+                    <h4 class="fw-bold mb-3">Admin Management</h4>
+                    <p class="mb-3" style="font-size: 1.1rem;">Manage Admin Accounts & Permissions</p>
+                    <div class="badge bg-light text-dark px-3 py-2 mb-3">
+                        <i class="bi bi-filter"></i> Filter by SBU
+                    </div>
+                    <div class="pulse-effect"></div>
                 </div>
             </div>
         </div>
-
-        <!-- Warning Notice -->
-        <div class="row mt-5">
-            <div class="col-12">
-                <div class="alert alert-danger" role="alert">
-                    <i class="bi bi-shield-exclamation"></i>
-                    <strong>Developer Access:</strong> You have unrestricted access to all system components. Use with extreme caution.
+        
+        <div class="col-lg-3 col-md-6 mb-5">
+            <div class="dev-action-card user-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);" onclick="showSbuModal('users')">
+                <div>
+                    <i class="bi bi-people" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
+                    <h4 class="fw-bold mb-3">User Management</h4>
+                    <p class="mb-3" style="font-size: 1.1rem;">Control All User Accounts</p>
+                    <div class="badge bg-light text-dark px-3 py-2 mb-3">
+                        <i class="bi bi-filter"></i> Filter by SBU
+                    </div>
+                    <div class="pulse-effect"></div>
                 </div>
             </div>
-        </div>    </div>
-</div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-5">
+            <a href="{{ route('developer.logs.index') }}" class="text-decoration-none">
+                <div class="dev-action-card logs-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);">
+                    <div>
+                        <i class="bi bi-activity" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
+                        <h4 class="fw-bold mb-3">User Logs</h4>
+                        <p class="mb-3" style="font-size: 1.1rem;">Monitor User Activity & Login History</p>
+                        <div class="badge bg-light text-dark px-3 py-2 mb-3">
+                            <i class="bi bi-clock-history"></i> Real-time Tracking
+                        </div>
+                        <div class="pulse-effect"></div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
 
+    <!-- Compact Stats Overview -->
+    <div class="row g-3 mb-4">
+        <div class="col-12">
+            <h5 class="text-center mb-4 text-white">
+                <i class="bi bi-bar-chart"></i> System Statistics
+            </h5>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-6">
+            <div class="stats-compact-card text-center p-3">
+                <i class="bi bi-clipboard-data text-success mb-2" style="font-size: 1.8rem;"></i>
+                <h6 class="fw-bold text-white">{{ $stats['total_surveys'] }}</h6>
+                <small class="text-white-50">Total Surveys</small>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-6">
+            <div class="stats-compact-card text-center p-3">
+                <i class="bi bi-shield-lock text-warning mb-2" style="font-size: 1.8rem;"></i>
+                <h6 class="fw-bold text-white">{{ $stats['total_admins'] }}</h6>
+                <small class="text-white-50">Total Admins</small>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-6">
+            <div class="stats-compact-card text-center p-3">
+                <i class="bi bi-people text-info mb-2" style="font-size: 1.8rem;"></i>
+                <h6 class="fw-bold text-white">{{ $stats['total_users'] }}</h6>
+                <small class="text-white-50">Total Users</small>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-6">
+            <div class="stats-compact-card text-center p-3">
+                <i class="bi bi-graph-up text-danger mb-2" style="font-size: 1.8rem;"></i>
+                <h6 class="fw-bold text-white">{{ $stats['total_responses'] }}</h6>
+                <small class="text-white-50">Total Responses</small>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-6">
+            <div class="stats-compact-card text-center p-3">
+                <i class="bi bi-check-circle text-success mb-2" style="font-size: 1.8rem;"></i>
+                <h6 class="fw-bold text-white">{{ $stats['active_surveys'] }}</h6>
+                <small class="text-white-50">Active Surveys</small>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-6">
+            <div class="stats-compact-card text-center p-3">
+                <i class="bi bi-person-check text-primary mb-2" style="font-size: 1.8rem;"></i>
+                <h6 class="fw-bold text-white">{{ $stats['active_users'] }}</h6>
+                <small class="text-white-50">Active Users</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warning Notice -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="alert alert-danger" role="alert">
+                <i class="bi bi-shield-exclamation"></i>
+                <strong>Developer Access:</strong> You have unrestricted access to all system components. Use with extreme caution.
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+@endsection
+
+@section('content-modals')
 <!-- SBU Selection Modal -->
 <div class="modal fade" id="sbuSelectionModal" tabindex="-1" aria-labelledby="sbuSelectionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -415,10 +404,9 @@ body {
         </div>
     </div>
 </div>
+@endsection
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+@section('scripts')
 <script>
 // Create floating particles
 function createParticles() {
@@ -503,6 +491,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-
-</body>
-</html>
+@endsection

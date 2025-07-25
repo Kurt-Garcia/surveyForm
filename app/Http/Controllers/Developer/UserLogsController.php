@@ -323,6 +323,7 @@ class UserLogsController extends Controller
     {
         $days = [];
         $adminLogins = [];
+        $superAdminLogins = [];
         $userLogins = [];
         $developerLogins = [];
 
@@ -330,10 +331,28 @@ class UserLogsController extends Controller
             $date = now()->subDays($i);
             $days[] = $date->format('M d');
 
-            $adminLogins[] = UserLoginLog::whereDate('action_time', $date)
+            // Get admin logins (non-superadmin)
+            $adminLoginIds = UserLoginLog::whereDate('action_time', $date)
                 ->where('user_type', 'admin')
                 ->where('action', 'login')
-                ->count();
+                ->pluck('user_id');
+            
+            $regularAdminCount = 0;
+            $superAdminCount = 0;
+            
+            foreach ($adminLoginIds as $adminId) {
+                $admin = \App\Models\Admin::find($adminId);
+                if ($admin) {
+                    if ($admin->superadmin) {
+                        $superAdminCount++;
+                    } else {
+                        $regularAdminCount++;
+                    }
+                }
+            }
+            
+            $adminLogins[] = $regularAdminCount;
+            $superAdminLogins[] = $superAdminCount;
 
             $userLogins[] = UserLoginLog::whereDate('action_time', $date)
                 ->where('user_type', 'user')
@@ -349,6 +368,7 @@ class UserLogsController extends Controller
         return [
             'labels' => $days,
             'admin_logins' => $adminLogins,
+            'super_admin_logins' => $superAdminLogins,
             'user_logins' => $userLogins,
             'developer_logins' => $developerLogins
         ];

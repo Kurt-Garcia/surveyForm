@@ -1,41 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Login Activity Logs - Developer Portal</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+@extends('developer.layouts.app')
+
+@section('title', 'Login Activity Logs - Developer Portal')
+
+@section('head')
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css" rel="stylesheet">
-    
-    <style>
-        .sidebar {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            border-radius: 8px;
-            margin: 2px 0;
-            transition: all 0.3s ease;
-        }
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            color: white;
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: translateX(5px);
-        }
+@endsection
+
+@section('additional-styles')
+        /* Dark Mode Card Styling */
         .card {
-            border: none;
             border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #2d3748;
+            border: 1px solid #4a5568;
+            color: #e2e8f0;
         }
+        
+        .card-header {
+            background-color: #1a202c;
+            border-bottom: 1px solid #4a5568;
+            color: #e2e8f0;
+        }
+        
+        .card-body {
+            background-color: #2d3748;
+            color: #e2e8f0;
+        }
+        
+        /* Badge Styling */
         .badge-login { background-color: #28a745; }
         .badge-logout { background-color: #dc3545; }
         .badge-admin { background-color: #6f42c1; }
@@ -44,137 +37,336 @@
         .badge-developer { background-color: #fd7e14; }
         .badge-resubmission_allowed { background-color: #28a745; color: white; }
         .badge-resubmission_disabled { background-color: #dc3545; color: white; }
+        
+        /* Dark Mode Table Styling */
         .table-responsive {
             border-radius: 10px;
             overflow: hidden;
+            background-color: #2d3748 !important;
         }
+        
+        .table {
+            background-color: #2d3748 !important;
+            color: #e2e8f0 !important;
+        }
+        
+        .table td, .table th {
+            background-color: #2d3748 !important;
+            color: #e2e8f0 !important;
+            border-color: #4a5568 !important;
+        }
+        
+        .table-dark {
+            background-color: #1a202c !important;
+            color: #e2e8f0 !important;
+        }
+        
+        .table-dark th, .table-dark td {
+            background-color: #1a202c !important;
+            color: #e2e8f0 !important;
+            border-color: #4a5568 !important;
+        }
+        
+        .table-striped > tbody > tr:nth-of-type(odd) > td {
+            background-color: #374151 !important;
+        }
+        
+        .table-striped > tbody > tr:nth-of-type(even) > td {
+            background-color: #2d3748 !important;
+        }
+        
+        .table-hover > tbody > tr:hover > td {
+            background-color: #4a5568 !important;
+        }
+        
+        /* Force DataTables specific elements to dark mode */
+        #loginTable {
+            background-color: #2d3748 !important;
+        }
+        
+        #loginTable tbody tr {
+            background-color: #2d3748 !important;
+        }
+        
+        #loginTable tbody tr:nth-of-type(odd) {
+            background-color: #374151 !important;
+        }
+        
+        #loginTable tbody tr:hover {
+            background-color: #4a5568 !important;
+        }
+        
+        #loginTable td, #loginTable th {
+            background-color: inherit !important;
+            color: #e2e8f0 !important;
+            border-color: #4a5568 !important;
+        }
+        
+        /* DataTables Dark Mode */
+        .dataTables_wrapper {
+            color: #e2e8f0 !important;
+            background-color: #2d3748 !important;
+        }
+        
         .dataTables_wrapper .dataTables_filter input {
             border-radius: 20px;
-            border: 1px solid #ddd;
+            border: 1px solid #4a5568 !important;
             padding: 8px 15px;
+            background-color: #374151 !important;
+            color: #e2e8f0 !important;
         }
+        
+        .dataTables_wrapper .dataTables_filter input:focus {
+            border-color: #63b3ed !important;
+            box-shadow: 0 0 0 0.2rem rgba(99, 179, 237, 0.25) !important;
+            background-color: #374151 !important;
+        }
+        
+        .dataTables_wrapper .dataTables_length select,
+        .dataTables_wrapper .dataTables_filter input {
+            background-color: #374151 !important;
+            color: #e2e8f0 !important;
+            border: 1px solid #4a5568 !important;
+        }
+        
+        .dataTables_wrapper .dataTables_length select:focus {
+            background-color: #374151 !important;
+            color: #e2e8f0 !important;
+            border-color: #63b3ed !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            color: #e2e8f0 !important;
+            background-color: #374151 !important;
+            border: 1px solid #4a5568 !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background-color: #4a5568 !important;
+            border: 1px solid #63b3ed !important;
+            color: #e2e8f0 !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background-color: #3182ce !important;
+            border: 1px solid #3182ce !important;
+            color: white !important;
+        }
+        
+        .dataTables_wrapper .dataTables_info {
+            color: #a0aec0 !important;
+        }
+        
+        .dataTables_wrapper .dataTables_length label,
+        .dataTables_wrapper .dataTables_filter label {
+            color: #e2e8f0 !important;
+        }
+        
+        /* DataTables processing indicator */
+        .dataTables_processing {
+            background-color: #2d3748 !important;
+            color: #e2e8f0 !important;
+            border: 1px solid #4a5568 !important;
+        }
+        
+        /* DataTables empty state */
+        .dataTables_empty {
+            background-color: #2d3748 !important;
+            color: #e2e8f0 !important;
+        }
+        
+        /* Override any remaining Bootstrap table styles */
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #374151 !important;
+        }
+        
+        .table-striped tbody tr:nth-of-type(even) {
+            background-color: #2d3748 !important;
+        }
+        
+        /* DataTables buttons */
+        .dt-buttons .btn {
+            background-color: #374151 !important;
+            border-color: #4a5568 !important;
+            color: #e2e8f0 !important;
+        }
+        
+        .dt-buttons .btn:hover {
+            background-color: #4a5568 !important;
+            border-color: #63b3ed !important;
+        }
+        
+        /* Form Controls Dark Mode */
+        .form-control, .form-select {
+            background-color: #374151;
+            border: 1px solid #4a5568;
+            color: #e2e8f0;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background-color: #374151;
+            border-color: #63b3ed;
+            color: #e2e8f0;
+            box-shadow: 0 0 0 0.2rem rgba(99, 179, 237, 0.25);
+        }
+        
+        .form-label {
+            color: #e2e8f0;
+        }
+        
+        /* Button Styling */
         .btn-filter {
             border-radius: 20px;
             margin: 2px;
         }
+        
+        /* Stats Cards */
+        .stats-card {
+            background-color: #2d3748 !important;
+            color: white;
+            border-radius: 15px;
+            border: 1px solid #4a5568 !important;
+            overflow: hidden;
+        }
+        .stats-card .card-body {
+            background: transparent !important;
+        }
+        
+        /* IP Address Styling */
         .ip-address {
             font-family: 'Courier New', monospace;
             font-size: 0.9em;
-            background-color: #f8f9fa;
+            background-color: #374151;
+            color: #e2e8f0;
             padding: 2px 6px;
             border-radius: 4px;
+            border: 1px solid #4a5568;
         }
-    </style>
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-2 sidebar p-3">
-                <div class="d-flex align-items-center mb-4">
-                    <i class="bi bi-code-slash fs-3 text-white me-2"></i>
-                    <h5 class="text-white mb-0">Developer Portal</h5>
-                </div>
-                
-                <nav class="nav flex-column">
-                    <a class="nav-link" href="{{ route('developer.dashboard') }}">
-                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
-                    </a>
-                    <a class="nav-link" href="{{ route('developer.surveys') }}">
-                        <i class="bi bi-clipboard-data me-2"></i> Surveys
-                    </a>
-                    <a class="nav-link" href="{{ route('developer.admins') }}">
-                        <i class="bi bi-people me-2"></i> Admins
-                    </a>
-                    <a class="nav-link" href="{{ route('developer.users') }}">
-                        <i class="bi bi-person-check me-2"></i> Users
-                    </a>
-                    <a class="nav-link active" href="{{ route('developer.logs.index') }}">
-                        <i class="bi bi-journal-text me-2"></i> User Logs
-                    </a>
+        
+        /* Text Muted Dark Mode */
+        .text-muted {
+            color: #a0aec0 !important;
+        }
+        
+        /* Breadcrumb Dark Mode */
+        .breadcrumb {
+            background-color: transparent;
+        }
+        
+        .breadcrumb-item a {
+            color: #63b3ed;
+        }
+        
+        .breadcrumb-item.active {
+            color: #a0aec0;
+        }
+        
+        /* Modal Dark Mode */
+        .modal-content {
+            background-color: #2d3748;
+            border: 1px solid #4a5568;
+        }
+        
+        .modal-header {
+            background-color: #1a202c;
+            border-bottom: 1px solid #4a5568;
+            color: #e2e8f0;
+        }
+        
+        .modal-body {
+            background-color: #2d3748;
+            color: #e2e8f0;
+        }
+        
+        .modal-footer {
+            background-color: #2d3748;
+            border-top: 1px solid #4a5568;
+        }
+        
+        /* Alert Dark Mode */
+        .alert-info {
+            background-color: #2c5aa0;
+            border-color: #3182ce;
+            color: #e2e8f0;
+        }
+        
+        .alert-secondary {
+            background-color: #4a5568;
+            border-color: #718096;
+            color: #e2e8f0;
+        }
+        
+        .bg-light {
+            background-color: #374151 !important;
+            color: #e2e8f0;
+        }
+@endsection
 
-                    <hr class="text-white-50">
-                    <form action="{{ route('developer.logout') }}" method="POST" class="d-inline">
-                        @csrf
-                        <button type="submit" class="nav-link border-0 bg-transparent w-100 text-start">
-                            <i class="bi bi-box-arrow-right me-2"></i> Logout
-                        </button>
-                    </form>
-                </nav>
+@section('content')
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-box-arrow-in-right me-2"></i>Login Logs</h2>
+        </div>
+        <div class="text-muted">
+            <i class="bi bi-clock me-1"></i>
+            {{ now()->format('M d, Y H:i') }}
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-box-arrow-in-right fs-2 mb-2"></i>
+                    <h4 id="todayLogins">{{ $stats['today_logins'] ?? 0 }}</h4>
+                    <p class="mb-0">Today's Logins</p>
+                </div>
             </div>
-
-            <!-- Main Content -->
-            <div class="col-md-10 p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2><i class="bi bi-box-arrow-in-right me-2"></i>Login Logs</h2>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="{{ route('developer.logs.index') }}">User Logs</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Login Activity</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div class="text-muted">
-                        <i class="bi bi-clock me-1"></i>
-                        {{ now()->format('M d, Y H:i') }}
-                    </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-people fs-2 mb-2"></i>
+                    <h4 id="uniqueUsers">{{ $stats['unique_users'] ?? 0 }}</h4>
+                    <p class="mb-0">Unique Users Today</p>
                 </div>
-
-                <!-- Quick Stats -->
-                <div class="row mb-4">
-                    <div class="col-md-3 mb-3">
-                        <div class="card bg-primary text-white">
-                            <div class="card-body text-center">
-                                <i class="bi bi-box-arrow-in-right fs-2 mb-2"></i>
-                                <h4 id="todayLogins">{{ $stats['today_logins'] ?? 0 }}</h4>
-                                <p class="mb-0">Today's Logins</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="card bg-success text-white">
-                            <div class="card-body text-center">
-                                <i class="bi bi-people fs-2 mb-2"></i>
-                                <h4 id="uniqueUsers">{{ $stats['unique_users'] ?? 0 }}</h4>
-                                <p class="mb-0">Unique Users Today</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="card bg-warning text-white">
-                            <div class="card-body text-center">
-                                <i class="bi bi-clock-history fs-2 mb-2"></i>
-                                <h4 id="recentActivity">{{ $stats['recent_activity'] ?? 0 }}</h4>
-                                <p class="mb-0">Last Hour</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="card bg-info text-white">
-                            <div class="card-body text-center">
-                                <i class="bi bi-geo-alt fs-2 mb-2"></i>
-                                <h4 id="uniqueIPs">{{ $stats['unique_ips'] ?? 0 }}</h4>
-                                <p class="mb-0">Unique IPs Today</p>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-clock-history fs-2 mb-2"></i>
+                    <h4 id="recentActivity">{{ $stats['recent_activity'] ?? 0 }}</h4>
+                    <p class="mb-0">Last Hour</p>
                 </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-geo-alt fs-2 mb-2"></i>
+                    <h4 id="uniqueIPs">{{ $stats['unique_ips'] ?? 0 }}</h4>
+                    <p class="mb-0">Unique IPs Today</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Filters -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h6 class="card-title"><i class="bi bi-funnel me-2"></i>Filters</h6>
-                        <div class="row">
-                            <div class="col-md-2">
-                                <label for="userTypeFilter" class="form-label">User Type</label>
-                                <select id="userTypeFilter" class="form-select">
-                                    <option value="">All Types</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="user">User</option>
-                                    <option value="developer">Developer</option>
-                                </select>
-                            </div>
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h6 class="card-title"><i class="bi bi-funnel me-2"></i>Filters</h6>
+            <div class="row">
+                <div class="col-md-2">
+                    <label for="userTypeFilter" class="form-label">User Type</label>
+                    <select id="userTypeFilter" class="form-select">
+                        <option value="">All Types</option>
+                        <option value="admin">Admin</option>
+                        <option value="user">User</option>
+                        <option value="developer">Developer</option>
+                    </select>
+                </div>
                             <div class="col-md-2">
                                 <label for="actionFilter" class="form-label">Action</label>
                                 <select id="actionFilter" class="form-select">
@@ -263,17 +455,17 @@
             </div>
         </div>
     </div>
+@endsection
 
+@section('scripts')
     <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
     
     <script>
@@ -625,5 +817,4 @@
             $('#userAgentModal').modal('show');
         }
     </script>
-</body>
-</html>
+@endsection
