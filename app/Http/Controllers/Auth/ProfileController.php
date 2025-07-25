@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -136,5 +137,70 @@ class ProfileController extends Controller
             : \App\Models\User::find(Auth::guard($guard)->id());
         $isValid = \Illuminate\Support\Facades\Hash::check($request->current_password, $user->password);
         return response()->json(['valid' => $isValid]);
+    }
+
+    public function uploadAvatar(Request $request)
+    {
+        try {
+            $request->validate([
+                'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+            ]);
+
+            $guard = Auth::guard('admin')->check() ? 'admin' : 'web';
+            $user = $guard === 'admin'
+                ? \App\Models\Admin::find(Auth::guard($guard)->id())
+                : \App\Models\User::find(Auth::guard($guard)->id());
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found'
+                ], 404);
+            }
+
+            // Delete old avatar if exists
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            // Store new avatar
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+
+            // Update user avatar field
+            $user->avatar = $avatarPath;
+            $user->updated_at = now();
+            $user->save();
+
+            // Log activity for avatar update
+            activity()
+                ->event('updated')
+                ->causedBy($user)
+                ->withProperties([
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'user_email' => $user->email,
+                    'change_type' => 'avatar',
+                    'avatar_path' => $avatarPath
+                ])
+                ->log('Profile picture has been updated');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Avatar uploaded successfully',
+                'avatar_url' => asset('storage/' . $avatarPath)
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed: ' . implode(', ', $e->validator->errors()->all())
+            ], 422);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Avatar upload failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to upload avatar. Please try again.'
+            ], 500);
+        }
     }
 }
