@@ -32,8 +32,17 @@ class ThemeServiceProvider extends ServiceProvider
                 if (auth()->guard('admin')->check()) {
                     $admin = auth()->guard('admin')->user();
                     $activeTheme = ThemeSetting::getActiveTheme($admin->id);
+                } elseif (auth()->guard('web')->check()) {
+                    // For regular users, get theme from the admin who created them
+                    $user = auth()->guard('web')->user();
+                    if ($user && $user->created_by) {
+                        $activeTheme = ThemeSetting::getActiveTheme($user->created_by);
+                    } else {
+                        // Fallback to global theme if no creator admin
+                        $activeTheme = ThemeSetting::getActiveTheme(null);
+                    }
                 } else {
-                    // For regular users or guests, try to get theme from request context
+                    // For guests, try to get theme from request context
                     $request = request();
                     
                     // Check if we're viewing a survey-related page and can extract admin_id

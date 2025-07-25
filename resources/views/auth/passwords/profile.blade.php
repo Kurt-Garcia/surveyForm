@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends(session('is_admin') ? 'layouts.app' : 'layouts.app-user')
 
 @section('content')
 <!-- SweetAlert2 -->
