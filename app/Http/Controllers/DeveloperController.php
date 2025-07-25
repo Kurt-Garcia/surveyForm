@@ -211,6 +211,7 @@ class DeveloperController extends Controller
     public function toggleAdminStatus(Request $request, $id)
     {
         $admin = Admin::findOrFail($id);
+        $originalStatus = $admin->status;
         
         // If disabling the admin, require a reason
         if ($admin->status == 1) {
@@ -225,14 +226,43 @@ class DeveloperController extends Controller
             $admin->status = 0;
             $admin->disabled_reason = $request->disabled_reason;
             $admin->disabled_at = now();
+            
+            // Use saveQuietly to prevent automatic activity logging
+            $admin->saveQuietly();
+            
+            // Manual activity logging with custom event name and description
+            activity()
+                ->performedOn($admin)
+                ->causedBy(Auth::guard('developer')->user())
+                ->withProperties([
+                    'old' => ['status' => $originalStatus],
+                    'attributes' => ['status' => 0],
+                    'disabled_reason' => $request->disabled_reason,
+                    'action_type' => 'admin_status_change'
+                ])
+                ->event('disabled')
+                ->log("Admin {$admin->name} has been disabled");
         } else {
             // If enabling the admin, clear the disabled reason and timestamp
             $admin->status = 1;
             $admin->disabled_reason = null;
             $admin->disabled_at = null;
+            
+            // Use saveQuietly to prevent automatic activity logging
+            $admin->saveQuietly();
+            
+            // Manual activity logging with custom event name and description
+            activity()
+                ->performedOn($admin)
+                ->causedBy(Auth::guard('developer')->user())
+                ->withProperties([
+                    'old' => ['status' => $originalStatus],
+                    'attributes' => ['status' => 1],
+                    'action_type' => 'admin_status_change'
+                ])
+                ->event('enabled')
+                ->log("Admin {$admin->name} has been enabled");
         }
-        
-        $admin->save();
 
         return back()->with('success', 'Admin status updated successfully.');
     }
@@ -243,6 +273,7 @@ class DeveloperController extends Controller
     public function toggleUserStatus(Request $request, $id)
     {
         $user = User::findOrFail($id);
+        $originalStatus = $user->status;
         
         // If disabling the user, require a reason
         if ($user->status == 1) {
@@ -257,14 +288,43 @@ class DeveloperController extends Controller
             $user->status = 0;
             $user->disabled_reason = $request->disabled_reason;
             $user->disabled_at = now();
+            
+            // Use saveQuietly to prevent automatic activity logging
+            $user->saveQuietly();
+            
+            // Manual activity logging with custom event name and description
+            activity()
+                ->performedOn($user)
+                ->causedBy(Auth::guard('developer')->user())
+                ->withProperties([
+                    'old' => ['status' => $originalStatus],
+                    'attributes' => ['status' => 0],
+                    'disabled_reason' => $request->disabled_reason,
+                    'action_type' => 'user_status_change'
+                ])
+                ->event('disabled')
+                ->log("User {$user->name} has been disabled");
         } else {
             // If enabling the user, clear the disabled reason and timestamp
             $user->status = 1;
             $user->disabled_reason = null;
             $user->disabled_at = null;
+            
+            // Use saveQuietly to prevent automatic activity logging
+            $user->saveQuietly();
+            
+            // Manual activity logging with custom event name and description
+            activity()
+                ->performedOn($user)
+                ->causedBy(Auth::guard('developer')->user())
+                ->withProperties([
+                    'old' => ['status' => $originalStatus],
+                    'attributes' => ['status' => 1],
+                    'action_type' => 'user_status_change'
+                ])
+                ->event('enabled')
+                ->log("User {$user->name} has been enabled");
         }
-        
-        $user->save();
 
         return back()->with('success', 'User status updated successfully.');
     }

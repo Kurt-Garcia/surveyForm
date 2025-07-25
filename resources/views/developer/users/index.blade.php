@@ -331,6 +331,7 @@ body {
                                 required
                                 minlength="10"
                                 maxlength="500"
+                                style="color: #333; background-color: #fff;"
                             ></textarea>
                             <div class="form-text">
                                 This reason will be displayed to the user when they attempt to log in. Minimum 10 characters, maximum 500 characters.
@@ -549,9 +550,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 title: 'Disable User Account?',
                 html: `
                     <div class="text-center">
-                        <p>Are you sure you want to <strong class="text-info">disable</strong> <span class="text-primary">${userName}</span>'s user account?</p>
+                        <p style="color: #333;">Are you sure you want to <strong class="text-info">disable</strong> <span class="text-primary">${userName}</span>'s user account?</p>
                         <div class="alert alert-warning mt-3">
-                            <strong>Reason:</strong> ${reason}
+                            <strong style="color: #333;">Reason:</strong> <span style="color: #333;">${reason}</span>
                         </div>
                     </div>
                 `,

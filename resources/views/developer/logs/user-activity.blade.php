@@ -222,6 +222,8 @@
                         <option value="deployed">Deployed</option>
                         <option value="broadcasted">Broadcasted</option>
                         <option value="answered">Answered</option>
+                        <option value="enabled">Enabled</option>
+                        <option value="disabled">Disabled</option>
                         <option value="removed">Removed</option>
                         <option value="deleted">Deleted</option>
                         <option value="exported">Exported</option>
@@ -415,6 +417,12 @@
                             } else if (data === 'deactivated') {
                                 badgeClass = 'badge-removed';
                                 displayText = 'Deactivated';
+                            } else if (data === 'enabled') {
+                                badgeClass = 'badge-created';
+                                displayText = 'Enabled';
+                            } else if (data === 'disabled') {
+                                badgeClass = 'badge-removed';
+                                displayText = 'Disabled';
                             } else if (data === 'exported') {
                                 badgeClass = 'badge-exported';
                                 displayText = 'Exported';

@@ -12,6 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Check if the table exists before proceeding
+        if (!Schema::hasTable('survey_response_headers')) {
+            return;
+        }
+
         // Update existing survey responses to set user_site_id
         // For the specific case mentioned by the user: all responses should be associated with "MNC Cebu - main"
         
@@ -40,6 +45,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Check if the table exists before proceeding
+        if (!Schema::hasTable('survey_response_headers')) {
+            return;
+        }
+
         // Set user_site_id back to null for all records
         DB::table('survey_response_headers')
             ->update(['user_site_id' => null]);

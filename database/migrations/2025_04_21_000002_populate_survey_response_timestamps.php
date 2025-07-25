@@ -13,6 +13,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Check if the table exists before proceeding
+        if (!Schema::hasTable('survey_response_headers')) {
+            return;
+        }
+
         // Update existing survey response headers that don't have start_time and end_time
         $headers = DB::table('survey_response_headers')
             ->whereNull('start_time')
@@ -45,6 +50,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Check if the table exists before proceeding
+        if (!Schema::hasTable('survey_response_headers')) {
+            return;
+        }
+
         // Set start_time and end_time to null for all records
         DB::table('survey_response_headers')
             ->update([
