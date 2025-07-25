@@ -255,6 +255,90 @@ class UserLogsController extends Controller
                     'recommendation_score' => $properties['recommendation_score'] ?? null
                 ];
             })
+            ->addColumn('start_time', function ($activity) {
+                $properties = is_string($activity->properties) ? json_decode($activity->properties, true) : $activity->properties;
+                
+                // Get survey response header to get start time
+                if (isset($properties['survey_id'])) {
+                    $accountName = null;
+                    
+                    if ($activity->causer) {
+                        // For authenticated users, use their name/username
+                        $accountName = $activity->causer->name ?? $activity->causer->username;
+                    } else {
+                        // For customers, use customer_name from properties
+                        $accountName = $properties['customer_name'] ?? null;
+                    }
+                    
+                    if ($accountName) {
+                        $header = \App\Models\SurveyResponseHeader::where('survey_id', $properties['survey_id'])
+                            ->where('account_name', $accountName)
+                            ->first();
+                        
+                        if ($header && $header->start_time) {
+                            return $header->start_time->toISOString();
+                        }
+                    }
+                }
+                
+                return null;
+            })
+            ->addColumn('end_time', function ($activity) {
+                $properties = is_string($activity->properties) ? json_decode($activity->properties, true) : $activity->properties;
+                
+                // Get survey response header to get end time
+                if (isset($properties['survey_id'])) {
+                    $accountName = null;
+                    
+                    if ($activity->causer) {
+                        // For authenticated users, use their name/username
+                        $accountName = $activity->causer->name ?? $activity->causer->username;
+                    } else {
+                        // For customers, use customer_name from properties
+                        $accountName = $properties['customer_name'] ?? null;
+                    }
+                    
+                    if ($accountName) {
+                        $header = \App\Models\SurveyResponseHeader::where('survey_id', $properties['survey_id'])
+                            ->where('account_name', $accountName)
+                            ->first();
+                        
+                        if ($header && $header->end_time) {
+                            return $header->end_time->toISOString();
+                        }
+                    }
+                }
+                
+                return null;
+            })
+            ->addColumn('duration', function ($activity) {
+                $properties = is_string($activity->properties) ? json_decode($activity->properties, true) : $activity->properties;
+                
+                // Get survey response header to calculate duration
+                if (isset($properties['survey_id'])) {
+                    $accountName = null;
+                    
+                    if ($activity->causer) {
+                        // For authenticated users, use their name/username
+                        $accountName = $activity->causer->name ?? $activity->causer->username;
+                    } else {
+                        // For customers, use customer_name from properties
+                        $accountName = $properties['customer_name'] ?? null;
+                    }
+                    
+                    if ($accountName) {
+                        $header = \App\Models\SurveyResponseHeader::where('survey_id', $properties['survey_id'])
+                            ->where('account_name', $accountName)
+                            ->first();
+                        
+                        if ($header && $header->start_time && $header->end_time) {
+                            return $header->start_time->diffInSeconds($header->end_time);
+                        }
+                    }
+                }
+                
+                return null;
+            })
             ->editColumn('properties', function ($activity) {
                 $properties = $activity->properties;
                 if (is_string($properties)) {

@@ -213,14 +213,14 @@
                             <li><a class="dropdown-item {{ request()->routeIs('developer.logs.index') ? 'active' : '' }}" href="{{ route('developer.logs.index') }}">
                                 <i class="bi bi-speedometer2 me-2"></i> User Logs Dashboard
                             </a></li>
-                            <li><a class="dropdown-item {{ request()->routeIs('developer.logs.user-activity') ? 'active' : '' }}" href="{{ route('developer.logs.user-activity') }}">
-                                <i class="bi bi-activity me-2"></i> User Activity Logs
-                            </a></li>
                             <li><a class="dropdown-item {{ request()->routeIs('developer.logs.login-activity') ? 'active' : '' }}" href="{{ route('developer.logs.login-activity') }}">
                                 <i class="bi bi-box-arrow-in-right me-2"></i> Login Logs
                             </a></li>
                             <li><a class="dropdown-item {{ request()->routeIs('developer.logs.survey-responses') ? 'active' : '' }}" href="{{ route('developer.logs.survey-responses') }}">
                                 <i class="bi bi-clipboard-data me-2"></i> Response Logs
+                            </a></li>
+                            <li><a class="dropdown-item {{ request()->routeIs('developer.logs.user-activity') ? 'active' : '' }}" href="{{ route('developer.logs.user-activity') }}">
+                                <i class="bi bi-activity me-2"></i> User Activity Logs
                             </a></li>
                         </ul>
                     </div>

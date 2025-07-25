@@ -138,8 +138,10 @@ body {
 @endsection
 
 @section('content')
-<!-- Header -->
-<div class="row mb-4">
+<div class="developer-dashboard">
+    <div class="container-fluid px-4 py-5">
+        <!-- Header -->
+        <div class="row mb-4">
     <div class="col-md-6">
         <h1 class="display-5 fw-bold text-success">
             <i class="bi bi-clipboard-data"></i> Survey Management
@@ -295,12 +297,14 @@ body {
     </div>
 @endif
 
-<!-- Warning Notice -->
-<div class="row mt-5">
-    <div class="col-12">
-        <div class="alert alert-danger" role="alert">
-            <i class="bi bi-exclamation-triangle"></i>
-            <strong>Danger Zone:</strong> Deleting surveys will permanently remove all associated responses and data. This action cannot be undone.
+        <!-- Warning Notice -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Danger Zone:</strong> Deleting surveys will permanently remove all associated responses and data. This action cannot be undone.
+                </div>
+            </div>
         </div>
     </div>
 </div>

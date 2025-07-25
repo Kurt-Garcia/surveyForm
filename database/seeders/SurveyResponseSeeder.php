@@ -42,6 +42,12 @@ class SurveyResponseSeeder extends Seeder
         $admins = \App\Models\Admin::where('status', 1)->get();
         $sites = \App\Models\Site::all();
         
+        // Generate realistic start and end times
+        $baseDate = $faker->dateTimeBetween('-3 months', 'now');
+        $startTime = $faker->dateTimeBetween($baseDate, $baseDate->format('Y-m-d 23:59:59'));
+        $durationMinutes = $faker->numberBetween(2, 15); // 2-15 minutes to complete survey
+        $endTime = (clone $startTime)->modify("+{$durationMinutes} minutes");
+        
         // Create response header
         $responseHeader = SurveyResponseHeader::create([
             'survey_id' => $survey->id,
@@ -49,7 +55,9 @@ class SurveyResponseSeeder extends Seeder
             'user_site_id' => $sites->isNotEmpty() ? $sites->random()->id : null,
             'account_name' => $faker->name,
             'account_type' => $faker->randomElement(['Customer', 'Employee', 'Partner', 'Visitor']),
-            'date' => $faker->dateTimeBetween('-3 months', 'now')->format('Y-m-d'),
+            'date' => $baseDate->format('Y-m-d'),
+            'start_time' => $startTime,
+            'end_time' => $endTime,
             'recommendation' => $faker->numberBetween(1, 5),
             'comments' => $faker->optional(0.7)->paragraph(),
         ]);

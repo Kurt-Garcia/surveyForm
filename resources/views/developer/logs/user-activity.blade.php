@@ -15,15 +15,18 @@
             border: 1px solid #4a5568 !important;
             border-radius: 15px;
             color: #e2e8f0 !important;
+            overflow: hidden;
         }
         .card-header {
             background-color: #1a202c !important;
             border-bottom: 1px solid #4a5568 !important;
             color: #e2e8f0 !important;
+            border-radius: 15px 15px 0 0;
         }
         .card-body {
             background-color: #2d3748 !important;
             color: #e2e8f0 !important;
+            border-radius: 0 0 15px 15px;
         }
         
         /* Badge Styling */
@@ -69,6 +72,14 @@
             border-radius: 10px;
             overflow: hidden;
             background-color: #2d3748 !important;
+        }
+        
+        /* Fix border radius overflow for table-responsive within cards */
+        .card .table-responsive {
+            border-radius: 0 0 15px 15px;
+            margin: -1rem;
+            margin-top: 0;
+            padding: 1rem;
         }
         
         /* DataTables Styling */
@@ -232,6 +243,9 @@
                     </button>
                     <button type="button" id="clearFilters" class="btn btn-outline-secondary btn-filter">
                         <i class="bi bi-x-circle me-2"></i>Clear Filters
+                    </button>
+                    <button type="button" id="refreshData" class="btn btn-outline-info btn-filter">
+                        <i class="bi bi-arrow-clockwise me-2"></i>Refresh
                     </button>
                 </div>
             </div>
@@ -486,6 +500,11 @@
                 $('#eventFilter').val('');
                 $('#dateFromFilter').val('');
                 $('#dateToFilter').val('');
+                table.ajax.reload();
+            });
+
+            // Refresh data
+            $('#refreshData').click(function() {
                 table.ajax.reload();
             });
 

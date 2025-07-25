@@ -22,31 +22,7 @@ body {
     position: relative;
 }
 
-/* Animated background particles */
-.bg-particles {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: 1;
-    pointer-events: none;
-}
 
-.particle {
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    animation: float 6s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 1; }
-    50% { transform: translateY(-20px) rotate(180deg); opacity: 0.5; }
-}
 
 .dev-card {
     background: rgba(255, 255, 255, 0.1);
@@ -159,6 +135,36 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
+.stat-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.stat-card:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+}
+
+.stat-card .card-body {
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card .card-body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.stat-card:hover .card-body::before {
+    left: 100%;
+}
+
 .danger-zone {
     background: linear-gradient(135deg, #e74c3c, #c0392b);
     border: 2px solid #e74c3c;
@@ -212,8 +218,6 @@ body {
 @endsection
 
 @section('content')
-<div class="bg-particles" id="particles"></div>
-
 <div class="developer-dashboard">
 <div class="container-fluid px-4 pt-3 pb-5" style="position: relative; z-index: 10;">
     <!-- Header with logout -->
@@ -227,123 +231,79 @@ body {
 
     </div>
 
-    <!-- Main Management Actions (Highlighted) -->
-    <div class="row g-5 mb-5">
-        <div class="col-12">
-            <h2 class="text-center mb-5 text-warning display-5 fw-bold">
-                <i class="bi bi-gear-wide-connected"></i> SYSTEM MANAGEMENT
-            </h2>
-        </div>
-        
-        <div class="col-lg-3 col-md-6 mb-5">
-            <div class="dev-action-card survey-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);" onclick="showSbuModal('surveys')">
-                <div>
-                    <i class="bi bi-clipboard-data" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
-                    <h4 class="fw-bold mb-3">Survey Management</h4>
-                    <p class="mb-3" style="font-size: 1.1rem;">View, Edit & Delete All Surveys</p>
-                    <div class="badge bg-light text-dark px-3 py-2 mb-3">
-                        <i class="bi bi-filter"></i> Filter by SBU
-                    </div>
-                    <div class="pulse-effect"></div>
+    <!-- Enhanced Statistics Dashboard -->
+    <div class="row mb-5">
+        <div class="col-12 mb-4">
+            <div class="card border-0 shadow-lg" style="background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px;">
+                <div class="card-body text-center py-4">
+                    <h3 class="text-white mb-3"><i class="bi bi-speedometer2 me-2"></i>System Overview</h3>
+                    <p class="text-white-50 mb-0">Real-time monitoring of system components and performance metrics</p>
                 </div>
             </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6 mb-5">
-            <div class="dev-action-card admin-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);" onclick="showSbuModal('admins')">
-                <div>
-                    <i class="bi bi-shield-lock" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
-                    <h4 class="fw-bold mb-3">Admin Management</h4>
-                    <p class="mb-3" style="font-size: 1.1rem;">Manage Admin Accounts & Permissions</p>
-                    <div class="badge bg-light text-dark px-3 py-2 mb-3">
-                        <i class="bi bi-filter"></i> Filter by SBU
-                    </div>
-                    <div class="pulse-effect"></div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6 mb-5">
-            <div class="dev-action-card user-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);" onclick="showSbuModal('users')">
-                <div>
-                    <i class="bi bi-people" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
-                    <h4 class="fw-bold mb-3">User Management</h4>
-                    <p class="mb-3" style="font-size: 1.1rem;">Control All User Accounts</p>
-                    <div class="badge bg-light text-dark px-3 py-2 mb-3">
-                        <i class="bi bi-filter"></i> Filter by SBU
-                    </div>
-                    <div class="pulse-effect"></div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6 mb-5">
-            <a href="{{ route('developer.logs.index') }}" class="text-decoration-none">
-                <div class="dev-action-card logs-zone" style="cursor: pointer; min-height: 280px; transform: scale(1.05);">
-                    <div>
-                        <i class="bi bi-activity" style="font-size: 4rem; margin-bottom: 1.5rem;"></i>
-                        <h4 class="fw-bold mb-3">User Logs</h4>
-                        <p class="mb-3" style="font-size: 1.1rem;">Monitor User Activity & Login History</p>
-                        <div class="badge bg-light text-dark px-3 py-2 mb-3">
-                            <i class="bi bi-clock-history"></i> Real-time Tracking
-                        </div>
-                        <div class="pulse-effect"></div>
-                    </div>
-                </div>
-            </a>
         </div>
     </div>
 
-    <!-- Compact Stats Overview -->
-    <div class="row g-3 mb-4">
-        <div class="col-12">
-            <h5 class="text-center mb-4 text-white">
-                <i class="bi bi-bar-chart"></i> System Statistics
-            </h5>
-        </div>
-        <div class="col-lg-2 col-md-4 col-sm-6">
-            <div class="stats-compact-card text-center p-3">
-                <i class="bi bi-clipboard-data text-success mb-2" style="font-size: 1.8rem;"></i>
-                <h6 class="fw-bold text-white">{{ $stats['total_surveys'] }}</h6>
-                <small class="text-white-50">Total Surveys</small>
+    <!-- Highlighted Statistics Cards -->
+    <div class="row mb-5">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card stat-card border-0 shadow-lg h-100" style="transform: scale(1.02); transition: all 0.3s ease; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px;">
+                <div class="card-body text-center py-4">
+                    <div class="mb-3">
+                        <i class="bi bi-clipboard-data" style="font-size: 3.5rem; color: #27ae60;"></i>
+                    </div>
+                    <h2 class="display-4 fw-bold mb-2 text-white">{{ $stats['total_surveys'] }}</h2>
+                    <p class="mb-0 text-uppercase fw-semibold text-white" style="letter-spacing: 1px;">Total Surveys</p>
+                    <div class="mt-2">
+                        <small class="text-success"><i class="bi bi-check-circle"></i> {{ $stats['active_surveys'] }} Active</small>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-lg-2 col-md-4 col-sm-6">
-            <div class="stats-compact-card text-center p-3">
-                <i class="bi bi-shield-lock text-warning mb-2" style="font-size: 1.8rem;"></i>
-                <h6 class="fw-bold text-white">{{ $stats['total_admins'] }}</h6>
-                <small class="text-white-50">Total Admins</small>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card stat-card border-0 shadow-lg h-100" style="transform: scale(1.02); transition: all 0.3s ease; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px;">
+                <div class="card-body text-center py-4">
+                    <div class="mb-3">
+                        <i class="bi bi-shield-lock" style="font-size: 3.5rem; color: #f39c12;"></i>
+                    </div>
+                    <h2 class="display-4 fw-bold mb-2 text-white">{{ $stats['total_admins'] }}</h2>
+                    <p class="mb-0 text-uppercase fw-semibold text-white" style="letter-spacing: 1px;">Total Admins</p>
+                    <div class="mt-2">
+                        <small class="text-warning"><i class="bi bi-shield-check"></i> Secure Access</small>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-lg-2 col-md-4 col-sm-6">
-            <div class="stats-compact-card text-center p-3">
-                <i class="bi bi-people text-info mb-2" style="font-size: 1.8rem;"></i>
-                <h6 class="fw-bold text-white">{{ $stats['total_users'] }}</h6>
-                <small class="text-white-50">Total Users</small>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card stat-card border-0 shadow-lg h-100" style="transform: scale(1.02); transition: all 0.3s ease; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px;">
+                <div class="card-body text-center py-4">
+                    <div class="mb-3">
+                        <i class="bi bi-people" style="font-size: 3.5rem; color: #3498db;"></i>
+                    </div>
+                    <h2 class="display-4 fw-bold mb-2 text-white">{{ $stats['total_users'] }}</h2>
+                    <p class="mb-0 text-uppercase fw-semibold text-white" style="letter-spacing: 1px;">Total Users</p>
+                    <div class="mt-2">
+                        <small class="text-info"><i class="bi bi-person-check"></i> {{ $stats['active_users'] }} Active</small>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-lg-2 col-md-4 col-sm-6">
-            <div class="stats-compact-card text-center p-3">
-                <i class="bi bi-graph-up text-danger mb-2" style="font-size: 1.8rem;"></i>
-                <h6 class="fw-bold text-white">{{ $stats['total_responses'] }}</h6>
-                <small class="text-white-50">Total Responses</small>
-            </div>
-        </div>
-        <div class="col-lg-2 col-md-4 col-sm-6">
-            <div class="stats-compact-card text-center p-3">
-                <i class="bi bi-check-circle text-success mb-2" style="font-size: 1.8rem;"></i>
-                <h6 class="fw-bold text-white">{{ $stats['active_surveys'] }}</h6>
-                <small class="text-white-50">Active Surveys</small>
-            </div>
-        </div>
-        <div class="col-lg-2 col-md-4 col-sm-6">
-            <div class="stats-compact-card text-center p-3">
-                <i class="bi bi-person-check text-primary mb-2" style="font-size: 1.8rem;"></i>
-                <h6 class="fw-bold text-white">{{ $stats['active_users'] }}</h6>
-                <small class="text-white-50">Active Users</small>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card stat-card border-0 shadow-lg h-100" style="transform: scale(1.02); transition: all 0.3s ease; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px;">
+                <div class="card-body text-center py-4">
+                    <div class="mb-3">
+                        <i class="bi bi-graph-up" style="font-size: 3.5rem; color: #e74c3c;"></i>
+                    </div>
+                    <h2 class="display-4 fw-bold mb-2 text-white">{{ $stats['total_responses'] }}</h2>
+                    <p class="mb-0 text-uppercase fw-semibold text-white" style="letter-spacing: 1px;">Total Responses</p>
+                    <div class="mt-2">
+                        <small class="text-danger"><i class="bi bi-activity"></i> Live Data</small>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+
 
     <!-- Warning Notice -->
     <div class="row mt-5">
@@ -408,21 +368,7 @@ body {
 
 @section('scripts')
 <script>
-// Create floating particles
-function createParticles() {
-    const particlesContainer = document.getElementById('particles');
-    const particleCount = 50;
-    
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.top = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 6 + 's';
-        particle.style.animationDuration = (Math.random() * 3 + 4) + 's';
-        particlesContainer.appendChild(particle);
-    }
-}
+
 
 // Variables to store current management type and modal instance
 let currentManagementType = '';
@@ -467,28 +413,29 @@ function navigateToManagement(sbu) {
 
 // Add hover effects to SBU option cards
 document.addEventListener('DOMContentLoaded', function() {
-    createParticles();
-    
     const dashboard = document.querySelector('.developer-dashboard');
     setTimeout(() => {
         dashboard.style.opacity = '1';
     }, 100);
     
-    // Add hover effects to SBU cards when modal is shown
-    document.getElementById('sbuSelectionModal').addEventListener('shown.bs.modal', function() {
-        const sbuCards = document.querySelectorAll('.sbu-option-card');
-        sbuCards.forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-5px) scale(1.05)';
-                this.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.5)';
-            });
-            
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0) scale(1)';
-                this.style.boxShadow = 'none';
+    // Add hover effects to SBU option cards when modal is shown
+    const sbuModalElement = document.getElementById('sbuSelectionModal');
+    if (sbuModalElement) {
+        sbuModalElement.addEventListener('shown.bs.modal', function() {
+            const sbuCards = document.querySelectorAll('.sbu-option-card');
+            sbuCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px) scale(1.05)';
+                    this.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.5)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                    this.style.boxShadow = 'none';
+                });
             });
         });
-    });
+    }
 });
 </script>
 @endsection

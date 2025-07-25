@@ -15,15 +15,23 @@
             border: 1px solid #4a5568 !important;
             border-radius: 15px;
             color: #e2e8f0 !important;
+            overflow: hidden;
         }
         .card-header {
             background-color: #1a202c !important;
             border-bottom: 1px solid #4a5568 !important;
             color: #e2e8f0 !important;
+            border-radius: 15px 15px 0 0;
         }
         .card-body {
             background-color: #2d3748 !important;
             color: #e2e8f0 !important;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        /* Ensure card content respects border radius */
+        .card:not(.card-header) .card-body:first-child {
+            border-radius: 15px;
         }
         
         /* Badge Styling */
@@ -56,6 +64,19 @@
             border-radius: 10px;
             overflow: hidden;
             background-color: #2d3748 !important;
+        }
+        
+        /* Fix border radius overflow for cards containing table-responsive */
+        .card .table-responsive {
+            border-radius: 0 0 15px 15px;
+            margin: -1rem -1rem -1rem -1rem;
+            padding: 1rem;
+        }
+        
+        .card-header + .card-body .table-responsive {
+            border-radius: 0;
+            margin: -1rem;
+            padding: 1rem;
         }
         
         /* DataTables Styling */
@@ -186,7 +207,7 @@
         <div class="col-md-3 mb-3">
             <div class="card stats-card">
                 <div class="card-body text-center">
-                    <i class="bi bi-calendar-day fs-1 mb-2"></i>
+                    <i class="bi bi-calendar-day fs-1 mb-2 text-primary"></i>
                     <h3>{{ $stats['today_responses'] }}</h3>
                     <p class="mb-0">Today's Responses</p>
                 </div>
@@ -195,7 +216,7 @@
         <div class="col-md-3 mb-3">
             <div class="card stats-card">
                 <div class="card-body text-center">
-                    <i class="bi bi-people fs-1 mb-2"></i>
+                    <i class="bi bi-people fs-1 mb-2 text-info"></i>
                     <h3>{{ $stats['customer_responses'] }}</h3>
                     <p class="mb-0">Customer Responses</p>
                 </div>
@@ -204,7 +225,7 @@
         <div class="col-md-3 mb-3">
             <div class="card stats-card">
                 <div class="card-body text-center">
-                    <i class="bi bi-person-check fs-1 mb-2"></i>
+                    <i class="bi bi-person-check fs-1 mb-2 text-success"></i>
                     <h3>{{ $stats['user_responses'] }}</h3>
                     <p class="mb-0">User Responses</p>
                 </div>
@@ -213,7 +234,7 @@
         <div class="col-md-3 mb-3">
             <div class="card stats-card">
                 <div class="card-body text-center">
-                    <i class="bi bi-clipboard-check fs-1 mb-2"></i>
+                    <i class="bi bi-clipboard-check fs-1 mb-2 text-warning"></i>
                     <h3>{{ $stats['total_responses'] }}</h3>
                     <p class="mb-0">Total Responses</p>
                 </div>
@@ -255,6 +276,9 @@
                     <button type="button" id="clearFilters" class="btn btn-outline-secondary btn-filter">
                         <i class="bi bi-x-circle me-2"></i>Clear Filters
                     </button>
+                    <button type="button" id="refreshData" class="btn btn-outline-info btn-filter">
+                        <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+                    </button>
                 </div>
             </div>
         </div>
@@ -274,7 +298,9 @@
                             <th>Customer/User</th>
                             <th>Type</th>
                             <th>Survey</th>
-                            <th>Score</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Duration</th>
                             <th>Details</th>
                             <th>Date/Time</th>
                         </tr>
@@ -367,21 +393,58 @@
                             return `<strong>${title}</strong><br><small class="text-muted">ID: ${id}</small>`;
                         }
                     },
-                    { 
-                        data: 'survey_info', 
-                        name: 'recommendation_score',
+                    {
+                        data: 'start_time',
+                        name: 'start_time',
                         render: function(data, type, row) {
-                            const score = data.recommendation_score;
-                            if (score === null || score === undefined) {
+                            if (data === null || data === undefined) {
+                                return '<span class="text-muted">N/A</span>';
+                            }
+                            const date = new Date(data);
+                            return date.toLocaleString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit',
+                                hour12: true
+                            });
+                        }
+                    },
+                    {
+                        data: 'end_time',
+                        name: 'end_time',
+                        render: function(data, type, row) {
+                            if (data === null || data === undefined) {
+                                return '<span class="text-muted">N/A</span>';
+                            }
+                            const date = new Date(data);
+                            return date.toLocaleString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit',
+                                hour12: true
+                            });
+                        }
+                    },
+                    { 
+                        data: 'duration', 
+                        name: 'duration',
+                        render: function(data, type, row) {
+                            if (!data || data === 0) {
                                 return '<span class="text-muted">N/A</span>';
                             }
                             
-                            let badgeClass = 'bg-secondary';
-                            if (score >= 9) badgeClass = 'bg-success';
-                            else if (score >= 7) badgeClass = 'bg-warning';
-                            else if (score >= 0) badgeClass = 'bg-danger';
-                            
-                            return `<span class="badge ${badgeClass}">${score}/10</span>`;
+                            const seconds = parseInt(data);
+                            if (seconds < 60) {
+                                return `<span class="badge bg-info">${seconds}s</span>`;
+                            } else {
+                                const minutes = Math.floor(seconds / 60);
+                                const remainingSeconds = seconds % 60;
+                                if (remainingSeconds === 0) {
+                                    return `<span class="badge bg-primary">${minutes}m</span>`;
+                                } else {
+                                    return `<span class="badge bg-primary">${minutes}m ${remainingSeconds}s</span>`;
+                                }
+                            }
                         }
                     },
                     { 
@@ -433,6 +496,11 @@
                 $('#customerSearchFilter').val('');
                 $('#dateFromFilter').val('');
                 $('#dateToFilter').val('');
+                table.ajax.reload();
+            });
+
+            // Refresh data
+            $('#refreshData').click(function() {
                 table.ajax.reload();
             });
 

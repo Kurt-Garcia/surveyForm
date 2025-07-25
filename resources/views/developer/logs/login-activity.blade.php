@@ -15,17 +15,25 @@
             background-color: #2d3748;
             border: 1px solid #4a5568;
             color: #e2e8f0;
+            overflow: hidden;
         }
         
         .card-header {
             background-color: #1a202c;
             border-bottom: 1px solid #4a5568;
             color: #e2e8f0;
+            border-radius: 15px 15px 0 0;
         }
         
         .card-body {
             background-color: #2d3748;
             color: #e2e8f0;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        /* Ensure card content respects border radius */
+        .card:not(.card-header) .card-body:first-child {
+            border-radius: 15px;
         }
         
         /* Badge Styling */
@@ -43,6 +51,19 @@
             border-radius: 10px;
             overflow: hidden;
             background-color: #2d3748 !important;
+        }
+        
+        /* Fix border radius overflow for cards containing table-responsive */
+        .card .table-responsive {
+            border-radius: 0 0 15px 15px;
+            margin: -1rem -1rem -1rem -1rem;
+            padding: 1rem;
+        }
+        
+        .card-header + .card-body .table-responsive {
+            border-radius: 0;
+            margin: -1rem;
+            padding: 1rem;
         }
         
         .table {
@@ -318,7 +339,7 @@
         <div class="col-md-3 mb-3">
             <div class="card stats-card">
                 <div class="card-body text-center">
-                    <i class="bi bi-box-arrow-in-right fs-2 mb-2"></i>
+                    <i class="bi bi-box-arrow-in-right fs-2 mb-2 text-success"></i>
                     <h4 id="todayLogins">{{ $stats['today_logins'] ?? 0 }}</h4>
                     <p class="mb-0">Today's Logins</p>
                 </div>
@@ -327,7 +348,7 @@
         <div class="col-md-3 mb-3">
             <div class="card stats-card">
                 <div class="card-body text-center">
-                    <i class="bi bi-people fs-2 mb-2"></i>
+                    <i class="bi bi-people fs-2 mb-2 text-primary"></i>
                     <h4 id="uniqueUsers">{{ $stats['unique_users'] ?? 0 }}</h4>
                     <p class="mb-0">Unique Users Today</p>
                 </div>
@@ -336,7 +357,7 @@
         <div class="col-md-3 mb-3">
             <div class="card stats-card">
                 <div class="card-body text-center">
-                    <i class="bi bi-clock-history fs-2 mb-2"></i>
+                    <i class="bi bi-clock-history fs-2 mb-2 text-warning"></i>
                     <h4 id="recentActivity">{{ $stats['recent_activity'] ?? 0 }}</h4>
                     <p class="mb-0">Last Hour</p>
                 </div>
@@ -345,7 +366,7 @@
         <div class="col-md-3 mb-3">
             <div class="card stats-card">
                 <div class="card-body text-center">
-                    <i class="bi bi-geo-alt fs-2 mb-2"></i>
+                    <i class="bi bi-geo-alt fs-2 mb-2 text-info"></i>
                     <h4 id="uniqueIPs">{{ $stats['unique_ips'] ?? 0 }}</h4>
                     <p class="mb-0">Unique IPs Today</p>
                 </div>
