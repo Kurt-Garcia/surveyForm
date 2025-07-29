@@ -18,7 +18,8 @@ class TrackPageVisits
     public function handle(Request $request, Closure $next): Response
     {
         // Only track GET requests to avoid tracking form submissions, API calls, etc.
-        if ($request->isMethod('GET') && !$request->ajax() && !$request->wantsJson()) {
+        // Also exclude pages that don't require authentication
+        if ($request->isMethod('GET') && !$request->ajax() && !$request->wantsJson() && $this->shouldTrackPage($request)) {
             $this->startPageVisitTracking($request);
         }
 
@@ -36,6 +37,48 @@ class TrackPageVisits
     public function terminate(Request $request, Response $response): void
     {
         // Do nothing - page visits are ended when new visits start
+    }
+
+    /**
+     * Check if the current page should be tracked
+     */
+    private function shouldTrackPage(Request $request): bool
+    {
+        $route = $request->route();
+        $routeName = $route ? $route->getName() : null;
+        $path = $request->path();
+        
+        // Exclude welcome and login pages since they don't have authenticated users
+        $excludedRoutes = [
+            'welcome',
+            'login',
+            'password.request',
+            'password.email',
+            'password.reset',
+            'password.update',
+            'register', // if registration exists
+        ];
+        
+        // Exclude specific paths
+        $excludedPaths = [
+            '/',
+            'login',
+            'register',
+            'password/reset',
+            'password/email',
+        ];
+        
+        // Don't track if route is in excluded list
+        if ($routeName && in_array($routeName, $excludedRoutes)) {
+            return false;
+        }
+        
+        // Don't track if path is in excluded list
+        if (in_array($path, $excludedPaths)) {
+            return false;
+        }
+        
+        return true;
     }
 
     /**
