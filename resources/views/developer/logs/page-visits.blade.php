@@ -338,7 +338,7 @@
         <div class="card-body">
             <h6 class="card-title"><i class="bi bi-funnel me-2"></i>Filters</h6>
             <div class="row">
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <label for="userTypeFilter" class="form-label">User Type</label>
                     <select id="userTypeFilter" class="form-select">
                         <option value="">All Types</option>
@@ -347,28 +347,21 @@
                         <option value="developer">Developer</option>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <label for="dateFromFilter" class="form-label">From Date</label>
                     <input type="date" id="dateFromFilter" class="form-control">
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <label for="dateToFilter" class="form-label">To Date</label>
                     <input type="date" id="dateToFilter" class="form-control">
                 </div>
-                <div class="col-md-2">
-                    <label for="routeFilter" class="form-label">Page/Route</label>
-                    <input type="text" id="routeFilter" class="form-control" placeholder="Search page or route...">
-                </div>
-                <div class="col-md-2">
+
+                <div class="col-md-3">
                     <label for="userFilter" class="form-label">User</label>
                     <input type="text" id="userFilter" class="form-control" placeholder="Name or Email">
                 </div>
-                <div class="col-md-2">
-                    <label for="ipFilter" class="form-label">IP Address</label>
-                    <input type="text" id="ipFilter" class="form-control" placeholder="e.g., 192.168.1.1">
-                </div>
             </div>
-            <div class="row mt-3">
+            <div class="row mt-2">
                 <div class="col-md-12">
                     <button type="button" id="applyFilters" class="btn btn-primary btn-filter">
                         <i class="bi bi-search me-2"></i>Apply Filters
@@ -401,8 +394,6 @@
                             <th>Start Time</th>
                             <th>End Time</th>
                             <th>Duration</th>
-                            <th>IP Address</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -413,20 +404,7 @@
         </div>
     </div>
 
-    <!-- Visit Details Modal -->
-    <div class="modal fade" id="visitDetailsModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content bg-dark">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title text-white"><i class="bi bi-info-circle me-2"></i>Visit Details</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="visitDetailsContent">
-                    <!-- Content will be loaded here -->
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Visit Details Modal removed since actions column was removed -->
 @endsection
 
 @section('scripts')
@@ -452,9 +430,7 @@
                         d.user_type = $('#userTypeFilter').val();
                         d.date_from = $('#dateFromFilter').val();
                         d.date_to = $('#dateToFilter').val();
-                        d.route_name = $('#routeFilter').val();
                         d.user_search = $('#userFilter').val();
-                        d.ip_address = $('#ipFilter').val();
                     }
                 },
                 columns: [
@@ -535,26 +511,6 @@
                             }
                             return '<span class="text-warning">Active</span>';
                         }
-                    },
-                    { 
-                        data: 'ip_address', 
-                        name: 'ip_address',
-                        render: function(data, type, row) {
-                            return data ? `<span class="ip-address">${data}</span>` : 'N/A';
-                        }
-                    },
-                    { 
-                        data: null, 
-                        name: 'actions', 
-                        orderable: false, 
-                        searchable: false,
-                        render: function(data, type, row) {
-                            return `
-                                <button class="btn btn-sm btn-outline-info" onclick="showVisitDetails(${row.id})" title="View Details">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                            `;
-                        }
                     }
                 ],
                 order: [[4, 'desc']], // Sort by Start Time descending
@@ -576,9 +532,7 @@
                 $('#userTypeFilter').val('');
                 $('#dateFromFilter').val('');
                 $('#dateToFilter').val('');
-                $('#routeFilter').val('');
                 $('#userFilter').val('');
-                $('#ipFilter').val('');
                 table.ajax.reload();
             });
             
@@ -587,51 +541,6 @@
             });
         });
         
-        function showVisitDetails(visitId) {
-            $.get('{{ route("developer.logs.page-visits.details", ":id") }}'.replace(':id', visitId))
-                .done(function(response) {
-                    const visit = response.visit;
-                    const additionalData = response.additional_data || {};
-                    
-                    let content = `
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6 class="text-primary">User Information</h6>
-                                <p><strong>Type:</strong> <span class="badge bg-primary">${visit.user_type.charAt(0).toUpperCase() + visit.user_type.slice(1)}</span></p>
-                                <p><strong>Name:</strong> ${visit.user_name}</p>
-                                <p><strong>Email:</strong> ${visit.user_email}</p>
-                                <p><strong>IP Address:</strong> ${visit.ip_address || 'N/A'}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="text-success">Page Information</h6>
-                                <p><strong>Title:</strong> ${visit.page_title || 'N/A'}</p>
-                                <p><strong>Route:</strong> ${visit.route_name || 'N/A'}</p>
-                                <p><strong>URL:</strong> <small>${visit.page_url}</small></p>
-                                <p><strong>Method:</strong> ${additionalData.method || 'GET'}</p>
-                            </div>
-                        </div>
-                        <hr class="border-secondary">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6 class="text-warning">Timing Information</h6>
-                                <p><strong>Start Time:</strong> ${new Date(visit.start_time).toLocaleString()}</p>
-                                <p><strong>End Time:</strong> ${visit.end_time ? new Date(visit.end_time).toLocaleString() : 'N/A'}</p>
-                                <p><strong>Duration:</strong> <span class="badge bg-info">${response.formatted_duration}</span></p>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="text-info">Session Information</h6>
-                                <p><strong>Session ID:</strong> <small>${visit.session_id}</small></p>
-                                <p><strong>User Agent:</strong> <small>${visit.user_agent || 'N/A'}</small></p>
-                            </div>
-                        </div>
-                    `;
-                    
-                    $('#visitDetailsContent').html(content);
-                    $('#visitDetailsModal').modal('show');
-                })
-                .fail(function() {
-                    alert('Failed to load visit details');
-                });
-        }
+        // Visit details modal functionality removed since actions column was removed
     </script>
 @endsection
