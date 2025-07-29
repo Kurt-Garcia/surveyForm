@@ -15,6 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'site.access' => \App\Http\Middleware\CheckSiteAccess::class,
             'account.status' => \App\Http\Middleware\CheckAccountStatus::class,
             'developer.access' => \App\Http\Middleware\DeveloperAccess::class,
+            'track.visits' => \App\Http\Middleware\TrackPageVisits::class,
+        ]);
+        
+        // Add page visit tracking to web middleware group
+        $middleware->web(append: [
+            \App\Http\Middleware\TrackPageVisits::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

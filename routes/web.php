@@ -335,6 +335,13 @@ Route::prefix('c2VjcmV0LWRldi1hY2Nlc3MtZmFzdGRldi0yMDI1')->group(function () {
             Route::get('/user-activity/data', [\App\Http\Controllers\Developer\UserLogsController::class, 'getUserActivityData'])->name('developer.logs.user-activity.data');
             Route::get('/login-activity/data', [\App\Http\Controllers\Developer\UserLogsController::class, 'getLoginActivityData'])->name('developer.logs.login-activity.data');
             Route::get('/survey-responses/data', [\App\Http\Controllers\Developer\UserLogsController::class, 'getSurveyResponsesData'])->name('developer.logs.survey-responses.data');
+            
+            // Page Visit Logs
+            Route::get('/page-visits', [\App\Http\Controllers\Developer\PageVisitController::class, 'index'])->name('developer.logs.page-visits');
+            Route::get('/page-visits/data', [\App\Http\Controllers\Developer\PageVisitController::class, 'getData'])->name('developer.logs.page-visits.data');
+            Route::get('/page-visits/chart-data', [\App\Http\Controllers\Developer\PageVisitController::class, 'getChartData'])->name('developer.logs.page-visits.chart-data');
+            Route::get('/page-visits/{id}/details', [\App\Http\Controllers\Developer\PageVisitController::class, 'getVisitDetails'])->name('developer.logs.page-visits.details');
+            Route::get('/page-visits/export', [\App\Http\Controllers\Developer\PageVisitController::class, 'export'])->name('developer.logs.page-visits.export');
         });
     });
 });
