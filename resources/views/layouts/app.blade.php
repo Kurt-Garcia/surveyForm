@@ -109,12 +109,10 @@
             font-family: var(--body-font);
             background-color: var(--background-color);
             color: var(--text-color);
+            min-height: 100vh;
         }
         
         h1, h2, h3, h4, h5, h6 {
-            font-family: var(--heading-font);
-        }
-        .nav-link {
             font-family: var(--heading-font);
         }
         
@@ -142,141 +140,331 @@
         
         {{ isset($activeTheme) && $activeTheme ? ($activeTheme->custom_css ?? '') : '' }}
     </style>
+    @else
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --accent-color: #28a745;
+            --background-color: #f8f9fa;
+            --text-color: #212529;
+            --heading-font: 'Nunito', sans-serif;
+            --body-font: 'Nunito', sans-serif;
+            --primary-color-rgb: 0, 123, 255;
+            --secondary-color-rgb: 108, 117, 125;
+            --accent-color-rgb: 40, 167, 69;
+            --background-color-rgb: 248, 249, 250;
+            --text-color-rgb: 33, 37, 41;
+        }
+        
+        body {
+            font-family: var(--body-font);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--heading-font);
+        }
+    </style>
     @endif
     
-    <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
-            <div class="container-fluid px-4">
-                <a class="navbar-brand" href="{{ route('admin.dashboard') }}">
-                    @php
-                        $activeLogo = \App\Models\Logo::where('is_active', true)->first();
-                    @endphp
-                    @if($activeLogo)
-                        <img src="{{ asset('storage/' . $activeLogo->file_path) }}" alt="Logo" class="logo" style="min-width: 50px; max-width: 150px; min-height: 30px; max-height: 35px; object-fit: contain;">
-                    @else
-                        <img src="{{ asset('img/logo.png') }}" alt="Logo" class="logo" style="min-width: 50px; max-width: 150px; min-height: 30px; max-height: 35px; object-fit: contain;">
-                    @endif
-                </a>
-                <button class="navbar-toggler" type="button" aria-label="Toggle navigation" id="offcanvasToggle">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="mobileOffcanvas" aria-labelledby="mobileOffcanvasLabel">
-                  <div class="offcanvas-header">
-                    <h5 class="offcanvas-title" id="mobileOffcanvasLabel">Menu</h5>
-                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                  </div>
-                  <div class="offcanvas-body">
-                    <ul class="navbar-nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.surveys.*') ? 'active' : '' }}" href="{{ route('admin.surveys.index') }}">Surveys</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.admins.*') || request()->routeIs('admin.check-*') ? 'active' : '' }}" href="{{ route('admin.admins.create') }}">Admins</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.users.*') || request()->routeIs('admin.sites.*') ? 'active' : '' }}" href="{{ route('admin.users.create') }}">Surveyors</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}" href="{{ route('admin.customers.index') }}">Customers</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.themes.*') ? 'active' : '' }}" href="{{ route('admin.themes.index') }}">Themes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.logos.*') ? 'active' : '' }}" href="{{ route('admin.logos.index') }}">Logo</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.translations.*') ? 'active' : '' }}" href="{{ route('admin.translations.index') }}">Translations</a>
-                        </li>
-                        @guest
-                            @if (Route::has('login'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                                </li>
-                            @endif
+    <!-- Sidebar Styles -->
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: rgba(var(--primary-color-rgb), 0.1);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(var(--primary-color-rgb), 0.2);
+            transition: all 0.3s ease;
+            width: 250px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar.collapsed {
+            width: 70px;
+        }
+        
+        .sidebar.collapsed .sidebar-text {
+            display: none;
+        }
+        
+        .sidebar.collapsed .dropdown-menu {
+            display: none !important;
+        }
+        
+        .sidebar.collapsed .dropdown-toggle::after {
+            display: none;
+        }
+        
+        .sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: 12px;
+        }
+        
+        .sidebar.collapsed .nav-link i {
+            margin-right: 0 !important;
+        }
+        
+        .logo-container {
+            position: fixed;
+            top: 0px;
+            left: 90px;
+            transition: all 0.3s ease;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .logo-container a {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .logo-container img {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .sidebar.collapsed .logo-container {
+            display: none;
+        }
+        
+        .sidebar .nav {
+            margin-top: 100px;
+        }
+        
+        .hamburger-btn {
+            position: fixed;
+            top: 30px;
+            left: 15px;
+            z-index: 1001;
+            background: rgba(var(--primary-color-rgb), 0.1);
+            border: 1px solid rgba(var(--primary-color-rgb), 0.2);
+            color: var(--primary-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .hamburger-btn:hover {
+            background: rgba(var(--primary-color-rgb), 0.2);
+            color: var(--primary-color);
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            width: calc(100vw - 250px);
+            max-width: calc(100vw - 250px);
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            min-height: 100vh;
+        }
+        
+        .main-content.expanded {
+            margin-left: 70px;
+            width: calc(100vw - 70px);
+            max-width: calc(100vw - 70px);
+        }
+        
+        .sidebar .nav-link {
+            color: var(--text-color);
+            border-radius: 8px;
+            margin: 2px 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+        }
+        
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: var(--primary-color);
+            background-color: rgba(var(--primary-color-rgb), 0.15);
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(var(--primary-color-rgb), 0.2);
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 12px;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            padding: 20px 16px;
+            margin-bottom: 10px;
+        }
+        
+        .logo-container .logo {
+            transition: all 0.3s ease;
+        }
+        
+        .brand-text {
+            margin-left: 12px;
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+        
+        .dropdown-menu {
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0;
+            margin: 0 !important;
+            width: auto;
+            min-width: 200px;
+            box-shadow: none !important;
+            padding: 8px 0;
+        }
+        
+        .dropdown-item {
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            margin: 2px 8px;
+            padding: 8px 12px 8px 2.5rem !important;
+            display: flex;
+            align-items: center;
+        }
+        
+        .dropdown-item:hover,
+        .dropdown-item.active {
+            background-color: rgba(var(--primary-color-rgb), 0.15);
+            color: var(--primary-color);
+        }
+        
+        .dropdown-item i {
+            margin-right: 8px;
+            width: 16px;
+            text-align: center;
+        }
+        
+        .user-dropdown {
+            margin-top: auto;
+            border-top: 1px solid rgba(var(--primary-color-rgb), 0.1);
+            padding-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100vw;
+                max-width: 100vw;
+            }
+            
+            .hamburger-btn {
+                background: var(--primary-color);
+                color: white;
+            }
+        }
+    </style>
+    
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" id="sidebarToggle">
+        <i class="bi bi-list fs-5"></i>
+    </button>
+
+    <div id="app" class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="sidebar p-3 collapsed" id="sidebar">
+                <!-- Logo Section -->
+                <div class="logo-container">
+                    <a href="{{ route('admin.dashboard') }}" class="d-flex align-items-center justify-content-center text-decoration-none">
+                        @php
+                            $activeLogo = \App\Models\Logo::where('is_active', true)->first();
+                        @endphp
+                        @if($activeLogo)
+                            <img src="{{ asset('storage/' . $activeLogo->file_path) }}" alt="Logo" class="logo" style="min-width: 60px; max-width: 90px; min-height: 50px; max-height: 60px; object-fit: contain;">
                         @else
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('profile') }}">
-                                    {{ __('Profile') }}
+                            <img src="{{ asset('img/logo.png') }}" alt="Logo" class="logo" style="min-width: 60px; max-width: 70px; min-height: 50px; max-height: 60px; object-fit: contain;">
+                        @endif
+                    </a>
+                </div>
+                
+                <!-- Navigation -->
+                <nav class="nav flex-column">
+                    <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
+                        <i class="bi bi-speedometer2"></i><span class="sidebar-text">Dashboard</span>
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('admin.surveys.*') ? 'active' : '' }}" href="{{ route('admin.surveys.index') }}">
+                        <i class="bi bi-clipboard-data"></i><span class="sidebar-text">Surveys</span>
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('admin.admins.*') || request()->routeIs('admin.check-*') ? 'active' : '' }}" href="{{ route('admin.admins.create') }}">
+                        <i class="bi bi-people"></i><span class="sidebar-text">Admins</span>
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('admin.users.*') || request()->routeIs('admin.sites.*') ? 'active' : '' }}" href="{{ route('admin.users.create') }}">
+                        <i class="bi bi-person-check"></i><span class="sidebar-text">Surveyors</span>
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}" href="{{ route('admin.customers.index') }}">
+                        <i class="bi bi-person-lines-fill"></i><span class="sidebar-text">Customers</span>
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('admin.themes.*') ? 'active' : '' }}" href="{{ route('admin.themes.index') }}">
+                        <i class="bi bi-palette"></i><span class="sidebar-text">Themes</span>
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('admin.logos.*') ? 'active' : '' }}" href="{{ route('admin.logos.index') }}">
+                        <i class="bi bi-image"></i><span class="sidebar-text">Logo</span>
+                    </a>
+                    <a class="nav-link {{ request()->routeIs('admin.translations.*') ? 'active' : '' }}" href="{{ route('admin.translations.index') }}">
+                        <i class="bi bi-translate"></i><span class="sidebar-text">Translations</span>
+                    </a>
+                    
+                    @auth
+                    <!-- User Section -->
+                    <div class="user-dropdown mt-auto">
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle"></i><span class="sidebar-text">{{ Auth::user()->name }}</span>
+                            </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="{{ route('profile') }}">
+                                    <i class="bi bi-person"></i>{{ __('Profile') }}
                                 </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ session('is_admin') ? route('admin.logout') : route('logout') }}"
-                                   onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit();">
-                                    {{ __('Logout') }}
+                                <a class="dropdown-item" href="{{ session('is_admin') ? route('admin.logout') : route('logout') }}"
+                                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="bi bi-box-arrow-right"></i>{{ __('Logout') }}
                                 </a>
-                                <form id="logout-form-mobile" action="{{ session('is_admin') ? route('admin.logout') : route('logout') }}" method="POST" class="d-none">
+                                <form id="logout-form" action="{{ session('is_admin') ? route('admin.logout') : route('logout') }}" method="POST" class="d-none">
                                     @csrf
                                 </form>
-                            </li>
-                        @endguest
-                    </ul>
-                  </div>
-                </div>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.surveys.*') ? 'active' : '' }}" href="{{ route('admin.surveys.index') }}">Surveys</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.admins.*') || request()->routeIs('admin.check-*') ? 'active' : '' }}" href="{{ route('admin.admins.create') }}">Admins</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.users.*') || request()->routeIs('admin.sites.*') ? 'active' : '' }}" href="{{ route('admin.users.create') }}">Surveyors</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}" href="{{ route('admin.customers.index') }}">Customers</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.themes.*') ? 'active' : '' }}" href="{{ route('admin.themes.index') }}">Themes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.logos.*') ? 'active' : '' }}" href="{{ route('admin.logos.index') }}">Logo</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.translations.*') ? 'active' : '' }}" href="{{ route('admin.translations.index') }}">Translations</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav ms-auto">
-                        @guest
-                            @if (Route::has('login'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                                </li>
-                            @endif
-                        @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('profile') }}">
-                                        {{ __('Profile') }}
-                                    </a>
-                                    <a class="dropdown-item" href="{{ session('is_admin') ? route('admin.logout') : route('logout') }}"
-                                       onclick="event.preventDefault(); document.getElementById('logout-form-desktop').submit();">
-                                        {{ __('Logout') }}
-                                    </a>
-                                    <form id="logout-form-desktop" action="{{ session('is_admin') ? route('admin.logout') : route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
-                        @endguest
-                    </ul>
-                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endauth
+                    
+                    @guest
+                        @if (Route::has('login'))
+                        <a class="nav-link" href="{{ route('login') }}">
+                            <i class="bi bi-box-arrow-in-right"></i><span class="sidebar-text">{{ __('Login') }}</span>
+                        </a>
+                        @endif
+                    @endguest
+                </nav>
             </div>
-        </nav>
 
-        <main class="py-0">
-            @yield('content')
-        </main>
+            <!-- Main Content -->
+            <div class="main-content p-0 expanded" id="mainContent">
+                @yield('content')
+            </div>
+        </div>
     </div>
 
     <!-- jQuery first, then Bootstrap JS -->
@@ -315,162 +503,142 @@
         });
     </script>
       
+    <!-- Sidebar Toggle Script -->
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        // Ensure proper navbar layout on page load
-        const navbar = document.querySelector('.navbar');
-        const navbarCollapse = document.querySelector('.navbar-collapse');
-        
-        if (window.innerWidth >= 768) {
-          if (navbarCollapse) {
-            navbarCollapse.style.display = 'flex';
-            navbarCollapse.style.justifyContent = 'space-between';
-          }
-        }
-        
-        // Initialize offcanvas for mobile only
-        var offcanvasToggle = document.getElementById('offcanvasToggle');
-        var offcanvasEl = document.getElementById('mobileOffcanvas');
-        if (offcanvasToggle && offcanvasEl) {
-          offcanvasToggle.addEventListener('click', function() {
-            var bsOffcanvas = new bootstrap.Offcanvas(offcanvasEl);
-            bsOffcanvas.toggle();
-          });
-        }
-        
-        // Handle window resize to maintain proper layout
-        window.addEventListener('resize', function() {
-          const navbarCollapse = document.querySelector('.navbar-collapse');
-          if (window.innerWidth >= 768 && navbarCollapse) {
-            navbarCollapse.style.display = 'flex';
-            navbarCollapse.style.justifyContent = 'space-between';
-          }
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+                
+                // Close any open dropdowns when collapsing
+                if (sidebar.classList.contains('collapsed')) {
+                    const openDropdowns = sidebar.querySelectorAll('.dropdown.show');
+                    openDropdowns.forEach(dropdown => {
+                        dropdown.classList.remove('show');
+                        const menu = dropdown.querySelector('.dropdown-menu');
+                        if (menu) {
+                            menu.classList.remove('show');
+                        }
+                    });
+                }
+            });
+            
+            // Handle dropdown toggle when sidebar is collapsed
+            const dropdownToggles = sidebar.querySelectorAll('.dropdown-toggle');
+            dropdownToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    if (sidebar.classList.contains('collapsed')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Expand sidebar to show dropdown
+                        sidebar.classList.remove('collapsed');
+                        mainContent.classList.remove('expanded');
+                        // Allow the dropdown to open after sidebar expansion
+                        setTimeout(() => {
+                            const dropdown = toggle.closest('.dropdown');
+                            // Trigger click event to open dropdown
+                            toggle.click();
+                        }, 350); // Wait for transition to complete
+                    }
+                    // When sidebar is not collapsed, let Bootstrap handle the dropdown normally
+                });
+            });
+            
+            // Handle mobile sidebar toggle
+            if (window.innerWidth <= 768) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                });
+                
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', function(e) {
+                    if (window.innerWidth <= 768 && 
+                        !sidebar.contains(e.target) && 
+                        !sidebarToggle.contains(e.target) && 
+                        sidebar.classList.contains('show')) {
+                        sidebar.classList.remove('show');
+                    }
+                });
+            }
         });
-      });
 
-      $(document).ready(function() {
-        $('.select2').select2();
-      });
+        $(document).ready(function() {
+            $('.select2').select2();
+        });
     </script>
     <style>
-        .nav-link, .dropdown-item {
-        font-family: var(--body-font);
-        color: var(--text-color);
+      /* Card and form styling for sidebar layout */
+      .card {
+        border: none;
+        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(var(--primary-color-rgb), 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
-        position: relative;
       }
       
-      .nav-link:hover, .dropdown-item:hover {
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      }
+      
+      .btn {
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+      
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+      
+      .form-control {
+        border-radius: 8px;
+        border: 1px solid rgba(var(--primary-color-rgb), 0.2);
+        transition: all 0.3s ease;
+      }
+      
+      .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(var(--primary-color-rgb), 0.25);
+      }
+      
+      .table {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      
+      .breadcrumb {
+        background: rgba(var(--primary-color-rgb), 0.05);
+        border-radius: 8px;
+        padding: 12px 16px;
+      }
+      
+      .breadcrumb-item a {
         color: var(--primary-color);
+        text-decoration: none;
       }
       
-      /* Active navbar menu styling */
-      .nav-link.active {
-        color: var(--primary-color) !important;
-        font-weight: 600;
-        background-color: rgba(var(--primary-color-rgb), 0.1);
+      .breadcrumb-item.active {
+        color: var(--text-color);
+      }
+      
+      /* Alert styling */
+      .alert {
+        border-radius: 10px;
+        border: none;
+        backdrop-filter: blur(10px);
+      }
+      
+      /* Badge styling */
+      .badge {
         border-radius: 6px;
-      }
-      
-      .nav-link.active::after {
-        content: '';
-        position: absolute;
-        bottom: -2px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80%;
-        height: 2px;
-        background-color: var(--primary-color);
-        border-radius: 1px;
-      }
-      
-      /* Mobile offcanvas active styling */
-      .offcanvas .nav-link.active {
-        background-color: rgba(var(--primary-color-rgb), 0.15);
-        border-left: 3px solid var(--primary-color);
-        padding-left: calc(1rem - 3px);
-      }
-      
-      .offcanvas .nav-link.active::after {
-        display: none;
-      }
-      
-      .dropdown-menu {
-        border-color: var(--border-color);
-        box-shadow: 0 2px 4px var(--shadow-color);
-      }
-      
-      /* Fix navbar glitch caused by mobile/desktop interference */
-      .navbar {
-        position: relative;
-      }
-      
-      .navbar-collapse {
-        justify-content: space-between;
-      }
-      
-      .navbar-nav.me-auto {
-        margin-right: auto;
-      }
-      
-      .navbar-nav.ms-auto {
-        margin-left: auto;
-      }
-      
-      /* Ensure mobile offcanvas doesn't affect desktop layout */
-      .offcanvas {
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        z-index: 1045;
-        width: 280px;
-      }
-      
-      /* Proper responsive navbar handling */
-      @media (max-width: 767.98px) {
-        .navbar-nav {
-          text-align: center;
-        }
-        .offcanvas { 
-          width: 280px; 
-          max-width: 80vw; 
-        }
-        
-        /* Hide desktop navbar on mobile */
-        .navbar-collapse {
-          display: none !important;
-        }
-      }
-      
-      @media (min-width: 768px) {
-        .navbar-toggler { 
-          display: none !important; 
-        }
-        .navbar-collapse { 
-          display: flex !important; 
-          justify-content: space-between !important;
-        }
-        .offcanvas { 
-          display: none !important; 
-        }
-        
-        /* Ensure desktop navbar stays properly aligned */
-        .navbar-expand-md .navbar-collapse {
-          flex-basis: auto;
-          flex-grow: 1;
-        }
-        
-        .navbar-expand-md .navbar-nav {
-          flex-direction: row;
-        }
-        
-        .navbar-expand-md .navbar-nav.me-auto {
-          margin-right: auto !important;
-        }
-        
-        .navbar-expand-md .navbar-nav.ms-auto {
-          margin-left: auto !important;
-        }
       }
 
       /* Password Toggle Button Styling - Global */

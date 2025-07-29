@@ -17,8 +17,7 @@ class TrackPageVisits
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Only track GET requests to avoid tracking form submissions, API calls, etc.
-        // Also exclude pages that don't require authentication
+        // Only track actual page visits, not AJAX requests, API calls, or validation endpoints
         if ($request->isMethod('GET') && !$request->ajax() && !$request->wantsJson() && $this->shouldTrackPage($request)) {
             $this->startPageVisitTracking($request);
         }
@@ -57,6 +56,15 @@ class TrackPageVisits
             'password.reset',
             'password.update',
             'register', // if registration exists
+            // Exclude AJAX validation and API endpoints
+            'admin.check-name-availability',
+            'admin.check-email-availability', 
+            'admin.check-contact-number-availability',
+            'admin.sites.by-sbus',
+            'user.check-name-availability',
+            'user.check-email-availability',
+            'user.check-contact-number-availability',
+            'user.sites.by-sbus',
         ];
         
         // Exclude specific paths
@@ -68,6 +76,14 @@ class TrackPageVisits
             'password/email',
         ];
         
+        // Exclude API endpoints and AJAX calls by path pattern
+        $excludedPathPatterns = [
+            'api/',
+            'ajax/',
+            'check-availability/',
+            'sites/by-sbus',
+        ];
+        
         // Don't track if route is in excluded list
         if ($routeName && in_array($routeName, $excludedRoutes)) {
             return false;
@@ -76,6 +92,13 @@ class TrackPageVisits
         // Don't track if path is in excluded list
         if (in_array($path, $excludedPaths)) {
             return false;
+        }
+        
+        // Don't track if path matches excluded patterns
+        foreach ($excludedPathPatterns as $pattern) {
+            if (str_contains($path, $pattern)) {
+                return false;
+            }
         }
         
         return true;
