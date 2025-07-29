@@ -1,149 +1,167 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid px-4 mt-4">
-    
-
-    <!-- Survey Header -->
-    <div class="card shadow-lg border-0 mb-4">
-        <div class="card-header bg-gradient-primary text-white py-4">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1 class="h3 mb-2 text-white font-weight-bold">{{ strtoupper($survey->title) }}</h1>
-                    <div class="row text-white-50">
-                        <div class="col-md-6">
-                            <p class="mb-1"><i class="fas fa-building me-2"></i><strong>SBU:</strong> 
+<div class="modern-report-container">
+    <!-- Header Section -->
+    <div class="report-header">
+        <div class="header-content">
+            <div class="header-main">
+                <div class="survey-info">
+                    <h1 class="survey-title">{{ $survey->title }}</h1>
+                    <div class="survey-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-building"></i>
+                            <span class="meta-label">SBU:</span>
+                            <div class="meta-badges">
                                 @if($survey->sbus->count() > 0)
                                     @foreach($survey->sbus as $sbu)
-                                        <span class="badge bg-light text-dark me-1">{{ $sbu->name }}</span>
+                                        <span class="modern-badge primary">{{ $sbu->name }}</span>
                                     @endforeach
                                 @else
-                                    <span class="badge bg-warning text-dark">Not Assigned</span>
+                                    <span class="modern-badge warning">Not Assigned</span>
                                 @endif
-                            </p>
-                            <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i><strong>Sites Deployed:</strong>
+                            </div>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span class="meta-label">Sites:</span>
+                            <div class="meta-badges">
                                 @if($survey->sites->count() > 0)
-                                    @php $maxVisibleSites = 2; @endphp
+                                    @php $maxVisibleSites = 3; @endphp
                                     @foreach($survey->sites->take($maxVisibleSites) as $site)
-                                        <span class="badge bg-info text-white me-1">{{ $site->name }}</span>
+                                        <span class="modern-badge secondary">{{ $site->name }}</span>
                                     @endforeach
                                     @if($survey->sites->count() > $maxVisibleSites)
-                                        <span class="badge bg-secondary text-white" data-bs-toggle="tooltip" title="{{ $survey->sites->skip($maxVisibleSites)->pluck('name')->join(', ') }}">
+                                        <span class="modern-badge info" data-bs-toggle="tooltip" title="{{ $survey->sites->skip($maxVisibleSites)->pluck('name')->join(', ') }}">
                                             +{{ $survey->sites->count() - $maxVisibleSites }} More
                                         </span>
                                     @endif
                                 @else
-                                    <span class="badge bg-secondary text-white">No sites deployed</span>
+                                    <span class="modern-badge muted">No sites deployed</span>
                                 @endif
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <p class="mb-1"><i class="fas fa-users me-2"></i><strong>Total Respondents:</strong> 
-                                <span class="badge bg-warning text-dark">{{ $totalResponses }}</span>
-                            </p>
-                            <p class="mb-1"><i class="fas fa-calendar me-2"></i><strong>Report Generated:</strong> 
-                                <span class="badge bg-light text-dark">{{ now()->format('M d, Y H:i') }}</span>
-                            </p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 text-end">
-                    @if($survey->logo)
-                        <img src="{{ asset('storage/' . $survey->logo) }}" alt="Survey Logo" class="img-fluid" style="max-height: 80px;">
-                    @endif
+                <div class="header-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ $totalResponses }}</div>
+                        <div class="stat-label">Total Responses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">{{ now()->format('M d') }}</div>
+                        <div class="stat-label">Generated</div>
+                    </div>
                 </div>
             </div>
+            @if($survey->logo)
+                <div class="header-logo">
+                    <img src="{{ asset('storage/' . $survey->logo) }}" alt="Survey Logo" class="logo-img">
+                </div>
+            @endif
         </div>
     </div>
 
     <!-- Executive Summary -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-white py-3">
-            <h4 class="text-primary mb-0 fw-bold"><i class="fas fa-chart-pie me-2"></i>Executive Summary</h4>
+    <div class="summary-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-chart-pie"></i>
+                Executive Summary
+            </h2>
+            <p class="section-subtitle">Key performance indicators at a glance</p>
         </div>
-        <div class="card-body">
-            <div class="row text-center">
-                <div class="col-md-3 mb-3">
-                    <div class="border rounded p-3 h-100">
-                        <div class="h2 text-primary mb-2">{{ $totalResponses }}</div>
-                        <h6 class="text-muted mb-0">Total Responses</h6>
-                    </div>
+        <div class="metrics-grid">
+            <div class="metric-card primary">
+                <div class="metric-icon">
+                    <i class="fas fa-users"></i>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <div class="border rounded p-3 h-100">
-                        <div class="h2 text-success mb-2">{{ count($siteAnalytics) }}</div>
-                        <h6 class="text-muted mb-0">Sites with Responses</h6>
-                    </div>
+                <div class="metric-content">
+                    <div class="metric-number">{{ $totalResponses }}</div>
+                    <div class="metric-label">Total Responses</div>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <div class="border rounded p-3 h-100">
-                        @php
-                            $hitSites = collect($siteAnalytics)->where('qms_target_status', 'HIT')->count();
-                            $totalSites = count($siteAnalytics);
-                            $hitPercentage = $totalSites > 0 ? round(($hitSites / $totalSites) * 100, 1) : 0;
-                        @endphp
-                        <div class="h2 mb-2 {{ $hitPercentage >= 70 ? 'text-success' : ($hitPercentage >= 50 ? 'text-warning' : 'text-danger') }}">
-                            {{ $hitPercentage }}%
-                        </div>
-                        <h6 class="text-muted mb-0">QMS Target Achievement</h6>
-                    </div>
+            </div>
+            <div class="metric-card success">
+                <div class="metric-icon">
+                    <i class="fas fa-building"></i>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <div class="border rounded p-3 h-100">
-                        @php
-                            $avgNPS = collect($npsData)->avg('nps_score');
-                        @endphp
-                        <div class="h2 mb-2 {{ $avgNPS >= 70 ? 'text-success' : ($avgNPS >= 50 ? 'text-warning' : 'text-danger') }}">
-                            {{ number_format($avgNPS, 1) }}
-                        </div>
-                        <h6 class="text-muted mb-0">Average NPS Score</h6>
-                    </div>
+                <div class="metric-content">
+                    <div class="metric-number">{{ count($siteAnalytics) }}</div>
+                    <div class="metric-label">Active Sites</div>
+                </div>
+            </div>
+            <div class="metric-card {{ $hitPercentage >= 70 ? 'success' : ($hitPercentage >= 50 ? 'warning' : 'danger') }}">
+                @php
+                    $hitSites = collect($siteAnalytics)->where('qms_target_status', 'HIT')->count();
+                    $totalSites = count($siteAnalytics);
+                    $hitPercentage = $totalSites > 0 ? round(($hitSites / $totalSites) * 100, 1) : 0;
+                @endphp
+                <div class="metric-icon">
+                    <i class="fas fa-target"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-number">{{ $hitPercentage }}%</div>
+                    <div class="metric-label">QMS Target Achievement</div>
+                </div>
+            </div>
+            <div class="metric-card {{ $avgNPS >= 70 ? 'success' : ($avgNPS >= 50 ? 'warning' : 'danger') }}">
+                @php
+                    $avgNPS = collect($npsData)->avg('nps_score');
+                @endphp
+                <div class="metric-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-number">{{ number_format($avgNPS, 1) }}</div>
+                    <div class="metric-label">Average NPS Score</div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Rating System Legend -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-white py-3">
-            <h5 class="text-primary mb-0 fw-bold"><i class="fas fa-info-circle me-2"></i>Rating System Guide</h5>
+    <div class="rating-legend-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-info-circle"></i>
+                Rating System Guide
+            </h2>
+            <p class="section-subtitle">Understanding our rating scale</p>
         </div>
-        <div class="card-body">
-            <div class="row text-center justify-content-center">
-                <div class="col-md-2 col-sm-6 mb-3">
-                    <div class="p-3 border rounded bg-light h-100">
-                        <div class="h5 rating-excellent mb-2">E</div>
-                        <h6 class="mb-1">Excellent</h6>
-                        <small class="text-muted">5.0</small>
-                    </div>
+        <div class="rating-legend-grid">
+            <div class="rating-legend-item excellent">
+                <div class="rating-badge">E</div>
+                <div class="rating-info">
+                    <h3>Excellent</h3>
+                    <span class="rating-range">5.0</span>
                 </div>
-                <div class="col-md-2 col-sm-6 mb-3">
-                    <div class="p-3 border rounded bg-light h-100">
-                        <div class="h5 rating-very-satisfactory mb-2">VS</div>
-                        <h6 class="mb-1">Very Satisfactory</h6>
-                        <small class="text-muted">4.0 - 4.99</small>
-                    </div>
+            </div>
+            <div class="rating-legend-item very-satisfactory">
+                <div class="rating-badge">VS</div>
+                <div class="rating-info">
+                    <h3>Very Satisfactory</h3>
+                    <span class="rating-range">4.0 - 4.99</span>
                 </div>
-                <div class="col-md-2 col-sm-6 mb-3">
-                    <div class="p-3 border rounded bg-light h-100">
-                        <div class="h5 rating-satisfactory mb-2">S</div>
-                        <h6 class="mb-1">Satisfactory</h6>
-                        <small class="text-muted">3.0 - 3.99</small>
-                    </div>
+            </div>
+            <div class="rating-legend-item satisfactory">
+                <div class="rating-badge">S</div>
+                <div class="rating-info">
+                    <h3>Satisfactory</h3>
+                    <span class="rating-range">3.0 - 3.99</span>
                 </div>
-                <div class="col-md-2 col-sm-6 mb-3">
-                    <div class="p-3 border rounded bg-light h-100">
-                        <div class="h5 rating-needs-improvement mb-2">NI</div>
-                        <h6 class="mb-1">Needs Improvement</h6>
-                        <small class="text-muted">2.0 - 2.99</small>
-                    </div>
+            </div>
+            <div class="rating-legend-item needs-improvement">
+                <div class="rating-badge">NI</div>
+                <div class="rating-info">
+                    <h3>Needs Improvement</h3>
+                    <span class="rating-range">2.0 - 2.99</span>
                 </div>
-                <div class="col-md-2 col-sm-6 mb-3">
-                    <div class="p-3 border rounded bg-light h-100">
-                        <div class="h5 rating-poor mb-2">P</div>
-                        <h6 class="mb-1">Poor</h6>
-                        <small class="text-muted">1.0 - 1.99</small>
-                    </div>
+            </div>
+            <div class="rating-legend-item poor">
+                <div class="rating-badge">P</div>
+                <div class="rating-info">
+                    <h3>Poor</h3>
+                    <span class="rating-range">1.0 - 1.99</span>
                 </div>
             </div>
         </div>
@@ -659,22 +677,26 @@
     </div>
 
     <!-- Export Actions -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body text-center py-4">
-            <h5 class="text-muted mb-3">Export Report</h5>
-            <p class="text-muted small mb-4">Download comprehensive survey report in Excel format</p>
-            
-            <!-- Export Options with Descriptions -->
-            <div class="row justify-content-center mb-4">
-                <div class="col-md-6 mb-3">
-                    <div class="border rounded p-3 h-100">
-                        <i class="fas fa-file-excel fa-2x text-success mb-3"></i>
-                        <h6>Corporate Excel Export</h6>
-                        <p class="small text-muted mb-3">Professional report matching corporate format with styling</p>
-                        <a href="{{ route('admin.surveys.export.excel', $survey) }}" class="btn btn-outline-success btn-sm">
-                            <i class="fas fa-download me-1"></i>Download
-                        </a>
-                    </div>
+    <div class="export-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-download"></i>
+                Export Report
+            </h2>
+            <p class="section-subtitle">Download comprehensive survey report</p>
+        </div>
+        <div class="export-options">
+            <div class="export-card">
+                <div class="export-icon">
+                    <i class="fas fa-file-excel"></i>
+                </div>
+                <div class="export-content">
+                    <h3>Corporate Excel Export</h3>
+                    <p>Professional report matching corporate format with styling</p>
+                    <a href="{{ route('admin.surveys.export.excel', $survey) }}" class="export-btn">
+                        <i class="fas fa-download"></i>
+                        Download Report
+                    </a>
                 </div>
             </div>
         </div>
@@ -684,8 +706,615 @@
 <!-- Remove SheetJS Library - No longer needed -->
 
 <style>
+/* Modern Report Styling with Theme Colors */
+:root {
+    --report-spacing: 2rem;
+    --report-border-radius: 16px;
+    --report-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --report-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --report-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Container */
+.modern-report-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--report-spacing);
+    background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.02) 0%, rgba(var(--secondary-color-rgb), 0.02) 100%);
+    min-height: 100vh;
+}
+
+/* Header Section */
+.report-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border-radius: var(--report-border-radius);
+    padding: 2.5rem;
+    margin-bottom: var(--report-spacing);
+    color: white;
+    box-shadow: var(--report-shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.report-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transform: translate(50%, -50%);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.header-main {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+.survey-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.survey-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.meta-item i {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    width: 20px;
+}
+
+.meta-label {
+    font-weight: 600;
+    min-width: 60px;
+}
+
+.meta-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.modern-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    transition: var(--report-transition);
+}
+
+.modern-badge.primary {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.modern-badge.secondary {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+.modern-badge.warning {
+    background: rgba(255, 193, 7, 0.9);
+    color: #212529;
+    border-color: rgba(255, 193, 7, 0.5);
+}
+
+.modern-badge.info {
+    background: rgba(23, 162, 184, 0.9);
+    color: white;
+    border-color: rgba(23, 162, 184, 0.5);
+}
+
+.modern-badge.muted {
+    background: rgba(108, 117, 125, 0.9);
+    color: white;
+    border-color: rgba(108, 117, 125, 0.5);
+}
+
+.header-stats {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    min-width: 120px;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+.header-logo {
+    flex-shrink: 0;
+}
+
+.logo-img {
+    max-height: 80px;
+    max-width: 150px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
+}
+
+/* Section Styling */
+ .summary-section,
+ .rating-legend-section,
+ .export-section {
+     background: white;
+     border-radius: var(--report-border-radius);
+     padding: 2rem;
+     margin-bottom: var(--report-spacing);
+     box-shadow: var(--report-shadow);
+     transition: var(--report-transition);
+ }
+ 
+ .summary-section:hover,
+ .rating-legend-section:hover,
+ .export-section:hover {
+     box-shadow: var(--report-shadow-hover);
+     transform: translateY(-2px);
+ }
+
+.section-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.section-title i {
+    font-size: 1.5rem;
+}
+
+.section-subtitle {
+    color: #6c757d;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Metrics Grid */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.metric-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: var(--report-transition);
+    border: 1px solid #e9ecef;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--primary-color);
+    transition: var(--report-transition);
+}
+
+.metric-card.success::before {
+    background: #28a745;
+}
+
+.metric-card.warning::before {
+    background: #ffc107;
+}
+
+.metric-card.danger::before {
+    background: #dc3545;
+}
+
+.metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--report-shadow-hover);
+}
+
+.metric-card:hover::before {
+    width: 8px;
+}
+
+.metric-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    background: var(--primary-color);
+    flex-shrink: 0;
+}
+
+.metric-card.success .metric-icon {
+    background: #28a745;
+}
+
+.metric-card.warning .metric-icon {
+    background: #ffc107;
+    color: #212529;
+}
+
+.metric-card.danger .metric-icon {
+    background: #dc3545;
+}
+
+.metric-content {
+    flex: 1;
+}
+
+.metric-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
+}
+
+.metric-label {
+    font-size: 1rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* Rating Legend Grid */
+.rating-legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.rating-legend-item {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: var(--report-transition);
+    border: 2px solid #e9ecef;
+    position: relative;
+    overflow: hidden;
+}
+
+.rating-legend-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    transition: var(--report-transition);
+}
+
+.rating-legend-item.excellent::before {
+    background: #28a745;
+}
+
+.rating-legend-item.very-satisfactory::before {
+    background: #007bff;
+}
+
+.rating-legend-item.satisfactory::before {
+    background: #17a2b8;
+}
+
+.rating-legend-item.needs-improvement::before {
+    background: #ffc107;
+}
+
+.rating-legend-item.poor::before {
+    background: #dc3545;
+}
+
+.rating-legend-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-color);
+}
+
+.rating-badge {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.rating-legend-item.excellent .rating-badge {
+    background: #28a745;
+}
+
+.rating-legend-item.very-satisfactory .rating-badge {
+    background: #007bff;
+}
+
+.rating-legend-item.satisfactory .rating-badge {
+    background: #17a2b8;
+}
+
+.rating-legend-item.needs-improvement .rating-badge {
+    background: #ffc107;
+    color: #212529;
+}
+
+.rating-legend-item.poor .rating-badge {
+    background: #dc3545;
+}
+
+.rating-info h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    color: #2d3748;
+}
+
+.rating-range {
+     font-size: 0.9rem;
+     color: #6c757d;
+     font-weight: 500;
+ }
+ 
+ /* Export Section */
+ .export-options {
+     display: flex;
+     justify-content: center;
+ }
+ 
+ .export-card {
+     background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+     border-radius: 16px;
+     padding: 2rem;
+     display: flex;
+     align-items: center;
+     gap: 2rem;
+     transition: var(--report-transition);
+     border: 2px solid #e9ecef;
+     max-width: 500px;
+     width: 100%;
+ }
+ 
+ .export-card:hover {
+     transform: translateY(-4px);
+     box-shadow: var(--report-shadow-hover);
+     border-color: var(--primary-color);
+ }
+ 
+ .export-icon {
+     width: 80px;
+     height: 80px;
+     border-radius: 50%;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 2rem;
+     color: white;
+     background: #28a745;
+     flex-shrink: 0;
+ }
+ 
+ .export-content {
+     flex: 1;
+     text-align: left;
+ }
+ 
+ .export-content h3 {
+     font-size: 1.3rem;
+     font-weight: 600;
+     margin: 0 0 0.5rem 0;
+     color: #2d3748;
+ }
+ 
+ .export-content p {
+     color: #6c757d;
+     margin: 0 0 1.5rem 0;
+     font-size: 0.95rem;
+ }
+ 
+ .export-btn {
+     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+     color: white;
+     padding: 0.75rem 1.5rem;
+     border-radius: 8px;
+     text-decoration: none;
+     font-weight: 600;
+     display: inline-flex;
+     align-items: center;
+     gap: 0.5rem;
+     transition: var(--report-transition);
+     border: none;
+ }
+ 
+ .export-btn:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 4px 15px rgba(var(--primary-color-rgb), 0.3);
+     color: white;
+     text-decoration: none;
+ }
+
+/* Responsive Design */
+ @media (max-width: 768px) {
+     .modern-report-container {
+         padding: 1rem;
+     }
+     
+     .report-header {
+         padding: 1.5rem;
+     }
+     
+     .header-content {
+         flex-direction: column;
+         gap: 1.5rem;
+     }
+     
+     .header-main {
+         flex-direction: column;
+         gap: 1.5rem;
+     }
+     
+     .survey-title {
+         font-size: 1.8rem;
+     }
+     
+     .header-stats {
+         justify-content: center;
+     }
+     
+     .metrics-grid {
+         grid-template-columns: 1fr;
+     }
+     
+     .rating-legend-grid {
+         grid-template-columns: 1fr;
+     }
+     
+     .metric-card {
+         padding: 1.5rem;
+     }
+     
+     .export-card {
+         flex-direction: column;
+         text-align: center;
+         padding: 1.5rem;
+     }
+     
+     .export-content {
+         text-align: center;
+     }
+     
+     .section-title {
+         font-size: 1.5rem;
+     }
+     
+     .summary-section,
+     .rating-legend-section,
+     .export-section {
+         padding: 1.5rem;
+     }
+ }
+
+/* Legacy card styles for remaining sections */
+.card {
+    border-radius: var(--report-border-radius);
+    border: none;
+    box-shadow: var(--report-shadow);
+    transition: var(--report-transition);
+    margin-bottom: var(--report-spacing);
+}
+
+.card:hover {
+    box-shadow: var(--report-shadow-hover);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.1) 0%, rgba(var(--secondary-color-rgb), 0.05) 100%);
+    border-bottom: 2px solid rgba(var(--primary-color-rgb), 0.1);
+    border-radius: var(--report-border-radius) var(--report-border-radius) 0 0 !important;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
 .border-left-primary {
-    border-left: 5px solid #007bff !important;
+    border-left: 4px solid var(--primary-color) !important;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+}
+
+/* Table improvements */
+.table th {
+    background: rgba(var(--primary-color-rgb), 0.1);
+    color: var(--primary-color);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border: none;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.05);
+}
+
+/* Progress bars */
+.progress {
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 .progress-bar {
@@ -693,104 +1322,71 @@
     align-items: center;
     justify-content: center;
     color: white;
-    font-weight: bold;
-    font-size: 0.8rem;
-}
-
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-}
-
-.card {
-    transition: transform 0.2s ease-in-out;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-}
-
-.table th {
-    border-top: none;
     font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
+    font-size: 0.8rem;
+    transition: var(--report-transition);
 }
 
-.alert-info {
-    background-color: #e3f2fd;
-    border-color: #bbdefb;
-    color: #1565c0;
+/* Badges */
+.badge {
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
 }
 
-.text-primary {
-    color: #007bff !important;
-}
-
-/* Custom badge colors */
-.badge.bg-info {
-    background-color: #17a2b8 !important;
-}
-
-.badge.bg-warning {
-    background-color: #ffc107 !important;
-    color: #212529 !important;
-}
-
-/* Rating label styling */
-.rating-excellent {
-    color: #28a745;
-    font-weight: bold;
-}
-
-.rating-very-satisfactory {
-    color: #007bff;
-    font-weight: bold;
-}
-
-.rating-satisfactory {
-    color: #ffc107;
-    font-weight: bold;
-}
-
-.rating-needs-improvement {
-    color: #fd7e14;
-    font-weight: bold;
-}
-
-.rating-poor {
-    color: #dc3545;
-    font-weight: bold;
-}
-
-/* Score distribution styling */
-.score-distribution .score-item {
-    border-left: 3px solid #e9ecef;
-    padding-left: 10px;
-}
-
-.score-distribution .score-item:hover {
-    border-left-color: #007bff;
-    background-color: #f8f9fa;
-}
-
-/* Improvement areas styling */
+/* Accordion improvements */
 .accordion-button {
-    background-color: #f8f9fa;
+    background: rgba(var(--primary-color-rgb), 0.05);
+    border: none;
+    border-radius: 8px !important;
+    margin-bottom: 0.5rem;
 }
 
 .accordion-button:not(.collapsed) {
-    background-color: #e3f2fd;
-    color: #1565c0;
+    background: rgba(var(--primary-color-rgb), 0.1);
+    color: var(--primary-color);
+    box-shadow: none;
 }
 
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.25);
+}
+
+/* List group improvements */
 .list-group-item {
-    border-left: 3px solid #ffc107;
-    margin-bottom: 2px;
+    border-left: 3px solid var(--primary-color);
+    border-radius: 8px !important;
+    margin-bottom: 0.5rem;
+    transition: var(--report-transition);
 }
 
 .list-group-item:hover {
-    background-color: #fff3cd;
+    background-color: rgba(var(--primary-color-rgb), 0.05);
+    transform: translateX(4px);
+}
+
+/* Animation for tooltips */
+[data-bs-toggle="tooltip"] {
+    cursor: help;
+}
+
+/* Print styles */
+@media print {
+    .modern-report-container {
+        background: white;
+        padding: 0;
+    }
+    
+    .report-header {
+        background: var(--primary-color) !important;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+    
+    .card {
+        box-shadow: none;
+        border: 1px solid #dee2e6;
+    }
 }
 </style>
 

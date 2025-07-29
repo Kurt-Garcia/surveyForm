@@ -17,48 +17,91 @@
                 </div>
             </div>
 
-            <!-- Summary Cards -->
+            <!-- Action Bar -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm bg-gradient-primary">
+                        <div class="card-body py-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="action-icon me-3">
+                                        <i class="bi bi-speedometer2 text-white fs-2"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="text-white mb-1 fw-bold">Survey Analytics Dashboard</h5>
+                                        <p class="text-white-50 mb-0">Comprehensive insights and reporting tools</p>
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-3">
+                                    <a href="{{ route('admin.surveys.report', $survey->id) }}" 
+                                       class="btn btn-light btn-lg rounded-pill px-4 shadow-sm report-btn-new">
+                                        <i class="bi bi-file-earmark-bar-graph me-2"></i>View Report
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Statistics Cards -->
             <div class="row g-4 mb-4">
-                <div class="col-lg-3 col-md-6">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <h5 class="text-color fw-bold mb-3"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Response Rate</h5>
-                            <div class="display-6 text-primary mb-2">{{ $responses->count() }}</div>
-                            <p class="text-muted">Total responses received</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <h5 class="text-color fw-bold mb-3"><i class="bi bi-calendar-fill text-success me-2"></i>Latest Response</h5>
-                            <div class="display-6 text-success mb-2">
-                                {{ $responses->first() ? $responses->first()->date->format('M d') : 'N/A' }}
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm h-100 stats-card-modern">
+                        <div class="card-body position-relative">
+                            <div class="stats-icon bg-primary-subtle text-primary">
+                                <i class="bi bi-bar-chart-fill"></i>
                             </div>
-                            <p class="text-muted">Last submission date</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <h5 class="text-color fw-bold mb-3"><i class="bi bi-person-fill text-info me-2"></i>Unique Respondents</h5>
-                            <div class="display-6 text-info mb-2">{{ $responses->unique('account_name')->count() }}</div>
-                            <p class="text-muted">Individual participants</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <div class="card border-0 shadow-sm h-100 report-card">
-                        <div class="card-body text-center d-flex flex-column justify-content-center">
-                            <div class="report-icon mb-3">
-                                <i class="bi bi-file-earmark-text-fill text-warning display-5"></i>
+                            <div class="stats-content">
+                                <h3 class="display-5 fw-bold text-primary mb-2">{{ $responses->count() }}</h3>
+                                <h6 class="text-color fw-semibold mb-1">Total Responses</h6>
+                                <p class="text-muted small mb-0">Responses received for this survey</p>
                             </div>
-                            <h5 class="text-color fw-bold mb-3">Generate Report</h5>
-                            <a href="{{ route('admin.surveys.report', $survey->id) }}" 
-                               class="btn btn-warning btn-lg rounded-pill px-4 report-btn">
-                                <i class="bi bi-download me-2"></i>View Report
-                            </a>
+                            <div class="stats-trend">
+                                <span class="badge bg-primary-subtle text-primary rounded-pill">
+                                    <i class="bi bi-arrow-up me-1"></i>Active
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm h-100 stats-card-modern">
+                        <div class="card-body position-relative">
+                            <div class="stats-icon bg-success-subtle text-success">
+                                <i class="bi bi-calendar-check"></i>
+                            </div>
+                            <div class="stats-content">
+                                <h3 class="display-5 fw-bold text-success mb-2">
+                                    {{ $responses->first() ? $responses->first()->date->format('M d') : 'N/A' }}
+                                </h3>
+                                <h6 class="text-color fw-semibold mb-1">Latest Response</h6>
+                                <p class="text-muted small mb-0">Most recent submission date</p>
+                            </div>
+                            <div class="stats-trend">
+                                <span class="badge bg-success-subtle text-success rounded-pill">
+                                    <i class="bi bi-clock me-1"></i>Recent
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-12">
+                    <div class="card border-0 shadow-sm h-100 stats-card-modern">
+                        <div class="card-body position-relative">
+                            <div class="stats-icon bg-info-subtle text-info">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <div class="stats-content">
+                                <h3 class="display-5 fw-bold text-info mb-2">{{ $responses->unique('account_name')->count() }}</h3>
+                                <h6 class="text-color fw-semibold mb-1">Unique Respondents</h6>
+                                <p class="text-muted small mb-0">Individual participants engaged</p>
+                            </div>
+                            <div class="stats-trend">
+                                <span class="badge bg-info-subtle text-info rounded-pill">
+                                    <i class="bi bi-person-check me-1"></i>Unique
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -72,7 +115,7 @@
                     <div class="card shadow-lg border-0 rounded-4 overflow-hidden" id="individual-responses">
                         <div class="card-header bg-gradient-primary py-4">
                             <div class="d-flex justify-content-between align-items-center">
-                                <h4 class="text-color mb-0 fw-bold d-flex align-items-center">
+                                <h4 class="mb-0 fw-bold d-flex align-items-center">
                                     <i class="bi bi-people-fill me-2 text-primary"></i>Individual Responses
                                 </h4>
                                 <div class="d-flex align-items-center">
@@ -411,6 +454,20 @@
                         }
                     }
                 });
+                
+                // Refresh data function
+                function refreshData() {
+                    // Show loading state
+                    const refreshBtn = document.querySelector('.btn-outline-light');
+                    const originalContent = refreshBtn.innerHTML;
+                    refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise me-2 spin"></i>Refreshing...';
+                    refreshBtn.disabled = true;
+                    
+                    // Simulate refresh (reload page)
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                }
             </script>
             @endpush
 
@@ -487,40 +544,162 @@
                 transform: translateY(-5px);
             }
             
-            /* Report Card Styling */
-            .report-card {
-                background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-                border: 1px solid #ffd93d;
+            /* Modern Action Bar Styling */
+            .bg-gradient-primary {
+                background: linear-gradient(135deg, var(--primary-color, #007bff) 0%, var(--secondary-color, #6610f2) 100%) !important;
+            }
+            
+            .action-icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 60px;
+                height: 60px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                backdrop-filter: blur(10px);
+            }
+            
+            .report-btn-new {
+                background: #fff;
+                color: var(--primary-color, #007bff);
+                border: none;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            }
+            
+            .report-btn-new:hover {
+                background: #f8f9fa;
+                color: var(--primary-color, #007bff);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            }
+            
+            /* Modern Statistics Cards */
+            .stats-card-modern {
+                transition: all 0.3s ease;
+                border-radius: 16px;
+                overflow: hidden;
+                position: relative;
+            }
+            
+            .stats-card-modern:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            }
+            
+            .stats-card-modern .card-body {
+                padding: 2rem;
+            }
+            
+            .stats-icon {
+                position: absolute;
+                top: 1.5rem;
+                right: 1.5rem;
+                width: 50px;
+                height: 50px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
                 transition: all 0.3s ease;
             }
             
-            .report-card:hover {
-                transform: translateY(-8px);
-                box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
-            }
-            
-            .report-icon {
-                transition: transform 0.3s ease;
-            }
-            
-            .report-card:hover .report-icon {
+            .stats-card-modern:hover .stats-icon {
                 transform: scale(1.1) rotate(5deg);
             }
             
-            .report-btn {
-                background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);
-                border: none;
-                color: #fff;
-                font-weight: 600;
-                box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
-                transition: all 0.3s ease;
+            .stats-content {
+                margin-right: 70px;
             }
             
-            .report-btn:hover {
-                background: linear-gradient(135deg, #ff8f00 0%, #e65100 100%);
-                color: #fff;
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+            .stats-trend {
+                position: absolute;
+                bottom: 1.5rem;
+                right: 1.5rem;
+            }
+            
+            .stats-trend .badge {
+                font-size: 0.75rem;
+                padding: 0.5rem 0.75rem;
+            }
+            
+            /* Spinning animation for refresh button */
+            .spin {
+                animation: spin 1s linear infinite;
+            }
+            
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+            
+            /* Enhanced responsive design */
+            @media (max-width: 992px) {
+                .action-icon {
+                    width: 50px;
+                    height: 50px;
+                }
+                
+                .stats-card-modern .card-body {
+                    padding: 1.5rem;
+                }
+                
+                .stats-icon {
+                    width: 40px;
+                    height: 40px;
+                    font-size: 1.25rem;
+                }
+                
+                .stats-content {
+                    margin-right: 60px;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .bg-gradient-primary .card-body {
+                    padding: 1.5rem;
+                }
+                
+                .d-flex.justify-content-between {
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+                
+                .d-flex.gap-3 {
+                    justify-content: center;
+                    width: 100%;
+                }
+                
+                .report-btn-new, .btn-outline-light {
+                    flex: 1;
+                    min-width: 140px;
+                }
+                
+                .stats-card-modern .card-body {
+                    padding: 1.25rem;
+                }
+                
+                .stats-icon {
+                    position: relative;
+                    top: auto;
+                    right: auto;
+                    margin-bottom: 1rem;
+                    align-self: flex-start;
+                }
+                
+                .stats-content {
+                    margin-right: 0;
+                }
+                
+                .stats-trend {
+                    position: relative;
+                    bottom: auto;
+                    right: auto;
+                    margin-top: 1rem;
+                }
             }
             
             /* Modern Table Styling */
