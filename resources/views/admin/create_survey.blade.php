@@ -2054,6 +2054,8 @@ body.js-initialized .sbu-card {
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
     border-radius: 6px 6px 0 0;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
 }
 
 .nav-tabs-sm .nav-link.active {

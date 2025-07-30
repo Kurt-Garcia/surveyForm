@@ -65,7 +65,7 @@ class ThemeController extends Controller
                 'required',
                 'string',
                 'max:255',
-                // Theme names must be unique per admin
+                // Theme names must be unique per admin (composite unique constraint)
                 Rule::unique('theme_settings', 'name')->where('admin_id', $admin->id),
             ],
             'primary_color' => 'required|string|max:7',
