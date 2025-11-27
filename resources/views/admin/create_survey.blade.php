@@ -207,7 +207,7 @@
                                 <div class="row g-3">
                                     <div class="col-md-3">
                                         <label for="bulk-question-count" class="form-label fw-bold">{{ __('Number of Questions') }}</label>
-                                        <input type="number" id="bulk-question-count" class="form-control form-control-lg" 
+                                        <input type="text" id="bulk-question-count" class="form-control form-control-lg" 
                                                min="1" max="20" value="5" placeholder="5">
                                         <small class="text-muted">{{ __('1-20 questions') }}</small>
                                     </div>
