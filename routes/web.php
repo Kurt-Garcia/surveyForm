@@ -165,6 +165,8 @@ Route::prefix('admin')->group(function () {
         Route::get('/admins/create', [App\Http\Controllers\Admin\UserManagementController::class, 'create'])->defaults('mode', 'admin')->name('admin.admins.create');
         Route::get('/admins/data', [App\Http\Controllers\Admin\AdminManagementController::class, 'data'])->name('admin.admins.data');
         Route::post('/admins', [App\Http\Controllers\Admin\AdminManagementController::class, 'store'])->name('admin.admins.store');
+        Route::get('/admins/{id}', [App\Http\Controllers\Admin\AdminManagementController::class, 'show'])->name('admin.admins.show');
+        Route::put('/admins/{id}', [App\Http\Controllers\Admin\AdminManagementController::class, 'update'])->name('admin.admins.update');
         Route::get('/check-email-availability', [App\Http\Controllers\Admin\AdminManagementController::class, 'checkEmailAvailability'])->name('admin.check-email-availability');
         Route::get('/check-name-availability', [App\Http\Controllers\Admin\AdminManagementController::class, 'checkNameAvailability'])->name('admin.check-name-availability');
         Route::get('/check-contact-number-availability', [App\Http\Controllers\Admin\AdminManagementController::class, 'checkContactNumberAvailability'])->name('admin.check-contact-number-availability');
@@ -243,6 +245,8 @@ Route::prefix('admin')->group(function () {
         Route::get('/users/create', [\App\Http\Controllers\Admin\UserManagementController::class, 'create'])->defaults('mode', 'user')->name('admin.users.create');
         Route::post('/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('admin.users.store');
         Route::get('/users/data', [\App\Http\Controllers\Admin\UserManagementController::class, 'data'])->name('admin.users.data');
+        Route::get('/users/{id}', [\App\Http\Controllers\Admin\UserManagementController::class, 'show'])->name('admin.users.show');
+        Route::put('/users/{id}', [\App\Http\Controllers\Admin\UserManagementController::class, 'update'])->name('admin.users.update');
         
         // Sites by SBUs route for dynamic loading
         Route::get('/sites/by-sbus', [\App\Http\Controllers\Admin\UserManagementController::class, 'getSitesBySbus'])->name('admin.sites.by-sbus');

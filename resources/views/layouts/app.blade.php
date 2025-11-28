@@ -33,7 +33,25 @@
     
     <!-- Theme Fonts -->
     @if(isset($activeTheme) && $activeTheme)
-    <link href="https://fonts.googleapis.com/css2?family={{ str_replace(' ', '+', $activeTheme->heading_font) }}:wght@400;500;600;700&family={{ str_replace(' ', '+', $activeTheme->body_font) }}:wght@400;500;600&display=swap" rel="stylesheet">
+        @php
+            $systemFonts = ['Arial', 'Helvetica', 'Times New Roman', 'Times', 'Courier New', 'Courier', 'Verdana', 'Georgia', 'Palatino', 'Garamond', 'Bookman', 'Comic Sans MS', 'Trebuchet MS', 'Impact'];
+            $headingFont = $activeTheme->heading_font;
+            $bodyFont = $activeTheme->body_font;
+            $isHeadingSystem = in_array($headingFont, $systemFonts);
+            $isBodySystem = in_array($bodyFont, $systemFonts);
+            
+            $fontFamilies = [];
+            if (!$isHeadingSystem) {
+                $fontFamilies[] = 'family=' . str_replace(' ', '+', $headingFont) . ':wght@400;500;600;700';
+            }
+            if (!$isBodySystem) {
+                $fontFamilies[] = 'family=' . str_replace(' ', '+', $bodyFont) . ':wght@400;500;600';
+            }
+            $googleFontsUrl = !empty($fontFamilies) ? 'https://fonts.googleapis.com/css2?' . implode('&', $fontFamilies) . '&display=swap' : '';
+        @endphp
+        @if($googleFontsUrl)
+            <link href="{{ $googleFontsUrl }}" rel="stylesheet">
+        @endif
     @endif
 
     <!-- jQuery -->

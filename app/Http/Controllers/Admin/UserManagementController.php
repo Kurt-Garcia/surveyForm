@@ -231,4 +231,101 @@ class UserManagementController extends Controller
             'data' => $surveyUsers
         ]);
     }
+
+    // Show a single user for editing
+    public function show($id)
+    {
+        $user = User::with(['sites.sbu', 'sbus'])->findOrFail($id);
+        
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'contact_number' => $user->contact_number,
+            'sites' => $user->sites->map(function ($site) {
+                return [
+                    'id' => $site->id,
+                    'name' => $site->name,
+                    'sbu_name' => $site->sbu->name ?? 'N/A'
+                ];
+            }),
+            'sbus' => $user->sbus->map(function ($sbu) {
+                return [
+                    'id' => $sbu->id,
+                    'name' => $sbu->name
+                ];
+            })
+        ]);
+    }
+
+    // Update an existing user
+    public function update(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Get the logged-in admin's accessible SBU IDs
+        $admin = Auth::guard('admin')->user();
+        $adminSbuIds = DB::table('admin_sbu')
+                        ->where('admin_id', $admin->id)
+                        ->pluck('sbu_id');
+        
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users')->ignore($user->id)
+            ],
+            'contact_number' => [
+                'required',
+                'string',
+                'regex:/^(09\d{9}|\+639\d{9})$/',
+                Rule::unique('users')->ignore($user->id)
+            ],
+            'sbu_ids' => 'required|array',
+            'sbu_ids.*' => 'exists:sbus,id',
+            'site_ids' => 'required|array',
+            'site_ids.*' => 'exists:sites,id',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        // Verify that the selected SBUs are within admin's access
+        $selectedSbuIds = $request->input('sbu_ids');
+        if (!$adminSbuIds->isEmpty()) {
+            $invalidSbus = array_diff($selectedSbuIds, $adminSbuIds->toArray());
+            if (!empty($invalidSbus)) {
+                return redirect()->back()
+                    ->withErrors(['sbu_ids' => 'You can only assign SBUs you have access to.'])
+                    ->withInput();
+            }
+        }
+
+        // Update user details
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
+        $user->contact_number = $request->input('contact_number');
+        
+        // Update password only if provided
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->input('password'));
+        }
+        
+        $user->save();
+
+        // Sync SBUs
+        $user->sbus()->sync($request->input('sbu_ids'));
+
+        // Sync Sites
+        $user->sites()->sync($request->input('site_ids'));
+
+        return redirect()->route('admin.users.create')
+            ->with('success', 'Surveyor updated successfully!');
+    }
 }

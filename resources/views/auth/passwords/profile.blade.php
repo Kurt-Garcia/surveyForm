@@ -20,7 +20,7 @@
         --shadow-hover: 0 15px 35px 0 rgba(31, 38, 135, 0.4);
         --text-primary: #2d3748;
         --text-secondary: #4a5568;
-        --border-radius: 20px;
+        --border-radius: 12px;
     }
 
     body {
@@ -34,7 +34,7 @@
     .profile-container {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 2rem;
+        padding: 1rem;
         min-height: 100vh;
         position: relative;
     }
@@ -60,7 +60,7 @@
 
     .profile-header h1 {
         color: var(--text-primary);
-        font-size: 3rem;
+        font-size: 2.2rem;
         font-weight: 800;
         margin-bottom: 0.5rem;
         text-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -70,7 +70,7 @@
 
     .profile-header p {
         color: var(--text-secondary);
-        font-size: 1.2rem;
+        font-size: 1.05rem;
         font-weight: 400;
         text-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
@@ -78,9 +78,8 @@
     .profile-grid {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
-        grid-template-rows: repeat(6, 1fr);
-        gap: 2rem;
-        min-height: 80vh;
+        gap: 1.2rem;
+        min-height: 75vh;
         position: relative;
         z-index: 1;
     }
@@ -124,7 +123,7 @@
         grid-row: span 4 / span 4;
         background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
         color: white;
-        padding: 2.5rem;
+        padding: 1.6rem;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -168,16 +167,16 @@
     }
 
     .avatar {
-        width: 140px;
-        height: 140px;
+        width: 100px;
+        height: 100px;
         background: #6b7280;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 3.5rem;
+        font-size: 2.5rem;
         font-weight: 800;
-        border: 5px solid rgba(255,255,255,0.4);
+        border: 3px solid rgba(255,255,255,0.4);
         position: relative;
         z-index: 2;
         box-shadow: 0 15px 35px rgba(0,0,0,0.2), inset 0 2px 10px rgba(255,255,255,0.3);
@@ -203,8 +202,8 @@
         position: absolute;
         top: 0;
         left: 0;
-        width: 140px;
-        height: 140px;
+        width: 100px;
+        height: 100px;
         border-radius: 50%;
         background: rgba(0, 0, 0, 0.7);
         display: flex;
@@ -223,7 +222,7 @@
     }
 
     .avatar-upload-overlay i {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         margin-bottom: 0.5rem;
     }
 
@@ -237,7 +236,7 @@
 
 
     .hero-name {
-        font-size: 2.2rem;
+        font-size: 1.7rem;
         font-weight: 800;
         margin-bottom: 1.2rem;
         position: relative;
@@ -252,8 +251,8 @@
     .hero-details {
         display: flex;
         flex-direction: column;
-        gap: 0.8rem;
-        font-size: 0.95rem;
+        gap: 0.7rem;
+        font-size: 0.85rem;
         opacity: 0.95;
         position: relative;
         z-index: 2;
@@ -283,11 +282,11 @@
     .status-badge {
         background: linear-gradient(135deg, var(--secondary-color, #764ba2) 0%, var(--primary-color, #667eea) 100%);
         color: white;
-        padding: 0.8rem 1.5rem;
+        padding: 0.6rem 1rem;
         border-radius: 30px;
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         font-weight: 700;
-        margin-top: 1.5rem;
+        margin-top: 1rem;
         position: relative;
         z-index: 2;
         box-shadow: 0 8px 25px rgba(0,0,0,0.2);
@@ -315,7 +314,7 @@
         grid-row-start: 1;
         grid-column: span 4;
         grid-row: span 2;
-        padding: 1.5rem;
+        padding: 1rem;
     }
 
     .change-password-section {
@@ -323,7 +322,7 @@
         grid-row-start: 3;
         grid-column: span 4;
         grid-row: span 2;
-        padding: 1.5rem;
+        padding: 1rem;
     }
 
     .section-header {
@@ -347,16 +346,16 @@
     }
 
     .section-icon {
-        width: 50px;
-        height: 50px;
+        width: 40px;
+        height: 40px;
         background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
         border-radius: 15px;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
-        margin-right: 1.2rem;
-        font-size: 1.2rem;
+        margin-right: 0.9rem;
+        font-size: 1rem;
         box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
         transition: all 0.3s ease;
     }
@@ -368,14 +367,14 @@
 
     .section-title {
         color: var(--text-primary);
-        font-size: 1.4rem;
+        font-size: 1.1rem;
         font-weight: 800;
         margin: 0;
         text-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .form-group {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
         position: relative;
     }
 
@@ -383,8 +382,8 @@
         display: block;
         color: var(--text-primary);
         font-weight: 700;
-        margin-bottom: 0.8rem;
-        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.8rem;
         text-transform: uppercase;
         letter-spacing: 1px;
         position: relative;
@@ -403,10 +402,10 @@
 
     .form-input {
         width: 100%;
-        padding: 1rem 1.2rem;
+        padding: 0.75rem 0.9rem;
         border: 2px solid #e2e8f0;
-        border-radius: 15px;
-        font-size: 1rem;
+        border-radius: 10px;
+        font-size: 0.9rem;
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         background: rgba(255,255,255,0.9);
         backdrop-filter: blur(10px);
@@ -435,17 +434,17 @@
     .btn-primary {
         background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
         color: white;
-        padding: 1rem 2rem;
+        padding: 0.8rem 1.4rem;
         border: none;
-        border-radius: 15px;
+        border-radius: 10px;
         font-weight: 700;
-        font-size: 0.95rem;
+        font-size: 0.85rem;
         cursor: pointer;
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         text-transform: uppercase;
         letter-spacing: 1px;
         width: 100%;
-        margin-top: 1rem;
+        margin-top: 0.6rem;
         position: relative;
         overflow: hidden;
         box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
@@ -501,12 +500,12 @@
 
     .error-message {
         color: #ef4444;
-        font-size: 0.85rem;
-        margin-top: 0.8rem;
-        padding: 0.8rem 1rem;
+        font-size: 0.75rem;
+        margin-top: 0.7rem;
+        padding: 0.5rem 0.8rem;
         background: rgba(239, 68, 68, 0.1);
         backdrop-filter: blur(10px);
-        border-radius: 12px;
+        border-radius: 8px;
         border: 1px solid rgba(239, 68, 68, 0.2);
         border-left: 4px solid #ef4444;
         font-weight: 600;
@@ -524,10 +523,10 @@
 
 
     .validation-message {
-        font-size: 0.85rem;
-        margin-top: 0.8rem;
-        padding: 0.8rem 1rem;
-        border-radius: 12px;
+        font-size: 0.75rem;
+        margin-top: 0.7rem;
+        padding: 0.5rem 0.8rem;
+        border-radius: 8px;
         font-weight: 600;
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255,255,255,0.2);
@@ -543,13 +542,13 @@
         .profile-grid {
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(5, 1fr);
-            gap: 1.5rem;
+            gap: 1.2rem;
         }
         
         .hero-section {
             grid-column: span 3;
             grid-row: span 1;
-            padding: 2rem;
+            padding: 1.6rem;
         }
         
         .edit-profile-section {

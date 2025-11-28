@@ -19,18 +19,22 @@
         </div>
     </div>
 
-    <div class="row g-4">
-        <!-- Create New {{ $mode === 'admin' ? 'Admin' : 'User' }} Form - Left Side -->
-        <div class="col-lg-3 col-xl-4">
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100">
+    <div class="row">
+        <!-- Only Table Section - Full Width -->
+        <div class="col-12">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
                 <div class="card-header bg-gradient text-white py-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h4 class="mb-0 fw-bold">
-                                <i class="bi bi-plus-circle-fill me-2"></i>Add New {{ $mode === 'admin' ? 'Administrator' : 'Surveyor' }}
-                            </h4>
-                            <p class="mb-0 opacity-90 small mt-1">Create a new {{ $mode === 'admin' ? 'administrator' : 'surveyor' }} account</p>
+                            <h3 class="mb-1">
+                                <i class="bi bi-people-fill me-2"></i>
+                                {{ $mode === 'admin' ? 'Administrators' : 'Surveyors' }} Management
+                            </h3>
+                            <p class="mb-0 small opacity-90">Manage {{ $mode === 'admin' ? 'administrator' : 'surveyor' }} accounts and permissions</p>
                         </div>
+                        <button type="button" class="btn btn-light px-1 py-1" onclick="openUserModal('create')">
+                            <i class="bi bi-plus-circle me-2"></i>Add New {{ $mode === 'admin' ? 'Administrator' : 'Surveyor' }}
+                        </button>
                     </div>
                 </div>
                 <div class="card-body p-4">
@@ -39,10 +43,58 @@
                             <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
                         </div>
                     @endif
+                    <div class="table-responsive">
+                        <table id="usersTable" class="table table-hover modern-table" style="width:100%">
+                            <thead>
+                                <tr>
+                                    @if($mode === 'admin')
+                                        <th>Name</th>
+                                        <th>Account Type</th>
+                                        <th>SBU</th>
+                                        <th>Sites</th>
+                                        <th>Created</th>
+                                    @else
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Contact</th>
+                                        <th>SBU</th>
+                                        <th>Sites</th>
+                                        <th>Created</th>
+                                    @endif
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- DataTables will populate this -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create New {{ $mode === 'admin' ? 'Administrator' : 'Surveyor' }} Modal -->
+<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-gradient text-white">
+                <div>
+                    <h4 class="modal-title mb-1" id="createUserModalLabel">
+                        <i class="bi bi-plus-circle-fill me-2" id="modalIcon"></i><span id="modalTitle">Add New {{ $mode === 'admin' ? 'Administrator' : 'Surveyor' }}</span>
+                    </h4>
+                    <p class="mb-0 opacity-90 small" id="modalSubtitle">Create a new {{ $mode === 'admin' ? 'administrator' : 'surveyor' }} account</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
 
                     <form action="{{ $mode === 'admin' ? route('admin.admins.store') : route('admin.users.store') }}" method="POST" id="userForm" onsubmit="return confirmSubmit(event)">
                         @csrf
                         <input type="hidden" id="form-mode" value="{{ $mode }}">
+                        <input type="hidden" id="modal-mode" value="create">
+                        <input type="hidden" id="edit-user-id" value="">
+                        <input type="hidden" name="_method" id="form-method" value="POST">
                         
                         @if($sbus->count() > 0)
                         <!-- SBU Selection -->
@@ -215,12 +267,6 @@
                         </div>
                         @endif
                         
-                        <!-- Submit Button -->
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg rounded-pill shadow-sm py-3" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); border: none;">
-                                <i class="bi bi-{{ $mode === 'admin' ? 'person-gear' : 'person-plus-fill' }} me-2"></i>Create {{ $mode === 'admin' ? 'Administrator' : 'Surveyor' }} Account
-                            </button>
-                        </div>
                         @else
                         <!-- No SBUs Available Message -->
                         <div class="text-center py-5">
@@ -233,53 +279,17 @@
                         </div>
                         @endif
                     </form>
-                </div>
             </div>
-        </div>
-
-        <!-- Existing {{ $mode === 'admin' ? 'Administrators' : 'Users' }} Table - Right Side -->
-        <div class="col-lg-9 col-xl-8">
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden h-100">
-                <div class="card-header bg-gradient text-white py-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h4 class="mb-0 fw-bold">
-                                <i class="bi bi-{{ $mode === 'admin' ? 'people-fill' : 'people-fill' }} me-2"></i>{{ $mode === 'admin' ? 'Administrators' : 'Survey Users' }}
-                            </h4>
-                            <p class="mb-0 opacity-90 small mt-1">All {{ $mode === 'admin' ? 'administrators' : 'surveyors' }} in the system</p>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <span class="badge bg-light text-dark rounded-pill px-3 py-2">
-                                <i class="bi bi-database-fill me-1"></i><span id="totalUsers">Loading...</span> Total
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table id="usersTable" class="table modern-table table-hover w-100">
-                            <thead>
-                                <tr>
-                                    @if($mode === 'admin')
-                                        <th>Name</th>
-                                        <th>Account Type</th>
-                                        <th>SBU</th>
-                                        <th>Sites</th>
-                                        <th>Created</th>
-                                    @else
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Contact</th>
-                                        <th>SBU</th>
-                                        <th>Sites</th>
-                                        <th>Created</th>
-                                    @endif
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>Cancel
+                </button>
+                <button type="button" id="editModeBtn" class="btn btn-warning" style="display: none;">
+                    <i class="bi bi-pencil me-2"></i>Edit
+                </button>
+                <button type="submit" form="userForm" class="btn btn-primary" id="submitBtn">
+                    <i class="bi bi-{{ $mode === 'admin' ? 'person-gear' : 'person-plus-fill' }} me-2"></i><span id="submitBtnText">Create {{ $mode === 'admin' ? 'Administrator' : 'Surveyor' }}</span>
+                </button>
             </div>
         </div>
     </div>
@@ -588,6 +598,67 @@
     .btn-primary:hover {
         transform: translateY(-2px) scale(1.02);
         box-shadow: 0 8px 25px rgba(var(--primary-color-rgb), 0.3) !important;
+    }
+    
+    /* Add New Button Styling */
+    .btn-light.btn-lg {
+        font-weight: 600 !important;
+        transition: all 0.3s ease;
+        border: 2px solid rgba(255,255,255,0.3) !important;
+    }
+    
+    .btn-light.btn-lg:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2) !important;
+        background: rgba(255,255,255,0.95) !important;
+    }
+    
+    /* Create Modal Specific Styles */
+    #createUserModal .modal-content {
+        border-radius: 15px !important;
+    }
+    
+    #createUserModal .modal-header.bg-gradient {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    }
+    
+    #createUserModal .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    
+    #createUserModal .modal-dialog {
+        max-width: 900px;
+    }
+    
+    /* Spinner for loading state */
+    .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+        border-width: 0.15em;
+    }
+    
+    /* Mobile responsive for header button */
+    @media (max-width: 768px) {
+        .card-header .d-flex {
+            flex-direction: column !important;
+            gap: 1rem;
+            align-items: stretch !important;
+        }
+        
+        .card-header .btn-light.btn-lg {
+            width: 100%;
+            text-align: center;
+        }
+        
+        #createUserModal .modal-dialog {
+            margin: 0.5rem;
+            max-width: calc(100vw - 1rem);
+        }
+        
+        #createUserModal .modal-body {
+            max-height: 60vh;
+        }
     }
 
     /* DataTable Modern Styling */
@@ -1324,6 +1395,24 @@ const currentAdminId = @json(auth()->user()->id);
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize DataTables for existing users
     initializeUsersTable();
+    
+    // Check if there are validation errors and open modal automatically
+    @if($errors->any())
+        const createModal = new bootstrap.Modal(document.getElementById('createUserModal'));
+        createModal.show();
+    @endif
+    
+    // Auto-dismiss success alert after 5 seconds
+    const successAlert = document.querySelector('.alert-success');
+    if (successAlert) {
+        setTimeout(function() {
+            successAlert.style.transition = 'opacity 0.5s ease';
+            successAlert.style.opacity = '0';
+            setTimeout(function() {
+                successAlert.remove();
+            }, 500);
+        }, 5000);
+    }
     
     // Name field validation
     const nameField = document.getElementById('name');
@@ -2103,9 +2192,6 @@ function initializeUsersTable() {
             }
         ],
         initComplete: function() {
-            // Update total users count
-            const info = this.api().page.info();
-            document.getElementById('totalUsers').textContent = info.recordsTotal;
             // Style the search input
             $('.dataTables_filter input').addClass('form-control');
             $('.dataTables_filter label').addClass('position-relative');
@@ -2137,7 +2223,7 @@ function initializeUsersTable() {
                     }
                     
                     const rowData = $('#usersTable').DataTable().row(this).data();
-                    showUserDetailsModal(rowData);
+                    openUserModal('view', rowData);
                 });
                 
                 // Add hover effect
@@ -2172,9 +2258,264 @@ function confirmClose() {
     });
 }
 
-// Global variable to store modal instance and DataTable instance
+// Global variables to store modal instances and DataTable instances
 let userDetailsModalInstance = null;
+let createUserModalInstance = null;
 let modalDataTable = null;
+
+// Initialize create user modal and edit button handler
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle Edit button click
+    document.getElementById('editModeBtn').addEventListener('click', function() {
+        const userId = document.getElementById('edit-user-id').value;
+        // Fetch fresh user data and switch to edit mode
+        fetch(`/admin/${'{{ $mode }}' === 'admin' ? 'admins' : 'users'}/${userId}`)
+            .then(response => response.json())
+            .then(userData => {
+                openUserModal('edit', userData);
+            })
+            .catch(error => {
+                console.error('Error fetching user data:', error);
+                alert('Error loading user data for editing');
+            });
+    });
+    
+    const createModalElement = document.getElementById('createUserModal');
+    if (createModalElement) {
+        // Clean up modal on close
+        createModalElement.addEventListener('hidden.bs.modal', function () {
+            // Reset form
+            const form = document.getElementById('userForm');
+            if (form) {
+                form.reset();
+                // Clear validation states
+                document.querySelectorAll('.form-control, .form-select').forEach(field => {
+                    field.classList.remove('is-invalid', 'is-valid');
+                });
+                document.querySelectorAll('.validation-error-message, .invalid-feedback').forEach(msg => {
+                    if (!msg.classList.contains('server-error')) {
+                        msg.remove();
+                    }
+                });
+                // Reset SBU cards
+                document.querySelectorAll('.sbu-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                document.querySelectorAll('.sbu-checkbox').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                // Clear site selection
+                const siteSelect = document.getElementById('site_ids');
+                if (siteSelect) {
+                    siteSelect.innerHTML = '<option disabled>Please select SBUs first...</option>';
+                }
+            }
+            
+            // Ensure body classes and styles are cleaned up
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+            $('body').css('overflow', '');
+        });
+        
+        // Reinitialize form validations when modal opens
+        createModalElement.addEventListener('shown.bs.modal', function () {
+            // Restore SBU selections if there were validation errors
+            document.querySelectorAll('.sbu-checkbox:checked').forEach(checkbox => {
+                const card = checkbox.closest('.sbu-card');
+                if (card) {
+                    card.classList.add('selected');
+                }
+            });
+            
+            // Initialize or reinitialize Select2 for sites dropdown
+            const siteSelect = document.getElementById('site_ids');
+            const $siteSelect = jQuery(siteSelect);
+            
+            // Destroy existing Select2 if it exists
+            if ($siteSelect.hasClass('select2-hidden-accessible')) {
+                $siteSelect.select2('destroy');
+            }
+            
+            // Initialize Select2
+            $siteSelect.select2({
+                placeholder: 'Select sites...',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('#createUserModal')
+            });
+            
+            // Update site options if SBUs are already selected
+            const selectedSbus = document.querySelectorAll('.sbu-checkbox:checked');
+            if (selectedSbus.length > 0) {
+                updateSiteOptions();
+            }
+        });
+    }
+});
+
+// Function to open user modal in different modes (create, view, edit)
+function openUserModal(mode = 'create', userData = null) {
+    const modal = document.getElementById('createUserModal');
+    const form = document.getElementById('userForm');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalSubtitle = document.getElementById('modalSubtitle');
+    const modalIcon = document.getElementById('modalIcon');
+    const editBtn = document.getElementById('editModeBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitBtnText = document.getElementById('submitBtnText');
+    const modeInput = document.getElementById('modal-mode');
+    const userIdInput = document.getElementById('edit-user-id');
+    const formMethod = document.getElementById('form-method');
+    
+    const entityType = '{{ $mode }}' === 'admin' ? 'Administrator' : 'Surveyor';
+    
+    // Reset form
+    form.reset();
+    document.querySelectorAll('.form-control, .form-select').forEach(field => {
+        field.classList.remove('is-invalid', 'is-valid');
+        field.disabled = false;
+    });
+    document.querySelectorAll('.sbu-card').forEach(card => {
+        card.classList.remove('selected');
+        card.style.pointerEvents = 'auto';
+    });
+    document.querySelectorAll('.sbu-checkbox').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    
+    modeInput.value = mode;
+    
+    if (mode === 'create') {
+        // Create mode
+        modalIcon.className = 'bi bi-plus-circle-fill me-2';
+        modalTitle.textContent = `Add New ${entityType}`;
+        modalSubtitle.textContent = `Create a new ${entityType.toLowerCase()} account`;
+        editBtn.style.display = 'none';
+        submitBtn.style.display = 'inline-block';
+        submitBtnText.textContent = `Create ${entityType}`;
+        submitBtn.querySelector('i').className = '{{ $mode }}' === 'admin' ? 'bi bi-person-gear me-2' : 'bi bi-person-plus-fill me-2';
+        form.action = '{{ $mode }}' === 'admin' ? '{{ route("admin.admins.store") }}' : '{{ route("admin.users.store") }}';
+        formMethod.value = 'POST';
+        userIdInput.value = '';
+        
+        // Enable password fields
+        document.getElementById('password').required = true;
+        document.getElementById('password_confirmation').required = true;
+        document.getElementById('password').closest('.col-md-6').style.display = 'block';
+        document.getElementById('password_confirmation').closest('.col-md-6').style.display = 'block';
+        
+        // Enable site selection buttons in create mode
+        const selectAllBtn = document.getElementById('selectAllSites');
+        const deselectAllBtn = document.getElementById('deselectAllSites');
+        selectAllBtn.disabled = false;
+        deselectAllBtn.disabled = false;
+        selectAllBtn.style.pointerEvents = 'auto';
+        deselectAllBtn.style.pointerEvents = 'auto';
+        selectAllBtn.style.opacity = '1';
+        deselectAllBtn.style.opacity = '1';
+        
+    } else if (mode === 'view' || mode === 'edit') {
+        // View/Edit mode - populate with user data
+        modalIcon.className = 'bi bi-person-circle me-2';
+        modalTitle.textContent = `${entityType} Details`;
+        modalSubtitle.textContent = mode === 'view' ? `Viewing ${entityType.toLowerCase()} information` : `Editing ${entityType.toLowerCase()} information`;
+        
+        if (mode === 'view') {
+            editBtn.style.display = 'inline-block';
+            submitBtn.style.display = 'none';
+            // Disable all form fields
+            document.querySelectorAll('.form-control, .form-select').forEach(field => {
+                field.disabled = true;
+            });
+            document.querySelectorAll('.sbu-card').forEach(card => {
+                card.style.pointerEvents = 'none';
+            });
+            const selectAllBtn = document.getElementById('selectAllSites');
+            const deselectAllBtn = document.getElementById('deselectAllSites');
+            selectAllBtn.disabled = true;
+            deselectAllBtn.disabled = true;
+            selectAllBtn.style.pointerEvents = 'none';
+            deselectAllBtn.style.pointerEvents = 'none';
+            selectAllBtn.style.opacity = '0.5';
+            deselectAllBtn.style.opacity = '0.5';
+        } else {
+            editBtn.style.display = 'none';
+            submitBtn.style.display = 'inline-block';
+            submitBtnText.textContent = `Update ${entityType}`;
+            submitBtn.querySelector('i').className = 'bi bi-check-circle me-2';
+            form.action = '{{ $mode }}' === 'admin' ? `/admin/admins/${userData.id}` : `/admin/users/${userData.id}`;
+            formMethod.value = 'PUT';
+            // Enable site selection buttons in edit mode
+            const selectAllBtn = document.getElementById('selectAllSites');
+            const deselectAllBtn = document.getElementById('deselectAllSites');
+            selectAllBtn.disabled = false;
+            deselectAllBtn.disabled = false;
+            selectAllBtn.style.pointerEvents = 'auto';
+            deselectAllBtn.style.pointerEvents = 'auto';
+            selectAllBtn.style.opacity = '1';
+            deselectAllBtn.style.opacity = '1';
+        }
+        
+        userIdInput.value = userData.id;
+        
+        // Populate form with user data
+        document.getElementById('name').value = userData.name || '';
+        document.getElementById('email').value = userData.email || '';
+        document.getElementById('contact_number').value = userData.contact_number || '';
+        
+        // Hide password fields for editing (optional: can be shown later for password change)
+        document.getElementById('password').required = false;
+        document.getElementById('password_confirmation').required = false;
+        document.getElementById('password').closest('.col-md-6').style.display = 'none';
+        document.getElementById('password_confirmation').closest('.col-md-6').style.display = 'none';
+        
+        // Check SBUs
+        if (userData.sbus) {
+            userData.sbus.forEach(sbu => {
+                const checkbox = document.getElementById('sbu_' + sbu.id);
+                if (checkbox) {
+                    checkbox.checked = true;
+                    checkbox.closest('.sbu-card').classList.add('selected');
+                }
+            });
+        }
+        
+        // Update sites after SBUs are selected
+        setTimeout(() => {
+            updateSiteOptions();
+            // Select the user's sites after options are loaded
+            setTimeout(() => {
+                if (userData.sites) {
+                    const siteSelect = document.getElementById('site_ids');
+                    userData.sites.forEach(site => {
+                        Array.from(siteSelect.options).forEach(option => {
+                            if (option.value == site.id) {
+                                option.selected = true;
+                            }
+                        });
+                    });
+                    // Trigger Select2 update
+                    $(siteSelect).trigger('change');
+                }
+            }, 500);
+        }, 100);
+        
+        // Handle superadmin toggle for admins
+        if ('{{ $mode }}' === 'admin' && userData.superadmin !== undefined) {
+            const superadminToggle = document.getElementById('is_superadmin');
+            if (superadminToggle) {
+                superadminToggle.checked = userData.superadmin == 1;
+                if (mode === 'view') {
+                    superadminToggle.disabled = true;
+                }
+            }
+        }
+    }
+    
+    // Open modal
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+}
 
 // Function to show user details modal
 function showUserDetailsModal(userData) {
@@ -2531,10 +2872,12 @@ function showUserDetailsModal(userData) {
 function confirmSubmit(event) {
     event.preventDefault();
     
-    // Get the current mode (admin or user)
+    // Get the current mode (admin or user) and modal mode (create or edit)
     const mode = document.getElementById('form-mode')?.value || 'user';
+    const modalMode = document.getElementById('modal-mode')?.value || 'create';
     const entityType = mode === 'admin' ? 'administrator' : 'surveyor';
     const entityTypeCap = mode === 'admin' ? 'Administrator' : 'Surveyor';
+    const actionText = modalMode === 'edit' ? 'Update' : 'Create';
     
     // Helper function to get user-friendly field labels
     function getFieldLabel(fieldName) {
@@ -2554,13 +2897,16 @@ function confirmSubmit(event) {
         field.classList.remove('is-invalid');
     });
     
-    // Check for required field validation
-    const requiredFields = ['name', 'email', 'contact_number', 'password', 'password_confirmation'];
+    // Check for required field validation (skip password fields when editing)
+    let requiredFields = ['name', 'email', 'contact_number'];
+    if (modalMode === 'create') {
+        requiredFields.push('password', 'password_confirmation');
+    }
     let hasEmptyFields = false;
     
     requiredFields.forEach(fieldName => {
         const field = document.getElementById(fieldName);
-        if (field && !field.value.trim()) {
+        if (field && !field.value.trim() && !field.disabled) {
             hasEmptyFields = true;
             
             // Add invalid styling
@@ -2725,10 +3071,12 @@ function confirmSubmit(event) {
                 }).then((finalResult) => {
                     if (finalResult.isConfirmed) {
                         // Show loading state
-                        const submitBtn = document.querySelector('#userForm button[type="submit"]');
-                        const originalText = submitBtn.innerHTML;
-                        submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Creating Super Admin...';
-                        submitBtn.disabled = true;
+                        const submitBtn = document.querySelector('button[type="submit"][form="userForm"]');
+                        if (submitBtn) {
+                            const originalText = submitBtn.innerHTML;
+                            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating Super Admin...';
+                            submitBtn.disabled = true;
+                        }
                         
                         document.getElementById('userForm').submit();
                     }
@@ -2737,21 +3085,28 @@ function confirmSubmit(event) {
         });
     } else {
         // Regular confirmation for non-superadmin accounts
+        const confirmTitle = modalMode === 'edit' ? `Update ${entityTypeCap}?` : `Create New ${entityTypeCap}?`;
+        const confirmText = modalMode === 'edit' ? `Please confirm to update this ${entityType} account!` : `Please confirm to create a new ${entityType} account!`;
+        const confirmBtnText = modalMode === 'edit' ? 'Yes, update it!' : 'Yes, create it!';
+        const loadingText = modalMode === 'edit' ? 'Updating...' : 'Creating...';
+        
         swalWithBootstrapButtons.fire({
-            title: `Create New ${entityTypeCap}?`,
-            text: `Please confirm to create a new ${entityType} account!`,
+            title: confirmTitle,
+            text: confirmText,
             icon: "question",
             showCancelButton: true,
-            confirmButtonText: "Yes, create it!",
+            confirmButtonText: confirmBtnText,
             cancelButtonText: "No, cancel!",
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
                 // Show loading state
-                const submitBtn = document.querySelector('#userForm button[type="submit"]');
-                const originalText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Creating...';
-                submitBtn.disabled = true;
+                const submitBtn = document.querySelector('button[type="submit"][form="userForm"]');
+                if (submitBtn) {
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>${loadingText}`;
+                    submitBtn.disabled = true;
+                }
                 
                 document.getElementById('userForm').submit();
             }
@@ -3079,10 +3434,15 @@ style.textContent = `
     }
 
     /* Enhanced Select2 styling for sites */
+    .sites-selection-container .select2-container {
+        width: 100% !important;
+        display: block !important;
+    }
+    
     .sites-selection-container .select2-container--default .select2-selection--multiple {
         border: 2px solid #e9ecef;
         border-radius: 8px;
-        min-height: 120px;
+        min-height: 180px;
         background: white;
         transition: all 0.3s ease;
         width: 100% !important;
@@ -3090,6 +3450,7 @@ style.textContent = `
         box-sizing: border-box !important;
         overflow-x: hidden !important;
         word-wrap: break-word !important;
+        display: block !important;
     }
 
     .sites-selection-container .select2-container--default .select2-selection--multiple:focus-within {

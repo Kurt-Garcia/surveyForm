@@ -369,4 +369,116 @@ class AdminManagementController extends Controller
                 ->with('error', 'An error occurred while creating the admin account: ' . $e->getMessage());
         }
     }
+
+    public function show($id)
+    {
+        $admin = Admin::with(['sites.sbu', 'sbus'])->findOrFail($id);
+        
+        return response()->json([
+            'id' => $admin->id,
+            'name' => $admin->name,
+            'email' => $admin->email,
+            'contact_number' => $admin->contact_number,
+            'superadmin' => $admin->superadmin,
+            'sites' => $admin->sites->map(function ($site) {
+                return [
+                    'id' => $site->id,
+                    'name' => $site->name,
+                    'sbu_id' => $site->sbu_id,
+                    'sbu_name' => $site->sbu ? $site->sbu->name : null
+                ];
+            }),
+            'sbus' => $admin->sbus->map(function ($sbu) {
+                return [
+                    'id' => $sbu->id,
+                    'name' => $sbu->name
+                ];
+            })
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            // Get the admin being updated
+            $admin = Admin::findOrFail($id);
+            
+            // Get the current logged-in admin
+            $currentAdmin = auth('admin')->user();
+            
+            // Validate the request
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:admins,email,' . $id,
+                'contact_number' => [
+                    'required',
+                    'string',
+                    function ($attribute, $value, $fail) {
+                        if (str_starts_with($value, '+639')) {
+                            if (strlen($value) !== 13 || !preg_match('/^\+639\d{9}$/', $value)) {
+                                $fail('The contact number must be exactly 13 characters and start with +639 followed by 9 digits.');
+                            }
+                        } elseif (str_starts_with($value, '09')) {
+                            if (strlen($value) !== 11 || !preg_match('/^09\d{9}$/', $value)) {
+                                $fail('The contact number must be exactly 11 characters and start with 09 followed by 9 digits.');
+                            }
+                        } else {
+                            $fail('The contact number must start with either +639 or 09.');
+                        }
+                    },
+                ],
+                'sbu_ids' => 'required|array|min:1',
+                'sbu_ids.*' => 'exists:sbus,id',
+                'site_ids' => 'required|array|min:1',
+                'site_ids.*' => 'exists:sites,id',
+            ]);
+            
+            // Verify the logged-in admin has access to the selected SBUs
+            $requestedSbuIds = $request->sbu_ids;
+            $adminSbuIds = $currentAdmin->sbus->pluck('id')->toArray();
+            
+            if (!$currentAdmin->superadmin) {
+                $unauthorizedSbus = array_diff($requestedSbuIds, $adminSbuIds);
+                if (!empty($unauthorizedSbus)) {
+                    return redirect()->back()
+                        ->with('error', 'You do not have access to one or more selected SBUs.')
+                        ->withInput();
+                }
+            }
+            
+            // Format the contact number
+            $contactNumber = $request->contact_number;
+            if (str_starts_with($contactNumber, '09') && strlen($contactNumber) === 11) {
+                $contactNumber = '+63' . substr($contactNumber, 1);
+            }
+            
+            // Determine if the admin should be a superadmin
+            $isSuperAdmin = false;
+            if ($currentAdmin->superadmin && $request->has('is_superadmin') && $request->is_superadmin) {
+                $isSuperAdmin = true;
+            }
+            
+            // Update the admin details
+            $admin->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'contact_number' => $contactNumber,
+                'superadmin' => $isSuperAdmin,
+            ]);
+            
+            // Sync the SBUs and sites
+            $admin->sbus()->sync($request->sbu_ids);
+            $admin->sites()->sync($request->site_ids);
+            
+            $adminType = $isSuperAdmin ? 'Super Admin' : 'Admin';
+            return redirect()->route('admin.admins.create')
+                ->with('success', $adminType . ' account updated successfully with access to ' . count($request->sbu_ids) . ' SBU(s) and ' . count($request->site_ids) . ' site(s)!');
+                
+        } catch (ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator)->withInput();
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()
+                ->with('error', 'An error occurred while updating the admin account: ' . $e->getMessage());
+        }
+    }
 }
